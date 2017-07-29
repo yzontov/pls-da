@@ -1,2 +1,2 @@
-# pls-da
-Implementation of the Hard and Soft PLS-DA for MATLAB
+# Implementation of the Hard and Soft PLS-DA for MATLAB
+Work in progress
