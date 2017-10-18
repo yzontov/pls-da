@@ -42,7 +42,7 @@ classdef DataSet < handle
         
         function fig = line(self, axes)
             
-            if isempty(self.Variables);
+            if isempty(self.Variables)
                 x = 1:size(self.ProcessedData,2);
             else
                 x = self.Variables;

@@ -372,11 +372,11 @@ classdef  DataTab < BasicTab
             
             switch d.PlotType
                 case 1 %scatter
-                    ttab.data_plot = d.scatter(ha2d, var1, var2);
+                    ttab.data_plot = d.scatter(ttab.data_plot_axes, var1, var2);
                 case 2 %line
-                    ttab.data_plot = d.line_plot(ha2d);
+                    ttab.data_plot = d.line(ttab.data_plot_axes);
                 case 3 %histogram
-                    ttab.data_plot = d.histogram(ha2d, var1);
+                    ttab.data_plot = d.histogram(ttab.data_plot_axes, var1);
                     
             end
             
