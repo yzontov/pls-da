@@ -444,7 +444,7 @@ classdef  GUIWindow<handle
             % Could use textwrap, which comes with MATLAB, instead of linewrap. This would just take a
             % bit more shuffling around with the order I create and size things.
             if ~isempty(intro)
-                intro = linewrap(intro,componentWidth);
+                intro = GUIWindow.linewrap(intro,componentWidth);
                 introHeight = length(intro);    % Intro is now an Nx1 cell string
             else
                 introHeight = 0;
@@ -474,7 +474,13 @@ classdef  GUIWindow<handle
             
             for ii=nPrompts:-1:1
                 uicontrol('Parent',hFig,'Style','text',     'Units','char','Position',textpos, 'String',prompts{ii},'HorizontalAlignment','left');
-                hPopup(ii) = uicontrol('Parent',hFig,'Style','popupmenu','Units','char','Position',popuppos,'String',validVariablesDisplay{ii},'UserData',validVariables{ii});
+                                
+                %YZ
+                if ~isempty(types) && strcmp(types{ii}, 'textedit')
+                    hPopup(ii) = uicontrol('Parent',hFig,'Style','edit','Units','char','Position',popuppos,'String','');
+                else
+                    hPopup(ii) = uicontrol('Parent',hFig,'Style','popupmenu','Units','char','Position',popuppos,'String',validVariablesDisplay{ii},'UserData',validVariables{ii});
+                end
                 
                 % Set up positions for next go round
                 popuppos(2) = popuppos(2) + 1.5*voffset + 2*componentHeight;
@@ -508,6 +514,7 @@ classdef  GUIWindow<handle
                     for ind=1:nPrompts
                         str = get(hPopup(ind),'UserData');  % Store real variable name here
                         val = get(hPopup(ind),'Value')-1;   % Remove offset to account for '(select one)' as initial entry
+                        txt = get(hPopup(ind),'String'); %YZ
                         
                         if val==0 % User didn't select anything
                             varout{ind} = [];
@@ -516,8 +523,13 @@ classdef  GUIWindow<handle
                             varout{ind} = [];
                             varoutnames{ind} = '';
                         else
-                            varout{ind} = evalin('base',str{val});
-                            varoutnames{ind} = str{val}; % store name of selected workspace variable
+                            if ~ischar(txt)%YZ
+                                varout{ind} = evalin('base',str{val});
+                                varoutnames{ind} = str{val}; % store name of selected workspace variable
+                            else
+                                varout{ind} = txt;%YZ
+                                varoutnames{ind} = 'DataSetName'; 
+                            end
                         end
                         
                         

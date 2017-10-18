@@ -1,14 +1,20 @@
-classdef Data < handle
-    %Data class
-    %   Detailed explanation goes here
+classdef DataSet < handle
+    %DataSet class
     
     properties
+        Name;
         RawData;
-        Labels;
+        ObjectNames;
+        Classes;
+        Variables;
+        VariableNames;
+        ClassLabels;
         
         Centering = false;
         Scaling = false;
+        
         Training = false;
+        Validation = false;
         
         PlotType = 2;
         
@@ -28,19 +34,69 @@ classdef Data < handle
     
     methods
         
+        function fig = scatter(self, axes, var1, var2)
+            
+            fig = scatter(axes, self.ProcessedData(:,var1),self.ProcessedData(:,var2));
+            
+        end
+        
+        function fig = line(self, axes)
+            
+            if isempty(self.Variables);
+                x = 1:size(self.ProcessedData,2);
+            else
+                x = self.Variables;
+            end
+            y = self.ProcessedData;
+            
+            fig = plot(axes, x,y);
+            
+        end
+        
+        function fig = histogram(self, axes, var1)
+            
+            fig = histogram(axes, self.ProcessedData(:, var1));
+            
+        end
+        
         function value = Description(self)
             %Mean get/set
             
-            if(~isempty(self.Labels))
-                labels_s = ' - has labels';
+            if(~isempty(self.ObjectNames))
+                objnames_s = ' - [obj.names]';
+            else
+                objnames_s = '';
+            end
+            
+            if(~isempty(self.VariableNames))
+                varnames_s = ' - [var.names]';
+            else
+                varnames_s = '';
+            end
+            
+            if(~isempty(self.ClassLabels))
+                labels_s = ' - [cls.labels]';
             else
                 labels_s = '';
             end
             
+            if(~isempty(self.Classes))
+                cls_s = ' - [clases]';
+            else
+                cls_s = '';
+            end
+            
             if(self.Training)
                 training_s = ' - training set';
+                if(self.Validation)
+                    training_s = ' - training & validation set';
+                end
             else
-                training_s = '';
+                if(self.Validation)
+                    training_s = ' - validation set';
+                else
+                    training_s = '';
+                end
             end
             
             
@@ -57,7 +113,8 @@ classdef Data < handle
                 end
             end
             
-            value = sprintf('[%d x %d]%s%s%s', size(self.ProcessedData, 1), size(self.ProcessedData, 2), training_s, preprocess_s, labels_s);
+            value = sprintf('[%d x %d]%s%s%s%s%s%s', size(self.ProcessedData, 1), ...
+                size(self.ProcessedData, 2), cls_s, training_s, preprocess_s, labels_s, objnames_s, varnames_s);
         end
         
         function value = get.Mean(self)
@@ -77,6 +134,8 @@ classdef Data < handle
             
             value = self.Data_;
         end
+        
+        
         
         function set.RawData(self,value)
             %RawData get/set
