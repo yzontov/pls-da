@@ -17,6 +17,8 @@ classdef  DataTab < BasicTab
         ddlPlotVar1;
         ddlPlotVar2;
         chkPlotShowClasses;
+        chkPlotShowObjectNames
+        
         chkCentering;
         chkScaling;
     end
@@ -56,16 +58,18 @@ classdef  DataTab < BasicTab
             
             ttab.chkPlotShowClasses = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'checkbox', 'String', 'Show classes',...
                 'Units', 'normalized','Position', [0.05 0.75 0.85 0.05], 'callback', @DataTab.Input_ShowClasses);
+             ttab.chkPlotShowObjectNames = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'checkbox', 'String', 'Show classes',...
+                'Units', 'normalized','Position', [0.05 0.65 0.85 0.05], 'callback', @DataTab.Input_ShowObjectNames);
             
             uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'X-axis', ...
-                'Units', 'normalized','Position', [0.05 0.65 0.35 0.05], 'HorizontalAlignment', 'left');
+                'Units', 'normalized','Position', [0.05 0.55 0.35 0.05], 'HorizontalAlignment', 'left');
             ttab.ddlPlotVar1 = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu', 'String', {'-'},...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.65 0.35 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Input_PlotVar);
+                'Units', 'normalized','Value',1, 'Position', [0.45 0.55 0.35 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Input_PlotVar);
             
             uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'Y-axis', ...
-                'Units', 'normalized','Position', [0.05 0.55 0.35 0.05], 'HorizontalAlignment', 'left');
+                'Units', 'normalized','Position', [0.05 0.45 0.35 0.05], 'HorizontalAlignment', 'left');
             ttab.ddlPlotVar2 = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu', 'String', {'-'},...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.55 0.35 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Input_PlotVar);
+                'Units', 'normalized','Value',1, 'Position', [0.45 0.45 0.35 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Input_PlotVar);
 
             
             %             uicontrol('Parent', ttab.left_panel, 'Style', 'pushbutton', 'String', 'Labels',...
@@ -390,11 +394,13 @@ classdef  DataTab < BasicTab
             d = ttab.Data.(selected_name);
             
             var1 = get(ttab.ddlPlotVar1, 'Value');
-            var2 = get(ttab.ddlPlotVar2, 'Value');;
+            var2 = get(ttab.ddlPlotVar2, 'Value');
+            showObjectNames = get(ttab.chkPlotShowObjectNames, 'Value');
+            showClasses = get(ttab.chkPlotShowClasses, 'Value');
             
             switch d.PlotType
                 case 1 %scatter
-                    ttab.data_plot = d.scatter(ttab.data_plot_axes, var1, var2);
+                    ttab.data_plot = d.scatter(ttab.data_plot_axes, var1, var2, showClasses, showObjectNames);
                 case 2 %line
                     ttab.data_plot = d.line(ttab.data_plot_axes);
                 case 3 %histogram

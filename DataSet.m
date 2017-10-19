@@ -34,9 +34,29 @@ classdef DataSet < handle
     
     methods
         
-        function fig = scatter(self, axes, var1, var2)
+        function fig = scatter(self, axes, var1, var2, showClasses, showObjectNames)
             
             fig = scatter(axes, self.ProcessedData(:,var1),self.ProcessedData(:,var2));
+            
+            if(showObjectNames)
+                labels = strread(num2str(1:size(self.ProcessedData, 1)),'%s');
+                if(~isempty(self.ObjectNames))
+                    labels = self.ObjectNames;
+                end
+                
+                dx = 0.01; dy = 0.01; % displacement so the text does not overlay the data points
+                text(axes, self.ProcessedData(:,var1)+dx, self.ProcessedData(:,var2)+dy, labels, 'Interpreter', 'none');
+            end
+            
+            if(showClasses)
+                labels = strread(num2str(1:size(self.Classes, 1)),'%s');
+                if(~isempty(self.ClassLabels))
+                    labels = self.ClassLabels;
+                end
+                
+                dx = 0.01; dy = -0.02; % displacement so the text does not overlay the data points
+                text(axes, sD+dx, oD+dy, labels, 'Interpreter', 'none');
+            end
             
         end
         

@@ -342,7 +342,7 @@ for idx = 1:class_number
     if color_idx > n_colors
         color_idx = 1;
         mark_idx = mark_idx + 1;
-        if mark_idx > n_marks;
+        if mark_idx > n_marks
             error('Too many classes');
         end
     end
