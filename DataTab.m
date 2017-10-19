@@ -59,13 +59,13 @@ classdef  DataTab < BasicTab
             
             uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'X-axis', ...
                 'Units', 'normalized','Position', [0.05 0.65 0.35 0.05], 'HorizontalAlignment', 'left');
-            ttab.ddlPlotVar1 = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu', 'String', {'scatter', 'line plot', 'histogram'},...
-                'Units', 'normalized','Value',2, 'Position', [0.45 0.65 0.35 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Input_PlotVar1);
+            ttab.ddlPlotVar1 = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu', 'String', {'-'},...
+                'Units', 'normalized','Value',1, 'Position', [0.45 0.65 0.35 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Input_PlotVar);
             
             uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'Y-axis', ...
                 'Units', 'normalized','Position', [0.05 0.55 0.35 0.05], 'HorizontalAlignment', 'left');
-            ttab.ddlPlotVar2 = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu', 'String', {'scatter', 'line plot', 'histogram'},...
-                'Units', 'normalized','Value',2, 'Position', [0.45 0.55 0.35 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Input_PlotVar2);
+            ttab.ddlPlotVar2 = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu', 'String', {'-'},...
+                'Units', 'normalized','Value',1, 'Position', [0.45 0.55 0.35 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Input_PlotVar);
 
             
             %             uicontrol('Parent', ttab.left_panel, 'Style', 'pushbutton', 'String', 'Labels',...
@@ -95,6 +95,23 @@ classdef  DataTab < BasicTab
     end
     
     methods (Static)
+        
+        function Input_PlotVar(obj, ~)
+            val = get(obj,'Value');
+            if ~isempty(val) && ~isnan(val)
+                data = guidata(obj);
+                ttab = data.datatab;
+                
+                index_selected = get(ttab.listbox,'Value');
+                names = fieldnames(ttab.Data);
+                selected_name = names{index_selected};
+                
+                ttab = DataTab.drawPlot(ttab, selected_name);
+                
+                data.datatab = ttab;
+                guidata(obj, data);
+            end
+        end
         
         function Input_PlotType(obj, ~)
             val = get(obj,'Value');
@@ -334,6 +351,14 @@ classdef  DataTab < BasicTab
                     set(ttab.lbox_mnu_val, 'Checked', 'off');
                 end
                 
+                if(isempty(d.VariableNames))
+                    names = arrayfun(@(x) sprintf('%d', x), 1:size(d.ProcessedData, 2), 'UniformOutput', false);
+                else
+                    names = d.VariableNames;
+                end
+                set(ttab.ddlPlotVar1, 'String', names);
+                set(ttab.ddlPlotVar2, 'String', names);
+                
                 ttab = DataTab.fillRightPanel(ttab);
                 
                 ttab = DataTab.drawPlot(ttab, selected_name);
@@ -364,11 +389,8 @@ classdef  DataTab < BasicTab
             
             d = ttab.Data.(selected_name);
             
-            x = 1:size(d.ProcessedData,2);
-            y = d.ProcessedData;
-            
-            var1 = 1;
-            var2 = 2;
+            var1 = get(ttab.ddlPlotVar1, 'Value');
+            var2 = get(ttab.ddlPlotVar2, 'Value');;
             
             switch d.PlotType
                 case 1 %scatter
