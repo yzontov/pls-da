@@ -55,7 +55,7 @@ classdef DataSet < handle
                 end
                 
                 dx = 0.01; dy = -0.02; % displacement so the text does not overlay the data points
-                text(axes, sD+dx, oD+dy, labels, 'Interpreter', 'none');
+                text(axes, self.ProcessedData(:,var1)+dx, self.ProcessedData(:,var2)+dy, labels, 'Interpreter', 'none');
             end
             
         end
