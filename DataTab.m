@@ -400,7 +400,7 @@ classdef  DataTab < BasicTab
             
             set(ttab.chkCentering, 'Value', d.Centering);
             set(ttab.chkScaling, 'Value', d.Scaling);
-            set(ttab.ddlPlotType, 'Value', d.PlotType);
+            %set(ttab.ddlPlotType, 'Value', d.PlotType);
             
             tab = ttab;
         end

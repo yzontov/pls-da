@@ -16,8 +16,6 @@ classdef DataSet < handle
         Training = false;
         Validation = false;
         
-        PlotType = 2;
-        
         Mean;
         Std;
     end
