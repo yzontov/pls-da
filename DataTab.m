@@ -54,22 +54,22 @@ classdef  DataTab < BasicTab
             uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'Type', ...
                 'Units', 'normalized','Position', [0.05 0.85 0.35 0.05], 'HorizontalAlignment', 'left');
             ttab.ddlPlotType = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu', 'String', {'scatter', 'line plot', 'histogram'},...
-                'Units', 'normalized','Value',2, 'Position', [0.45 0.85 0.35 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Input_PlotType);
+                'Units', 'normalized','Value',2, 'Position', [0.45 0.85 0.35 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Redraw);
             
             ttab.chkPlotShowClasses = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'checkbox', 'String', 'Show classes',...
-                'Units', 'normalized','Position', [0.05 0.75 0.85 0.05], 'callback', @DataTab.Input_ShowClasses);
+                'Units', 'normalized','Position', [0.05 0.75 0.85 0.05], 'callback', @DataTab.Redraw);
              ttab.chkPlotShowObjectNames = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'checkbox', 'String', 'Show classes',...
-                'Units', 'normalized','Position', [0.05 0.65 0.85 0.05], 'callback', @DataTab.Input_ShowObjectNames);
+                'Units', 'normalized','Position', [0.05 0.65 0.85 0.05], 'callback', @DataTab.Redraw);
             
             uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'X-axis', ...
                 'Units', 'normalized','Position', [0.05 0.55 0.35 0.05], 'HorizontalAlignment', 'left');
             ttab.ddlPlotVar1 = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu', 'String', {'-'},...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.55 0.35 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Input_PlotVar);
+                'Units', 'normalized','Value',1, 'Position', [0.45 0.55 0.35 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Redraw);
             
             uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'Y-axis', ...
                 'Units', 'normalized','Position', [0.05 0.45 0.35 0.05], 'HorizontalAlignment', 'left');
             ttab.ddlPlotVar2 = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu', 'String', {'-'},...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.45 0.35 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Input_PlotVar);
+                'Units', 'normalized','Value',1, 'Position', [0.45 0.45 0.35 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Redraw);
 
             
             %             uicontrol('Parent', ttab.left_panel, 'Style', 'pushbutton', 'String', 'Labels',...
@@ -100,10 +100,8 @@ classdef  DataTab < BasicTab
     
     methods (Static)
         
-        function Input_PlotVar(obj, ~)
-            val = get(obj,'Value');
-            if ~isempty(val) && ~isnan(val)
-                data = guidata(obj);
+        function Redraw(obj, ~)
+            data = guidata(obj);
                 ttab = data.datatab;
                 
                 index_selected = get(ttab.listbox,'Value');
@@ -114,26 +112,6 @@ classdef  DataTab < BasicTab
                 
                 data.datatab = ttab;
                 guidata(obj, data);
-            end
-        end
-        
-        function Input_PlotType(obj, ~)
-            val = get(obj,'Value');
-            if ~isempty(val) && ~isnan(val)
-                data = guidata(obj);
-                ttab = data.datatab;
-                
-                index_selected = get(ttab.listbox,'Value');
-                names = fieldnames(ttab.Data);
-                selected_name = names{index_selected};
-                
-                ttab.Data.(selected_name).PlotType = val;
-                
-                ttab = DataTab.drawPlot(ttab, selected_name);
-                
-                data.datatab = ttab;
-                guidata(obj, data);
-            end
         end
         
         function Input_Centering(obj, ~)
@@ -397,8 +375,9 @@ classdef  DataTab < BasicTab
             var2 = get(ttab.ddlPlotVar2, 'Value');
             showObjectNames = get(ttab.chkPlotShowObjectNames, 'Value');
             showClasses = get(ttab.chkPlotShowClasses, 'Value');
+            PlotType = get(ttab.ddlPlotType, 'Value');
             
-            switch d.PlotType
+            switch PlotType
                 case 1 %scatter
                     ttab.data_plot = d.scatter(ttab.data_plot_axes, var1, var2, showClasses, showObjectNames);
                 case 2 %line

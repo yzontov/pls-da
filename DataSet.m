@@ -49,7 +49,7 @@ classdef DataSet < handle
             end
             
             if(showClasses)
-                labels = strread(num2str(1:size(self.Classes, 1)),'%s');
+                labels = strread(num2str(self.Classes),'%s');
                 if(~isempty(self.ClassLabels))
                     labels = self.ClassLabels;
                 end
