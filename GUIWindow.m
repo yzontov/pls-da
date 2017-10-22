@@ -33,7 +33,7 @@ classdef  GUIWindow<handle
             
             data.window = win;
             guidata(gcf, data);
-            
+
             if tabs(1)
                 win.dataTab = DataTab(win.tgroup);
             end
@@ -45,7 +45,6 @@ classdef  GUIWindow<handle
             if tabs(3)
                 win.predictTab = BasicTab(win.tgroup, 'Prediction');
             end
-            
             
         end
         

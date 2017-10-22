@@ -6,6 +6,10 @@ classdef  BasicTab
         middle_panel;
         %right_panel;
         statusbar_panel;
+        
+        data_plot_axes;
+        data_plot;
+        
     end
     methods
         
@@ -14,8 +18,8 @@ classdef  BasicTab
             v = version('-release');
             vyear = str2double(v(1:4));
             
-            width = tabgroup.Position(3);
-            height = tabgroup.Position(4);
+%             width = tabgroup.Position(3);
+%             height = tabgroup.Position(4);
             
             if vyear < 2014
                 ttab.tab = uitab('v0', 'Parent', tabgroup, 'Title', title);

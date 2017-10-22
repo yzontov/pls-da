@@ -47,12 +47,12 @@ classdef DataSet < handle
             end
             
             if(showClasses)
-                labels = strread(num2str(self.Classes),'%s');
+                labels = arrayfun(@(x) sprintf('%d',x),self.Classes,'UniformOutput', false);
                 if(~isempty(self.ClassLabels))
                     labels = self.ClassLabels;
                 end
                 
-                dx = 0.01; dy = -0.02; % displacement so the text does not overlay the data points
+                dx = 0.03; dy = -0.03; % displacement so the text does not overlay the data points
                 text(axes, self.ProcessedData(:,var1)+dx, self.ProcessedData(:,var2)+dy, labels, 'Interpreter', 'none');
             end
             
