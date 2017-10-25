@@ -32,6 +32,15 @@ classdef DataSet < handle
     
     methods
         
+        function Y = DummyMatrix(self)
+            
+            class_number = max(self.Classes);
+            Y = zeros(length(self.Classes), class_number);
+            for cl = 1:class_number
+                Y(:,cl) = (self.Classes == cl);  
+            end
+        end
+        
         function fig = scatter(self, axes, var1, var2, showClasses, showObjectNames)
             
             fig = scatter(axes, self.ProcessedData(:,var1),self.ProcessedData(:,var2));

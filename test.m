@@ -5,6 +5,7 @@ clear
 close all
 load juices
 
+X = Data;
 Y = dummy(Classes);
 
 Alpha = 0.05;
@@ -12,12 +13,11 @@ Gamma = 0.01;
 %Gamma = [];
 
 Xnew = [];
-LabelsNew = [];
+ObjectNamesNew = [];
 plsPC = 12;
 
-%plsda(X, Y, Labels, Alpha, Gamma, X, Labels);
 %plsda(plsPC, X, Y(:,1:2), Labels, Alpha, Gamma, Xnew, LabelsNew);
-plsda(plsPC, X, Y, Labels, Alpha, Gamma, Xnew, LabelsNew);
+plsda(plsPC, X, Y, ObjectNames, Alpha, Gamma, Xnew, ObjectNamesNew);
 
 end
 
