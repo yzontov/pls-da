@@ -2,33 +2,33 @@ classdef LDECOMP < handle
     %LDECOMP class
     
     properties
-        Scores;% - матрица (nObj x nComp) со счетами
-        Loadings;% - матрица (nVar x nComp) с нагрузками
-        Q;% - матрица (nObj x nComp) c Q residuals
-        T2;% - матрица (nObj x nComp) c T2 residuals
-        ExpVar;% - вектор (1 x nComp) c explained variance
-        Eigenvalues%; - вектор (1 x nComp) c eigenvalues
+        Scores;% - (nObj x nComp)
+        Loadings;% - (nVar x nComp)
+        Q;% - (nObj x nComp) c Q residuals
+        T2;% - (nObj x nComp) c T2 residuals
+        ExpVar;% - (1 x nComp) c explained variance
+        Eigenvalues%; - (1 x nComp) c eigenvalues
     end
     
     methods
         
-        function obj = LDECOMP(X)% - показывает график со счетами (scatter, bar, line)
+        function obj = LDECOMP(X)
             
         end
         
-        function plotScores(self)% - показывает график со счетами (scatter, bar, line)
+        function plotScores(self, type)% - Scores (scatter, bar, line)
         end
         
-        function plotExpvar(self)% - показывает график со explained variance (bar, line)
+        function plotExpvar(self, type)% - explained variance (bar, line)
         end
         
-        function plotCumExpvar(self)% - показывает график со cumulative explained variance (bar, line)
+        function plotCumExpvar(self, type)% - cumulative explained variance (bar, line)
         end
         
-        function plotResiduals(self)% - показывает график c Q vs T2 residuals
+        function plotResiduals(self)% -  Q vs T2 residuals
         end
         
-        function summary(self)% - показывает суммарную статистику по результатам
+        function summary(self)
         end
     end
     
