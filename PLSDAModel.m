@@ -12,7 +12,7 @@ classdef PLSDAModel < handle
             
         end
         
-        function Result = ApplyToNewData(self, Xnew, ObjectNames)
+        function Result = Apply(self, Xnew, ObjectNames)
             
         end
         
