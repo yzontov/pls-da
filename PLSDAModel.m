@@ -12,6 +12,10 @@ classdef PLSDAModel < handle
             
         end
         
+        function Result = Rebuild(self)
+            
+        end
+        
         function Result = Apply(self, Xnew, ObjectNames)
             
         end
