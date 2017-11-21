@@ -317,100 +317,100 @@ classdef  DataTab < BasicTab
         end
         
         function btnNew_Callback(obj, ~)
-            
-            [tvar, ~] = GUIWindow.uigetvariables({'Name of DataSet (string):','Data (matrix):', ...
-                'Classes (vector) - optional:','Object names (cell of string) - optional:', ...
-                'Variables names (cell of string) - optional:','Variables (row-vector) - optional:', ...
-                'Classes labels (cell of string) - optional:'}, ...
-                'InputDimensions',[Inf 2 1 1 1 1 1], ...
-                'Introduction','Input all necessary fields of the DataSet', ...
-                'InputTypes',{'textedit', 'numeric', 'numeric', 'string', 'string', 'numeric', 'string'});
-            if ~isempty(tvar)
-                
-                Name = tvar{1};
-                Data = tvar{2};
-                Classes = tvar{3};
-                ObjNames = tvar{4};
-                VarNames = tvar{5};
-                Variables = tvar{6};
-                ClassLabels = tvar{7};
-                
-                [data_rows,data_cols]=size(Data);
-                [cla_rows,cla_cols]=size(Classes);
-                [objn_rows,objn_cols]=size(ObjNames);
-                [var_rows,var_cols]=size(VarNames);
-                [vars_rows,vars_cols]=size(Variables);
-                [lbl_rows,lbl_cols]=size(ClassLabels);
-                
-                if ~isempty(Name) && ~isempty(Data) %&& ~isempty(Classes)
-                    
-                    d = DataSet();
-                    d.RawData = Data;
-                    d.Name = Name;
-                else
-                    errordlg('You should indicate Name, Data and Classes to create a DataSet!');
-                    return;
-                end
-                
-                if ~isempty(Classes)
-                    if ((cla_rows ~= data_rows) || (cla_rows == data_rows && cla_cols ~= 1))
-                        warndlg(sprintf('Classes should be a [%d x 1] vector of positive integers', data_rows));
-                        return;
-                    end
-                    d.Classes = Classes;
-                end
-                
-                if ~isempty(ObjNames)
-                    if ((data_rows ~= objn_rows) || (data_rows == objn_rows && objn_cols ~= 1))
-                        warndlg(sprintf('ObjectNames should be a [%d x 1] cell array of strings', data_rows));
-                        return;
-                    end
-                    d.ObjectNames = ObjNames;
-                end
-                
-                if ~isempty(VarNames)
-                    if ((data_cols ~= var_rows) || (data_cols == var_rows && var_cols ~= 1))
-                        warndlg(sprintf('VariableNames should be a [%d x 1] cell array of strings', data_cols));
-                        return;
-                    end
-                    d.VariableNames = VarNames;
-                end
-                
-                if ~isempty(Variables)
-                    if ((data_cols ~= vars_cols) || (data_cols == vars_cols && vars_rows ~= 1))
-                        warndlg(sprintf('Variables should be a [1 x %d] numeric vector', data_cols));
-                        return;
-                    end
-                    d.Variables = Variables;
-                end
-                
-                if ~isempty(ClassLabels)
-                    if ((cla_rows ~= lbl_rows) || (cla_rows == lbl_rows && lbl_cols ~= 1))
-                        warndlg(sprintf('ClassLabels should be a [%d x 1] cell array of strings', cla_rows));
-                        return;
-                    end
-                    d.ClassLabels = ClassLabels;
-                end
-                
-                try
-                    assignin('base', Name, d)
-                catch
-                    errordlg('The invalid characters have been replaced. Please use only latin characters, numbers and underscore for the name of DataSet!');
-                    d.Name = Name;
-                    assignin('base',regexprep(Name, '[^a-zA-Z0-9_]', '_'),d);
-                end
-                
-                data = guidata(obj);
-                ttab = data.datatab;
-                
-                ttab.Data.(d.Name) = d;
-                
-                lst = DataTab.redrawListbox(ttab);
-                
-                set(ttab.listbox, 'String', lst);
-                data.datatab = ttab;
-                guidata(obj, data);
-            end
+            win = DataSetWindow();
+%             [tvar, ~] = GUIWindow.uigetvariables({'Name of DataSet (string):','Data (matrix):', ...
+%                 'Classes (vector) - optional:','Object names (cell of string) - optional:', ...
+%                 'Variables names (cell of string) - optional:','Variables (row-vector) - optional:', ...
+%                 'Classes labels (cell of string) - optional:'}, ...
+%                 'InputDimensions',[Inf 2 1 1 1 1 1], ...
+%                 'Introduction','Input all necessary fields of the DataSet', ...
+%                 'InputTypes',{'textedit', 'numeric', 'numeric', 'string', 'string', 'numeric', 'string'});
+%             if ~isempty(tvar)
+%                 
+%                 Name = tvar{1};
+%                 Data = tvar{2};
+%                 Classes = tvar{3};
+%                 ObjNames = tvar{4};
+%                 VarNames = tvar{5};
+%                 Variables = tvar{6};
+%                 ClassLabels = tvar{7};
+%                 
+%                 [data_rows,data_cols]=size(Data);
+%                 [cla_rows,cla_cols]=size(Classes);
+%                 [objn_rows,objn_cols]=size(ObjNames);
+%                 [var_rows,var_cols]=size(VarNames);
+%                 [vars_rows,vars_cols]=size(Variables);
+%                 [lbl_rows,lbl_cols]=size(ClassLabels);
+%                 
+%                 if ~isempty(Name) && ~isempty(Data) %&& ~isempty(Classes)
+%                     
+%                     d = DataSet();
+%                     d.RawData = Data;
+%                     d.Name = Name;
+%                 else
+%                     errordlg('You should indicate Name, Data and Classes to create a DataSet!');
+%                     return;
+%                 end
+%                 
+%                 if ~isempty(Classes)
+%                     if ((cla_rows ~= data_rows) || (cla_rows == data_rows && cla_cols ~= 1))
+%                         warndlg(sprintf('Classes should be a [%d x 1] vector of positive integers', data_rows));
+%                         return;
+%                     end
+%                     d.Classes = Classes;
+%                 end
+%                 
+%                 if ~isempty(ObjNames)
+%                     if ((data_rows ~= objn_rows) || (data_rows == objn_rows && objn_cols ~= 1))
+%                         warndlg(sprintf('ObjectNames should be a [%d x 1] cell array of strings', data_rows));
+%                         return;
+%                     end
+%                     d.ObjectNames = ObjNames;
+%                 end
+%                 
+%                 if ~isempty(VarNames)
+%                     if ((data_cols ~= var_rows) || (data_cols == var_rows && var_cols ~= 1))
+%                         warndlg(sprintf('VariableNames should be a [%d x 1] cell array of strings', data_cols));
+%                         return;
+%                     end
+%                     d.VariableNames = VarNames;
+%                 end
+%                 
+%                 if ~isempty(Variables)
+%                     if ((data_cols ~= vars_cols) || (data_cols == vars_cols && vars_rows ~= 1))
+%                         warndlg(sprintf('Variables should be a [1 x %d] numeric vector', data_cols));
+%                         return;
+%                     end
+%                     d.Variables = Variables;
+%                 end
+%                 
+%                 if ~isempty(ClassLabels)
+%                     if ((cla_rows ~= lbl_rows) || (cla_rows == lbl_rows && lbl_cols ~= 1))
+%                         warndlg(sprintf('ClassLabels should be a [%d x 1] cell array of strings', cla_rows));
+%                         return;
+%                     end
+%                     d.ClassLabels = ClassLabels;
+%                 end
+%                 
+%                 try
+%                     assignin('base', Name, d)
+%                 catch
+%                     errordlg('The invalid characters have been replaced. Please use only latin characters, numbers and underscore for the name of DataSet!');
+%                     d.Name = Name;
+%                     assignin('base',regexprep(Name, '[^a-zA-Z0-9_]', '_'),d);
+%                 end
+%                 
+%                 data = guidata(obj);
+%                 ttab = data.datatab;
+%                 
+%                 ttab.Data.(d.Name) = d;
+%                 
+%                 lst = DataTab.redrawListbox(ttab);
+%                 
+%                 set(ttab.listbox, 'String', lst);
+%                 data.datatab = ttab;
+%                 guidata(obj, data);
+%             end
         end
         
         function lst = redrawListbox(ttab)

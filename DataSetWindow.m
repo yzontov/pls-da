@@ -1,50 +1,35 @@
 classdef  DataSetWindow<handle
     properties
-        dataTab;
-        modelTab;
-        predictTab;
-        tgroup;
+        tbName;
+        ddlData;
+        ddlClasses;
+        ddlObjectNames;
+        ddlVariableNames;
+        ddlVariables;
+        ddlClassLabels;
     end
     methods
         
-        function win = DataSetWindow(tabs)
+        function win = DataSetWindow()
             
-            %get version year
+             %get version year
             v = version('-release');
             vyear = str2double(v(1:4));
             
-            data = struct;
-            
-            %gui
-            f = figure;
-            set(f,'Visible','on');
-            set(f, 'MenuBar', 'none');
-            set(f, 'ToolBar', 'none');
-            set(f,'name','PLS-DA Tool','numbertitle','off');
-            %set(f, 'Resize', 'off');
-            set(f, 'Units', 'Normalized');
-            set(f, 'Position', [0.1 0.1 0.8 0.8]);
-            
             if vyear < 2014
-                win.tgroup = uitabgroup('v0','Parent', f);
+                screensize = get( 0, 'Screensize' );
             else
-                win.tgroup = uitabgroup('Parent', f);
+                screensize = get( groot, 'Screensize' );
             end
             
-            data.window = win;
-            guidata(gcf, data);
-
-            if tabs(1)
-                win.dataTab = DataTab(win.tgroup);
-            end
+            start_screen = figure;
+            set(start_screen,'Visible','on');
+            set(start_screen, 'MenuBar', 'none');
+            set(start_screen, 'ToolBar', 'none');
+            set(start_screen,'name','Create New DataSet','numbertitle','off');
+            set(start_screen, 'Resize', 'off');
+            set(start_screen, 'Position', [screensize(3)/2 - 100 screensize(4)/2 - 100 300 400]);
             
-            if tabs(2)
-                win.modelTab = ModelTab(win.tgroup);
-            end
-            
-            if tabs(3)
-                win.predictTab = BasicTab(win.tgroup, 'Prediction');
-            end
             
         end
         
