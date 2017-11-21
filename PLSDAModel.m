@@ -12,7 +12,7 @@ classdef PLSDAModel < handle
             
         end
         
-        function Result = Rebuild(self)
+        function Rebuild(self)
             
         end
         
