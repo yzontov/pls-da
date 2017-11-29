@@ -8,7 +8,7 @@ classdef PLSDAModel < handle
     
     methods
         
-        function obj = PLSDAModel(numPC, X, Y, ObjectNames, Alpha, Gamma)
+        function obj = PLSDAModel(TraningDataSet, numPC, Alpha, Gamma)
             
         end
         
@@ -16,7 +16,7 @@ classdef PLSDAModel < handle
             
         end
         
-        function Result = Apply(self, Xnew, ObjectNames)
+        function Result = Apply(self, NewDataSet)%Xnew, ObjectNames)
             
         end
         
