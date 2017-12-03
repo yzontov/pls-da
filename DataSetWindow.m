@@ -7,6 +7,14 @@ classdef  DataSetWindow<handle
         ddlVariableNames;
         ddlVariables;
         ddlClassLabels;
+        
+        Name;
+        Data;
+        Classes;
+        ObjectNames;
+        VariableNames;
+        Variables;
+        ClassLabels;
     end
     methods
         
