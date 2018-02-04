@@ -39,7 +39,7 @@ function btnNewModel_Callback(obj, ~)
 
 close(get(obj,'Parent'));
 
-win = GUIWindow([1 0 0]);
+win = GUIWindow([1 1 1]);
 
 
 end

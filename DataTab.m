@@ -34,13 +34,33 @@ classdef  DataTab < BasicTab
                 'Units', 'Normalized', 'Position', [0.51 0.95 0.4 0.05], ...
                 'callback', @DataTab.btnNew_Callback);%,'FontUnits', 'Normalized'
             
-            yourcell=fieldnames(ttab.Data);
-            ttab.listbox = uicontrol('Parent', ttab.left_panel,'Style', 'listbox','Units', 'Normalized', ...
-                'Position', [0.05 0.65 0.9 0.30], ...
-                'string',yourcell,'Callback',@DataTab.listClick);
+            %yourcell=fieldnames(ttab.Data);
+%             ttab.listbox = uicontrol('Parent', ttab.left_panel,'Style', 'listbox','Units', 'Normalized', ...
+%                 'Position', [0.05 0.65 0.9 0.30], ...
+%                 'string',yourcell,'Callback',@DataTab.listClick);
+
+            uicontrol('Parent', ttab.left_panel, 'Style', 'text', 'String', 'DataSet', ...
+                'Units', 'normalized','Position', [0.05 0.75 0.35 0.05], 'HorizontalAlignment', 'left');
+            ttab.listbox = uicontrol('Parent', ttab.left_panel, 'Style', 'popupmenu',...
+                'String', {'-'}, ...
+                'Units', 'normalized','Value',1, 'Position', [0.45 0.75 0.45 0.05], 'BackgroundColor', 'white');
+
+
+            allvars = evalin('base','whos');
+            varnames = {allvars.name};
+            
+            idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
+            
+            if ~isempty(idx)
+                vardisplay = cell(length(idx),1);
+                for i = 1:length(idx)
+                    vardisplay{i} = varnames{idx(i)};
+                end
+                set(ttab.listbox, 'String', vardisplay);
+            end
             
             %preprocessing
-            ttab.pnlDataSettings = uipanel('Parent', ttab.left_panel, 'Title', 'Data','Units', 'normalized', ...
+            ttab.pnlDataSettings = uipanel('Parent', ttab.left_panel, 'Title', 'Preprocessing','Units', 'normalized', ...
                 'Position', [0.05   0.52   0.9  0.12]);
             ttab.chkCentering = uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'checkbox', 'String', 'Centering',...
                 'Units', 'normalized','Position', [0.1 0.45 0.45 0.25], 'callback', @DataTab.Input_Centering);
@@ -87,13 +107,13 @@ classdef  DataTab < BasicTab
             c = uicontextmenu;
             
             % Assign the uicontextmenu to the lisbox
-            ttab.listbox.UIContextMenu = c;
+            %ttab.listbox.UIContextMenu = c;
             
-            % Create child menu items for the uicontextmenu
-            m1 = uimenu(c,'Label','Delete','Callback',@DataTab.listDelete,'Checked','off');
-            ttab.lbox_mnu_train = uimenu(c,'Label','Use for training','Callback',@DataTab.listTraining,'Checked','off');
-            ttab.lbox_mnu_val = uimenu(c,'Label','Use for validation','Callback',@DataTab.listValidation,'Checked','off');
-            
+%             % Create child menu items for the uicontextmenu
+%             m1 = uimenu(c,'Label','Delete','Callback',@DataTab.listDelete,'Checked','off');
+%             ttab.lbox_mnu_train = uimenu(c,'Label','Use for training','Callback',@DataTab.listTraining,'Checked','off');
+%             ttab.lbox_mnu_val = uimenu(c,'Label','Use for validation','Callback',@DataTab.listValidation,'Checked','off');
+%             
             ttab = DataTab.resetRightPanel(ttab);
             ttab = DataTab.enableRightPanel(ttab, 'off');
             

@@ -50,6 +50,21 @@ classdef  ModelTab < BasicTab
             ttab.ddlValidationSet = uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'popupmenu', 'String', {'-'},...
                 'Units', 'normalized','Value',1, 'Position', [0.45 0.25 0.55 0.2], 'BackgroundColor', 'white', 'callback', @ModelTab.SelectValidationSet);
             
+            allvars = evalin('base','whos');
+            varnames = {allvars.name};
+            
+            idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
+            
+            if ~isempty(idx)
+                vardisplay = cell(length(idx),1);
+                for i = 1:length(idx)
+                    vardisplay{i} = varnames{idx(i)};
+                end
+                set(ttab.ddlCalibrationSet, 'String', vardisplay);
+                set(ttab.ddlValidationSet, 'String', vardisplay);
+            end
+            
+            
             %CrossValidation
             ttab.chkCrossValidation = uicontrol('Parent', ttab.pnlCrossValidationSettings, 'Style', 'checkbox', 'String', 'Use cross-validation',...
                 'Units', 'normalized','Position', [0.05 0.7 0.85 0.2], 'callback', @ModelTab.Callback_UseCrossValidation);
