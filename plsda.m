@@ -121,13 +121,23 @@ end
 
 end
 
+function res = combnk2(K)
+res = [];
+
+for i = 1:K
+   for j = i+1:K
+     res = [res;[i j]];
+    end  
+end
+end
+
 function hard_plot(w,v,t0,K,Centers)
 delta = 1.5;
 
 x_min = t0(1) - delta;
 x_max = t0(1) + delta;
 
-class_borders_ind = sortrows(combnk(1:K,2));
+class_borders_ind = sortrows(combnk2(K));%combnk(1:K,2)
 if K > 2
 
 for i = 1:size(class_borders_ind, 1)

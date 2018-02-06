@@ -35,17 +35,17 @@ classdef  DataTab < BasicTab
                 'callback', @DataTab.btnNew_Callback);%,'FontUnits', 'Normalized'
             
             %yourcell=fieldnames(ttab.Data);
-%             ttab.listbox = uicontrol('Parent', ttab.left_panel,'Style', 'listbox','Units', 'Normalized', ...
-%                 'Position', [0.05 0.65 0.9 0.30], ...
-%                 'string',yourcell,'Callback',@DataTab.listClick);
-
+            %             ttab.listbox = uicontrol('Parent', ttab.left_panel,'Style', 'listbox','Units', 'Normalized', ...
+            %                 'Position', [0.05 0.65 0.9 0.30], ...
+            %                 'string',yourcell,'Callback',@DataTab.listClick);
+            
             uicontrol('Parent', ttab.left_panel, 'Style', 'text', 'String', 'DataSet', ...
                 'Units', 'normalized','Position', [0.05 0.75 0.35 0.05], 'HorizontalAlignment', 'left');
             ttab.listbox = uicontrol('Parent', ttab.left_panel, 'Style', 'popupmenu',...
                 'String', {'-'}, ...
                 'Units', 'normalized','Value',1, 'Position', [0.45 0.75 0.45 0.05], 'BackgroundColor', 'white');
-
-
+            
+            
             allvars = evalin('base','whos');
             varnames = {allvars.name};
             
@@ -57,6 +57,39 @@ classdef  DataTab < BasicTab
                     vardisplay{i} = varnames{idx(i)};
                 end
                 set(ttab.listbox, 'String', vardisplay);
+                
+                % extract all children
+                ttab = DataTab.enableRightPanel(ttab, 'on');
+                
+                names = varnames(idx);%fieldnames(ttab.Data);
+                selected_name = names{1};
+                
+                d = ttab.Data.(selected_name);
+                if d.Training
+                    set(ttab.lbox_mnu_train, 'Checked', 'on');
+                else
+                    set(ttab.lbox_mnu_train, 'Checked', 'off');
+                end
+                
+                if d.Validation
+                    set(ttab.lbox_mnu_val, 'Checked', 'on');
+                else
+                    set(ttab.lbox_mnu_val, 'Checked', 'off');
+                end
+                
+                if(isempty(d.VariableNames))
+                    names = arrayfun(@(x) sprintf('%d', x), 1:size(d.ProcessedData, 2), 'UniformOutput', false);
+                else
+                    names = d.VariableNames;
+                end
+                set(ttab.ddlPlotVar1, 'String', names);
+                set(ttab.ddlPlotVar2, 'String', names);
+                
+                ttab = DataTab.resetRightPanel(ttab);
+                ttab = DataTab.fillRightPanel(ttab);
+                
+                ttab = DataTab.drawPlot(ttab, selected_name);
+                
             end
             
             %preprocessing
@@ -109,11 +142,11 @@ classdef  DataTab < BasicTab
             % Assign the uicontextmenu to the lisbox
             %ttab.listbox.UIContextMenu = c;
             
-%             % Create child menu items for the uicontextmenu
-%             m1 = uimenu(c,'Label','Delete','Callback',@DataTab.listDelete,'Checked','off');
-%             ttab.lbox_mnu_train = uimenu(c,'Label','Use for training','Callback',@DataTab.listTraining,'Checked','off');
-%             ttab.lbox_mnu_val = uimenu(c,'Label','Use for validation','Callback',@DataTab.listValidation,'Checked','off');
-%             
+            %             % Create child menu items for the uicontextmenu
+            %             m1 = uimenu(c,'Label','Delete','Callback',@DataTab.listDelete,'Checked','off');
+            %             ttab.lbox_mnu_train = uimenu(c,'Label','Use for training','Callback',@DataTab.listTraining,'Checked','off');
+            %             ttab.lbox_mnu_val = uimenu(c,'Label','Use for validation','Callback',@DataTab.listValidation,'Checked','off');
+            %
             ttab = DataTab.resetRightPanel(ttab);
             ttab = DataTab.enableRightPanel(ttab, 'off');
             
@@ -338,99 +371,99 @@ classdef  DataTab < BasicTab
         
         function btnNew_Callback(obj, ~)
             win = DataSetWindow();
-%             [tvar, ~] = GUIWindow.uigetvariables({'Name of DataSet (string):','Data (matrix):', ...
-%                 'Classes (vector) - optional:','Object names (cell of string) - optional:', ...
-%                 'Variables names (cell of string) - optional:','Variables (row-vector) - optional:', ...
-%                 'Classes labels (cell of string) - optional:'}, ...
-%                 'InputDimensions',[Inf 2 1 1 1 1 1], ...
-%                 'Introduction','Input all necessary fields of the DataSet', ...
-%                 'InputTypes',{'textedit', 'numeric', 'numeric', 'string', 'string', 'numeric', 'string'});
-%             if ~isempty(tvar)
-%                 
-%                 Name = tvar{1};
-%                 Data = tvar{2};
-%                 Classes = tvar{3};
-%                 ObjNames = tvar{4};
-%                 VarNames = tvar{5};
-%                 Variables = tvar{6};
-%                 ClassLabels = tvar{7};
-%                 
-%                 [data_rows,data_cols]=size(Data);
-%                 [cla_rows,cla_cols]=size(Classes);
-%                 [objn_rows,objn_cols]=size(ObjNames);
-%                 [var_rows,var_cols]=size(VarNames);
-%                 [vars_rows,vars_cols]=size(Variables);
-%                 [lbl_rows,lbl_cols]=size(ClassLabels);
-%                 
-%                 if ~isempty(Name) && ~isempty(Data) %&& ~isempty(Classes)
-%                     
-%                     d = DataSet();
-%                     d.RawData = Data;
-%                     d.Name = Name;
-%                 else
-%                     errordlg('You should indicate Name, Data and Classes to create a DataSet!');
-%                     return;
-%                 end
-%                 
-%                 if ~isempty(Classes)
-%                     if ((cla_rows ~= data_rows) || (cla_rows == data_rows && cla_cols ~= 1))
-%                         warndlg(sprintf('Classes should be a [%d x 1] vector of positive integers', data_rows));
-%                         return;
-%                     end
-%                     d.Classes = Classes;
-%                 end
-%                 
-%                 if ~isempty(ObjNames)
-%                     if ((data_rows ~= objn_rows) || (data_rows == objn_rows && objn_cols ~= 1))
-%                         warndlg(sprintf('ObjectNames should be a [%d x 1] cell array of strings', data_rows));
-%                         return;
-%                     end
-%                     d.ObjectNames = ObjNames;
-%                 end
-%                 
-%                 if ~isempty(VarNames)
-%                     if ((data_cols ~= var_rows) || (data_cols == var_rows && var_cols ~= 1))
-%                         warndlg(sprintf('VariableNames should be a [%d x 1] cell array of strings', data_cols));
-%                         return;
-%                     end
-%                     d.VariableNames = VarNames;
-%                 end
-%                 
-%                 if ~isempty(Variables)
-%                     if ((data_cols ~= vars_cols) || (data_cols == vars_cols && vars_rows ~= 1))
-%                         warndlg(sprintf('Variables should be a [1 x %d] numeric vector', data_cols));
-%                         return;
-%                     end
-%                     d.Variables = Variables;
-%                 end
-%                 
-%                 if ~isempty(ClassLabels)
-%                     if ((cla_rows ~= lbl_rows) || (cla_rows == lbl_rows && lbl_cols ~= 1))
-%                         warndlg(sprintf('ClassLabels should be a [%d x 1] cell array of strings', cla_rows));
-%                         return;
-%                     end
-%                     d.ClassLabels = ClassLabels;
-%                 end
-%                 
-%                 try
-%                     assignin('base', Name, d)
-%                 catch
-%                     errordlg('The invalid characters have been replaced. Please use only latin characters, numbers and underscore for the name of DataSet!');
-%                     d.Name = Name;
-%                     assignin('base',regexprep(Name, '[^a-zA-Z0-9_]', '_'),d);
-%                 end
-%                 
-%                 data = guidata(obj);
-%                 ttab = data.datatab;
-%                 
-%                 ttab.Data.(d.Name) = d;
-%                 
-%                 lst = DataTab.redrawListbox(ttab);
-%                 
-%                 set(ttab.listbox, 'String', lst);
-%                 data.datatab = ttab;
-%                 guidata(obj, data);
-%             end
+            %             [tvar, ~] = GUIWindow.uigetvariables({'Name of DataSet (string):','Data (matrix):', ...
+            %                 'Classes (vector) - optional:','Object names (cell of string) - optional:', ...
+            %                 'Variables names (cell of string) - optional:','Variables (row-vector) - optional:', ...
+            %                 'Classes labels (cell of string) - optional:'}, ...
+            %                 'InputDimensions',[Inf 2 1 1 1 1 1], ...
+            %                 'Introduction','Input all necessary fields of the DataSet', ...
+            %                 'InputTypes',{'textedit', 'numeric', 'numeric', 'string', 'string', 'numeric', 'string'});
+            %             if ~isempty(tvar)
+            %
+            %                 Name = tvar{1};
+            %                 Data = tvar{2};
+            %                 Classes = tvar{3};
+            %                 ObjNames = tvar{4};
+            %                 VarNames = tvar{5};
+            %                 Variables = tvar{6};
+            %                 ClassLabels = tvar{7};
+            %
+            %                 [data_rows,data_cols]=size(Data);
+            %                 [cla_rows,cla_cols]=size(Classes);
+            %                 [objn_rows,objn_cols]=size(ObjNames);
+            %                 [var_rows,var_cols]=size(VarNames);
+            %                 [vars_rows,vars_cols]=size(Variables);
+            %                 [lbl_rows,lbl_cols]=size(ClassLabels);
+            %
+            %                 if ~isempty(Name) && ~isempty(Data) %&& ~isempty(Classes)
+            %
+            %                     d = DataSet();
+            %                     d.RawData = Data;
+            %                     d.Name = Name;
+            %                 else
+            %                     errordlg('You should indicate Name, Data and Classes to create a DataSet!');
+            %                     return;
+            %                 end
+            %
+            %                 if ~isempty(Classes)
+            %                     if ((cla_rows ~= data_rows) || (cla_rows == data_rows && cla_cols ~= 1))
+            %                         warndlg(sprintf('Classes should be a [%d x 1] vector of positive integers', data_rows));
+            %                         return;
+            %                     end
+            %                     d.Classes = Classes;
+            %                 end
+            %
+            %                 if ~isempty(ObjNames)
+            %                     if ((data_rows ~= objn_rows) || (data_rows == objn_rows && objn_cols ~= 1))
+            %                         warndlg(sprintf('ObjectNames should be a [%d x 1] cell array of strings', data_rows));
+            %                         return;
+            %                     end
+            %                     d.ObjectNames = ObjNames;
+            %                 end
+            %
+            %                 if ~isempty(VarNames)
+            %                     if ((data_cols ~= var_rows) || (data_cols == var_rows && var_cols ~= 1))
+            %                         warndlg(sprintf('VariableNames should be a [%d x 1] cell array of strings', data_cols));
+            %                         return;
+            %                     end
+            %                     d.VariableNames = VarNames;
+            %                 end
+            %
+            %                 if ~isempty(Variables)
+            %                     if ((data_cols ~= vars_cols) || (data_cols == vars_cols && vars_rows ~= 1))
+            %                         warndlg(sprintf('Variables should be a [1 x %d] numeric vector', data_cols));
+            %                         return;
+            %                     end
+            %                     d.Variables = Variables;
+            %                 end
+            %
+            %                 if ~isempty(ClassLabels)
+            %                     if ((cla_rows ~= lbl_rows) || (cla_rows == lbl_rows && lbl_cols ~= 1))
+            %                         warndlg(sprintf('ClassLabels should be a [%d x 1] cell array of strings', cla_rows));
+            %                         return;
+            %                     end
+            %                     d.ClassLabels = ClassLabels;
+            %                 end
+            %
+            %                 try
+            %                     assignin('base', Name, d)
+            %                 catch
+            %                     errordlg('The invalid characters have been replaced. Please use only latin characters, numbers and underscore for the name of DataSet!');
+            %                     d.Name = Name;
+            %                     assignin('base',regexprep(Name, '[^a-zA-Z0-9_]', '_'),d);
+            %                 end
+            %
+            %                 data = guidata(obj);
+            %                 ttab = data.datatab;
+            %
+            %                 ttab.Data.(d.Name) = d;
+            %
+            %                 lst = DataTab.redrawListbox(ttab);
+            %
+            %                 set(ttab.listbox, 'String', lst);
+            %                 data.datatab = ttab;
+            %                 guidata(obj, data);
+            %             end
         end
         
         function lst = redrawListbox(ttab)
@@ -586,26 +619,26 @@ classdef  DataTab < BasicTab
             
             data.window = win;
             
-                
-                dat = data.datatab.Data;
-                names = fieldnames(dat);
-                mtab = data.modeltab;
-                
-                train_names = names(structfun(@(x) x.Training == true , dat));
-                val_names = names(structfun(@(x) x.Validation == true , dat));
-                
-                if ~isempty(train_names)
-                    set(mtab.ddlCalibrationSet, 'String', train_names);
-                end
-                
-                if ~isempty(val_names)
-                    set(mtab.ddlValidationSet, 'String', val_names);
-                    set(mtab.ddlValidationSet, 'enable', 'on');
-                else
-                    set(mtab.ddlValidationSet, 'enable', 'off');
-                end
-                
-                data.modeltab = mtab;
+            
+            dat = data.datatab.Data;
+            names = fieldnames(dat);
+            mtab = data.modeltab;
+            
+            train_names = names(structfun(@(x) x.Training == true , dat));
+            val_names = names(structfun(@(x) x.Validation == true , dat));
+            
+            if ~isempty(train_names)
+                set(mtab.ddlCalibrationSet, 'String', train_names);
+            end
+            
+            if ~isempty(val_names)
+                set(mtab.ddlValidationSet, 'String', val_names);
+                set(mtab.ddlValidationSet, 'enable', 'on');
+            else
+                set(mtab.ddlValidationSet, 'enable', 'off');
+            end
+            
+            data.modeltab = mtab;
             
             ttab = DataTab.resetRightPanel(ttab);
             ttab = DataTab.enableRightPanel(ttab, 'off');

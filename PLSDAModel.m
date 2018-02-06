@@ -27,6 +27,10 @@ classdef PLSDAModel < handle
         function fig = SoftPLSDAPlot(self)
 
         end
+        
+        function fig = Plot(self)
+
+        end
     end
     
     methods (Access = private)
