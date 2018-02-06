@@ -370,7 +370,9 @@ classdef  DataTab < BasicTab
         end
         
         function btnNew_Callback(obj, ~)
+
             win = DataSetWindow();
+
             %             [tvar, ~] = GUIWindow.uigetvariables({'Name of DataSet (string):','Data (matrix):', ...
             %                 'Classes (vector) - optional:','Object names (cell of string) - optional:', ...
             %                 'Variables names (cell of string) - optional:','Variables (row-vector) - optional:', ...

@@ -16,6 +16,7 @@ classdef  DataSetWindow<handle
         Variables;
         ClassLabels;
     end
+    
     methods
         
         function win = DataSetWindow()
@@ -50,7 +51,7 @@ classdef  DataSetWindow<handle
                 'Units', 'normalized','Position', [0.05 0.75 0.35 0.05], 'HorizontalAlignment', 'left');
             win.ddlData = uicontrol('Parent', input_win, 'Style', 'popupmenu',...
                 'String', {'-'}, ...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.75 0.35 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Callback_PlotType);
+                'Units', 'normalized','Value',1, 'Position', [0.45 0.75 0.35 0.05], 'BackgroundColor', 'white', 'callback', @DataSetWindow.Callback_Data);
             
             allvars = evalin('base','whos');
             varnames = {allvars.name};
@@ -72,7 +73,7 @@ classdef  DataSetWindow<handle
             uicontrol('Parent', input_win, 'Style', 'text', 'String', 'Classes', ...
                 'Units', 'normalized','Position', [0.05 0.65 0.35 0.05], 'HorizontalAlignment', 'left');
             win.ddlClasses = uicontrol('Parent', input_win, 'Style', 'popupmenu', 'String', {'-'}, ...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.65 0.35 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Callback_PlotType);
+                'Units', 'normalized','Value',1, 'Position', [0.45 0.65 0.35 0.05], 'BackgroundColor', 'white');
             
             uicontrol('Parent', input_win, 'Style', 'text', 'String', 'Object names', ...
                 'Units', 'normalized','Position', [0.05 0.55 0.35 0.05], 'HorizontalAlignment', 'left');
@@ -94,20 +95,56 @@ classdef  DataSetWindow<handle
             win.ddlClassLabels = uicontrol('Parent', input_win, 'Style', 'popupmenu', 'String', {'-'},...
                 'Units', 'normalized','Value',1, 'Position', [0.45 0.35 0.35 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Callback_PlotType);
             
-            
-        end
-        
-        function r = type_size_filter(x, k)
-            s = x.size;
-            if isequal(x.class,'double') && s(1) == k(1) && s(2) == k(2)
-                r = true;
-            else
-                r = false;
-            end
-            
+            data = guidata(gcf);
+            data.win = win;
+            guidata(gcf, data);
         end
         
     end
     
+    methods (Static)
+        
+        function r = type_size_filter(x, k, n)
+            s = x.size;
+            if isequal(x.class,'double') && s(n) == k
+                r = true;
+            else
+                r = false;
+            end
+        end
+        
+        
+        function Callback_Data(obj, ~)
+            
+            list = evalin('base','whos');
+            
+            
+            data = guidata(obj);
+            
+            win = data.win;
+            
+            K = get(win.ddlData, 'Value');
+            list = get(win.ddlData, 'String');
+            
+             idx = arrayfun(@(x)DataSetWindow.type_size_filter(x,K(n),n),list);
+            
+            if sum(idx) > 1
+                l = list(idx);
+                vardisplay = cell(length(l),1);
+                for i = 1:length(l)
+                    ss = l{i}.size;
+                    vardisplay{i} = sprintf('%s (%dx%d)',l{i}.name,ss(1),ss(2));
+                end
+                set(win.ddlClasses, 'String', vardisplay);
+            end
+            
+            data.dataset_win = win;
+            guidata(obj, data);
+
+        end
+        
+    end
     
 end
+
+
