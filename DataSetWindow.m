@@ -109,9 +109,9 @@ classdef  DataSetWindow<handle
     
     methods (Static)
         
-        function r = type_size_filter(x, k, n)
+        function r = type_size_filter(x, k, n, k2, n2, t)
             s = x.size;
-            if isequal(x.class,'double') && s(n) == k
+            if isequal(x.class,t) && s(n) == k && (~isempty(k2) && ~isempty(n2) && s(n2) == k2 || isempty(k2) && isempty(n2))
                 r = true;
             else
                 r = false;
@@ -129,19 +129,50 @@ classdef  DataSetWindow<handle
             win = data.win;
             
             K = get(win.ddlData, 'Value');
-            list = get(win.ddlData, 'String');
+            ll = get(win.ddlData, 'String');
+            mm = ll{K};
+            t = evalin('base',mm(1:strfind(mm, ' ')-1));
+            gg = size(t);
+             idx = arrayfun(@(x)DataSetWindow.type_size_filter(x,gg(1),1,[],[],'double'),list);
             
-             idx = arrayfun(@(x)DataSetWindow.type_size_filter(x,K(n),n),list);
-            
-            if sum(idx) > 1
+             vardisplay={};
+            if sum(idx) > 0
                 l = list(idx);
-                vardisplay = cell(length(idx)+1,1);
+                %vardisplay = cell(length(idx)+1,1);
                 vardisplay{1} = '-';
                 for i = 1:length(l)
-                    ss = l{i}.size;
-                    vardisplay{i+1} = sprintf('%s (%dx%d)',l{i}.name,ss(1),ss(2));
+                    ss = l(i).size;
+                    vardisplay{i+1} = sprintf('%s (%dx%d)',l(i).name,ss(1),ss(2));
                 end
                 set(win.ddlClasses, 'String', vardisplay);
+            end
+            
+            idx = arrayfun(@(x)DataSetWindow.type_size_filter(x,gg(1),1,1,2,'cell'),list);
+            
+            vardisplay={};
+            if sum(idx) > 0
+                l = list(idx);
+                %vardisplay = cell(length(idx)+1,1);
+                vardisplay{1} = '-';
+                for i = 1:length(l)
+                    ss = l(i).size;
+                    vardisplay{i+1} = sprintf('%s (%dx%d)',l(i).name,ss(1),ss(2));
+                end
+                set(win.ddlObjectNames, 'String', vardisplay);
+            end
+            
+            idx = arrayfun(@(x)DataSetWindow.type_size_filter(x,gg(2),1,[],[],'cell'),list);
+            
+            vardisplay={};
+            if sum(idx) > 0
+                l = list(idx);
+                %vardisplay = cell(length(idx)+1,1);
+                vardisplay{1} = '-';
+                for i = 1:length(l)
+                    ss = l(i).size;
+                    vardisplay{i+1} = sprintf('%s (%dx%d)',l(i).name,ss(1),ss(2));
+                end
+                set(win.ddlVariableNames, 'String', vardisplay);
             end
             
             data.dataset_win = win;
