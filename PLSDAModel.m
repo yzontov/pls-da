@@ -28,7 +28,7 @@ classdef PLSDAModel < handle
 
         end
         
-        function fig = Plot(self)
+        function fig = Plot(self, pc1, pc2)
 
         end
     end

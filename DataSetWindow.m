@@ -60,10 +60,11 @@ classdef  DataSetWindow<handle
             idx = find(cellfun(@(x)isequal(x,'double'),{allvars.class}));
             
             if ~isempty(idx)
-                vardisplay = cell(length(idx),1);
+                vardisplay = cell(length(idx)+1,1);
+                vardisplay{1} = '-';
                 for i = 1:length(idx)
                     ss = varsizes{idx(i)};
-                    vardisplay{i} = sprintf('%s (%dx%d)',varnames{idx(i)},ss(1),ss(2));
+                    vardisplay{i+1} = sprintf('%s (%dx%d)',varnames{idx(i)},ss(1),ss(2));
                 end
                 set(win.ddlData, 'String', vardisplay);
             end
@@ -102,6 +103,10 @@ classdef  DataSetWindow<handle
         
     end
     
+    events
+        DataUpdated 
+    end
+    
     methods (Static)
         
         function r = type_size_filter(x, k, n)
@@ -130,10 +135,11 @@ classdef  DataSetWindow<handle
             
             if sum(idx) > 1
                 l = list(idx);
-                vardisplay = cell(length(l),1);
+                vardisplay = cell(length(idx)+1,1);
+                vardisplay{1} = '-';
                 for i = 1:length(l)
                     ss = l{i}.size;
-                    vardisplay{i} = sprintf('%s (%dx%d)',l{i}.name,ss(1),ss(2));
+                    vardisplay{i+1} = sprintf('%s (%dx%d)',l{i}.name,ss(1),ss(2));
                 end
                 set(win.ddlClasses, 'String', vardisplay);
             end

@@ -2,10 +2,10 @@ function test2_
 
 
 
-clc
-clear
-close all
-load juices
+% clc
+% clear
+% close all
+% load juices
 
 K = [38,1];
 n = 1;
