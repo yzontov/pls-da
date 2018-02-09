@@ -13,7 +13,7 @@ classdef  DataSetWindow<handle
         Classes;
         ObjectNames;
         VariableNames;
-        Variables;
+        Wavelengths;
         ClassLabels;
     end
     
@@ -42,7 +42,7 @@ classdef  DataSetWindow<handle
             uicontrol('Parent', input_win, 'Style', 'text', 'String', 'Name', ...
                 'Units', 'normalized','Position', [0.05 0.85 0.35 0.05], 'HorizontalAlignment', 'left');
             win.tbName = uicontrol('Parent', input_win, 'Style', 'edit', 'String', '', ...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.85 0.35 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Check_Name);
+                'Units', 'normalized','Value',1, 'Position', [0.35 0.85 0.55 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Check_Name);
             
             
             
@@ -51,7 +51,7 @@ classdef  DataSetWindow<handle
                 'Units', 'normalized','Position', [0.05 0.75 0.35 0.05], 'HorizontalAlignment', 'left');
             win.ddlData = uicontrol('Parent', input_win, 'Style', 'popupmenu',...
                 'String', {'-'}, ...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.75 0.35 0.05], 'BackgroundColor', 'white', 'callback', @DataSetWindow.Callback_Data);
+                'Units', 'normalized','Value',1, 'Position', [0.35 0.75 0.55 0.05], 'BackgroundColor', 'white', 'callback', @DataSetWindow.Callback_Data);
             
             allvars = evalin('base','whos');
             varnames = {allvars.name};
@@ -78,27 +78,30 @@ classdef  DataSetWindow<handle
             uicontrol('Parent', input_win, 'Style', 'text', 'String', 'Classes', ...
                 'Units', 'normalized','Position', [0.05 0.65 0.35 0.05], 'HorizontalAlignment', 'left');
             win.ddlClasses = uicontrol('Parent', input_win, 'Style', 'popupmenu', 'String', {'-'}, ...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.65 0.35 0.05], 'BackgroundColor', 'white', 'callback', @DataSetWindow.Callback_Classes);
+                'Units', 'normalized','Value',1, 'Position', [0.35 0.65 0.55 0.05], 'BackgroundColor', 'white', 'callback', @DataSetWindow.Callback_Classes);
             
             uicontrol('Parent', input_win, 'Style', 'text', 'String', 'Object names', ...
                 'Units', 'normalized','Position', [0.05 0.55 0.35 0.05], 'HorizontalAlignment', 'left');
             win.ddlObjectNames = uicontrol('Parent', input_win, 'Style', 'popupmenu', 'String', {'-'}, ...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.55 0.35 0.05], 'BackgroundColor', 'white');
+                'Units', 'normalized','Value',1, 'Position', [0.35 0.55 0.55 0.05], 'BackgroundColor', 'white');
             
             uicontrol('Parent', input_win, 'Style', 'text', 'String', 'Variable names', ...
                 'Units', 'normalized','Position', [0.05 0.45 0.35 0.05], 'HorizontalAlignment', 'left');
             win.ddlVariableNames = uicontrol('Parent', input_win, 'Style', 'popupmenu', 'String', {'-'}, ...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.45 0.35 0.05], 'BackgroundColor', 'white');
-            
-            %             uicontrol('Parent', input_win, 'Style', 'text', 'String', 'Variables', ...
-            %                 'Units', 'normalized','Position', [0.05 0.35 0.35 0.05], 'HorizontalAlignment', 'left');
-            %             win.ddlVariables = uicontrol('Parent', input_win, 'Style', 'popupmenu', 'String', {'-'},...
-            %                 'Units', 'normalized','Value',2, 'Position', [0.45 0.35 0.35 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Callback_PlotType);
+                'Units', 'normalized','Value',1, 'Position', [0.35 0.45 0.55 0.05], 'BackgroundColor', 'white');
             
             uicontrol('Parent', input_win, 'Style', 'text', 'String', 'Class labels', ...
                 'Units', 'normalized','Position', [0.05 0.35 0.35 0.05], 'HorizontalAlignment', 'left');
             win.ddlClassLabels = uicontrol('Parent', input_win, 'Style', 'popupmenu', 'String', {'-'},...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.35 0.35 0.05], 'BackgroundColor', 'white');
+                'Units', 'normalized','Value',1, 'Position', [0.35 0.35 0.55 0.05], 'BackgroundColor', 'white');
+            
+            
+            uicontrol('Parent', input_win, 'Style', 'text', 'String', 'Variables', ...
+                'Units', 'normalized','Position', [0.05 0.25 0.35 0.05], 'HorizontalAlignment', 'left');
+            win.ddlVariables = uicontrol('Parent', input_win, 'Style', 'popupmenu', 'String', {'-'},...
+                'Units', 'normalized','Value',2, 'Position', [0.35 0.25 0.55 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Callback_PlotType);
+            
+            
             
             data = guidata(gcf);
             data.win = win;
@@ -193,11 +196,13 @@ classdef  DataSetWindow<handle
             else
                 set(win.ddlClasses, 'String', {'-'});
                 set(win.ddlVariableNames, 'String', {'-'});
-                set(win.ddlVariableNames, 'String', {'-'});
                 set(win.ddlObjectNames, 'String', {'-'});
                 set(win.ddlClassLabels, 'String', {'-'});
                 
-                
+                set(win.ddlVariableNames, 'Value', 1);
+                set(win.ddlClasses, 'Value', 1);
+                set(win.ddlObjectNames, 'Value', 1);
+                set(win.ddlClassLabels, 'Value', 1);
             end
             
             data.dataset_win = win;
