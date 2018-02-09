@@ -96,10 +96,10 @@ classdef  DataSetWindow<handle
                 'Units', 'normalized','Value',1, 'Position', [0.35 0.35 0.55 0.05], 'BackgroundColor', 'white');
             
             
-            uicontrol('Parent', input_win, 'Style', 'text', 'String', 'Variables', ...
+            uicontrol('Parent', input_win, 'Style', 'text', 'String', 'Wavelengths', ...
                 'Units', 'normalized','Position', [0.05 0.25 0.35 0.05], 'HorizontalAlignment', 'left');
             win.ddlVariables = uicontrol('Parent', input_win, 'Style', 'popupmenu', 'String', {'-'},...
-                'Units', 'normalized','Value',2, 'Position', [0.35 0.25 0.55 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Callback_PlotType);
+                'Units', 'normalized','Value',1, 'Position', [0.35 0.25 0.55 0.05], 'BackgroundColor', 'white');
             
             
             
@@ -193,16 +193,34 @@ classdef  DataSetWindow<handle
                     end
                 end
                 
+                idx = arrayfun(@(x)DataSetWindow.type_size_filter(x,gg(2),1,[],[],'double'),list);
+                
+                vardisplay={};
+                if sum(idx) > 0
+                    l = list(idx);
+                    %vardisplay = cell(length(idx)+1,1);
+                    vardisplay{1} = '-';
+                    for i = 1:length(l)
+                        ss = l(i).size;
+                        vardisplay{i+1} = sprintf('%s (%dx%d)',l(i).name,ss(1),ss(2));
+                    end
+                    set(win.ddlClasses, 'String', vardisplay);
+                    if length(get(win.ddlClasses, 'String')) > 1
+                        set(win.ddlClasses, 'Value', 2)
+                    end
+                end
+                
             else
                 set(win.ddlClasses, 'String', {'-'});
                 set(win.ddlVariableNames, 'String', {'-'});
                 set(win.ddlObjectNames, 'String', {'-'});
                 set(win.ddlClassLabels, 'String', {'-'});
+                set(win.ddlVariables, 'String', {'-'});
                 
                 set(win.ddlVariableNames, 'Value', 1);
                 set(win.ddlClasses, 'Value', 1);
                 set(win.ddlObjectNames, 'Value', 1);
-                set(win.ddlClassLabels, 'Value', 1);
+                set(win.ddlVariables, 'Value', 1);
             end
             
             data.dataset_win = win;
