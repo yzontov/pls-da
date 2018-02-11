@@ -43,54 +43,10 @@ classdef  DataTab < BasicTab
                 'Units', 'normalized','Position', [0.05 0.75 0.35 0.05], 'HorizontalAlignment', 'left');
             ttab.listbox = uicontrol('Parent', ttab.left_panel, 'Style', 'popupmenu',...
                 'String', {'-'}, ...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.75 0.45 0.05], 'BackgroundColor', 'white');
+                'Units', 'normalized','Value',1, 'Position', [0.45 0.75 0.45 0.05], 'BackgroundColor', 'white', 'callback',@DataTab.listClick);
             
             
-            allvars = evalin('base','whos');
-            varnames = {allvars.name};
             
-            idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
-            
-            if ~isempty(idx)
-                vardisplay = cell(length(idx),1);
-                for i = 1:length(idx)
-                    vardisplay{i} = varnames{idx(i)};
-                end
-                set(ttab.listbox, 'String', vardisplay);
-                
-                % extract all children
-                ttab = DataTab.enableRightPanel(ttab, 'on');
-                
-                names = varnames(idx);%fieldnames(ttab.Data);
-                selected_name = names{1};
-                
-                d = ttab.Data.(selected_name);
-                if d.Training
-                    set(ttab.lbox_mnu_train, 'Checked', 'on');
-                else
-                    set(ttab.lbox_mnu_train, 'Checked', 'off');
-                end
-                
-                if d.Validation
-                    set(ttab.lbox_mnu_val, 'Checked', 'on');
-                else
-                    set(ttab.lbox_mnu_val, 'Checked', 'off');
-                end
-                
-                if(isempty(d.VariableNames))
-                    names = arrayfun(@(x) sprintf('%d', x), 1:size(d.ProcessedData, 2), 'UniformOutput', false);
-                else
-                    names = d.VariableNames;
-                end
-                set(ttab.ddlPlotVar1, 'String', names);
-                set(ttab.ddlPlotVar2, 'String', names);
-                
-                ttab = DataTab.resetRightPanel(ttab);
-                ttab = DataTab.fillRightPanel(ttab);
-                
-                ttab = DataTab.drawPlot(ttab, selected_name);
-                
-            end
             
             %preprocessing
             ttab.pnlDataSettings = uipanel('Parent', ttab.left_panel, 'Title', 'Preprocessing','Units', 'normalized', ...
@@ -147,6 +103,58 @@ classdef  DataTab < BasicTab
             %             ttab.lbox_mnu_train = uimenu(c,'Label','Use for training','Callback',@DataTab.listTraining,'Checked','off');
             %             ttab.lbox_mnu_val = uimenu(c,'Label','Use for validation','Callback',@DataTab.listValidation,'Checked','off');
             %
+            
+            allvars = evalin('base','whos');
+            varnames = {allvars.name};
+            
+            idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
+            
+            if ~isempty(idx)
+                vardisplay = cell(length(idx),1);
+                for i = 1:length(idx)
+                    vardisplay{i} = varnames{idx(i)};
+                end
+                set(ttab.listbox, 'String', vardisplay);
+                
+                % extract all children
+                ttab = DataTab.enableRightPanel(ttab, 'on');
+                
+                names = varnames(idx);%fieldnames(ttab.Data);
+                selected_name = names{1};
+                
+                %d = ttab.Data.(selected_name);
+                d = evalin('base', selected_name);
+                
+                if d.Training
+                    set(ttab.lbox_mnu_train, 'Checked', 'on');
+                else
+                    set(ttab.lbox_mnu_train, 'Checked', 'off');
+                end
+                
+                if d.Validation
+                    set(ttab.lbox_mnu_val, 'Checked', 'on');
+                else
+                    set(ttab.lbox_mnu_val, 'Checked', 'off');
+                end
+                
+                if(isempty(d.VariableNames))
+                    names = arrayfun(@(x) sprintf('%d', x), 1:size(d.ProcessedData, 2), 'UniformOutput', false);
+                else
+                    names = d.VariableNames;
+                end
+                set(ttab.ddlPlotVar1, 'String', names);
+                set(ttab.ddlPlotVar2, 'String', names);
+                
+                ttab = DataTab.resetRightPanel(ttab);
+                ttab = DataTab.fillRightPanel(ttab);
+                
+                ttab = DataTab.drawPlot(ttab, selected_name);
+                
+            end
+            
+            
+            
+            
             ttab = DataTab.resetRightPanel(ttab);
             ttab = DataTab.enableRightPanel(ttab, 'off');
             
@@ -160,6 +168,11 @@ classdef  DataTab < BasicTab
     end
     
     methods (Static)
+        
+        function obj = GetObject(list, idx)
+            mm = list{idx};
+            obj = evalin('base',mm(1:strfind(mm, ' ')-1));
+        end
         
         function Redraw(obj, ~)
             data = guidata(obj);
@@ -182,10 +195,10 @@ classdef  DataTab < BasicTab
                 PlotType = get(ttab.ddlPlotType,'Value');
                 
                 index_selected = get(ttab.listbox,'Value');
-                names = fieldnames(ttab.Data);
+                names = get(ttab.listbox,'String');%fieldnames(ttab.Data);
                 selected_name = names{index_selected};
                 
-                d = ttab.Data.(selected_name);
+                d = evalin('base', selected_name);%ttab.Data.(selected_name);
                 
                 switch PlotType
                     case 1 %scatter
@@ -266,10 +279,12 @@ classdef  DataTab < BasicTab
                 ttab = data.datatab;
                 
                 index_selected = get(ttab.listbox,'Value');
-                names = fieldnames(ttab.Data);
+                names = get(ttab.listbox,'String');%fieldnames(ttab.Data);
                 selected_name = names{index_selected};
                 
-                ttab.Data.(selected_name).Centering = val;
+                d = evalin('base', selected_name);
+                d.Centering = val;
+                %ttab.Data.(selected_name).Centering = val;
                 lst = DataTab.redrawListbox(ttab);
                 
                 ttab = DataTab.drawPlot(ttab, selected_name);
@@ -489,10 +504,10 @@ classdef  DataTab < BasicTab
                 % extract all children
                 ttab = DataTab.enableRightPanel(ttab, 'on');
                 
-                names = fieldnames(ttab.Data);
+                names = get(ttab.listbox, 'String'); %fieldnames(ttab.Data);
                 selected_name = names{index_selected};
                 
-                d = ttab.Data.(selected_name);
+                d = evalin('base', selected_name);%ttab.Data.(selected_name);
                 if d.Training
                     set(ttab.lbox_mnu_train, 'Checked', 'on');
                 else
@@ -546,8 +561,8 @@ classdef  DataTab < BasicTab
             set(gcf,'CurrentAxes',ha2d);
             ttab.data_plot_axes = ha2d;
             
-            d = ttab.Data.(selected_name);
-            
+            d = evalin('base', selected_name);%ttab.Data.(selected_name);
+             
             var1 = get(ttab.ddlPlotVar1, 'Value');
             var2 = get(ttab.ddlPlotVar2, 'Value');
             showObjectNames = get(ttab.chkPlotShowObjectNames, 'Value');
@@ -570,10 +585,11 @@ classdef  DataTab < BasicTab
         function tab = fillRightPanel(ttab)
             
             index_selected = get(ttab.listbox,'Value');
-            names = fieldnames(ttab.Data);
+            names = get(ttab.listbox,'String');%fieldnames(ttab.Data);
             selected_name = names{index_selected};
             
-            d = ttab.Data.(selected_name);
+            %d = ttab.Data.(selected_name);
+            d = evalin('base', selected_name);
             
             set(ttab.chkCentering, 'Value', d.Centering);
             set(ttab.chkScaling, 'Value', d.Scaling);

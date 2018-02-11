@@ -42,10 +42,8 @@ classdef  DataSetWindow<handle
             uicontrol('Parent', input_win, 'Style', 'text', 'String', 'Name', ...
                 'Units', 'normalized','Position', [0.05 0.85 0.35 0.05], 'HorizontalAlignment', 'left');
             win.tbName = uicontrol('Parent', input_win, 'Style', 'edit', 'String', '', ...
-                'Units', 'normalized','Value',1, 'Position', [0.35 0.85 0.55 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Check_Name);
-            
-            
-            
+                'Units', 'normalized','Value',1, 'Position', [0.35 0.85 0.55 0.05], 'BackgroundColor', 'white');
+
             
             uicontrol('Parent', input_win, 'Style', 'text', 'String', 'Data', ...
                 'Units', 'normalized','Position', [0.05 0.75 0.35 0.05], 'HorizontalAlignment', 'left');
@@ -101,11 +99,18 @@ classdef  DataSetWindow<handle
             win.ddlVariables = uicontrol('Parent', input_win, 'Style', 'popupmenu', 'String', {'-'},...
                 'Units', 'normalized','Value',1, 'Position', [0.35 0.25 0.55 0.05], 'BackgroundColor', 'white');
             
-            
+            uicontrol('Parent', input_win, 'Style', 'pushbutton', 'String', 'Add dataset',...
+                'Units', 'Normalized', 'Position', [0.25 0.15 0.4 0.05], ...
+                'callback', @DataSetWindow.btnAdd_Callback);
             
             data = guidata(gcf);
             data.win = win;
             guidata(gcf, data);
+        end
+        
+        function obj = GetObject(self, list, idx)
+            mm = list{idx};
+            obj = evalin('base',mm(1:strfind(mm, ' ')-1));
         end
         
     end
@@ -265,6 +270,51 @@ classdef  DataSetWindow<handle
             data.dataset_win = win;
             guidata(obj, data);
             
+        end
+          
+        function btnAdd_Callback(obj, ~)
+            
+            data = guidata(obj);
+            win = data.win;
+            
+            Name = get(win.tbName, 'String');
+            
+            if ~isempty(Name)
+                
+                if get(win.ddlData, 'Value') > 1 && get(win.ddlClasses, 'Value') > 1
+                    d = DataSet();
+                    d.RawData = win.GetObject(get(win.ddlData, 'String'), get(win.ddlData, 'Value'));
+                    d.Name = Name;
+                    
+                    d.Classes = win.GetObject(get(win.ddlClasses, 'String'), get(win.ddlClasses, 'Value'));
+                    
+                    if get(win.ddlVariableNames, 'Value') > 1
+                        d.VariableNames = win.GetObject(get(win.ddlVariableNames, 'String'), get(win.ddlVariableNames, 'Value'));
+                    end
+                    
+                    if get(win.ddlVariables, 'Value') > 1
+                        d.Variables = win.GetObject(get(win.ddlVariables, 'String'), get(win.ddlVariables, 'Value'));
+                    end
+                    
+                    if get(win.ddlClassLabels, 'Value') > 1
+                        d.ClassLabels = win.GetObject(get(win.ddlClassLabels, 'String'), get(win.ddlClassLabels, 'Value'));;
+                    end
+                    
+                    try
+                        assignin('base', Name, d)
+                    catch
+                        errordlg('The invalid characters have been replaced. Please use only latin characters, numbers and underscore for the name of DataSet!');
+                        d.Name = Name;
+                        assignin('base',regexprep(Name, '[^a-zA-Z0-9_]', '_'),d);
+                    end
+                else
+                    errordlg('You should indicate a name of the DataSet!');
+                end
+                
+            else
+                errordlg('You should indicate a name of the DataSet!');
+                return;
+            end
         end
         
     end
