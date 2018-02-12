@@ -8,6 +8,9 @@ classdef  DataSetWindow<handle
         ddlVariables;
         ddlClassLabels;
         
+        win;
+        datatab;
+        
         Name;
         Data;
         Classes;
@@ -15,6 +18,10 @@ classdef  DataSetWindow<handle
         VariableNames;
         Wavelengths;
         ClassLabels;
+    end
+    
+    events
+        AddSet
     end
     
     methods
@@ -103,6 +110,7 @@ classdef  DataSetWindow<handle
                 'Units', 'Normalized', 'Position', [0.3 0.07 0.4 0.1], ...
                 'callback', @DataSetWindow.btnAdd_Callback);
             
+            win.win = input_win;
             data = guidata(gcf);
             data.win = win;
             guidata(gcf, data);
@@ -307,6 +315,9 @@ classdef  DataSetWindow<handle
                         d.Name = Name;
                         assignin('base',regexprep(Name, '[^a-zA-Z0-9_]', '_'),d);
                     end
+                    
+                    notify(win, 'AddSet');
+                    
                 else
                     errordlg('You should indicate at least Data and Classes matrices!');
                 end
@@ -315,6 +326,8 @@ classdef  DataSetWindow<handle
                 errordlg('You should indicate a name of the DataSet!');
                 return;
             end
+            
+            close;
         end
         
     end
