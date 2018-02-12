@@ -100,7 +100,7 @@ classdef  DataSetWindow<handle
                 'Units', 'normalized','Value',1, 'Position', [0.35 0.25 0.55 0.05], 'BackgroundColor', 'white');
             
             uicontrol('Parent', input_win, 'Style', 'pushbutton', 'String', 'Add dataset',...
-                'Units', 'Normalized', 'Position', [0.25 0.15 0.4 0.05], ...
+                'Units', 'Normalized', 'Position', [0.3 0.07 0.4 0.1], ...
                 'callback', @DataSetWindow.btnAdd_Callback);
             
             data = guidata(gcf);
@@ -308,7 +308,7 @@ classdef  DataSetWindow<handle
                         assignin('base',regexprep(Name, '[^a-zA-Z0-9_]', '_'),d);
                     end
                 else
-                    errordlg('You should indicate a name of the DataSet!');
+                    errordlg('You should indicate at least Data and Classes matrices!');
                 end
                 
             else

@@ -27,10 +27,10 @@ classdef  BasicTab
                 ttab.tab = uitab('Parent', tabgroup, 'Title', title);
             end
             
-            ttab.left_panel = uipanel('Parent', ttab.tab, 'Title', 'Left', 'Units', 'normalized',  'Position', [0.0   0.05   0.3  0.95]);
-            ttab.middle_panel = uipanel('Parent', ttab.tab, 'Title', 'Middle', 'Units','normalized', 'Position', [0.3   0.05   0.7  0.95]);
+            ttab.left_panel = uipanel('Parent', ttab.tab, 'Title', '', 'Units', 'normalized',  'Position', [0.0   0.05   0.3  0.95]);
+            ttab.middle_panel = uipanel('Parent', ttab.tab, 'Title', '', 'Units','normalized', 'Position', [0.3   0.05   0.7  0.95]);
             %ttab.right_panel = uipanel('Parent', ttab.tab, 'Title', 'Right', 'Units','normalized', 'Position', [0.8   0.05   0.2  0.95]);
-            ttab.statusbar_panel = uipanel('Parent', ttab.tab, 'Title', 'Statusbar', 'Units','normalized', 'Position', [0.0   0.0   1  0.05]);
+            ttab.statusbar_panel = uipanel('Parent', ttab.tab, 'Title', '', 'Units','normalized', 'Position', [0.0   0.0   1  0.05]);
 
         end
         

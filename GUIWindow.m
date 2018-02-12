@@ -23,7 +23,7 @@ classdef  GUIWindow<handle
             set(f,'name','PLS-DA Tool','numbertitle','off');
             %set(f, 'Resize', 'off');
             set(f, 'Units', 'Normalized');
-            set(f, 'Position', [0.1 0.1 0.8 0.8]);
+            set(f, 'Position', [0.1 0.1 0.8 0.7]);
             
             if vyear < 2014
                 win.tgroup = uitabgroup('v0','Parent', f);

@@ -1,11 +1,6 @@
-function PLSDAGUI(varargin)
+ function PLSDAGUI(varargin)
 
 ShowStartScreen();
-
-
-
-
-
 
 function ShowStartScreen()
 
@@ -25,13 +20,13 @@ set(start_screen, 'MenuBar', 'none');
 set(start_screen, 'ToolBar', 'none');
 set(start_screen,'name','PLS-DA Tool','numbertitle','off');
 set(start_screen, 'Resize', 'off');
-set(start_screen, 'Position', [screensize(3)/2 - 100 screensize(4)/2 - 100 200 200]);
+set(start_screen, 'Position', [screensize(3)/2 - 100 screensize(4)/2 - 100 200 100]);
 
 uicontrol('Parent', start_screen, 'Style', 'pushbutton', 'String', 'New model',...
-    'Position', [50 140 100 30], 'callback', @btnNewModel_Callback);
+    'Position', [50 55 100 30], 'callback', @btnNewModel_Callback);
 
 uicontrol('Parent', start_screen, 'Style', 'pushbutton', 'String', 'Existing model',...
-    'Position', [50 100 100 30], 'callback', @btnExistingModel_Callback);
+    'Position', [50 15 100 30], 'callback', @btnExistingModel_Callback);
 
 end
 
@@ -55,8 +50,6 @@ if ~isempty(tvar)
 end
 
 end
-
-
 
 end
 
