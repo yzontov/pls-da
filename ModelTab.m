@@ -20,6 +20,11 @@ classdef  ModelTab < BasicTab
         
         chkCrossValidation;
         ddlCrossValidationType;
+        
+        ddlPlotVar1;
+        ddlPlotVar2;
+        chkPlotShowClasses;
+        chkPlotShowObjectNames;
     end
     
     methods
@@ -101,6 +106,22 @@ classdef  ModelTab < BasicTab
             uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'pushbutton', 'String', 'Copy to clipboard',...
                 'Units', 'Normalized', 'Position', [0.51 0.25 0.4 0.18], ...
                 'callback', @ModelTab.CopyPlotToClipboard);
+            
+            ttab.chkPlotShowClasses = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'checkbox', 'String', 'Show classes',...
+                'Units', 'normalized','Position', [0.05 0.65 0.85 0.1]);%, 'callback', @DataTab.Redraw);
+            ttab.chkPlotShowObjectNames = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'checkbox', 'String', 'Show object names',...
+                'Units', 'normalized','Position', [0.05 0.55 0.85 0.1]);%, 'callback', @DataTab.Redraw);
+            
+            uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'PC 1', ...
+                'Units', 'normalized','Position', [0.05 0.45 0.35 0.05], 'HorizontalAlignment', 'left');
+            ttab.ddlPlotVar1 = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu', 'String', {'1'},...
+                'Units', 'normalized','Value',1, 'Position', [0.45 0.45 0.35 0.05], 'BackgroundColor', 'white');%, 'callback', @DataTab.Redraw);
+            
+            uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'PC 2', ...
+                'Units', 'normalized','Position', [0.05 0.35 0.35 0.05], 'HorizontalAlignment', 'left');
+            ttab.ddlPlotVar2 = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu', 'String', {'2'},...
+                'Units', 'normalized','Value',1, 'Position', [0.45 0.35 0.35 0.05], 'BackgroundColor', 'white');%, 'callback', @DataTab.Redraw);
+            
             
             
             allvars = evalin('base','whos');

@@ -18,7 +18,7 @@ classdef  DataTab < BasicTab
         ddlPlotVar1;
         ddlPlotVar2;
         chkPlotShowClasses;
-        chkPlotShowObjectNames
+        chkPlotShowObjectNames;
         
         chkCentering;
         chkScaling;
