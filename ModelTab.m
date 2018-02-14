@@ -43,26 +43,13 @@ classdef  ModelTab < BasicTab
             uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'text', 'String', 'Calibration', ...
                 'Units', 'normalized','Position', [0.05 0.65 0.35 0.2], 'HorizontalAlignment', 'left');
             ttab.ddlCalibrationSet = uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'popupmenu', 'String', {'-'},...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.65 0.55 0.2], 'BackgroundColor', 'white', 'callback', @ModelTab.SelectCalibratinSet);
+                'Units', 'normalized','Value',1, 'Position', [0.4 0.67 0.55 0.2], 'BackgroundColor', 'white', 'callback', @ModelTab.SelectCalibratinSet);
             
             uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'text', 'String', 'Validation', ...
                 'Units', 'normalized','Position', [0.05 0.25 0.35 0.2], 'HorizontalAlignment', 'left');
             ttab.ddlValidationSet = uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'popupmenu', 'String', {'-'},...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.25 0.55 0.2], 'BackgroundColor', 'white', 'callback', @ModelTab.SelectValidationSet);
+                'Units', 'normalized','Value',1, 'Position', [0.4 0.27 0.55 0.2], 'BackgroundColor', 'white', 'callback', @ModelTab.SelectValidationSet);
             
-            allvars = evalin('base','whos');
-            varnames = {allvars.name};
-            
-            idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
-            
-            if ~isempty(idx)
-                vardisplay = cell(length(idx),1);
-                for i = 1:length(idx)
-                    vardisplay{i} = varnames{idx(i)};
-                end
-                set(ttab.ddlCalibrationSet, 'String', vardisplay);
-                set(ttab.ddlValidationSet, 'String', vardisplay);
-            end
             
             
             %CrossValidation
@@ -115,33 +102,63 @@ classdef  ModelTab < BasicTab
                 'Units', 'Normalized', 'Position', [0.51 0.25 0.4 0.18], ...
                 'callback', @ModelTab.CopyPlotToClipboard);
             
-            data = guidata(gcf);
             
-            dat = data.datatab.Data;
-            names = fieldnames(dat);
-            
-            train_names = names(structfun(@(x) x.Training == true , dat));
-            val_names = names(structfun(@(x) x.Validation == true , dat));
-            
-            if ~isempty(train_names)
-                set(ttab.ddlCalibrationSet, 'String', train_names);
+            allvars = evalin('base','whos');
+
+            idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
+            vardisplay={};
+            if sum(idx) > 0
+                    l = allvars(idx);
+                    vardisplay{1} = '-';
+                    for i = 1:length(l)
+                        vardisplay{i+1} = l(i).name;
+                    end
+                    set(ttab.ddlCalibrationSet, 'String', vardisplay);
+                    if length(get(ttab.ddlCalibrationSet, 'String')) > 1
+                        set(ttab.ddlCalibrationSet, 'Value', 2)
+                    end
             end
             
-            if ~isempty(val_names)
-                set(ttab.ddlValidationSet, 'String', val_names);
-                set(ttab.ddlValidationSet, 'enable', 'on');
-            else
-                set(ttab.ddlValidationSet, 'enable', 'off');
+            idx = arrayfun(@(x)ModelTab.filter_validation(x), allvars);
+            vardisplay={};
+            if sum(idx) > 0
+                    l = allvars(idx);
+                    vardisplay{1} = '-';
+                    for i = 1:length(l)
+                        vardisplay{i+1} = l(i).name;
+                    end
+                    set(ttab.ddlValidationSet, 'String', vardisplay);
+                    if length(get(ttab.ddlValidationSet, 'String')) > 1
+                        set(ttab.ddlValidationSet, 'Value', 2)
+                        set(ttab.ddlValidationSet, 'enable', 'on');
+                    else
+                        set(ttab.ddlValidationSet, 'enable', 'off');
+                    end
             end
-            
-            data.modeltab = ttab;
-            guidata(gcf, data);
-            
+                       
         end
         
     end
     
     methods (Static)
+        
+        function r = filter_training(x)
+            d = evalin('base', x.name);
+            if isequal(x.class,'DataSet') && d.Training
+                r = true;
+            else
+                r = false;
+            end
+        end
+        
+        function r = filter_validation(x)
+            d = evalin('base', x.name);
+            if isequal(x.class,'DataSet') && d.Validation
+                r = true;
+            else
+                r = false;
+            end
+        end
         
         function Recalibrate(src, ~)
             

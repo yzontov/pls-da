@@ -22,39 +22,37 @@ classdef  DataTab < BasicTab
         
         chkCentering;
         chkScaling;
+        
+        chkTraining;
+        chkValidation;
     end
     methods
         
         function ttab = DataTab(tabgroup)
             ttab = ttab@BasicTab(tabgroup, 'Data');
             
-            %             uicontrol('Parent', ttab.left_panel, 'Style', 'pushbutton', 'String', 'Add dataset',...
-            %                 'Units', 'Normalized', 'Position', [0.05 0.95 0.4 0.05], ...
-            %                 'callback', @DataTab.btnAdd_Callback);%,'FontUnits', 'Normalized'
+
             
             uicontrol('Parent', ttab.left_panel, 'Style', 'pushbutton', 'String', 'New dataset',...
                 'Units', 'Normalized', 'Position', [0.3 0.9 0.35 0.05], ...
                 'callback', @DataTab.btnNew_Callback);%,'FontUnits', 'Normalized'
             
-            %yourcell=fieldnames(ttab.Data);
-            %             ttab.listbox = uicontrol('Parent', ttab.left_panel,'Style', 'listbox','Units', 'Normalized', ...
-            %                 'Position', [0.05 0.65 0.9 0.30], ...
-            %                 'string',yourcell,'Callback',@DataTab.listClick);
+
             
             uicontrol('Parent', ttab.left_panel, 'Style', 'text', 'String', 'DataSet', ...
                 'Units', 'normalized','Position', [0.05 0.8 0.35 0.05], 'HorizontalAlignment', 'left');
             ttab.listbox = uicontrol('Parent', ttab.left_panel, 'Style', 'popupmenu',...
                 'String', {'-'}, ...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.8 0.45 0.05], 'BackgroundColor', 'white', 'callback',@DataTab.listClick);
+                'Units', 'normalized','Value',1, 'Position', [0.45 0.805 0.45 0.05], 'BackgroundColor', 'white', 'callback',@DataTab.listClick);
             
             
             %categories
             ttab.pnlDataCategories = uipanel('Parent', ttab.left_panel, 'Title', 'Categories','Units', 'normalized', ...
                 'Position', [0.05   0.65   0.9  0.12]);
-            ttab.chkCentering = uicontrol('Parent', ttab.pnlDataCategories, 'Style', 'checkbox', 'String', 'Calibration',...
-                'Units', 'normalized','Position', [0.1 0.45 0.45 0.25], 'callback', @DataTab.Input_Centering);
-            ttab.chkScaling = uicontrol('Parent', ttab.pnlDataCategories, 'Style', 'checkbox', 'String', 'Validation',...
-                'Units', 'normalized','Position', [0.55 0.45 0.45 0.25], 'callback', @DataTab.Input_Scaling);
+            ttab.chkTraining = uicontrol('Parent', ttab.pnlDataCategories, 'Style', 'checkbox', 'String', 'Calibration',...
+                'Units', 'normalized','Position', [0.1 0.45 0.45 0.25], 'callback', @DataTab.Input_Training);
+            ttab.chkValidation = uicontrol('Parent', ttab.pnlDataCategories, 'Style', 'checkbox', 'String', 'Validation',...
+                'Units', 'normalized','Position', [0.55 0.45 0.45 0.25], 'callback', @DataTab.Input_Validation);
             
             
             %preprocessing
@@ -70,7 +68,7 @@ classdef  DataTab < BasicTab
             ttab.pnlPlotSettings = uipanel('Parent', ttab.left_panel, 'Title', 'Plot','Units', 'normalized', ...
                 'Position', [0.05   0.10   0.9  0.4]);
             uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'Type', ...
-                'Units', 'normalized','Position', [0.05 0.85 0.35 0.05], 'HorizontalAlignment', 'left');
+                'Units', 'normalized','Position', [0.05 0.78 0.35 0.1], 'HorizontalAlignment', 'left');
             ttab.ddlPlotType = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu', 'String', {'scatter', 'line plot', 'histogram'},...
                 'Units', 'normalized','Value',2, 'Position', [0.45 0.85 0.35 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Callback_PlotType);
             
@@ -97,21 +95,6 @@ classdef  DataTab < BasicTab
                 'Units', 'Normalized', 'Position', [0.51 0.1 0.4 0.1], ...
                 'callback', @DataTab.CopyPlotToClipboard);
             
-            
-            %             uicontrol('Parent', ttab.left_panel, 'Style', 'pushbutton', 'String', 'Labels',...
-            %                 'Units', 'Normalized','FontUnits', 'Normalized', 'Position', [0.25 0.65 0.5 0.05], ...
-            %                 'callback', @DataTab.btnLabels_Callback);
-            
-            c = uicontextmenu;
-            
-            % Assign the uicontextmenu to the lisbox
-            %ttab.listbox.UIContextMenu = c;
-            
-            %             % Create child menu items for the uicontextmenu
-            %             m1 = uimenu(c,'Label','Delete','Callback',@DataTab.listDelete,'Checked','off');
-            %             ttab.lbox_mnu_train = uimenu(c,'Label','Use for training','Callback',@DataTab.listTraining,'Checked','off');
-            %             ttab.lbox_mnu_val = uimenu(c,'Label','Use for validation','Callback',@DataTab.listValidation,'Checked','off');
-            %
             
             allvars = evalin('base','whos');
             varnames = {allvars.name};
@@ -159,10 +142,10 @@ classdef  DataTab < BasicTab
                 
                 ttab = DataTab.drawPlot(ttab, selected_name);
                 
+            else
+                ttab = DataTab.resetRightPanel(ttab);
+                ttab = DataTab.enableRightPanel(ttab, 'off');
             end
-            
-            %ttab = DataTab.resetRightPanel(ttab);
-            %ttab = DataTab.enableRightPanel(ttab, 'off');
             
             data = guidata(gcf);
             data.datatab = ttab;
@@ -323,86 +306,54 @@ classdef  DataTab < BasicTab
             end
         end
         
-        %         function btnAdd_Callback(obj, ~)
-        %
-        %             [tvar, ~] = GUIWindow.uigetvariables({'Pick a DataSet object:'}, ...
-        %                 'ValidationFcn',{@(x) isa(x, 'DataSet')});
-        %             if ~isempty(tvar)
-        %
-        %                 data = guidata(obj);
-        %                 ttab = data.datatab;
-        %
-        %                 d = tvar{1};
-        %                 ttab.Data.(d.Name) = d;
-        %
-        %                 lst = DataTab.redrawListbox(ttab);
-        %
-        %                 if d.Training
-        %                     set(ttab.lbox_mnu_train, 'Checked', 'on');
-        %                 else
-        %                     set(ttab.lbox_mnu_train, 'Checked', 'off');
-        %                 end
-        %
-        %                 if d.Validation
-        %                     set(ttab.lbox_mnu_val, 'Checked', 'on');
-        %                 else
-        %                     set(ttab.lbox_mnu_val, 'Checked', 'off');
-        %                 end
-        %
-        %                 set(ttab.listbox, 'String', lst);
-        %
-        %                 data.datatab = ttab;
-        %                 guidata(obj, data);
-        %
-        %                 win = data.window;
-        %
-        %                 if sum(structfun(@(x) x.Training,ttab.Data)) > 0 && isempty(win.modelTab)
-        %                     win.modelTab = ModelTab(win.tgroup);
-        %                     data.window = win;
-        %                 end
-        %                 data = guidata(obj);
-        %
-        %                 dat = data.datatab.Data;
-        %                 names = fieldnames(dat);
-        %                 mtab = data.modeltab;
-        %
-        %                 train_names = names(structfun(@(x) x.Training == true , dat));
-        %                 val_names = names(structfun(@(x) x.Validation == true , dat));
-        %
-        %                 if ~isempty(train_names)
-        %                     set(mtab.ddlCalibrationSet, 'String', train_names);
-        %                 end
-        %
-        %                 if ~isempty(val_names)
-        %                     set(mtab.ddlValidationSet, 'String', val_names);
-        %                     set(mtab.ddlValidationSet, 'enable', 'on');
-        %                 else
-        %                     set(mtab.ddlValidationSet, 'enable', 'off');
-        %                 end
-        %
-        %                 data.modeltab = mtab;
-        %
-        %                 ttab = DataTab.resetRightPanel(ttab);
-        %
-        %                 data.datatab = ttab;
-        %                 guidata(obj, data);
-        %
-        %             end
-        %
-        %         end
+        function Input_Training(obj, ~)
+            val = get(obj,'Value');
+            if ~isempty(val) && ~isnan(val)
+                data = guidata(obj);
+                ttab = data.datatab;
+                
+                index_selected = get(ttab.listbox,'Value');
+                names = get(ttab.listbox,'String');%fieldnames(ttab.Data);
+                selected_name = names{index_selected};
+                
+                d = evalin('base', selected_name);
+                d.Training = val;
+                %lst = DataTab.redrawListbox(ttab);
+                
+                %ttab = DataTab.drawPlot(ttab, selected_name);
+                
+                %set(ttab.listbox, 'String', lst);
+                data.datatab = ttab;
+                guidata(obj, data);
+            end
+        end
+        
+        function Input_Validation(obj, ~)
+            val = get(obj,'Value');
+            if ~isempty(val) && ~isnan(val)
+                data = guidata(obj);
+                ttab = data.datatab;
+                
+                index_selected = get(ttab.listbox,'Value');
+                names = get(ttab.listbox,'String');%fieldnames(ttab.Data);
+                selected_name = names{index_selected};
+                
+                d = evalin('base', selected_name);
+                d.Validation = val;
+                %lst = DataTab.redrawListbox(ttab);
+                
+                %ttab = DataTab.drawPlot(ttab, selected_name);
+                
+                %set(ttab.listbox, 'String', lst);
+                data.datatab = ttab;
+                guidata(obj, data);
+            end
+        end
+        
+
         
         function DataSetWindowCloseCallback(obj,callbackdata)
-            % Close request function
-            % % to display a question dialog box
-            %    selection = questdlg('Close This Figure?',...
-            %       'Close Request Function',...
-            %       'Yes','No','Yes');
-            %    switch selection
-            %       case 'Yes'
-            %          delete(gcf)
-            %       case 'No'
-            %       return
-            %    end
+
 
             ttab = obj.datatab;
             
@@ -471,116 +422,8 @@ classdef  DataTab < BasicTab
             win.datatab = ttab;
             
             addlistener(win,'AddSet',@DataTab.DataSetWindowCloseCallback);
-%             
-%             set(win.win, 'CloseRequestFcn',@DataTab.DataSetWindowCloseCallback);
-%             
-            
-            
-            %             [tvar, ~] = GUIWindow.uigetvariables({'Name of DataSet (string):','Data (matrix):', ...
-            %                 'Classes (vector) - optional:','Object names (cell of string) - optional:', ...
-            %                 'Variables names (cell of string) - optional:','Variables (row-vector) - optional:', ...
-            %                 'Classes labels (cell of string) - optional:'}, ...
-            %                 'InputDimensions',[Inf 2 1 1 1 1 1], ...
-            %                 'Introduction','Input all necessary fields of the DataSet', ...
-            %                 'InputTypes',{'textedit', 'numeric', 'numeric', 'string', 'string', 'numeric', 'string'});
-            %             if ~isempty(tvar)
-            %
-            %                 Name = tvar{1};
-            %                 Data = tvar{2};
-            %                 Classes = tvar{3};
-            %                 ObjNames = tvar{4};
-            %                 VarNames = tvar{5};
-            %                 Variables = tvar{6};
-            %                 ClassLabels = tvar{7};
-            %
-            %                 [data_rows,data_cols]=size(Data);
-            %                 [cla_rows,cla_cols]=size(Classes);
-            %                 [objn_rows,objn_cols]=size(ObjNames);
-            %                 [var_rows,var_cols]=size(VarNames);
-            %                 [vars_rows,vars_cols]=size(Variables);
-            %                 [lbl_rows,lbl_cols]=size(ClassLabels);
-            %
-            %                 if ~isempty(Name) && ~isempty(Data) %&& ~isempty(Classes)
-            %
-            %                     d = DataSet();
-            %                     d.RawData = Data;
-            %                     d.Name = Name;
-            %                 else
-            %                     errordlg('You should indicate Name, Data and Classes to create a DataSet!');
-            %                     return;
-            %                 end
-            %
-            %                 if ~isempty(Classes)
-            %                     if ((cla_rows ~= data_rows) || (cla_rows == data_rows && cla_cols ~= 1))
-            %                         warndlg(sprintf('Classes should be a [%d x 1] vector of positive integers', data_rows));
-            %                         return;
-            %                     end
-            %                     d.Classes = Classes;
-            %                 end
-            %
-            %                 if ~isempty(ObjNames)
-            %                     if ((data_rows ~= objn_rows) || (data_rows == objn_rows && objn_cols ~= 1))
-            %                         warndlg(sprintf('ObjectNames should be a [%d x 1] cell array of strings', data_rows));
-            %                         return;
-            %                     end
-            %                     d.ObjectNames = ObjNames;
-            %                 end
-            %
-            %                 if ~isempty(VarNames)
-            %                     if ((data_cols ~= var_rows) || (data_cols == var_rows && var_cols ~= 1))
-            %                         warndlg(sprintf('VariableNames should be a [%d x 1] cell array of strings', data_cols));
-            %                         return;
-            %                     end
-            %                     d.VariableNames = VarNames;
-            %                 end
-            %
-            %                 if ~isempty(Variables)
-            %                     if ((data_cols ~= vars_cols) || (data_cols == vars_cols && vars_rows ~= 1))
-            %                         warndlg(sprintf('Variables should be a [1 x %d] numeric vector', data_cols));
-            %                         return;
-            %                     end
-            %                     d.Variables = Variables;
-            %                 end
-            %
-            %                 if ~isempty(ClassLabels)
-            %                     if ((cla_rows ~= lbl_rows) || (cla_rows == lbl_rows && lbl_cols ~= 1))
-            %                         warndlg(sprintf('ClassLabels should be a [%d x 1] cell array of strings', cla_rows));
-            %                         return;
-            %                     end
-            %                     d.ClassLabels = ClassLabels;
-            %                 end
-            %
-            %                 try
-            %                     assignin('base', Name, d)
-            %                 catch
-            %                     errordlg('The invalid characters have been replaced. Please use only latin characters, numbers and underscore for the name of DataSet!');
-            %                     d.Name = Name;
-            %                     assignin('base',regexprep(Name, '[^a-zA-Z0-9_]', '_'),d);
-            %                 end
-            %
-            %                 data = guidata(obj);
-            %                 ttab = data.datatab;
-            %
-            %                 ttab.Data.(d.Name) = d;
-            %
-            %                 lst = DataTab.redrawListbox(ttab);
-            %
-            %                 set(ttab.listbox, 'String', lst);
-            %                 data.datatab = ttab;
-            %                 guidata(obj, data);
-            %             end
+
         end
-        
-        %         function lst = redrawListbox(ttab)
-        %
-        %             function r = celldraw(itm)
-        %                 d = ttab.Data.(itm);
-        %                 r = d.Description();
-        %             end
-        %
-        %             lst = cellfun(@(itm) sprintf('%s - %s', itm, celldraw(itm)), ...
-        %                 fieldnames(ttab.Data) , 'UniformOutput' ,false);
-        %         end
         
         function listClick(obj, ~)
             data = guidata(obj);
@@ -629,6 +472,8 @@ classdef  DataTab < BasicTab
         end
         
         function tab =resetRightPanel(ttab)
+            set(ttab.chkTraining, 'Value', 0);
+            set(ttab.chkValidation, 'Value', 0);
             set(ttab.chkCentering, 'Value', 0);
             set(ttab.chkScaling, 'Value', 0);
             set(ttab.ddlPlotType, 'Value', 2);
@@ -681,6 +526,10 @@ classdef  DataTab < BasicTab
             
             set(ttab.chkCentering, 'Value', d.Centering);
             set(ttab.chkScaling, 'Value', d.Scaling);
+            
+            set(ttab.chkTraining, 'Value', d.Training);
+            set(ttab.chkValidation, 'Value', d.Validation);
+            
             %set(ttab.ddlPlotType, 'Value', d.PlotType);
             
             tab = ttab;
@@ -689,10 +538,12 @@ classdef  DataTab < BasicTab
         function tab = enableRightPanel(ttab, param)
             children = get(ttab.pnlDataSettings,'Children');
             children1 = get(ttab.pnlPlotSettings,'Children');
+            children2 = get(ttab.pnlDataCategories,'Children');
             
             % only set children which are uicontrols:
             set(children(strcmpi ( get (children,'Type'),'UIControl')),'enable',param);
             set(children1(strcmpi ( get (children1,'Type'),'UIControl')),'enable',param);
+            set(children2(strcmpi ( get (children2,'Type'),'UIControl')),'enable',param);
             tab = ttab;
         end
         
