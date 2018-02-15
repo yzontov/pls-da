@@ -43,7 +43,7 @@ classdef  GUIWindow<handle
             end
             
             if tabs(3)
-                win.predictTab = BasicTab(win.tgroup, 'Prediction');
+                win.predictTab = PredictTab(win.tgroup);
             end
             
         end

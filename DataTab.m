@@ -66,7 +66,7 @@ classdef  DataTab < BasicTab
             
             %lblPlotType
             ttab.pnlPlotSettings = uipanel('Parent', ttab.left_panel, 'Title', 'Plot','Units', 'normalized', ...
-                'Position', [0.05   0.10   0.9  0.4]);
+                'Position', [0.05   0.01   0.9  0.5]);
             uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'Type', ...
                 'Units', 'normalized','Position', [0.05 0.78 0.35 0.1], 'HorizontalAlignment', 'left');
             ttab.ddlPlotType = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu', 'String', {'scatter', 'line plot', 'histogram'},...
@@ -78,14 +78,14 @@ classdef  DataTab < BasicTab
                 'Units', 'normalized','Position', [0.05 0.55 0.85 0.1], 'callback', @DataTab.Redraw);
             
             uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'X-axis', ...
-                'Units', 'normalized','Position', [0.05 0.45 0.35 0.05], 'HorizontalAlignment', 'left');
+                'Units', 'normalized','Position', [0.05 0.35 0.35 0.1], 'HorizontalAlignment', 'left');
             ttab.ddlPlotVar1 = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu', 'String', {'-'},...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.45 0.35 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Redraw);
+                'Units', 'normalized','Value',1, 'Position', [0.45 0.35 0.35 0.1], 'BackgroundColor', 'white', 'callback', @DataTab.Redraw);
             
             uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'Y-axis', ...
-                'Units', 'normalized','Position', [0.05 0.35 0.35 0.05], 'HorizontalAlignment', 'left');
+                'Units', 'normalized','Position', [0.05 0.25 0.35 0.1], 'HorizontalAlignment', 'left');
             ttab.ddlPlotVar2 = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu', 'String', {'-'},...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.35 0.35 0.05], 'BackgroundColor', 'white', 'callback', @DataTab.Redraw);
+                'Units', 'normalized','Value',1, 'Position', [0.45 0.25 0.35 0.1], 'BackgroundColor', 'white', 'callback', @DataTab.Redraw);
             
             
             uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'pushbutton', 'String', 'Save',...
@@ -209,7 +209,7 @@ classdef  DataTab < BasicTab
                         end
                 end
                 
-                filename = [type,'.png'];
+                filename = [type,'.emf'];%[type,'.png'];
                 fig2 = figure('visible','off');
                 copyobj(ttab.data_plot_axes,fig2);
                 saveas(fig2, filename);
@@ -222,7 +222,7 @@ classdef  DataTab < BasicTab
             ttab = data.datatab;
             fig2 = figure('visible','off');
             copyobj(ttab.data_plot_axes,fig2);
-            print(fig2,'-clipboard', '-dbitmap');
+            print(fig2,'-clipboard', '-dmeta'); %print(fig2,'-clipboard', '-dbitmap');
         end
         
         function Callback_PlotType(obj, ~)
