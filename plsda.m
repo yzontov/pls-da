@@ -278,15 +278,15 @@ function r = FoM(ConfusionMatrix, Ik)
 r.TP = diag(ConfusionMatrix)';
 r.FP = sum(ConfusionMatrix - diag(diag(ConfusionMatrix)));
 CSNS = r.TP./Ik;
-r.CSNS = 100*CSNS;
-CSPS = 1 - r.FP./(sum(Ik)-r.TP);
-r.CSPS = 100*CSPS;
-r.CEFF = 100*sqrt(CSNS.*CSPS);
+r.CSNS = sprintf('%.1f ',100*CSNS);
+CSPS = 1 - r.FP./(sum(Ik)-Ik);
+r.CSPS = sprintf('%.1f ',100*CSPS);
+r.CEFF = sprintf('%.1f ',100*sqrt(CSNS.*CSPS));
 TSNS = sum(r.TP)/sum(Ik);
-r.TSNS = 100*TSNS;
+r.TSNS = sprintf('%.1f ',100*TSNS);
 TSPS = 1 - sum(r.FP)/sum(Ik);
-r.TSPS = 100*TSPS;
-r.TEFF = 100*sqrt(TSNS*TSPS);
+r.TSPS = sprintf('%.1f ', 100*TSPS);
+r.TEFF = sprintf('%.1f ', 100*sqrt(TSNS*TSPS));
 end
 
 function allocation_hard(Labels, Dist)
@@ -295,14 +295,19 @@ format = ['%-' sprintf('%d', m) 's\t'];
 
 fprintf('Decision Hard\n');
 [I,K] = size(Dist);
+
+str = cell(I, K+1);
+
 fprintf(format, ' ');
 fprintf('\t%d', 1:K);
 fprintf('\n');
 for i = 1:I
     fprintf(format, Labels{i});
+    str{i, 1} = Labels{i};
     for k = 1:K
         if Dist(i,k) == min(Dist(i,:))
             fprintf('\t*');
+            str{i, k+1} = '*';
         else
             fprintf('\t ');
         end
@@ -310,6 +315,13 @@ for i = 1:I
     fprintf('\n');
 end
 fprintf('\n\n');
+
+% create the uimulticollist 
+h=uimulticollist ( 'units', 'normalized', 'position', [0 0 1 1], 'string', str ); 
+% 
+% now add a header 
+header = { 'ObjectName' 'Class 1' 'Class 2' 'Class 3' }; 
+uimulticollist ( h, 'addRow', header, 1 ) 
 end
 
 function allocation_soft(Labels, Alpha, Dist)
