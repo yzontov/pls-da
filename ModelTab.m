@@ -264,7 +264,8 @@ classdef  ModelTab < BasicTab
         
         function Recalibrate(src, ~)
             data = guidata(src);
-            ttab = data.modeltab;
+            win = data.window;
+            ttab = win.modelTab;
             Model = ttab.Model;
             
             index_selected = get(ttab.ddlCalibrationSet,'Value');
