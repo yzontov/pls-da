@@ -102,9 +102,10 @@ classdef  DataTab < BasicTab
             idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
             
             if ~isempty(idx)
-                vardisplay = cell(length(idx),1);
+                vardisplay = cell(length(idx)+1,1);
+                vardisplay{1} = '-';
                 for i = 1:length(idx)
-                    vardisplay{i} = varnames{idx(i)};
+                    vardisplay{i+1} = varnames{idx(i)};
                 end
                 set(ttab.listbox, 'String', vardisplay);
                 
@@ -113,6 +114,7 @@ classdef  DataTab < BasicTab
                 
                 names = varnames(idx);%fieldnames(ttab.Data);
                 selected_name = names{1};
+                set(ttab.listbox, 'Value', 2);
                 
                 %d = ttab.Data.(selected_name);
                 d = evalin('base', selected_name);
@@ -385,9 +387,10 @@ classdef  DataTab < BasicTab
             idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
             
             if ~isempty(idx)
-                vardisplay = cell(length(idx),1);
+                vardisplay = cell(length(idx)+1,1);
+                vardisplay{1} = '-';
                 for i = 1:length(idx)
-                    vardisplay{i} = varnames{idx(i)};
+                    vardisplay{i+1} = varnames{idx(i)};
                 end
                 set(ttab.listbox, 'String', vardisplay);
                 
@@ -544,6 +547,7 @@ classdef  DataTab < BasicTab
             selected_name = names{index_selected};
             
             %d = ttab.Data.(selected_name);
+            if index_selected > 1
             d = evalin('base', selected_name);
             
             set(ttab.chkCentering, 'Value', d.Centering);
@@ -551,7 +555,7 @@ classdef  DataTab < BasicTab
             
             set(ttab.chkTraining, 'Value', d.Training);
             set(ttab.chkValidation, 'Value', d.Validation);
-            
+            end
             %set(ttab.ddlPlotType, 'Value', d.PlotType);
             
             tab = ttab;
