@@ -37,21 +37,41 @@ classdef  GUIWindow<handle
                 win.tgroup = uitabgroup('Parent', f);
             end
             
+<<<<<<< HEAD
             data.window = win;
             guidata(gcf, data);
             
             if tabs(1)
                 win.dataTab = DataTab(win.tgroup);
+=======
+            
+            
+            if tabs(1)
+                win.dataTab = DataTab(win.tgroup);
+                data.datatab = win.dataTab;
+>>>>>>> master
             end
             
             if tabs(2)
                 win.modelTab = ModelTab(win.tgroup);
+<<<<<<< HEAD
+=======
+                data.modeltab = win.modelTab;
+>>>>>>> master
             end
             
             if tabs(3)
                 win.predictTab = PredictTab(win.tgroup);
+<<<<<<< HEAD
             end
             
+=======
+                data.predicttab = win.predictTab;
+            end
+            
+            data.window = win;
+            guidata(gcf, data);
+>>>>>>> master
         end
         
     end
