@@ -17,6 +17,8 @@ Validation tools
 
 User documentation and examples
 
+Additional visualization options in the GUI
+
 How to install
 --------------
 To get the latest release plase use [GitHub sources](https://github.com/yzontov/pls-da/). 
