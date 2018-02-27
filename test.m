@@ -16,7 +16,7 @@ Xnew = [];
 ObjectNamesNew = [];
 plsPC = 12;
 
-%plsda(plsPC, X, Y(:,1:2), Labels, Alpha, Gamma, Xnew, LabelsNew);
+%plsda(plsPC, X, Y(:,1:2), ObjectNames, Alpha, Gamma, Xnew, ObjectNamesNew);
 plsda(plsPC, X, Y, ObjectNames, Alpha, Gamma, Xnew, ObjectNamesNew);
 
 end

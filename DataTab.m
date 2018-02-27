@@ -31,13 +31,13 @@ classdef  DataTab < BasicTab
         function ttab = DataTab(tabgroup)
             ttab = ttab@BasicTab(tabgroup, 'Data');
             
-
+            
             
             uicontrol('Parent', ttab.left_panel, 'Style', 'pushbutton', 'String', 'New dataset',...
                 'Units', 'Normalized', 'Position', [0.3 0.9 0.35 0.05], ...
                 'callback', @DataTab.btnNew_Callback);%,'FontUnits', 'Normalized'
             
-
+            
             
             uicontrol('Parent', ttab.left_panel, 'Style', 'text', 'String', 'DataSet', ...
                 'Units', 'normalized','Position', [0.05 0.8 0.35 0.05], 'HorizontalAlignment', 'left');
@@ -209,7 +209,11 @@ classdef  DataTab < BasicTab
                         end
                 end
                 
-                filename = [type,'.emf'];%[type,'.png'];
+                filename = [type,'.png'];
+                if ispc
+                    filename = [type,'.emf'];
+                end
+
                 fig2 = figure('visible','off');
                 copyobj(ttab.data_plot_axes,fig2);
                 saveas(fig2, filename);
@@ -323,6 +327,24 @@ classdef  DataTab < BasicTab
                 %ttab = DataTab.drawPlot(ttab, selected_name);
                 
                 %set(ttab.listbox, 'String', lst);
+                
+                allvars = evalin('base','whos');
+                
+                idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
+                
+                win = data.window;
+                if sum(idx) > 0 && isempty(win.modelTab)
+                    win.modelTab = ModelTab(win.tgroup); data.window = win;
+                    
+                end
+                
+                if sum(idx) == 0 && ~isempty(win.modelTab)
+                    mtab = win.tgroup.Children(2);
+                    delete(mtab);
+                    win.modelTab = [];
+                    
+                end
+                
                 data.datatab = ttab;
                 guidata(obj, data);
             end
@@ -350,11 +372,11 @@ classdef  DataTab < BasicTab
             end
         end
         
-
+        
         
         function DataSetWindowCloseCallback(obj,callbackdata)
-
-
+            
+            
             ttab = obj.datatab;
             
             allvars = evalin('base','whos');
@@ -422,7 +444,7 @@ classdef  DataTab < BasicTab
             win.datatab = ttab;
             
             addlistener(win,'AddSet',@DataTab.DataSetWindowCloseCallback);
-
+            
         end
         
         function listClick(obj, ~)
@@ -431,7 +453,7 @@ classdef  DataTab < BasicTab
             
             index_selected = get(obj,'Value');
             
-            if(index_selected > 0)
+            if(index_selected > 1)
                 % extract all children
                 ttab = DataTab.enableRightPanel(ttab, 'on');
                 
@@ -547,155 +569,155 @@ classdef  DataTab < BasicTab
             tab = ttab;
         end
         
-%         function listDelete(obj, ~)
-%             data = guidata(obj);
-%             ttab = data.datatab;
-%             
-%             index_selected = get(ttab.listbox,'Value');
-%             names = fieldnames(ttab.Data);
-%             selected_name = names{index_selected};
-%             
-%             if isfield(ttab.Data, selected_name)
-%                 ttab.Data = rmfield(ttab.Data, selected_name);
-%             end
-%             
-%             set(ttab.listbox, 'Value', 1);
-%             lst = DataTab.redrawListbox(ttab);
-%             set(ttab.listbox, 'String', lst);
-%             
-%             set(ttab.lbox_mnu_train, 'Checked', 'off');
-%             set(ttab.lbox_mnu_val, 'Checked', 'off');
-%             
-%             win = data.window;
-%             
-%             if(length(win.tgroup.Children)>1 && sum(structfun(@(x) x.Training,ttab.Data)) == 0)
-%                 mtab = win.tgroup.Children(2);
-%                 delete(mtab);
-%                 win.modelTab = [];
-%             end
-%             
-%             data.window = win;
-%             
-%             
-%             dat = data.datatab.Data;
-%             names = fieldnames(dat);
-%             mtab = data.modeltab;
-%             
-%             train_names = names(structfun(@(x) x.Training == true , dat));
-%             val_names = names(structfun(@(x) x.Validation == true , dat));
-%             
-%             if ~isempty(train_names)
-%                 set(mtab.ddlCalibrationSet, 'String', train_names);
-%             end
-%             
-%             if ~isempty(val_names)
-%                 set(mtab.ddlValidationSet, 'String', val_names);
-%                 set(mtab.ddlValidationSet, 'enable', 'on');
-%             else
-%                 set(mtab.ddlValidationSet, 'enable', 'off');
-%             end
-%             
-%             data.modeltab = mtab;
-%             
-%             ttab = DataTab.resetRightPanel(ttab);
-%             ttab = DataTab.enableRightPanel(ttab, 'off');
-%             
-%             delete(ttab.data_plot);
-%             delete(ttab.data_plot_axes);
-%             
-%             data.datatab = ttab;
-%             guidata(obj, data);
-%         end
-%         
-%         function listTraining(obj, ~)
-%             data = guidata(obj);
-%             ttab = data.datatab;
-%             
-%             index_selected = get(ttab.listbox,'Value');
-%             names = fieldnames(ttab.Data);
-%             selected_name = names{index_selected};
-%             if ~ttab.Data.(selected_name).Training
-%                 ttab.Data.(selected_name).Training = true;
-%                 set(ttab.lbox_mnu_train, 'Checked', 'on');
-%             else
-%                 ttab.Data.(selected_name).Training = false;
-%                 set(ttab.lbox_mnu_train, 'Checked', 'off');
-%                 
-%                 win = data.window;
-%                 if(length(win.tgroup.Children)>1 && sum(structfun(@(x) x.Training,ttab.Data)) == 0)
-%                     mtab = win.tgroup.Children(2);
-%                     delete(mtab);
-%                     win.modelTab = [];
-%                 end
-%             end
-%             
-%             lst = DataTab.redrawListbox(ttab);
-%             set(ttab.listbox, 'String', lst);
-%             
-%             win = data.window;
-%             
-%             if sum(structfun(@(x) x.Training,ttab.Data)) > 0 && isempty(win.modelTab)
-%                 win.modelTab = ModelTab(win.tgroup);
-%                 data.window = win;
-%             end
-%             
-%             data = guidata(obj);
-%             mtab = data.modeltab;
-%             dat = data.datatab.Data;
-%             names = fieldnames(dat);
-%             
-%             train_names = names(structfun(@(x) x.Training == true , dat));
-%             
-%             if ~isempty(train_names)
-%                 set(mtab.ddlCalibrationSet, 'String', train_names);
-%             end
-%             
-%             data.modeltab = mtab;
-%             
-%             data.datatab = ttab;
-%             guidata(obj, data);
-%             
-%         end
-%         
-%         function listValidation(obj, ~)
-%             data = guidata(obj);
-%             ttab = data.datatab;
-%             
-%             index_selected = get(ttab.listbox,'Value');
-%             names = fieldnames(ttab.Data);
-%             selected_name = names{index_selected};
-%             
-%             if ~ttab.Data.(selected_name).Validation
-%                 ttab.Data.(selected_name).Validation = true;
-%                 set(ttab.lbox_mnu_val, 'Checked', 'on');
-%             else
-%                 ttab.Data.(selected_name).Validation = false;
-%                 set(ttab.lbox_mnu_val, 'Checked', 'off');
-%             end
-%             
-%             
-%             lst = DataTab.redrawListbox(ttab);
-%             set(ttab.listbox, 'String', lst);
-%             
-%             mtab = data.modeltab;
-%             dat = data.datatab.Data;
-%             names = fieldnames(dat);
-%             
-%             val_names = names(structfun(@(x) x.Validation == true , dat));
-%             
-%             if ~isempty(val_names)
-%                 set(mtab.ddlValidationSet, 'String', val_names);
-%                 set(mtab.ddlValidationSet, 'enable', 'on');
-%             else
-%                 set(mtab.ddlValidationSet, 'enable', 'off');
-%             end
-%             
-%             data.modeltab = mtab;
-%             
-%             data.datatab = ttab;
-%             guidata(obj, data);
-%             
-%         end
+        %         function listDelete(obj, ~)
+        %             data = guidata(obj);
+        %             ttab = data.datatab;
+        %
+        %             index_selected = get(ttab.listbox,'Value');
+        %             names = fieldnames(ttab.Data);
+        %             selected_name = names{index_selected};
+        %
+        %             if isfield(ttab.Data, selected_name)
+        %                 ttab.Data = rmfield(ttab.Data, selected_name);
+        %             end
+        %
+        %             set(ttab.listbox, 'Value', 1);
+        %             lst = DataTab.redrawListbox(ttab);
+        %             set(ttab.listbox, 'String', lst);
+        %
+        %             set(ttab.lbox_mnu_train, 'Checked', 'off');
+        %             set(ttab.lbox_mnu_val, 'Checked', 'off');
+        %
+        %             win = data.window;
+        %
+        %             if(length(win.tgroup.Children)>1 && sum(structfun(@(x) x.Training,ttab.Data)) == 0)
+        %                 mtab = win.tgroup.Children(2);
+        %                 delete(mtab);
+        %                 win.modelTab = [];
+        %             end
+        %
+        %             data.window = win;
+        %
+        %
+        %             dat = data.datatab.Data;
+        %             names = fieldnames(dat);
+        %             mtab = data.modeltab;
+        %
+        %             train_names = names(structfun(@(x) x.Training == true , dat));
+        %             val_names = names(structfun(@(x) x.Validation == true , dat));
+        %
+        %             if ~isempty(train_names)
+        %                 set(mtab.ddlCalibrationSet, 'String', train_names);
+        %             end
+        %
+        %             if ~isempty(val_names)
+        %                 set(mtab.ddlValidationSet, 'String', val_names);
+        %                 set(mtab.ddlValidationSet, 'enable', 'on');
+        %             else
+        %                 set(mtab.ddlValidationSet, 'enable', 'off');
+        %             end
+        %
+        %             data.modeltab = mtab;
+        %
+        %             ttab = DataTab.resetRightPanel(ttab);
+        %             ttab = DataTab.enableRightPanel(ttab, 'off');
+        %
+        %             delete(ttab.data_plot);
+        %             delete(ttab.data_plot_axes);
+        %
+        %             data.datatab = ttab;
+        %             guidata(obj, data);
+        %         end
+        %
+        %         function listTraining(obj, ~)
+        %             data = guidata(obj);
+        %             ttab = data.datatab;
+        %
+        %             index_selected = get(ttab.listbox,'Value');
+        %             names = fieldnames(ttab.Data);
+        %             selected_name = names{index_selected};
+        %             if ~ttab.Data.(selected_name).Training
+        %                 ttab.Data.(selected_name).Training = true;
+        %                 set(ttab.lbox_mnu_train, 'Checked', 'on');
+        %             else
+        %                 ttab.Data.(selected_name).Training = false;
+        %                 set(ttab.lbox_mnu_train, 'Checked', 'off');
+        %
+        %                 win = data.window;
+        %                 if(length(win.tgroup.Children)>1 && sum(structfun(@(x) x.Training,ttab.Data)) == 0)
+        %                     mtab = win.tgroup.Children(2);
+        %                     delete(mtab);
+        %                     win.modelTab = [];
+        %                 end
+        %             end
+        %
+        %             lst = DataTab.redrawListbox(ttab);
+        %             set(ttab.listbox, 'String', lst);
+        %
+        %             win = data.window;
+        %
+        %             if sum(structfun(@(x) x.Training,ttab.Data)) > 0 && isempty(win.modelTab)
+        %                 win.modelTab = ModelTab(win.tgroup);
+        %                 data.window = win;
+        %             end
+        %
+        %             data = guidata(obj);
+        %             mtab = data.modeltab;
+        %             dat = data.datatab.Data;
+        %             names = fieldnames(dat);
+        %
+        %             train_names = names(structfun(@(x) x.Training == true , dat));
+        %
+        %             if ~isempty(train_names)
+        %                 set(mtab.ddlCalibrationSet, 'String', train_names);
+        %             end
+        %
+        %             data.modeltab = mtab;
+        %
+        %             data.datatab = ttab;
+        %             guidata(obj, data);
+        %
+        %         end
+        %
+        %         function listValidation(obj, ~)
+        %             data = guidata(obj);
+        %             ttab = data.datatab;
+        %
+        %             index_selected = get(ttab.listbox,'Value');
+        %             names = fieldnames(ttab.Data);
+        %             selected_name = names{index_selected};
+        %
+        %             if ~ttab.Data.(selected_name).Validation
+        %                 ttab.Data.(selected_name).Validation = true;
+        %                 set(ttab.lbox_mnu_val, 'Checked', 'on');
+        %             else
+        %                 ttab.Data.(selected_name).Validation = false;
+        %                 set(ttab.lbox_mnu_val, 'Checked', 'off');
+        %             end
+        %
+        %
+        %             lst = DataTab.redrawListbox(ttab);
+        %             set(ttab.listbox, 'String', lst);
+        %
+        %             mtab = data.modeltab;
+        %             dat = data.datatab.Data;
+        %             names = fieldnames(dat);
+        %
+        %             val_names = names(structfun(@(x) x.Validation == true , dat));
+        %
+        %             if ~isempty(val_names)
+        %                 set(mtab.ddlValidationSet, 'String', val_names);
+        %                 set(mtab.ddlValidationSet, 'enable', 'on');
+        %             else
+        %                 set(mtab.ddlValidationSet, 'enable', 'off');
+        %             end
+        %
+        %             data.modeltab = mtab;
+        %
+        %             data.datatab = ttab;
+        %             guidata(obj, data);
+        %
+        %         end
     end
     
 end

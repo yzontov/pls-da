@@ -317,11 +317,11 @@ end
 fprintf('\n\n');
 
 % create the uimulticollist 
-h=uimulticollist ( 'units', 'normalized', 'position', [0 0 1 1], 'string', str ); 
-% 
-% now add a header 
-header = { 'ObjectName' 'Class 1' 'Class 2' 'Class 3' }; 
-uimulticollist ( h, 'addRow', header, 1 ) 
+% h=uimulticollist ( 'units', 'normalized', 'position', [0 0 1 1], 'string', str ); 
+% % 
+% % now add a header 
+% header = { 'ObjectName' 'Class 1' 'Class 2' 'Class 3' }; 
+% uimulticollist ( h, 'addRow', header, 1 ) 
 end
 
 function allocation_soft(Labels, Alpha, Dist)

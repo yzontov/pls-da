@@ -1,39 +1,400 @@
 classdef PLSDAModel < handle
     %PLSDAModel class
     
-    properties
+    properties (Access = private)
+        numPC_pls;
+        numPC_pca;
+        
         Distances_Hard;
         Distances_Soft;
+        
+        rX;
+        rY;
+        plsW;
+        plsP;
+        plsQ;
+        Lambda;
+        
+        YpredT;
+        YpredP;
+        w;
+        v;
+        t0;
+        K;
+        Centers;
+        
+        NewDataSet;
+        YpredTnew;
+    end
+    
+    properties
+        Name = '';
+        Mode = 'soft';
+        
+        TrainingDataSet;
+        NumPC;
+        
+        Finalized = false;
+        
+        Alpha;
+        Gamma;
+    end
+    
+    properties (Dependent = true)
+        
+        Distances;
+        
+        ConfusionMatrix;
+        FiguresOfMerit;
+        AllocationTable;
+        AllocationMatrix;
+        
     end
     
     methods
         
-        function obj = PLSDAModel(TraningDataSet, numPC, Alpha, Gamma)
+        function value = get.Distances(self)
+            %Distances get
+            
+            if strcmp(self.Mode, 'hard')
+                value = self.Distances_Hard;
+            end
+            
+            if strcmp(self.Mode, 'soft')
+                value = self.Distances_Soft;
+            end
+        end
+        
+        function value = get.FiguresOfMerit(self)
+            %FiguresOfMerit get
+            value = PLSDAModel.FoM(self.ConfusionMatrix, sum(self.TrainingDataSet.DummyMatrix()));
+        end
+        
+        function m = get.AllocationTable(self)
+            %AllocationTable get
+            Labels = cell(size(self.TrainingDataSet.ProcessedData, 1),1);
+            for i = 1:size(self.TrainingDataSet.ProcessedData, 1)
+                Labels{i} = sprintf('Object No.%d', i);
+            end
+            
+            if(~isempty(self.TrainingDataSet.ObjectNames))
+                Labels = self.TrainingDataSet.ObjectNames;
+            end
+            
+            if strcmp(self.Mode, 'hard')
+                m = PLSDAModel.allocation_hard(Labels, self.Distances_Hard);
+            end
+            
+            if strcmp(self.Mode, 'soft')
+                m = PLSDAModel.allocation_soft(Labels, self.Alpha, self.Distances_Soft);
+            end
+        end
+        
+        function m = get.AllocationMatrix(self)
+            m = zeros(size(self.TrainingDataSet.DummyMatrix()));
+            
+            if strcmp(self.Mode, 'hard')
+                
+            for i = 1:I
+                for k = 1:self.K
+                    if self.Distances_Hard(i,k) == min(self.Distances_Hard(i,:))
+                        m(i,k) = 1;
+                    end
+                end
+            end
+                
+            end
+            
+            if strcmp(self.Mode, 'soft')
+                m = PLSDAModel.allocation_soft(Labels, self.Alpha, self.Distances_Soft);
+                
+                Dcrit = PLSDAModel.chi2inv_(1-self.Alpha, self.K-1);
+                
+            for i = 1:I
+                for k = 1:self.K
+                    if self.Distances_Soft(i,k) < Dcrit 
+                        m(i,k) = 1;
+                    end
+                end
+            end
+            end
+        end
+        
+        function set.Alpha(self,value)
+            %Alpha get/set
+            
+            self.Alpha = value;
+            
+        end
+        
+        function set.TrainingDataSet(self,value)
+            %Alpha get/set
+            
+            self.TrainingDataSet = value;
+            self.numPC_pca = max(2, size(self.TrainingDataSet.DummyMatrix(), 2)-1);%temp
+            
+        end
+        
+        function set.NumPC(self,value)
+            %Alpha get/set
+            
+            self.numPC_pls = value;
+            
+        end
+        
+        function m = get.NumPC(self)
+            %Alpha get/set
+            
+            m = self.numPC_pls;
+            
+        end
+        
+        function set.Gamma(self,value)
+            %Gamma get/set
+            self.Gamma = value;
+        end
+        
+        function m = get.ConfusionMatrix(self)
+            %ConfusionMatrix get
+            if strcmp(self.Mode, 'hard')
+                m = PLSDAModel.confusionMatrix(self.TrainingDataSet.DummyMatrix(),self.Distances_Hard,0);
+            end
+            
+            if strcmp(self.Mode, 'soft')
+                m = PLSDAModel.confusionMatrix(self.TrainingDataSet.DummyMatrix(),self.Distances_Soft, 1, self.Alpha);
+            end
+        end
+        
+        function obj = PLSDAModel(TrainingDataSet, numPC, Alpha, Gamma)
+            
+            obj.TrainingDataSet = TrainingDataSet;
+            obj.numPC_pls = numPC;
+            
+            obj.numPC_pca = max(2, size(TrainingDataSet.DummyMatrix(), 2)-1);%temp
+            
+            obj.Alpha = Alpha;
+            obj.Gamma = Gamma;
+            
+            obj.Rebuild();
             
         end
         
         function Rebuild(self)
             
+            X = self.TrainingDataSet.RawData();
+            Y = self.TrainingDataSet.DummyMatrix();
+            
+            self.rX.Mat = X;
+            
+            if self.TrainingDataSet.Centering && ~self.TrainingDataSet.Scaling
+                self.rX = PLSDAModel.preprocess(0, X);%center
+            end
+            
+            if ~self.TrainingDataSet.Centering && self.TrainingDataSet.Scaling
+                self.rX = PLSDAModel.preprocess(1, X);%scale
+            end
+            
+            if self.TrainingDataSet.Centering && self.TrainingDataSet.Scaling
+                self.rX = PLSDAModel.preprocess(2, X);%autoscale
+            end
+            
+            rY = PLSDAModel.preprocess(0, self.TrainingDataSet.DummyMatrix());%center
+            
+            self.K = size(Y, 2);
+            I = size(Y, 1);
+            
+            numPCpls = self.numPC_pls;%12;
+            numPCpca = self.numPC_pca;%max(2, K - 1);
+            
+            [plsT,self.plsP,self.plsQ,self.plsW] = PLSDAModel.plsnipals(self.rX.Mat,rY.Mat,numPCpls);
+            
+            Ypred = plsT*self.plsQ';
+            
+            %Ypred = postprocess(rY, Ypred);
+            
+            [self.YpredT, self.YpredP, ~] = PLSDAModel.decomp(Ypred, numPCpca);
+            
+            self.YpredT = -self.YpredT;%!!!!
+            self.YpredP = -self.YpredP;%!!!!
+            
+            %Hard
+            E = eye(self.K);
+            E = PLSDAModel.preprocess_newset(rY, E);
+            
+            self.Centers = E*self.YpredP;
+            
+            self.Lambda = (self.YpredT'*self.YpredT);
+            
+            self.Distances_Hard = zeros(size(Ypred));
+            for k = 1:self.K
+                for i = 1:I
+                    self.Distances_Hard(i,k) = ((self.YpredT(i,:) - self.Centers(k,:))/self.Lambda)*(self.YpredT(i,:) - self.Centers(k,:))';
+                end
+            end
+            
+            self.w = self.Centers/self.Lambda;
+            self.v = diag(0.5*(self.Centers/self.Lambda)*self.Centers');
+            self.t0 = (self.v'*self.YpredP)*self.Lambda;
+            
+            %Soft
+            self.Distances_Soft = zeros(size(Ypred));
+            for k = 1:self.K
+                for i = 1:I
+                    self.Distances_Soft(i,k) = PLSDAModel.mahdis(self.YpredT(i,:), self.Centers(k,:), self.YpredT(Y(:,k) == 1,:));
+                end
+            end
+            
+            
         end
         
         function Result = Apply(self, NewDataSet)%Xnew, ObjectNames)
+            Xnew_p = PLSDAModel.preprocess_newset(self.rX, NewDataSet.RawData);
+            
+            %Y = self.TrainingDataSet.DummyMatrix();
+            I = size(Xnew_p, 1);
+            
+            Wstar=self.plsW*(self.plsP'*self.plsW)^(-1);
+            B=Wstar*self.plsQ';
+            Ypred_new = Xnew_p*B;
+            
+            %[self.YpredTnew, ~, ~] = PLSDAModel.decomp(Ypred_new, self.numPC_pca);
+            
+            self.YpredTnew = Ypred_new*self.YpredP;%!!!!
+            
+            Result.Mode = self.Mode;
+
+            %AllocationTable get
+            Labels = cell(size(Xnew_p, 1),1);
+            for i = 1:size(Xnew_p, 1)
+                Labels{i} = sprintf('New object No.%d', i);
+            end
+            
+            if(~isempty(NewDataSet.ObjectNames))
+                Labels = NewDataSet.ObjectNames;
+            end
+            
+            if strcmp(self.Mode, 'hard')
+                
+                 Distances_Hard_New = zeros(size(Ypred_new));
+            for k = 1:self.K
+                for i = 1:I
+                    Distances_Hard_New(i,k) = ((self.YpredTnew(i,:) - self.Centers(k,:))/self.Lambda)*(self.YpredTnew(i,:) - self.Centers(k,:))';
+                end
+            end
+            
+            Result.Distances = Distances_Hard_New;
+                
+                Result.AllocationTable = PLSDAModel.allocation_hard(Labels, Distances_Hard_New);
+            end
+            
+            if strcmp(self.Mode, 'soft')
+                Y = self.TrainingDataSet.DummyMatrix();
+                 Distances_Soft_New = zeros(size(Ypred_new));
+            for k = 1:self.K
+                for i = 1:I
+                    Distances_Soft_New(i,k) = PLSDAModel.mahdis(self.YpredTnew(i,:), self.Centers(k,:), self.YpredT(Y(:,k) == 1,:));
+                end
+            end
+                Result.Distances = Distances_Soft_New;
+                Result.AllocationTable = PLSDAModel.allocation_soft(Labels, self.Alpha, Distances_Soft_New);
+            end
             
         end
         
-        function fig = HardPLSDAPlot(self)
+        function fig = Plot(self, axes, pc1, pc2)
+            
+            if nargin < 4
+                pc1 = 1;
+                pc2 = 2;
+                
+            end
+            
+            if nargin < 2
+                fig = figure;
+                axes = gca;
+            end
+            
+            [mark, color] = PLSDAModel.plotsettings(self.K);
+            axis(axes,[-1 1 -1 1]);
+            hold on
+            
+            Y = self.TrainingDataSet.DummyMatrix();
+            %samples
+            for class = 1:self.K
+                temp = self.YpredT(Y(:,class) == 1,:);
+                plot(axes,temp(:,pc1), temp(:,pc2),[mark{class} color{class}]);%,'MarkerFaceColor', color{class});
+            end
+            
+            %hard
+            w_ = [self.w(:,pc1) self.w(:,pc2)];
+            v_ = self.v;
+            t0_ = [self.t0(pc1) self.t0(pc2)];
+            Centers_ = [self.Centers(:,pc1) self.Centers(:,pc2)];
+            PLSDAModel.hard_plot(axes,w_,v_,t0_,self.K,Centers_);
+            
+            %soft
+            if strcmp(self.Mode, 'soft')
+                YpredT_ = [self.YpredT(:,pc1) self.YpredT(:,pc2)];
+                PLSDAModel.soft_plot(axes, YpredT_, Y,Centers_,color, self.Alpha, self.numPC_pca, self.Gamma, self.K);
+            end
+            
+            %center
+            %plot(t0(pc1),t0(pc2), '*');
+            hold off
+            
             
         end
         
-        function fig = SoftPLSDAPlot(self)
-
+        function fig = PlotNewSet(self, axes, pc1, pc2)
+            
+            if nargin < 4
+                pc1 = 1;
+                pc2 = 2;
+                
+            end
+            
+            if nargin < 2
+                fig = figure;
+                axes = gca;
+            end
+            
+            [mark, color] = PLSDAModel.plotsettings(self.K);
+            axis(axes,[-1 1 -1 1]);
+            hold on
+            
+            %Y = self.NewDataSet.DummyMatrix();
+            %samples
+            %for class = 1:self.K
+            %    temp = self.YpredTnew(Y(:,class) == 1,:);
+            
+            plot(axes,self.YpredTnew(:,pc1), self.YpredTnew(:,pc2),'ok');%[mark{class} color{class}]);%,'MarkerFaceColor', color{class});
+            
+            %end
+            
+            %hard
+            w_ = [self.w(:,pc1) self.w(:,pc2)];
+            v_ = self.v;
+            t0_ = [self.t0(pc1) self.t0(pc2)];
+            Centers_ = [self.Centers(:,pc1) self.Centers(:,pc2)];
+            PLSDAModel.hard_plot(axes,w_,v_,t0_,self.K,Centers_);
+            
+            %soft
+            if strcmp(self.Mode, 'soft')
+                Y = self.TrainingDataSet.DummyMatrix();
+                YpredT_ = [self.YpredT(:,pc1) self.YpredT(:,pc2)];
+                PLSDAModel.soft_plot(axes, YpredT_, Y,Centers_,color, self.Alpha, self.numPC_pca, self.Gamma, self.K);
+            end
+            
+            %center
+            %plot(t0(pc1),t0(pc2), '*');
+            hold off
+            
+            
         end
         
-        function fig = Plot(self, pc1, pc2)
-
-        end
     end
     
-    methods (Access = private)
+    methods (Static, Access = private)
         
         function [mark, color] = plotsettings(class_number)
             mark = cell(1,class_number);
@@ -134,7 +495,7 @@ classdef PLSDAModel < handle
                 return;
             end
             
-            z = norminv_(p);
+            z = PLSDAModel.norminv_(p);
             dTemp1=2/9/n;
             dTemp=1-dTemp1+z*sqrt(dTemp1);
             
@@ -150,7 +511,7 @@ classdef PLSDAModel < handle
                 error('!!!');
             end
             
-            p1 = chi2cdf_(f, n);
+            p1 = PLSDAModel.chi2cdf_(f, n);
             if (abs(p1 - p) < 1e-8)
                 r = f;
                 return;
@@ -168,7 +529,7 @@ classdef PLSDAModel < handle
                     break;
                 end
                 h = h*2;
-                p1=chi2cdf_(z,n);
+                p1=PLSDAModel.chi2cdf_(z,n);
                 
                 flag = (p1-p)*h<0;
             end
@@ -192,7 +553,7 @@ classdef PLSDAModel < handle
             
             for i=0:50000
                 f=(x1+x2)/2.0;
-                p1=chi2cdf_(f,n);
+                p1=PLSDAModel.chi2cdf_(f,n);
                 
                 if abs(p1-p)<0.001*p*(1-p)&& abs(x1-x2)<0.0001*abs(x1)/(abs(x1)+abs(x2))
                     break;
@@ -250,13 +611,146 @@ classdef PLSDAModel < handle
             
         end
         
-        function hard_plot(w,v,t0,K,Centers)
+        function ret = mahdis(t, c, Tk)
+            
+            m = size(Tk, 1);
+            
+            nor = t - c;
+            centr = bsxfun(@minus, Tk, c);
+            centr = centr/sqrt(m);
+            
+            mat = centr'*centr;
+            tmp = (nor/mat)*nor';
+            ret = tmp;
+            
+        end
+        
+        function res = preprocess_newset(self, XTest1)
+            %apply preprocessing defind by the model to the new set
+            XTest = XTest1;
+            if ~isempty(self.Model.TrainingSet_mean)
+                XTest = bsxfun(@minus, XTest, self.Model.TrainingSet_mean);
+            end
+            if ~isempty(self.Model.TrainingSet_std)
+                XTest = bsxfun(@rdivide, XTest, self.Model.TrainingSet_std);
+            end
+            res = XTest;
+        end
+        
+        function res = postprocess(self, XTest1)
+            %apply preprocessing defind by the model to the new set
+            XTest = XTest1;
+            if ~isempty(self.Model.TrainingSet_std)
+                XTest = bsxfun(@times, XTest, self.Model.TrainingSet_std);
+            end
+            if ~isempty(self.Model.TrainingSet_mean)
+                XTest = bsxfun(@plus, XTest, self.Model.TrainingSet_mean);
+            end
+            res = XTest;
+        end
+        
+        function res = preprocess(mode, XTest1)
+            %apply preprocessing
+            [~,Nx]=size(XTest1);
+            Mean = [];
+            Std = [];
+            XTest = XTest1;
+            if mode == 0 %center
+                Mean = mean(XTest1);
+                XTest = bsxfun(@minus, XTest, Mean);
+                Std = ones(1, Nx);
+            end
+            if mode == 1 %scale
+                temp = std(XTest1,0,1);
+                temp(temp == 0) = 1;
+                Std = temp;
+                XTest = bsxfun(@rdivide, XTest, Std);
+            end
+            
+            if mode == 2 %autoscale
+                Mean = mean(XTest1);
+                XTest = bsxfun(@minus, XTest, Mean);
+                
+                temp = std(XTest1,0,1);
+                temp(temp == 0) = 1;
+                Std = temp;
+                XTest = bsxfun(@rdivide, XTest, Std);
+            end
+            
+            res.Mat = XTest;
+            res.Model.TrainingSet_mean = Mean;
+            res.Model.TrainingSet_std = Std;
+        end
+        
+        function [T,P,Q,W]=plsnipals(X,Y,A)
+            %+++ The NIPALS algorithm for both PLS-1 (a single y) and PLS-2 (multiple Y)
+            %+++ X: n x p matrix
+            %+++ Y: n x m matrix
+            %+++ A: number of latent variables
+            %+++ Code: Hongdong Li, lhdcsu@gmail.com, Feb, 2014
+            %+++ reference: Wold, S., M. Sj?str?m, and L. Eriksson, 2001. PLS-regression: a basic tool of chemometrics,
+            %               Chemometr. Intell. Lab. 58(2001)109-130.
+            
+            for i=1:A
+                error=1;
+                u=Y(:,1);
+                niter=0;
+                while (error>1e-8 && niter<1000)  % for convergence test
+                    w=X'*u/(u'*u);
+                    w=w/norm(w);
+                    t=X*w;
+                    q=Y'*t/(t'*t);  % regress Y against t;
+                    u1=Y*q/(q'*q);
+                    error=norm(u1-u)/norm(u);
+                    u=u1;
+                    niter=niter+1;
+                end
+                p=X'*t/(t'*t);
+                X=X-t*p';
+                Y=Y-t*q';
+                
+                %+++ store
+                W(:,i)=w;
+                T(:,i)=t;
+                P(:,i)=p;
+                Q(:,i)=q;
+                
+            end
+            
+            %+++
+        end
+        
+        function [T,P,Eig]= decomp (X, NumPC)
+            % decomp - PCA decomposition based on X matrix with numPC components
+            %----------------------------------------------
+            [V,D,P] = svd(X);
+            T = V*D;
+            T = T(:,1:NumPC);
+            P = P(:,1:NumPC);
+            Eig = D(1:NumPC,1:NumPC);
+            %loads_in{1}=T;
+            %loads_in{2}=P;
+            %[sgns,loads] = sign_flip(loads_in, X);
+            % end of decomp function
+        end
+        
+        function res = combnk2(K)
+            res = [];
+            
+            for i = 1:K
+                for j = i+1:K
+                    res = [res;[i j]];
+                end
+            end
+        end
+        
+        function hard_plot(axes,w,v,t0,K,Centers)
             delta = 1.5;
             
             x_min = t0(1) - delta;
             x_max = t0(1) + delta;
             
-            class_borders_ind = sortrows(combnk(1:K,2));
+            class_borders_ind = sortrows(PLSDAModel.combnk2(K));
             if K > 2
                 
                 for i = 1:size(class_borders_ind, 1)
@@ -275,7 +769,12 @@ classdef PLSDAModel < handle
                         x = x_max;
                         y = y_max;
                     end
-                    plot([t0(1) x],[t0(2) y], '-k');
+                    
+                    if ~isempty(axes)
+                        plot(axes, [t0(1) x],[t0(2) y], '-k');
+                    else
+                        plot([t0(1) x],[t0(2) y], '-k');
+                    end
                 end
                 
             else
@@ -283,23 +782,38 @@ classdef PLSDAModel < handle
                 vij = v(1)-v(2);
                 y_min = -(x_min*wij(1) - vij)/wij(2);
                 y_max = -(x_max*wij(1) - vij)/wij(2);
-                plot([ x_min t0(1)],[ y_min t0(2)], '-k');
-                plot([t0(1) x_max],[t0(2) y_max], '-k');
+                
+                if ~isempty(axes)
+                    plot(axes,[ x_min t0(1)],[ y_min t0(2)], '-k');
+                    plot(axes,[t0(1) x_max],[t0(2) y_max], '-k');
+                else
+                    plot([ x_min t0(1)],[ y_min t0(2)], '-k');
+                    plot([t0(1) x_max],[t0(2) y_max], '-k');
+                end
+                
             end
             
         end
         
-        function soft_plot(YpredT, Y,Centers,color, Alpha, numPCpca, Gamma, K)
-            AcceptancePlot = cell(3,1);
-            OutliersPlot = cell(3,1);
+        function soft_plot(axes,YpredT, Y,Centers,color, Alpha, numPCpca, Gamma, K)
+            AcceptancePlot = cell(K,1);
+            OutliersPlot = cell(K,1);
             for class = 1:K
-                [AcceptancePlot{class}, OutliersPlot{class}] = soft_classes_plot(YpredT(Y(:,class) == 1,:), Centers(class,:), Alpha, numPCpca, Gamma, K);
+                [AcceptancePlot{class}, OutliersPlot{class}] = PLSDAModel.soft_classes_plot(YpredT(Y(:,class) == 1,:), Centers(class,:), Alpha, numPCpca, Gamma, K);
                 plot(AcceptancePlot{class}(:,1), AcceptancePlot{class}(:,2),['-' color{class}]);
                 if ~isempty(Gamma)
-                    plot(OutliersPlot{class}(:,1), OutliersPlot{class}(:,2),['--' color{class}]);
+                    if ~isempty(axes)
+                        plot(axes, OutliersPlot{class}(:,1), OutliersPlot{class}(:,2),['--' color{class}]);
+                    else
+                        plot(OutliersPlot{class}(:,1), OutliersPlot{class}(:,2),['--' color{class}]);
+                    end
                 end
                 temp_c =Centers(class,:);
-                plot(temp_c(:,1), temp_c(:,2),['+' color{class}]);
+                if ~isempty(axes)
+                    plot(axes, temp_c(:,1), temp_c(:,2),['+' color{class}]);
+                else
+                    plot(temp_c(:,1), temp_c(:,2),['+' color{class}]);
+                end
             end
         end
         
@@ -307,7 +821,7 @@ classdef PLSDAModel < handle
             
             len = size(pcaScoresK,1);
             cov = inv(((pcaScoresK-repmat(Center, len, 1))'*(pcaScoresK-repmat(Center, len, 1)))/len);
-            [~, P, Eig] = decomp(cov, numPC);
+            [~, P, Eig] = PLSDAModel.decomp(cov, numPC);
             P = -P;%!!!!!!
             SqrtSing = diag(sqrt(Eig))';
             
@@ -320,11 +834,11 @@ classdef PLSDAModel < handle
             xy = bsxfun(@rdivide, [cos(fi)' sin(fi)'], SqrtSing);
             J = 1:size(xy,1);
             pc = cell2mat(arrayfun(@(i) xy(i,:)*P, J.','UniformOutput', false));
-            sqrtchi = sqrt(chi2inv_(1-Alpha, 2));
+            sqrtchi = sqrt(PLSDAModel.chi2inv_(1-Alpha, 2));
             AcceptancePlot = pc*sqrtchi + repmat(Center, size(xy,1), 1);
             
             if ~isempty(Gamma)
-                Dout = sqrt(chi2inv_((1-Gamma)^(1/len), K-1));
+                Dout = sqrt(PLSDAModel.chi2inv_((1-Gamma)^(1/len), K-1));
                 OutliersPlot = pc*Dout + repmat(Center, size(xy,1), 1);
             else
                 OutliersPlot = [];
@@ -341,7 +855,7 @@ classdef PLSDAModel < handle
             end
             
             if nargin == 4 && mode == 1
-                Dcrit = chi2inv_(1-Alpha, K-1);
+                Dcrit = PLSDAModel.chi2inv_(1-Alpha, K-1);
             end
             
             
@@ -398,7 +912,7 @@ classdef PLSDAModel < handle
             r.FP = sum(ConfusionMatrix - diag(diag(ConfusionMatrix)));
             CSNS = r.TP./Ik;
             r.CSNS = 100*CSNS;
-            CSPS = 1 - r.FP./(sum(Ik)-r.TP);
+            CSPS = 1 - r.FP./(sum(Ik)-Ik);
             r.CSPS = 100*CSPS;
             r.CEFF = 100*sqrt(CSNS.*CSPS);
             TSNS = sum(r.TP)/sum(Ik);
@@ -408,52 +922,56 @@ classdef PLSDAModel < handle
             r.TEFF = 100*sqrt(TSNS*TSPS);
         end
         
-        function allocation_hard(Labels, Dist)
+        function r = allocation_hard(Labels, Dist)
             m = max(cellfun(@length, Labels));
             format = ['%-' sprintf('%d', m) 's\t'];
-            
-            fprintf('Decision Hard\n');
+            r = '';
+            r = [r, 'Decision Hard\n'];
             [I,K] = size(Dist);
-            fprintf(format, ' ');
-            fprintf('\t%d', 1:K);
-            fprintf('\n');
+            r = [r,sprintf(format, ' ')];
+            r = [r,sprintf('\t%d', 1:K)];
+            r = [r,'\n'];
             for i = 1:I
-                fprintf(format, Labels{i});
+                r = [r,sprintf(format, Labels{i})];
                 for k = 1:K
                     if Dist(i,k) == min(Dist(i,:))
-                        fprintf('\t*');
+                        r = [r,'\t*'];
                     else
-                        fprintf('\t ');
+                        r = [r,'\t '];
                     end
                 end
-                fprintf('\n');
+                r = [r,'\n'];
             end
-            fprintf('\n\n');
+            r = [r,'\n\n'];
+            r = strrep(r,'\n', newline);
+            r = strrep(r,'\t', char(9));
         end
         
-        function allocation_soft(Labels, Alpha, Dist)
+        function r = allocation_soft(Labels, Alpha, Dist)
             m = max(cellfun(@length, Labels));
             format = ['%-' sprintf('%d', m) 's\t'];
-            
-            fprintf('Decision Soft\n');
+            r = '';
+            r = [r,'Decision Soft\n'];
             [I,K] = size(Dist);
-            Dcrit = chi2inv_(1-Alpha, K-1);
+            Dcrit = PLSDAModel.chi2inv_(1-Alpha, K-1);
             
-            fprintf(format, ' ');
-            fprintf('\t%d', 1:K);
-            fprintf('\n');
+            r = [r,sprintf(format, ' ')];
+            r = [r,sprintf('\t%d', 1:K)];
+            r = [r,'\n'];
             for i = 1:I
-                fprintf(format, Labels{i});
+                r = [r,sprintf(format, Labels{i})];
                 for k = 1:K
                     if Dist(i,k) < Dcrit
-                        fprintf('\t*');
+                        r = [r,'\t*'];
                     else
-                        fprintf('\t ');
+                        r = [r,'\t '];
                     end
                 end
-                fprintf('\n');
+                r = [r,'\n'];
             end
-            fprintf('\n\n');
+            r = [r,'\n\n'];
+            r = strrep(r,'\n', newline);
+            r = strrep(r,'\t', char(9));
         end
         
     end

@@ -7,7 +7,13 @@ classdef  GUIWindow<handle
     end
     methods
         
-        function win = GUIWindow(tabs)
+        function win = GUIWindow(tabs, extra_title)
+            
+            if nargin == 1
+                extra_title = '';
+            else
+                extra_title = [' - Model: ' extra_title];
+            end
             
             %get version year
             v = version('-release');
@@ -20,7 +26,7 @@ classdef  GUIWindow<handle
             set(f,'Visible','on');
             set(f, 'MenuBar', 'none');
             set(f, 'ToolBar', 'none');
-            set(f,'name','PLS-DA Tool','numbertitle','off');
+            set(f,'name',['PLS-DA Tool (Beta)' extra_title],'numbertitle','off');
             %set(f, 'Resize', 'off');
             set(f, 'Units', 'Normalized');
             set(f, 'Position', [0.1 0.1 0.8 0.7]);
@@ -33,7 +39,7 @@ classdef  GUIWindow<handle
             
             data.window = win;
             guidata(gcf, data);
-
+            
             if tabs(1)
                 win.dataTab = DataTab(win.tgroup);
             end
@@ -473,7 +479,7 @@ classdef  GUIWindow<handle
             
             for ii=nPrompts:-1:1
                 uicontrol('Parent',hFig,'Style','text',     'Units','char','Position',textpos, 'String',prompts{ii},'HorizontalAlignment','left');
-                                
+                
                 %YZ
                 if ~isempty(types) && strcmp(types{ii}, 'textedit')
                     hPopup(ii) = uicontrol('Parent',hFig,'Style','edit','Units','char','Position',popuppos,'String','');
@@ -527,7 +533,7 @@ classdef  GUIWindow<handle
                                 varoutnames{ind} = str{val}; % store name of selected workspace variable
                             else
                                 varout{ind} = txt;%YZ
-                                varoutnames{ind} = 'DataSetName'; 
+                                varoutnames{ind} = 'DataSetName';
                             end
                         end
                         

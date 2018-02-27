@@ -304,8 +304,12 @@ classdef  DataSetWindow<handle
                         d.Variables = win.GetObject(get(win.ddlVariables, 'String'), get(win.ddlVariables, 'Value'));
                     end
                     
+                    if get(win.ddlObjectNames, 'Value') > 1
+                        d.ObjectNames = win.GetObject(get(win.ddlObjectNames, 'String'), get(win.ddlObjectNames, 'Value'));
+                    end
+                    
                     if get(win.ddlClassLabels, 'Value') > 1
-                        d.ClassLabels = win.GetObject(get(win.ddlClassLabels, 'String'), get(win.ddlClassLabels, 'Value'));;
+                        d.ClassLabels = win.GetObject(get(win.ddlClassLabels, 'String'), get(win.ddlClassLabels, 'Value'));
                     end
                     
                     try
