@@ -32,12 +32,16 @@ m = PLSDAModel(d,plsPC,Alpha,Gamma);% Soft PLS-DA by default
 m.ConfusionMatrix
 m.FiguresOfMerit
 m.AllocationTable
+m.AllocationMatrix
 m.Distances
+
 m.Plot();
 
 Res = m.Apply(d1);
 Res.Distances
 Res.AllocationTable
+Res.AllocationMatrix
+
 m.PlotNewSet()
 
 end

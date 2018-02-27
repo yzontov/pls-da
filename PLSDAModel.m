@@ -91,32 +91,10 @@ classdef PLSDAModel < handle
         end
         
         function m = get.AllocationMatrix(self)
-            m = zeros(size(self.TrainingDataSet.DummyMatrix()));
-            
             if strcmp(self.Mode, 'hard')
-                
-            for i = 1:I
-                for k = 1:self.K
-                    if self.Distances_Hard(i,k) == min(self.Distances_Hard(i,:))
-                        m(i,k) = 1;
-                    end
-                end
-            end
-                
-            end
-            
-            if strcmp(self.Mode, 'soft')
-                m = PLSDAModel.allocation_soft(Labels, self.Alpha, self.Distances_Soft);
-                
-                Dcrit = PLSDAModel.chi2inv_(1-self.Alpha, self.K-1);
-                
-            for i = 1:I
-                for k = 1:self.K
-                    if self.Distances_Soft(i,k) < Dcrit 
-                        m(i,k) = 1;
-                    end
-                end
-            end
+                m = self.calculateAllocationMatrix(self.Distances_Hard);
+            else
+                m = self.calculateAllocationMatrix(self.Distances_Soft);
             end
         end
         
@@ -247,17 +225,14 @@ classdef PLSDAModel < handle
             
         end
         
-        function Result = Apply(self, NewDataSet)%Xnew, ObjectNames)
+        function Result = Apply(self, NewDataSet)
             Xnew_p = PLSDAModel.preprocess_newset(self.rX, NewDataSet.RawData);
-            
-            %Y = self.TrainingDataSet.DummyMatrix();
+
             I = size(Xnew_p, 1);
             
             Wstar=self.plsW*(self.plsP'*self.plsW)^(-1);
             B=Wstar*self.plsQ';
             Ypred_new = Xnew_p*B;
-            
-            %[self.YpredTnew, ~, ~] = PLSDAModel.decomp(Ypred_new, self.numPC_pca);
             
             self.YpredTnew = Ypred_new*self.YpredP;%!!!!
             
@@ -282,9 +257,9 @@ classdef PLSDAModel < handle
                 end
             end
             
-            Result.Distances = Distances_Hard_New;
-                
+                Result.Distances = Distances_Hard_New;
                 Result.AllocationTable = PLSDAModel.allocation_hard(Labels, Distances_Hard_New);
+                Result.AllocationMatrix = self.calculateAllocationMatrix(Distances_Hard_New);
             end
             
             if strcmp(self.Mode, 'soft')
@@ -297,6 +272,7 @@ classdef PLSDAModel < handle
             end
                 Result.Distances = Distances_Soft_New;
                 Result.AllocationTable = PLSDAModel.allocation_soft(Labels, self.Alpha, Distances_Soft_New);
+                Result.AllocationMatrix = self.calculateAllocationMatrix(Distances_Soft_New);
             end
             
         end
@@ -390,6 +366,40 @@ classdef PLSDAModel < handle
             hold off
             
             
+        end
+        
+    end
+    
+    methods (Access = private)
+        
+        function m = calculateAllocationMatrix(self, Distances)
+            m = zeros(size(Distances));
+            I = size(Distances,1);
+            
+            if strcmp(self.Mode, 'hard')
+                
+            for i = 1:I
+                for k = 1:self.K
+                    if Distances(i,k) == min(Distances(i,:))
+                        m(i,k) = 1;
+                    end
+                end
+            end
+                
+            end
+            
+            if strcmp(self.Mode, 'soft')
+        
+                Dcrit = PLSDAModel.chi2inv_(1-self.Alpha, self.K-1);
+                
+            for i = 1:I
+                for k = 1:self.K
+                    if Distances(i,k) < Dcrit 
+                        m(i,k) = 1;
+                    end
+                end
+            end
+            end
         end
         
     end
