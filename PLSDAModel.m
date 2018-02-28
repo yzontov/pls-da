@@ -234,7 +234,7 @@ classdef PLSDAModel < handle
             B=Wstar*self.plsQ';
             Ypred_new = Xnew_p*B;
             
-            self.YpredTnew = Ypred_new*self.YpredP;%!!!!
+            self.YpredTnew = Ypred_new*self.YpredP;
             
             Result.Mode = self.Mode;
 
@@ -301,12 +301,16 @@ classdef PLSDAModel < handle
                 plot(axes,temp(:,pc1), temp(:,pc2),[mark{class} color{class}]);%,'MarkerFaceColor', color{class});
             end
             
-            %hard
-            w_ = [self.w(:,pc1) self.w(:,pc2)];
-            v_ = self.v;
-            t0_ = [self.t0(pc1) self.t0(pc2)];
             Centers_ = [self.Centers(:,pc1) self.Centers(:,pc2)];
-            PLSDAModel.hard_plot(axes,w_,v_,t0_,self.K,Centers_);
+            
+            %hard
+            if strcmp(self.Mode, 'hard')
+                w_ = [self.w(:,pc1) self.w(:,pc2)];
+                v_ = self.v;
+                t0_ = [self.t0(pc1) self.t0(pc2)];
+                
+                PLSDAModel.hard_plot(axes,w_,v_,t0_,self.K,Centers_);
+            end
             
             %soft
             if strcmp(self.Mode, 'soft')
@@ -347,12 +351,16 @@ classdef PLSDAModel < handle
             
             %end
             
-            %hard
-            w_ = [self.w(:,pc1) self.w(:,pc2)];
-            v_ = self.v;
-            t0_ = [self.t0(pc1) self.t0(pc2)];
             Centers_ = [self.Centers(:,pc1) self.Centers(:,pc2)];
-            PLSDAModel.hard_plot(axes,w_,v_,t0_,self.K,Centers_);
+            
+            %hard
+            if strcmp(self.Mode, 'hard')
+                w_ = [self.w(:,pc1) self.w(:,pc2)];
+                v_ = self.v;
+                t0_ = [self.t0(pc1) self.t0(pc2)];
+
+                PLSDAModel.hard_plot(axes,w_,v_,t0_,self.K,Centers_);
+            end
             
             %soft
             if strcmp(self.Mode, 'soft')
