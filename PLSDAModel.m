@@ -485,7 +485,7 @@ classdef PLSDAModel < handle
                 else
                     P = P*exp(-x*x/2)*2/sqrt(2*pi);
                 end
-                P = P + 2*(1-normcdf_(x));
+                P = P + 2*(1-PLSDAModel.normcdf_(x));
             end
             r = 1-P;
         end
@@ -839,7 +839,7 @@ classdef PLSDAModel < handle
             
             len = size(pcaScoresK,1);
             cov = inv(((pcaScoresK-repmat(Center, len, 1))'*(pcaScoresK-repmat(Center, len, 1)))/len);
-            [~, P, Eig] = PLSDAModel.decomp(cov, numPC);
+            [~, P, Eig] = PLSDAModel.decomp(cov, 2);%
             P = -P;%!!!!!!
             SqrtSing = diag(sqrt(Eig))';
             
