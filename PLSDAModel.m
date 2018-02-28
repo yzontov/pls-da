@@ -839,7 +839,7 @@ classdef PLSDAModel < handle
             
             len = size(pcaScoresK,1);
             cov = inv(((pcaScoresK-repmat(Center, len, 1))'*(pcaScoresK-repmat(Center, len, 1)))/len);
-            [~, P, Eig] = PLSDAModel.decomp(cov, numPC);
+            [~, P, Eig] = PLSDAModel.decomp(cov, 2);%
             P = -P;%!!!!!!
             SqrtSing = diag(sqrt(Eig))';
             
