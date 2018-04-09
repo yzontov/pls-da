@@ -60,9 +60,9 @@ classdef  ModelTab < BasicTab
            r = self;
         end
         
-        function ttab = ModelTab(tabgroup)
+        function ttab = ModelTab(tabgroup, parent)
             
-            ttab = ttab@BasicTab(tabgroup, 'Model');
+            ttab = ttab@BasicTab(tabgroup, 'Model', parent);
             
             ttab.pnlDataSettings = uipanel('Parent', ttab.left_panel, 'Title', 'Data','Units', 'normalized', ...
                 'Position', [0.05   0.85   0.9  0.14]);

@@ -19,8 +19,6 @@ classdef  GUIWindow<handle
             v = version('-release');
             vyear = str2double(v(1:4));
             
-            data = struct;
-            
             %gui
             f = figure;
             set(f,'Visible','on');
@@ -40,22 +38,17 @@ classdef  GUIWindow<handle
             
             
             if tabs(1)
-                win.dataTab = DataTab(win.tgroup);
-                data.datatab = win.dataTab;
+                win.dataTab = DataTab(win.tgroup, win);
             end
             
             if tabs(2)
-                win.modelTab = ModelTab(win.tgroup);
-                data.modeltab = win.modelTab;
+                win.modelTab = ModelTab(win.tgroup, win);
             end
             
             if tabs(3)
-                win.predictTab = PredictTab(win.tgroup);
-                data.predicttab = win.predictTab;
+                win.predictTab = PredictTab(win.tgroup, win);
             end
             
-            data.window = win;
-            guidata(gcf, data);
         end
         
     end

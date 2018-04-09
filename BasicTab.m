@@ -1,5 +1,8 @@
-classdef  BasicTab 
-    
+classdef  BasicTab
+    properties
+        parent;   
+    end
+
     properties (Access = protected)
         tab;
         left_panel;
@@ -13,8 +16,11 @@ classdef  BasicTab
     end
     methods
         
-        function ttab = BasicTab(tabgroup, title)
+        function ttab = BasicTab(tabgroup, title, parent)
             %Model
+            
+            ttab.parent = parent;
+            
             v = version('-release');
             vyear = str2double(v(1:4));
             

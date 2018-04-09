@@ -24,9 +24,9 @@ classdef  PredictTab < BasicTab
     
     methods
         
-        function ttab = PredictTab(tabgroup)
+        function ttab = PredictTab(tabgroup, parent)
             
-            ttab = ttab@BasicTab(tabgroup, 'Prediction');
+            ttab = ttab@BasicTab(tabgroup, 'Prediction', parent);
             
             ttab.pnlDataSettings = uipanel('Parent', ttab.left_panel, 'Title', 'Prediction','Units', 'normalized', ...
                 'Position', [0.05   0.79   0.9  0.2]);

@@ -1,5 +1,7 @@
 classdef  DataSetWindow<handle
     properties
+        parent;
+        
         tbName;
         ddlData;
         ddlClasses;
@@ -26,7 +28,9 @@ classdef  DataSetWindow<handle
     
     methods
         
-        function win = DataSetWindow()
+        function win = DataSetWindow(parent)
+            
+            win.parent = parent;
             
             %get version year
             v = version('-release');
@@ -56,7 +60,7 @@ classdef  DataSetWindow<handle
                 'Units', 'normalized','Position', [0.05 0.75 0.35 0.05], 'HorizontalAlignment', 'left');
             win.ddlData = uicontrol('Parent', input_win, 'Style', 'popupmenu',...
                 'String', {'-'}, ...
-                'Units', 'normalized','Value',1, 'Position', [0.35 0.75 0.55 0.05], 'BackgroundColor', 'white', 'callback', @DataSetWindow.Callback_Data);
+                'Units', 'normalized','Value',1, 'Position', [0.35 0.75 0.55 0.05], 'BackgroundColor', 'white', 'callback', @win.Callback_Data);
             
             allvars = evalin('base','whos');
             varnames = {allvars.name};
@@ -83,7 +87,7 @@ classdef  DataSetWindow<handle
             uicontrol('Parent', input_win, 'Style', 'text', 'String', 'Classes', ...
                 'Units', 'normalized','Position', [0.05 0.65 0.35 0.05], 'HorizontalAlignment', 'left');
             win.ddlClasses = uicontrol('Parent', input_win, 'Style', 'popupmenu', 'String', {'-'}, ...
-                'Units', 'normalized','Value',1, 'Position', [0.35 0.65 0.55 0.05], 'BackgroundColor', 'white', 'callback', @DataSetWindow.Callback_Classes);
+                'Units', 'normalized','Value',1, 'Position', [0.35 0.65 0.55 0.05], 'BackgroundColor', 'white', 'callback', @win.Callback_Classes);
             
             uicontrol('Parent', input_win, 'Style', 'text', 'String', 'Object names', ...
                 'Units', 'normalized','Position', [0.05 0.55 0.35 0.05], 'HorizontalAlignment', 'left');
@@ -108,12 +112,12 @@ classdef  DataSetWindow<handle
             
             uicontrol('Parent', input_win, 'Style', 'pushbutton', 'String', 'Add dataset',...
                 'Units', 'Normalized', 'Position', [0.3 0.07 0.4 0.1], ...
-                'callback', @DataSetWindow.btnAdd_Callback);
+                'callback', @win.btnAdd_Callback);
             
             win.win = input_win;
-            data = guidata(gcf);
-            data.win = win;
-            guidata(gcf, data);
+%             data = guidata(gcf);
+%             data.win = win;
+%             guidata(gcf, data);
         end
         
         function obj = GetObject(self, list, idx)
@@ -127,9 +131,9 @@ classdef  DataSetWindow<handle
         DataUpdated
     end
     
-    methods (Static)
+    methods
         
-        function r = type_size_filter(x, k, n, k2, n2, t)
+        function r = type_size_filter(self, x, k, n, k2, n2, t)
             s = x.size;
             if isequal(x.class,t) && ((~isempty(k) && ~isempty(n) && s(n) == k || isempty(k) && isempty(n))) && (~isempty(k2) && ~isempty(n2) && (k2 >=1 && s(n2) == k2 || k2 == -1 && s(n2) > 1) || isempty(k2) && isempty(n2))
                 r = true;
@@ -139,23 +143,18 @@ classdef  DataSetWindow<handle
         end
         
         
-        function Callback_Data(obj, ~)
+        function Callback_Data(self,obj, ~)
             
             list = evalin('base','whos');
             
-            
-            data = guidata(obj);
-            
-            win = data.win;
-            
-            K = get(win.ddlData, 'Value');
+            K = get(self.ddlData, 'Value');
             
             if K > 1
-                ll = get(win.ddlData, 'String');
+                ll = get(self.ddlData, 'String');
                 mm = ll{K};
                 t = evalin('base',mm(1:strfind(mm, ' ')-1));
                 gg = size(t);
-                idx = arrayfun(@(x)DataSetWindow.type_size_filter(x,gg(1),1,1,2,'double'),list);
+                idx = arrayfun(@(x)self.type_size_filter(x,gg(1),1,1,2,'double'),list);
                 
                 vardisplay={};
                 if sum(idx) > 0
@@ -166,13 +165,13 @@ classdef  DataSetWindow<handle
                         ss = l(i).size;
                         vardisplay{i+1} = sprintf('%s (%dx%d)',l(i).name,ss(1),ss(2));
                     end
-                    set(win.ddlClasses, 'String', vardisplay);
-                    if length(get(win.ddlClasses, 'String')) > 1
-                        set(win.ddlClasses, 'Value', 2)
+                    set(self.ddlClasses, 'String', vardisplay);
+                    if length(get(self.ddlClasses, 'String')) > 1
+                        set(self.ddlClasses, 'Value', 2)
                     end
                 end
                 
-                idx = arrayfun(@(x)DataSetWindow.type_size_filter(x,gg(1),1,1,2,'cell'),list);
+                idx = arrayfun(@(x)self.type_size_filter(x,gg(1),1,1,2,'cell'),list);
                 
                 vardisplay={};
                 if sum(idx) > 0
@@ -183,13 +182,13 @@ classdef  DataSetWindow<handle
                         ss = l(i).size;
                         vardisplay{i+1} = sprintf('%s (%dx%d)',l(i).name,ss(1),ss(2));
                     end
-                    set(win.ddlObjectNames, 'String', vardisplay);
-                    if length(get(win.ddlObjectNames, 'String')) > 1
-                        set(win.ddlObjectNames, 'Value', 2)
+                    set(self.ddlObjectNames, 'String', vardisplay);
+                    if length(get(self.ddlObjectNames, 'String')) > 1
+                        set(self.ddlObjectNames, 'Value', 2)
                     end
                 end
                 
-                idx = arrayfun(@(x)DataSetWindow.type_size_filter(x,gg(2),1,[],[],'cell'),list);
+                idx = arrayfun(@(x)self.type_size_filter(x,gg(2),1,[],[],'cell'),list);
                 
                 vardisplay={};
                 if sum(idx) > 0
@@ -200,13 +199,13 @@ classdef  DataSetWindow<handle
                         ss = l(i).size;
                         vardisplay{i+1} = sprintf('%s (%dx%d)',l(i).name,ss(1),ss(2));
                     end
-                    set(win.ddlVariableNames, 'String', vardisplay);
-                    if length(get(win.ddlVariableNames, 'String')) > 1
-                        set(win.ddlVariableNames, 'Value', 2)
+                    set(self.ddlVariableNames, 'String', vardisplay);
+                    if length(get(self.ddlVariableNames, 'String')) > 1
+                        set(self.ddlVariableNames, 'Value', 2)
                     end
                 end
                 
-                idx = arrayfun(@(x)DataSetWindow.type_size_filter(x,gg(2),1,[],[],'double'),list);
+                idx = arrayfun(@(x)self.type_size_filter(x,gg(2),1,[],[],'double'),list);
                 
                 vardisplay={};
                 if sum(idx) > 0
@@ -217,46 +216,38 @@ classdef  DataSetWindow<handle
                         ss = l(i).size;
                         vardisplay{i+1} = sprintf('%s (%dx%d)',l(i).name,ss(1),ss(2));
                     end
-                    set(win.ddlClasses, 'String', vardisplay);
-                    if length(get(win.ddlClasses, 'String')) > 1
-                        set(win.ddlClasses, 'Value', 2)
+                    set(self.ddlClasses, 'String', vardisplay);
+                    if length(get(self.ddlClasses, 'String')) > 1
+                        set(self.ddlClasses, 'Value', 2)
                     end
                 end
                 
             else
-                set(win.ddlClasses, 'String', {'-'});
-                set(win.ddlVariableNames, 'String', {'-'});
-                set(win.ddlObjectNames, 'String', {'-'});
-                set(win.ddlClassLabels, 'String', {'-'});
-                set(win.ddlVariables, 'String', {'-'});
+                set(self.ddlClasses, 'String', {'-'});
+                set(self.ddlVariableNames, 'String', {'-'});
+                set(self.ddlObjectNames, 'String', {'-'});
+                set(self.ddlClassLabels, 'String', {'-'});
+                set(self.ddlVariables, 'String', {'-'});
                 
-                set(win.ddlVariableNames, 'Value', 1);
-                set(win.ddlClasses, 'Value', 1);
-                set(win.ddlObjectNames, 'Value', 1);
-                set(win.ddlVariables, 'Value', 1);
+                set(self.ddlVariableNames, 'Value', 1);
+                set(self.ddlClasses, 'Value', 1);
+                set(self.ddlObjectNames, 'Value', 1);
+                set(self.ddlVariables, 'Value', 1);
             end
-            
-            data.dataset_win = win;
-            guidata(obj, data);
             
         end
         
-        function Callback_Classes(obj, ~)
+        function Callback_Classes(self,obj, ~)
             
             list = evalin('base','whos');
             
-            
-            data = guidata(obj);
-            
-            win = data.win;
-            
-            K = get(win.ddlClasses, 'Value');
+            K = get(self.ddlClasses, 'Value');
             if K > 1
-                ll = get(win.ddlClasses, 'String');
+                ll = get(self.ddlClasses, 'String');
                 mm = ll{K};
                 t = evalin('base',mm(1:strfind(mm, ' ')-1));
                 cl_num = size(unique(t),1);
-                idx = arrayfun(@(x)DataSetWindow.type_size_filter(x,cl_num,1,1,2,'cell'),list);
+                idx = arrayfun(@(x)self.type_size_filter(x,cl_num,1,1,2,'cell'),list);
                 
                 vardisplay={};
                 if sum(idx) > 0
@@ -267,60 +258,55 @@ classdef  DataSetWindow<handle
                         ss = l(i).size;
                         vardisplay{i+1} = sprintf('%s (%dx%d)',l(i).name,ss(1),ss(2));
                     end
-                    set(win.ddlClassLabels, 'String', vardisplay);
+                    set(self.ddlClassLabels, 'String', vardisplay);
                 end
             else
-                set(win.ddlClassLabels, 'String', {'-'});
-                if length(get(win.ddlClassLabels, 'String')) > 1
-                    set(win.ddlClassLabels, 'Value', 2)
+                set(self.ddlClassLabels, 'String', {'-'});
+                if length(get(self.ddlClassLabels, 'String')) > 1
+                    set(self.ddlClassLabels, 'Value', 2)
                 end
             end
-            data.dataset_win = win;
-            guidata(obj, data);
             
         end
           
-        function btnAdd_Callback(obj, ~)
+        function btnAdd_Callback(self,obj, ~)
             
-            data = guidata(obj);
-            win = data.win;
+            name = get(self.tbName, 'String');
             
-            Name = get(win.tbName, 'String');
-            
-            if ~isempty(Name)
+            if ~isempty(name)
                 
-                if get(win.ddlData, 'Value') > 1 && get(win.ddlClasses, 'Value') > 1
+                if get(self.ddlData, 'Value') > 1 && get(self.ddlClasses, 'Value') > 1
                     d = DataSet();
-                    d.RawData = win.GetObject(get(win.ddlData, 'String'), get(win.ddlData, 'Value'));
-                    d.Name = Name;
+                    d.RawData = self.GetObject(get(self.ddlData, 'String'), get(self.ddlData, 'Value'));
+                    d.Name = name;
                     
-                    d.Classes = win.GetObject(get(win.ddlClasses, 'String'), get(win.ddlClasses, 'Value'));
+                    d.Classes = self.GetObject(get(self.ddlClasses, 'String'), get(self.ddlClasses, 'Value'));
                     
-                    if get(win.ddlVariableNames, 'Value') > 1
-                        d.VariableNames = win.GetObject(get(win.ddlVariableNames, 'String'), get(win.ddlVariableNames, 'Value'));
+                    if get(self.ddlVariableNames, 'Value') > 1
+                        d.VariableNames = self.GetObject(get(self.ddlVariableNames, 'String'), get(self.ddlVariableNames, 'Value'));
                     end
                     
-                    if get(win.ddlVariables, 'Value') > 1
-                        d.Variables = win.GetObject(get(win.ddlVariables, 'String'), get(win.ddlVariables, 'Value'));
+                    if get(self.ddlVariables, 'Value') > 1
+                        d.Variables = self.GetObject(get(self.ddlVariables, 'String'), get(self.ddlVariables, 'Value'));
                     end
                     
-                    if get(win.ddlObjectNames, 'Value') > 1
-                        d.ObjectNames = win.GetObject(get(win.ddlObjectNames, 'String'), get(win.ddlObjectNames, 'Value'));
+                    if get(self.ddlObjectNames, 'Value') > 1
+                        d.ObjectNames = self.GetObject(get(self.ddlObjectNames, 'String'), get(self.ddlObjectNames, 'Value'));
                     end
                     
-                    if get(win.ddlClassLabels, 'Value') > 1
-                        d.ClassLabels = win.GetObject(get(win.ddlClassLabels, 'String'), get(win.ddlClassLabels, 'Value'));
+                    if get(self.ddlClassLabels, 'Value') > 1
+                        d.ClassLabels = self.GetObject(get(self.ddlClassLabels, 'String'), get(self.ddlClassLabels, 'Value'));
                     end
                     
                     try
-                        assignin('base', Name, d)
+                        assignin('base', name, d)
                     catch
                         errordlg('The invalid characters have been replaced. Please use only latin characters, numbers and underscore for the name of DataSet!');
-                        d.Name = Name;
-                        assignin('base',regexprep(Name, '[^a-zA-Z0-9_]', '_'),d);
+                        d.Name = name;
+                        assignin('base',regexprep(name, '[^a-zA-Z0-9_]', '_'),d);
                     end
                     
-                    notify(win, 'AddSet');
+                    notify(self.parent, 'AddSet');
                     
                 else
                     errordlg('You should indicate at least Data and Classes matrices!');
@@ -328,7 +314,7 @@ classdef  DataSetWindow<handle
                 
             else
                 errordlg('You should indicate a name of the DataSet!');
-                return;
+                %return;
             end
             
             close;
