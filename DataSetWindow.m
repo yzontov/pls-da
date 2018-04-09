@@ -306,7 +306,7 @@ classdef  DataSetWindow<handle
                         assignin('base',regexprep(name, '[^a-zA-Z0-9_]', '_'),d);
                     end
                     
-                    notify(self.parent, 'AddSet');
+                    notify(self, 'AddSet');
                     
                 else
                     errordlg('You should indicate at least Data and Classes matrices!');

@@ -1,4 +1,4 @@
-classdef  BasicTab
+classdef  BasicTab < handle
     properties
         parent;   
     end
