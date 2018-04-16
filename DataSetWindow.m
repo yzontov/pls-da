@@ -22,10 +22,6 @@ classdef  DataSetWindow<handle
         ClassLabels;
     end
     
-    events
-        AddSet
-    end
-    
     methods
         
         function win = DataSetWindow(parent)
@@ -306,14 +302,14 @@ classdef  DataSetWindow<handle
                         assignin('base',regexprep(name, '[^a-zA-Z0-9_]', '_'),d);
                     end
                     
-                    notify(self, 'AddSet');
+                    notify(self, 'DataUpdated');
                     
                 else
-                    errordlg('You should indicate at least Data and Classes matrices!');
+                    waitfor(errordlg('You should indicate at least Data and Classes matrices!'));
                 end
                 
             else
-                errordlg('You should indicate a name of the DataSet!');
+                waitfor(errordlg('You should indicate a name of the DataSet!'));
                 %return;
             end
             
