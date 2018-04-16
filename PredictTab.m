@@ -37,21 +37,21 @@ classdef  PredictTab < BasicTab
             uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'text', 'String', 'New DataSet', ...
                 'Units', 'normalized','Position', [0.05 0.65 0.35 0.2], 'HorizontalAlignment', 'left');
             ttab.ddlNewSet = uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'popupmenu', 'String', {'-'},...
-                'Units', 'normalized','Value',1, 'Position', [0.4 0.67 0.55 0.2], 'BackgroundColor', 'white', 'callback', @ModelTab.SelectCalibratinSet);
+                'Units', 'normalized','Value',1, 'Position', [0.4 0.67 0.55 0.2], 'BackgroundColor', 'white', 'callback', @ttab.SelectCalibratinSet);
 
             
                         
              uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'pushbutton', 'String', 'Predict',...
                 'Units', 'Normalized', 'Position', [0.3 0.15 0.35 0.25], ...
-                'callback', @PredictTab.btnNew_Callback);%,'FontUnits', 'Normalized'
+                'callback', @ttab.btnNew_Callback);%,'FontUnits', 'Normalized'
             
                       
             uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'pushbutton', 'String', 'Save',...
                 'Units', 'Normalized', 'Position', [0.05 0.1 0.4 0.18], ...
-                'callback', @PredictTab.SavePlot);
+                'callback', @ttab.SavePlot);
             uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'pushbutton', 'String', 'Copy to clipboard',...
                 'Units', 'Normalized', 'Position', [0.51 0.1 0.4 0.18], ...
-                'callback', @PredictTab.CopyPlotToClipboard);
+                'callback', @ttab.CopyPlotToClipboard);
             
             ttab.chkPlotShowClasses = uicontrol('Parent', ttab.pnlPlotSettings,'Enable','off', 'Style', 'checkbox', 'String', 'Show classes',...
                 'Units', 'normalized','Position', [0.05 0.85 0.85 0.1]);%, 'callback', @DataTab.Redraw);
@@ -98,61 +98,50 @@ classdef  PredictTab < BasicTab
         
     end
     
-    methods (Static)
+    methods 
         
-        function btnNew_Callback(obj, ~)
+        function btnNew_Callback(self, obj, ~)
             
-            data = guidata(obj);
-            win = data.window;
-            ttab = win.predictTab;
-            
-            idx = get(ttab.ddlNewSet, 'value');
+            idx = get(self.ddlNewSet, 'value');
             if idx > 0
-            list = get(ttab.ddlNewSet, 'string');
+            list = get(self.ddlNewSet, 'string');
             
             set = evalin('base',list{idx});
-            
-            
-            
-            res = data.modeltab.Model.Apply(set);
+
+            res = self.parent.modelTab.Model.Apply(set);
             %
             ff = res.AllocationTable;
             
-            ttab = PredictTab.Redraw(ttab, data.modeltab.Model);
+            self.Redraw();
             
             %set(ttab.tbTextEdit, 'max', 2);
-            ttab.tbTextEdit.String = ff;
+            self.tbTextEdit.String = ff;
 
-            data.predicttab = ttab;
-            guidata(obj, data);
             end
         end
         
-        function tab = Redraw(ttab, Model)
+        function Redraw(self)
 
             %delete(ttab.model_plot);
-            delete(ttab.predict_plot_axes);
+            delete(self.predict_plot_axes);
             ax = get(gcf,'CurrentAxes');
             cla(ax);
-            ha2d = axes('Parent', ttab.tab_img,'Units', 'normalized','Position', [0 0 1 1]);
+            ha2d = axes('Parent', self.tab_img,'Units', 'normalized','Position', [0 0 1 1]);
             set(gcf,'CurrentAxes',ha2d);
-            ttab.predict_plot_axes = ha2d;
+            self.predict_plot_axes = ha2d;
             
-            if ~isempty(Model)
-                Model.PlotNewSet(ttab.predict_plot_axes);
+            if ~isempty(self.parent.modelTab.Model)
+                self.parent.modelTab.Model.PlotNewSet(self.predict_plot_axes);
             end
-            
-            tab = ttab;
         end
         
-        function SavePlot(obj, ~)
-            data = guidata(obj);
-            ttab = data.predicttab;
-            if ~isempty(ttab.predict_plot_axes)
+        function SavePlot(self, obj, ~)
+
+            if ~isempty(self.predict_plot_axes)
                 
-                idx = get(ttab.ddlNewSet, 'value');
+                idx = get(self.ddlNewSet, 'value');
             
-                list = get(ttab.ddlNewSet, 'string');
+                list = get(self.ddlNewSet, 'string');
             
              type = list{idx};
                 
@@ -162,16 +151,15 @@ classdef  PredictTab < BasicTab
                 end
 
                 fig2 = figure('visible','off');
-                copyobj(ttab.predict_plot_axes,fig2);
+                copyobj(self.predict_plot_axes,fig2);
                 saveas(fig2, filename);
             end
         end
         
-        function CopyPlotToClipboard(obj, ~)
-            data = guidata(obj);
-            ttab = data.predicttab;
+        function CopyPlotToClipboard(self, obj, ~)
+
             fig2 = figure('visible','off');
-            copyobj(ttab.predict_plot_axes,fig2);
+            copyobj(self.predict_plot_axes,fig2);
             
             if ispc
                print(fig2,'-clipboard', '-dmeta');
@@ -180,11 +168,6 @@ classdef  PredictTab < BasicTab
             end
             
         end
-        
-        
- 
-        
-
   
     end
     

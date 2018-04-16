@@ -392,7 +392,7 @@ classdef  DataTab < BasicTab
             
             win = DataSetWindow(self);
             
-            addlistener(win,'DataUpdated', @DataSetWindowCloseCallback);
+            addlistener(win,'DataUpdated', @self.DataSetWindowCloseCallback);
             
         end
         
