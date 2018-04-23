@@ -280,9 +280,12 @@ classdef  DataTab < BasicTab
         
         function Input_Training(self,obj, ~)
             val = get(obj,'Value');
-            if ~isempty(val) && ~isnan(val) && val > 0
+            
+            index_selected = get(self.listbox,'Value');
+            
+            if ~isempty(val) && ~isnan(val) && index_selected > 0
 
-                index_selected = get(self.listbox,'Value');
+                
                 names = get(self.listbox,'String');%fieldnames(ttab.Data);
                 selected_name = names{index_selected};
                 
