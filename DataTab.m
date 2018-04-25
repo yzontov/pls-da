@@ -462,10 +462,11 @@ classdef  DataTab < BasicTab
             ttab = self;
             delete(ttab.data_plot);
             delete(ttab.data_plot_axes);
-            ax = get(gcf,'CurrentAxes');
-            cla(ax);
+            %ax = get(gcf,'CurrentAxes');
+            %cla(ax);
+            %subplot
             ha2d = axes('Parent', ttab.middle_panel,'Units', 'normalized','Position', [0.1 0.2 .8 .7]);
-            set(gcf,'CurrentAxes',ha2d);
+            %set(gcf,'CurrentAxes',ha2d);
             ttab.data_plot_axes = ha2d;
             
             d = evalin('base', selected_name);%ttab.Data.(selected_name);

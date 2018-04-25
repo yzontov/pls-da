@@ -15,6 +15,7 @@ classdef  ModelTab < BasicTab
         tbGamma;
         
         tbTextResult;
+        tblTextResult;
         
         chkFinalizeModel;
         
@@ -163,11 +164,29 @@ classdef  ModelTab < BasicTab
             tab_txt = uitab('Parent', tg, 'Title', 'Text view');
             ttab.tab_img = uitab('Parent', tg, 'Title', 'Graphical view');
             
-            ttab.tbTextResult = uicontrol('Parent', tab_txt, 'Style', 'edit', 'String', '', ...
-                'Units', 'normalized','Position', [0 0 1 1], 'HorizontalAlignment', 'left', 'Max', 2);
-            
+%             ttab.tbTextResult = uicontrol('Parent', tab_txt, 'Style', 'edit', 'String', '', ...
+%                 'Units', 'normalized','Position', [0 0 1 1], 'HorizontalAlignment', 'left', 'Max', 2);
+%             
+            ttab.tblTextResult = uitable(tab_txt);
+            ttab.tblTextResult.Units = 'normalized';
+            ttab.tblTextResult.Position = [0 0 1 1];
+    
             if ~isempty(ttab.Model)
-                set(tbTextResult, 'String', ttab.Model.AllocationTable);
+                
+                Labels = cell(size(ttab.Model.TrainingDataSet.ProcessedData, 1),1);
+            for i = 1:size(ttab.Model.TrainingDataSet.ProcessedData, 1)
+                Labels{i} = sprintf('Object No.%d', i);
+            end
+            
+            if(~isempty(ttab.Model.TrainingDataSet.ObjectNames))
+                Labels = ttab.Model.TrainingDataSet.ObjectNames;
+            end
+            
+            ttab.tblTextResult.Data = {Labels, num2cell(logical(ttab.Model.AllocationMatrix))};
+            
+           ttab.tblTextResult.ColumnName = {'Sample',1,2,3};
+                
+                %set(tbTextResult, 'String', ttab.Model.AllocationTable);
             end
             
             allvars = evalin('base','whos');
@@ -206,9 +225,9 @@ classdef  ModelTab < BasicTab
                 end
             end
             
-            data = guidata(gcf);
-            data.modeltab = ttab;
-            guidata(gcf, data);
+%             data = guidata(gcf);
+%             data.modeltab = ttab;
+%             guidata(gcf, data);
             
         end
         
@@ -218,14 +237,14 @@ classdef  ModelTab < BasicTab
     
     methods
         
-        function tab = Redraw(self)
+        function Redraw(self)
             
             %delete(ttab.model_plot);
             delete(self.model_plot_axes);
-            ax = get(gcf,'CurrentAxes');
-            cla(ax);
+%             ax = get(gcf,'CurrentAxes');
+%             cla(ax);
             ha2d = axes('Parent', self.tab_img,'Units', 'normalized','Position', [0 0 1 1]);
-            set(gcf,'CurrentAxes',ha2d);
+            %set(gcf,'CurrentAxes',ha2d);
             self.model_plot_axes = ha2d;
             
             if ~isempty(self.Model)
@@ -272,7 +291,27 @@ classdef  ModelTab < BasicTab
             
             set(self.chkFinalizeModel,'enable','on');
             set(self.btnSaveModel,'enable','on');
-            set(self.tbTextResult, 'String', self.Model.AllocationTable);
+            %set(self.tbTextResult, 'String', self.Model.AllocationTable);
+            %mm = self.Model.AllocationMatrix;
+            %[mm_rows, mm_cols] = size(mm);
+            %self.tblTextResult.Data = mat2cell(mm, ones(1, mm_rows), ones(1, mm_cols));
+            
+            self.tblTextResult.ColumnName = {'Sample',1,2,3};
+            
+            Labels = cell(size(self.Model.TrainingDataSet.ProcessedData, 1),1);
+            for i = 1:size(self.Model.TrainingDataSet.ProcessedData, 1)
+                Labels{i} = sprintf('Object No.%d', i);
+            end
+            
+            if(~isempty(self.Model.TrainingDataSet.ObjectNames))
+                Labels = self.Model.TrainingDataSet.ObjectNames;
+            end
+            
+            self.tblTextResult.Data = [Labels, num2cell(logical(self.Model.AllocationMatrix))];
+            
+            %d = {'Male',52,true;'Male',40,true;'Female',25,false};
+            %self.tblTextResult.Data = d;
+            %self.tblTextResult.Position = [20 20 258 78];
             
             self.Redraw();
         end
