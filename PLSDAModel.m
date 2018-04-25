@@ -248,6 +248,8 @@ classdef PLSDAModel < handle
                 Labels = NewDataSet.ObjectNames;
             end
             
+            Result.Labels = Labels;
+            
             if strcmp(self.Mode, 'hard')
                 
                  Distances_Hard_New = zeros(size(Ypred_new));

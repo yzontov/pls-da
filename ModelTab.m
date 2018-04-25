@@ -14,7 +14,7 @@ classdef  ModelTab < BasicTab
         tbAlpha;
         tbGamma;
         
-        tbTextResult;
+        %tbTextResult;
         tblTextResult;
         
         chkFinalizeModel;
@@ -296,7 +296,8 @@ classdef  ModelTab < BasicTab
             %[mm_rows, mm_cols] = size(mm);
             %self.tblTextResult.Data = mat2cell(mm, ones(1, mm_rows), ones(1, mm_cols));
             
-            self.tblTextResult.ColumnName = {'Sample',1,2,3};
+            self.tblTextResult.ColumnName = {'Sample',1:size(self.Model.AllocationMatrix, 2)};
+            
             
             Labels = cell(size(self.Model.TrainingDataSet.ProcessedData, 1),1);
             for i = 1:size(self.Model.TrainingDataSet.ProcessedData, 1)
@@ -308,6 +309,8 @@ classdef  ModelTab < BasicTab
             end
             
             self.tblTextResult.Data = [Labels, num2cell(logical(self.Model.AllocationMatrix))];
+            
+            self.tblTextResult.ColumnWidth = num2cell([150, 30*ones(1,size(self.Model.AllocationMatrix, 2))]);
             
             %d = {'Male',52,true;'Male',40,true;'Female',25,false};
             %self.tblTextResult.Data = d;

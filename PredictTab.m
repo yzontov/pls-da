@@ -19,7 +19,8 @@ classdef  PredictTab < BasicTab
         predict_plot_axes;
         tab_img;
         
-        tbTextEdit;
+        %tbTextEdit;
+        tblTextResult;
     end
     
     methods
@@ -87,8 +88,12 @@ classdef  PredictTab < BasicTab
             tab_txt = uitab('Parent', tg, 'Title', 'Text view');
             ttab.tab_img = uitab('Parent', tg, 'Title', 'Graphical view');
             
-            ttab.tbTextEdit = uicontrol('Parent', tab_txt, 'Style', 'edit', 'String', '', ...
-                'Units', 'normalized','Position', [0 0 1 1], 'HorizontalAlignment', 'left', 'Max', 2);
+            %ttab.tbTextEdit = uicontrol('Parent', tab_txt, 'Style', 'edit', 'String', '', ...
+            %    'Units', 'normalized','Position', [0 0 1 1], 'HorizontalAlignment', 'left', 'Max', 2);
+            
+            ttab.tblTextResult = uitable(tab_txt);
+            ttab.tblTextResult.Units = 'normalized';
+            ttab.tblTextResult.Position = [0 0 1 1];
             
             %
             data = guidata(gcf);
@@ -110,12 +115,17 @@ classdef  PredictTab < BasicTab
 
             res = self.parent.modelTab.Model.Apply(set);
             %
-            ff = res.AllocationTable;
+            %ff = res.AllocationTable;
             
             self.Redraw();
             
             %set(ttab.tbTextEdit, 'max', 2);
-            self.tbTextEdit.String = ff;
+            %self.tbTextEdit.String = ff;
+            self.tblTextResult.ColumnName = {'Sample',1:size(res.AllocationMatrix, 2)};
+
+            self.tblTextResult.Data = [res.Labels, num2cell(logical(res.AllocationMatrix))];
+            
+            self.tblTextResult.ColumnWidth = num2cell([150, 30*ones(1,size(res.AllocationMatrix, 2))]);
 
             end
         end
@@ -124,10 +134,10 @@ classdef  PredictTab < BasicTab
 
             %delete(ttab.model_plot);
             delete(self.predict_plot_axes);
-            ax = get(gcf,'CurrentAxes');
-            cla(ax);
+            %ax = get(gcf,'CurrentAxes');
+            %cla(ax);
             ha2d = axes('Parent', self.tab_img,'Units', 'normalized','Position', [0 0 1 1]);
-            set(gcf,'CurrentAxes',ha2d);
+            %set(gcf,'CurrentAxes',ha2d);
             self.predict_plot_axes = ha2d;
             
             if ~isempty(self.parent.modelTab.Model)
