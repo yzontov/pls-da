@@ -35,8 +35,6 @@ classdef  DataTab < BasicTab
         function ttab = DataTab(tabgroup, parent)
             ttab = ttab@BasicTab(tabgroup, 'Data', parent);
             
-            
-            
             uicontrol('Parent', ttab.left_panel, 'Style', 'pushbutton', 'String', 'New dataset',...
                 'Units', 'Normalized', 'Position', [0.3 0.9 0.35 0.05], ...
                 'callback', @ttab.btnNew_Callback);%,'FontUnits', 'Normalized'
@@ -62,7 +60,6 @@ classdef  DataTab < BasicTab
                 'Units', 'normalized','Position', [0.1 0.45 0.45 0.25], 'callback', @ttab.Input_Centering);
             ttab.chkScaling = uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'checkbox', 'String', 'Scaling',...
                 'Units', 'normalized','Position', [0.55 0.45 0.45 0.25], 'callback', @ttab.Input_Scaling);
-            
             
             %lblPlotType
             ttab.pnlPlotSettings = uipanel('Parent', ttab.left_panel, 'Title', 'Plot','Units', 'normalized', ...
@@ -127,6 +124,12 @@ classdef  DataTab < BasicTab
                 'Units', 'Normalized', 'Position', [0.8 0.91 0.15 0.05], ...
                 'callback', @ttab.SamplesRemoveSelection);
             
+            ttab.FillDataSetList();
+            
+        end
+        
+        function FillDataSetList(self)
+            
             allvars = evalin('base','whos');
             varnames = {allvars.name};
             
@@ -138,28 +141,28 @@ classdef  DataTab < BasicTab
                 for i = 1:length(idx)
                     vardisplay{i+1} = varnames{idx(i)};
                 end
-                set(ttab.listbox, 'String', vardisplay);
+                set(self.listbox, 'String', vardisplay);
                 
                 % extract all children
-                ttab.enableRightPanel('on');
+                self.enableRightPanel('on');
                 
                 names = varnames(idx);%fieldnames(ttab.Data);
                 selected_name = names{1};
-                set(ttab.listbox, 'Value', 2);
+                set(self.listbox, 'Value', 2);
                 
                 %d = ttab.Data.(selected_name);
                 d = evalin('base', selected_name);
                 
                 if d.Training
-                    set(ttab.lbox_mnu_train, 'Checked', 'on');
+                    set(self.lbox_mnu_train, 'Checked', 'on');
                 else
-                    set(ttab.lbox_mnu_train, 'Checked', 'off');
+                    set(self.lbox_mnu_train, 'Checked', 'off');
                 end
                 
                 if d.Validation
-                    set(ttab.lbox_mnu_val, 'Checked', 'on');
+                    set(self.lbox_mnu_val, 'Checked', 'on');
                 else
-                    set(ttab.lbox_mnu_val, 'Checked', 'off');
+                    set(self.lbox_mnu_val, 'Checked', 'off');
                 end
                 
                 if(isempty(d.VariableNames))
@@ -167,45 +170,24 @@ classdef  DataTab < BasicTab
                 else
                     names = d.VariableNames;
                 end
-                set(ttab.ddlPlotVar1, 'String', names);
-                set(ttab.ddlPlotVar2, 'String', names);
+                set(self.ddlPlotVar1, 'String', names);
+                set(self.ddlPlotVar2, 'String', names);
                 
-                ttab.resetRightPanel();
-                ttab.fillRightPanel();
+                self.resetRightPanel();
+                self.fillRightPanel();
                 
-                ttab.drawPlot(selected_name);
+                self.drawPlot(selected_name);
                 
-                
-                Labels = cell(size(d.ProcessedData, 1),1);
-                for i = 1:size(d.ProcessedData, 1)
-                    Labels{i} = sprintf('Object No.%d', i);
-                end
-                
-                if(~isempty(d.ObjectNames))
-                    Labels = d.ObjectNames;
-                end
-                
-                
-                ttab.tblTextResult.Data = [Labels, num2cell(logical(d.SelectedSamples))];
-                ttab.tblTextResult.ColumnName = {'Sample', 'Included'};
-                ttab.tblTextResult.ColumnWidth = num2cell([150, 50]);
-            
-                ttab.tblTextResult.ColumnEditable = [false true];
-                ttab.tblTextResult.CellEditCallback = @ttab.converttonum;
-                
-                
+                self.FillTableView(selected_name);
                 
             else
-                ttab.resetRightPanel();
-                ttab.enableRightPanel('off');
+                self.resetRightPanel();
+                self.enableRightPanel('off');
             end
             
-            %             data = guidata(gcf);
-            %             data.datatab = ttab;
-            %             guidata(gcf, data);
         end
         
-        function converttonum(self,hObject,callbackdata)
+        function SelectedSamplesChangedCallback(self,hObject,callbackdata)
             numval = callbackdata.EditData;
             r = callbackdata.Indices(1);
             %c = callbackdata.Indices(2)
@@ -217,11 +199,124 @@ classdef  DataTab < BasicTab
             d = evalin('base', selected_name);
             
             d.SelectedSamples(r) = double(numval);
+            
+            self.Redraw();
         end
         
         function obj = GetObject(self,list, idx)
             mm = list{idx};
             obj = evalin('base',mm(1:strfind(mm, ' ')-1));
+        end
+        
+        function SamplesSelectAll(self,obj, ~)
+            index_selected = get(self.listbox,'Value');
+            
+            if(index_selected > 1)
+                names = get(self.listbox,'String');
+                selected_name = names{index_selected};
+                d = evalin('base', selected_name);
+            
+                d.SelectedSamples = ones(size(d.SelectedSamples));
+                
+                self.FillTableView(selected_name);
+                self.Redraw();
+            end
+        end
+        
+        function SamplesSelectNone(self,obj, ~)
+            index_selected = get(self.listbox,'Value');
+            
+            if(index_selected > 1)
+                names = get(self.listbox,'String');
+                selected_name = names{index_selected};
+                d = evalin('base', selected_name);
+                
+                d.SelectedSamples = zeros(size(d.SelectedSamples));
+            
+                self.FillTableView(selected_name);
+                self.Redraw();
+            end
+        end
+        
+        function SamplesInverseSelection(self,obj, ~)
+            index_selected = get(self.listbox,'Value');
+            
+            if(index_selected > 1)
+                names = get(self.listbox,'String');
+                selected_name = names{index_selected};
+                d = evalin('base', selected_name);
+                
+                d.SelectedSamples = double(not(d.SelectedSamples));
+            
+                self.FillTableView(selected_name);
+                self.Redraw();
+            end
+        end
+        
+        function SamplesCopyToNewDataSet(self,obj, ~)
+            index_selected = get(self.listbox,'Value');
+            
+            if(index_selected > 1)
+                names = get(self.listbox,'String');
+                selected_name = names{index_selected};
+                d = evalin('base', selected_name);
+                
+                prompt = {'Enter new data set name:'};
+                dlg_title = 'Save';
+                num_lines = 1;
+                def = {'new_dataset'};
+                
+                if(sum(d.SelectedSamples) == size(d.RawData,1))
+                    def = {[d.Name '_copy']};
+                end
+                
+                answer = inputdlg(prompt,dlg_title,num_lines,def);
+                
+                if ~isempty(answer)
+                    
+                    new_d = DataSet();
+                    new_d.RawData = d.RawData(logical(d.SelectedSamples),:);
+                    new_d.Centering = d.Centering;
+                    new_d.Scaling = d.Scaling;
+                    new_d.Classes = d.Classes(logical(d.SelectedSamples),:);
+                    new_d.VariableNames = d.VariableNames;
+                    new_d.Variables = d.Variables;
+                    new_d.ObjectNames = d.ObjectNames(logical(d.SelectedSamples),:);
+                    new_d.ClassLabels = d.ClassLabels;
+                    
+                    try
+                        new_d.Name = answer{1};
+                        assignin('base', answer{1}, new_d)
+                    catch
+                        errordlg('The invalid characters have been replaced. Please use only latin characters, numbers and underscore!');
+                        tmp = regexprep(answer{1}, '[^a-zA-Z0-9_]', '_');
+                        new_d.Name = tmp;
+                        assignin('base',tmp, new_d);
+                    end
+                    
+                    self.FillDataSetList();
+                end
+            
+                %self.FillTableView(selected_name);
+                %self.Redraw();
+            end
+        end
+        
+        function SamplesRemoveSelection(self,obj, ~)
+            index_selected = get(self.listbox,'Value');
+            
+            if(index_selected > 1)
+                names = get(self.listbox,'String');
+                selected_name = names{index_selected};
+                d = evalin('base', selected_name);
+                
+                d.RawData = d.RawData(not(d.SelectedSamples),:);
+                d.Classes = d.Classes(not(d.SelectedSamples),:);
+                d.ObjectNames = d.ObjectNames(not(d.SelectedSamples),:);
+            
+                self.FillTableView(selected_name);
+                self.Redraw();
+            end
         end
         
         function Redraw(self,obj, ~)
@@ -247,8 +342,8 @@ classdef  DataTab < BasicTab
                     case 1 %scatter
                         var1 = get(self.ddlPlotVar1,'Value');
                         var2 = get(self.ddlPlotVar2,'Value');
-                        if ~isempty(d.ObjectNames)
-                            type = sprintf('scatter_%s_%s_%s', selected_name, d.ObjectNames{var1}, d.ObjectNames{var2});
+                        if ~isempty(d.SelectedObjectNames)
+                            type = sprintf('scatter_%s_%s_%s', selected_name, d.SelectedObjectNames{var1}, d.SelectedObjectNames{var2});
                         else
                             type = sprintf('scatter_%s_var%d_var%d', selected_name, var1, var2);
                         end
@@ -257,7 +352,7 @@ classdef  DataTab < BasicTab
                     case 3 %histogram
                         var1 = get(self.ddlPlotVar1,'Value');
                         if ~isempty(d.VariableNames)
-                            type = sprintf('histogram_%s_%s', selected_name, d.ObjectNames{var1});
+                            type = sprintf('histogram_%s_%s', selected_name, d.SelectedObjectNames{var1});
                         else
                             type = sprintf('histogram_%s_var%d', selected_name, var1);
                         end
@@ -412,18 +507,25 @@ classdef  DataTab < BasicTab
             idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
             
             if ~isempty(idx)
+                selected_name = callbackdata.VariableName;
+                selected_index = 2;
+                
                 vardisplay = cell(length(idx)+1,1);
                 vardisplay{1} = '-';
                 for i = 1:length(idx)
                     vardisplay{i+1} = varnames{idx(i)};
+                    if(isequal(selected_name, varnames{idx(i)}))
+                        selected_index = i+1;
+                    end
                 end
                 set(self.listbox, 'String', vardisplay);
+                set(self.listbox, 'Value', selected_index);
                 
                 % extract all children
                 self.enableRightPanel('on');
                 
-                names = varnames(idx);%fieldnames(ttab.Data);
-                selected_name = names{1};
+                %names = varnames(idx);%fieldnames(ttab.Data);
+                %names{1};
                 
                 %d = ttab.Data.(selected_name);
                 d = evalin('base', selected_name);
@@ -506,23 +608,7 @@ classdef  DataTab < BasicTab
                 self.drawPlot(selected_name);
                 
                 
-                Labels = cell(size(d.ProcessedData, 1),1);
-                for i = 1:size(d.ProcessedData, 1)
-                    Labels{i} = sprintf('Object No.%d', i);
-                end
-                
-                if(~isempty(d.ObjectNames))
-                    Labels = d.ObjectNames;
-                end
-                
-                
-                self.tblTextResult.Data = [Labels, num2cell(logical(d.SelectedSamples))];
-                self.tblTextResult.ColumnName = {'Sample', 'Included'};
-                self.tblTextResult.ColumnWidth = num2cell([150 50]);
-            
-                
-                self.tblTextResult.ColumnEditable = [false true];
-                self.tblTextResult.CellEditCallback = @self.converttonum;
+                self.FillTableView(selected_name);
                 
                 
             else
@@ -530,9 +616,32 @@ classdef  DataTab < BasicTab
                 self.enableRightPanel('off');
                 delete(self.data_plot);
                 delete(self.data_plot_axes);
+                
                 self.tblTextResult.Data = [];
                 self.tblTextResult.ColumnName = [];
             end
+            
+        end
+        
+        function FillTableView(self, selected_name)
+            
+                d = evalin('base', selected_name);
+            
+                Labels = cell(size(d.RawData, 1),1);
+                for i = 1:size(d.RawData, 1)
+                    Labels{i} = sprintf('Object No.%d', i);
+                end
+                
+                if(~isempty(d.ObjectNames))
+                    Labels = d.ObjectNames;
+                end
+                
+                self.tblTextResult.Data = [Labels, num2cell(logical(d.SelectedSamples))];
+                self.tblTextResult.ColumnName = {'Sample', 'Included'};
+                self.tblTextResult.ColumnWidth = num2cell([150 60]);
+            
+                self.tblTextResult.ColumnEditable = [false true];
+                self.tblTextResult.CellEditCallback = @self.SelectedSamplesChangedCallback;
             
         end
         

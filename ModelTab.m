@@ -230,13 +230,7 @@ classdef  ModelTab < BasicTab
             %             guidata(gcf, data);
             
         end
-        
-        
-        
-    end
-    
-    methods
-        
+
         function Redraw(self)
             
             %delete(ttab.model_plot);
@@ -251,6 +245,7 @@ classdef  ModelTab < BasicTab
                 self.Model.Plot(self.model_plot_axes);
             end
         end
+        
         function Recalibrate(self, src, ~)
             
             index_selected = get(self.ddlCalibrationSet,'Value');

@@ -5,6 +5,7 @@ classdef DataSet < handle
         Name;
         RawData;
         ObjectNames;
+        
         Classes;
         Variables;
         VariableNames;
@@ -29,6 +30,7 @@ classdef DataSet < handle
     properties (Dependent = true)
         
         ProcessedData;
+        SelectedObjectNames;
         
     end
     
@@ -159,18 +161,23 @@ classdef DataSet < handle
         end
         
         function value = get.ProcessedData(self)
-            %ProcessedData get/set
             
             value = self.Data_;
+            
         end
         
-        
+        function value = get.SelectedObjectNames(self)   
+            
+            value = self.ObjectNames(logical(self.SelectedSamples),:);
+            
+        end
         
         function set.RawData(self,value)
             %RawData get/set
             
             self.RawData = value;
             self.Data_ = value;
+            self.SelectedSamples = ones(size(self.Data_, 1),1);
             
             if self.Centering == true
                 self.Mean = mean(self.Data_);
@@ -184,7 +191,27 @@ classdef DataSet < handle
                 self.Data_ = bsxfun(@rdivide, self.Data_, temp);
             end
             
-            self.SelectedSamples = ones(size(self.Data_, 1),1);
+            
+            
+        end
+        
+        function set.SelectedSamples(self,value)
+            
+            self.SelectedSamples = value;
+            
+            self.Data_ = self.RawData(logical(self.SelectedSamples),:);
+            
+            if self.Centering == true
+                self.Mean = mean(self.Data_);
+                self.Data_ = bsxfun(@minus, self.Data_, self.Mean);
+            end
+            
+            if self.Scaling == true
+                temp = std(self.Data_,0,1);
+                temp(temp == 0) = 1;
+                self.Std = temp;
+                self.Data_ = bsxfun(@rdivide, self.Data_, self.Std);
+            end
             
         end
         
@@ -193,7 +220,7 @@ classdef DataSet < handle
             
             self.Centering = value;
             
-            self.Data_ = self.RawData;
+            self.Data_ = self.RawData(logical(self.SelectedSamples),:);
             
             if self.Centering == true
                 self.Mean = mean(self.Data_);
@@ -214,7 +241,7 @@ classdef DataSet < handle
             
             self.Scaling = value;
             
-            self.Data_ = self.RawData;
+            self.Data_ = self.RawData(logical(self.SelectedSamples),:);
             
             if self.Centering == true
                 self.Mean = mean(self.Data_);
