@@ -50,7 +50,7 @@ classdef  DataSetWindow<handle
                 'Units', 'normalized','Position', [0.05 0.85 0.35 0.05], 'HorizontalAlignment', 'left');
             win.tbName = uicontrol('Parent', input_win, 'Style', 'edit', 'String', '', ...
                 'Units', 'normalized','Value',1, 'Position', [0.35 0.85 0.55 0.05], 'BackgroundColor', 'white');
-
+            
             
             uicontrol('Parent', input_win, 'Style', 'text', 'String', 'Data', ...
                 'Units', 'normalized','Position', [0.05 0.75 0.35 0.05], 'HorizontalAlignment', 'left');
@@ -111,9 +111,9 @@ classdef  DataSetWindow<handle
                 'callback', @win.btnAdd_Callback);
             
             win.win = input_win;
-%             data = guidata(gcf);
-%             data.win = win;
-%             guidata(gcf, data);
+            %             data = guidata(gcf);
+            %             data.win = win;
+            %             guidata(gcf, data);
         end
         
         function obj = GetObject(self, list, idx)
@@ -264,7 +264,7 @@ classdef  DataSetWindow<handle
             end
             
         end
-          
+        
         function btnAdd_Callback(self,obj, ~)
             
             name = get(self.tbName, 'String');

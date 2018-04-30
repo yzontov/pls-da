@@ -4,18 +4,18 @@ classdef  PredictTab < BasicTab
         Model;
         
         pnlDataSettings;
-
+        
         pnlPlotSettings;
         
         
         ddlNewSet;
-
+        
         
         ddlPlotVar1;
         ddlPlotVar2;
         chkPlotShowClasses;
         chkPlotShowObjectNames;
-
+        
         predict_plot_axes;
         tab_img;
         
@@ -31,7 +31,7 @@ classdef  PredictTab < BasicTab
             
             ttab.pnlDataSettings = uipanel('Parent', ttab.left_panel, 'Title', 'Prediction','Units', 'normalized', ...
                 'Position', [0.05   0.79   0.9  0.2]);
-
+            
             ttab.pnlPlotSettings = uipanel('Parent', ttab.left_panel, 'Title', 'Plot','Units', 'normalized', ...
                 'Position', [0.05   0.5   0.9  0.28]);
             
@@ -39,14 +39,14 @@ classdef  PredictTab < BasicTab
                 'Units', 'normalized','Position', [0.05 0.65 0.35 0.2], 'HorizontalAlignment', 'left');
             ttab.ddlNewSet = uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'popupmenu', 'String', {'-'},...
                 'Units', 'normalized','Value',1, 'Position', [0.4 0.67 0.55 0.2], 'BackgroundColor', 'white', 'callback', @ttab.SelectCalibratinSet);
-
             
-                        
-             uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'pushbutton', 'String', 'Predict',...
+            
+            
+            uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'pushbutton', 'String', 'Predict',...
                 'Units', 'Normalized', 'Position', [0.3 0.15 0.35 0.25], ...
                 'callback', @ttab.btnNew_Callback);%,'FontUnits', 'Normalized'
             
-                      
+            
             uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'pushbutton', 'String', 'Save',...
                 'Units', 'Normalized', 'Position', [0.05 0.1 0.4 0.18], ...
                 'callback', @ttab.SavePlot);
@@ -69,7 +69,7 @@ classdef  PredictTab < BasicTab
             ttab.ddlPlotVar2 = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu','Enable','off', 'String', {'2'},...
                 'Units', 'normalized','Value',1, 'Position', [0.45 0.4 0.35 0.1], 'BackgroundColor', 'white');%, 'callback', @DataTab.Redraw);
             
-
+            
             
             allvars = evalin('base','whos');
             varnames = {allvars.name};
@@ -85,8 +85,8 @@ classdef  PredictTab < BasicTab
             end
             
             tg = uitabgroup('Parent', ttab.middle_panel);
-            tab_txt = uitab('Parent', tg, 'Title', 'Text view');
             ttab.tab_img = uitab('Parent', tg, 'Title', 'Graphical view');
+            tab_txt = uitab('Parent', tg, 'Title', 'Table view');
             
             %ttab.tbTextEdit = uicontrol('Parent', tab_txt, 'Style', 'edit', 'String', '', ...
             %    'Units', 'normalized','Position', [0 0 1 1], 'HorizontalAlignment', 'left', 'Max', 2);
@@ -103,35 +103,35 @@ classdef  PredictTab < BasicTab
         
     end
     
-    methods 
+    methods
         
         function btnNew_Callback(self, obj, ~)
             
             idx = get(self.ddlNewSet, 'value');
             if idx > 0
-            list = get(self.ddlNewSet, 'string');
-            
-            set = evalin('base',list{idx});
-
-            res = self.parent.modelTab.Model.Apply(set);
-            %
-            %ff = res.AllocationTable;
-            
-            self.Redraw();
-            
-            %set(ttab.tbTextEdit, 'max', 2);
-            %self.tbTextEdit.String = ff;
-            self.tblTextResult.ColumnName = {'Sample',1:size(res.AllocationMatrix, 2)};
-
-            self.tblTextResult.Data = [res.Labels, num2cell(logical(res.AllocationMatrix))];
-            
-            self.tblTextResult.ColumnWidth = num2cell([150, 30*ones(1,size(res.AllocationMatrix, 2))]);
-
+                list = get(self.ddlNewSet, 'string');
+                
+                set = evalin('base',list{idx});
+                
+                res = self.parent.modelTab.Model.Apply(set);
+                %
+                %ff = res.AllocationTable;
+                
+                self.Redraw();
+                
+                %set(ttab.tbTextEdit, 'max', 2);
+                %self.tbTextEdit.String = ff;
+                self.tblTextResult.ColumnName = {'Sample',1:size(res.AllocationMatrix, 2)};
+                
+                self.tblTextResult.Data = [res.Labels, num2cell(logical(res.AllocationMatrix))];
+                
+                self.tblTextResult.ColumnWidth = num2cell([150, 30*ones(1,size(res.AllocationMatrix, 2))]);
+                
             end
         end
         
         function Redraw(self)
-
+            
             %delete(ttab.model_plot);
             delete(self.predict_plot_axes);
             %ax = get(gcf,'CurrentAxes');
@@ -146,20 +146,20 @@ classdef  PredictTab < BasicTab
         end
         
         function SavePlot(self, obj, ~)
-
+            
             if ~isempty(self.predict_plot_axes)
                 
                 idx = get(self.ddlNewSet, 'value');
-            
+                
                 list = get(self.ddlNewSet, 'string');
-            
-             type = list{idx};
+                
+                type = list{idx};
                 
                 filename = [type,'.png'];
                 if ispc
                     filename = [type,'.emf'];
                 end
-
+                
                 fig2 = figure('visible','off');
                 copyobj(self.predict_plot_axes,fig2);
                 saveas(fig2, filename);
@@ -167,18 +167,18 @@ classdef  PredictTab < BasicTab
         end
         
         function CopyPlotToClipboard(self, obj, ~)
-
+            
             fig2 = figure('visible','off');
             copyobj(self.predict_plot_axes,fig2);
             
             if ispc
-               print(fig2,'-clipboard', '-dmeta');
+                print(fig2,'-clipboard', '-dmeta');
             else
-               print(fig2,'-clipboard', '-dpng'); 
+                print(fig2,'-clipboard', '-dpng');
             end
             
         end
-  
+        
     end
     
 end

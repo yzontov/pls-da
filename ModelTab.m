@@ -161,30 +161,30 @@ classdef  ModelTab < BasicTab
                 'Units', 'normalized','Value',1, 'Position', [0.45 0.4 0.35 0.1], 'BackgroundColor', 'white');%, 'callback', @DataTab.Redraw);
             
             tg = uitabgroup('Parent', ttab.middle_panel);
-            tab_txt = uitab('Parent', tg, 'Title', 'Text view');
             ttab.tab_img = uitab('Parent', tg, 'Title', 'Graphical view');
+            tab_txt = uitab('Parent', tg, 'Title', 'Table view');
             
-%             ttab.tbTextResult = uicontrol('Parent', tab_txt, 'Style', 'edit', 'String', '', ...
-%                 'Units', 'normalized','Position', [0 0 1 1], 'HorizontalAlignment', 'left', 'Max', 2);
-%             
+            %             ttab.tbTextResult = uicontrol('Parent', tab_txt, 'Style', 'edit', 'String', '', ...
+            %                 'Units', 'normalized','Position', [0 0 1 1], 'HorizontalAlignment', 'left', 'Max', 2);
+            %
             ttab.tblTextResult = uitable(tab_txt);
             ttab.tblTextResult.Units = 'normalized';
             ttab.tblTextResult.Position = [0 0 1 1];
-    
+            
             if ~isempty(ttab.Model)
                 
                 Labels = cell(size(ttab.Model.TrainingDataSet.ProcessedData, 1),1);
-            for i = 1:size(ttab.Model.TrainingDataSet.ProcessedData, 1)
-                Labels{i} = sprintf('Object No.%d', i);
-            end
-            
-            if(~isempty(ttab.Model.TrainingDataSet.ObjectNames))
-                Labels = ttab.Model.TrainingDataSet.ObjectNames;
-            end
-            
-            ttab.tblTextResult.Data = {Labels, num2cell(logical(ttab.Model.AllocationMatrix))};
-            
-           ttab.tblTextResult.ColumnName = {'Sample',1,2,3};
+                for i = 1:size(ttab.Model.TrainingDataSet.ProcessedData, 1)
+                    Labels{i} = sprintf('Object No.%d', i);
+                end
+                
+                if(~isempty(ttab.Model.TrainingDataSet.ObjectNames))
+                    Labels = ttab.Model.TrainingDataSet.ObjectNames;
+                end
+                
+                ttab.tblTextResult.Data = {Labels, num2cell(logical(ttab.Model.AllocationMatrix))};
+                
+                ttab.tblTextResult.ColumnName = {'Sample',1:size(ttab.Model.AllocationMatrix, 2)};
                 
                 %set(tbTextResult, 'String', ttab.Model.AllocationTable);
             end
@@ -225,9 +225,9 @@ classdef  ModelTab < BasicTab
                 end
             end
             
-%             data = guidata(gcf);
-%             data.modeltab = ttab;
-%             guidata(gcf, data);
+            %             data = guidata(gcf);
+            %             data.modeltab = ttab;
+            %             guidata(gcf, data);
             
         end
         
@@ -241,8 +241,8 @@ classdef  ModelTab < BasicTab
             
             %delete(ttab.model_plot);
             delete(self.model_plot_axes);
-%             ax = get(gcf,'CurrentAxes');
-%             cla(ax);
+            %             ax = get(gcf,'CurrentAxes');
+            %             cla(ax);
             ha2d = axes('Parent', self.tab_img,'Units', 'normalized','Position', [0 0 1 1]);
             %set(gcf,'CurrentAxes',ha2d);
             self.model_plot_axes = ha2d;
@@ -375,12 +375,12 @@ classdef  ModelTab < BasicTab
         
         function Finalize(self, obj, ~)
             val = get(obj,'value');
-
+            
             self.Model.Finalized = val;
             
             win = self.parent;
             if val && isempty(win.predictTab)
-                win.predictTab = PredictTab(win.tgroup, win); 
+                win.predictTab = PredictTab(win.tgroup, win);
             end
             
             if ~val && ~isempty(win.predictTab)

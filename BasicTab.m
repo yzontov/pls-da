@@ -1,8 +1,8 @@
 classdef  BasicTab < handle
     properties
-        parent;   
+        parent;
     end
-
+    
     properties (Access = protected)
         tab;
         left_panel;
@@ -24,8 +24,8 @@ classdef  BasicTab < handle
             v = version('-release');
             vyear = str2double(v(1:4));
             
-%             width = tabgroup.Position(3);
-%             height = tabgroup.Position(4);
+            %             width = tabgroup.Position(3);
+            %             height = tabgroup.Position(4);
             
             if vyear < 2014
                 ttab.tab = uitab('v0', 'Parent', tabgroup, 'Title', title);
@@ -37,7 +37,7 @@ classdef  BasicTab < handle
             ttab.middle_panel = uipanel('Parent', ttab.tab, 'Title', '', 'Units','normalized', 'Position', [0.3   0.05   0.7  0.95]);
             %ttab.right_panel = uipanel('Parent', ttab.tab, 'Title', 'Right', 'Units','normalized', 'Position', [0.8   0.05   0.2  0.95]);
             ttab.statusbar_panel = uipanel('Parent', ttab.tab, 'Title', '', 'Units','normalized', 'Position', [0.0   0.0   1  0.05]);
-
+            
         end
         
     end

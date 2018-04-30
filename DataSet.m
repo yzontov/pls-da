@@ -10,6 +10,8 @@ classdef DataSet < handle
         VariableNames;
         ClassLabels;
         
+        SelectedSamples;
+        
         Centering = false;
         Scaling = false;
         
@@ -181,6 +183,8 @@ classdef DataSet < handle
                 self.Std = temp;
                 self.Data_ = bsxfun(@rdivide, self.Data_, temp);
             end
+            
+            self.SelectedSamples = ones(size(self.Data_, 1),1);
             
         end
         

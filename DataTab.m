@@ -25,6 +25,10 @@ classdef  DataTab < BasicTab
         
         chkTraining;
         chkValidation;
+        
+        tblTextResult;
+        tab_img;
+        
     end
     methods
         
@@ -92,6 +96,37 @@ classdef  DataTab < BasicTab
                 'callback', @ttab.CopyPlotToClipboard);
             
             
+            tg = uitabgroup('Parent', ttab.middle_panel);
+            ttab.tab_img = uitab('Parent', tg, 'Title', 'Graphical view');
+            tab_txt = uitab('Parent', tg, 'Title', 'Table view');
+            
+            %             ttab.tbTextResult = uicontrol('Parent', tab_txt, 'Style', 'edit', 'String', '', ...
+            %                 'Units', 'normalized','Position', [0 0 1 1], 'HorizontalAlignment', 'left', 'Max', 2);
+            %
+            ttab.tblTextResult = uitable(tab_txt);
+            ttab.tblTextResult.Units = 'normalized';
+            ttab.tblTextResult.Position = [0 0 1 0.9];
+            
+            uicontrol('Parent', tab_txt, 'Style', 'pushbutton', 'String', 'Select all',...
+                'Units', 'Normalized', 'Position', [0.01 0.91 0.1 0.05], ...
+                'callback', @ttab.SamplesSelectAll);
+            
+            uicontrol('Parent', tab_txt, 'Style', 'pushbutton', 'String', 'Select none',...
+                'Units', 'Normalized', 'Position', [0.15 0.91 0.1 0.05], ...
+                'callback', @ttab.SamplesSelectNone);
+            
+            uicontrol('Parent', tab_txt, 'Style', 'pushbutton', 'String', 'Inverse selection',...
+                'Units', 'Normalized', 'Position', [0.3 0.91 0.15 0.05], ...
+                'callback', @ttab.SamplesInverseSelection);
+            
+            uicontrol('Parent', tab_txt, 'Style', 'pushbutton', 'String', 'Copy selected to new DataSet',...
+                'Units', 'Normalized', 'Position', [0.5 0.91 0.25 0.05], ...
+                'callback', @ttab.SamplesCopyToNewDataSet);
+            
+            uicontrol('Parent', tab_txt, 'Style', 'pushbutton', 'String', 'Remove selected',...
+                'Units', 'Normalized', 'Position', [0.8 0.91 0.15 0.05], ...
+                'callback', @ttab.SamplesRemoveSelection);
+            
             allvars = evalin('base','whos');
             varnames = {allvars.name};
             
@@ -140,14 +175,48 @@ classdef  DataTab < BasicTab
                 
                 ttab.drawPlot(selected_name);
                 
+                
+                Labels = cell(size(d.ProcessedData, 1),1);
+                for i = 1:size(d.ProcessedData, 1)
+                    Labels{i} = sprintf('Object No.%d', i);
+                end
+                
+                if(~isempty(d.ObjectNames))
+                    Labels = d.ObjectNames;
+                end
+                
+                
+                ttab.tblTextResult.Data = [Labels, num2cell(logical(d.SelectedSamples))];
+                ttab.tblTextResult.ColumnName = {'Sample', 'Included'};
+                ttab.tblTextResult.ColumnWidth = num2cell([150, 50]);
+            
+                ttab.tblTextResult.ColumnEditable = [false true];
+                ttab.tblTextResult.CellEditCallback = @ttab.converttonum;
+                
+                
+                
             else
                 ttab.resetRightPanel();
                 ttab.enableRightPanel('off');
             end
             
-%             data = guidata(gcf);
-%             data.datatab = ttab;
-%             guidata(gcf, data);
+            %             data = guidata(gcf);
+            %             data.datatab = ttab;
+            %             guidata(gcf, data);
+        end
+        
+        function converttonum(self,hObject,callbackdata)
+            numval = callbackdata.EditData;
+            r = callbackdata.Indices(1);
+            %c = callbackdata.Indices(2)
+            %hObject.Data{r,c} = numval;
+            
+            index_selected = get(self.listbox,'Value');
+            names = get(self.listbox,'String');
+            selected_name = names{index_selected};
+            d = evalin('base', selected_name);
+            
+            d.SelectedSamples(r) = double(numval);
         end
         
         function obj = GetObject(self,list, idx)
@@ -156,7 +225,7 @@ classdef  DataTab < BasicTab
         end
         
         function Redraw(self,obj, ~)
-
+            
             index_selected = get(self.listbox,'Value');
             names = get(self.listbox,'String');%fieldnames(ttab.Data);
             selected_name = names{index_selected};
@@ -198,7 +267,7 @@ classdef  DataTab < BasicTab
                 if ispc
                     filename = [type,'.emf'];
                 end
-
+                
                 fig2 = figure('visible','off');
                 copyobj(self.data_plot_axes,fig2);
                 saveas(fig2, filename);
@@ -238,14 +307,14 @@ classdef  DataTab < BasicTab
                     set(self.chkPlotShowClasses, 'enable', 'off');
                     
             end
-
+            
             self.Redraw();
         end
         
         function Input_Centering(self,obj, ~)
             val = get(obj,'Value');
             if ~isempty(val) && ~isnan(val)
-
+                
                 index_selected = get(self.listbox,'Value');
                 names = get(self.listbox,'String');%fieldnames(ttab.Data);
                 selected_name = names{index_selected};
@@ -284,7 +353,7 @@ classdef  DataTab < BasicTab
             index_selected = get(self.listbox,'Value');
             
             if ~isempty(val) && ~isnan(val) && index_selected > 0
-
+                
                 
                 names = get(self.listbox,'String');%fieldnames(ttab.Data);
                 selected_name = names{index_selected};
@@ -303,7 +372,7 @@ classdef  DataTab < BasicTab
                 
                 win = self.parent;
                 if sum(idx) > 0 && isempty(win.modelTab)
-                    win.modelTab = ModelTab(win.tgroup, win); 
+                    win.modelTab = ModelTab(win.tgroup, win);
                     
                 end
                 
@@ -313,7 +382,7 @@ classdef  DataTab < BasicTab
                     win.modelTab = [];
                     
                 end
-
+                
             end
         end
         
@@ -400,7 +469,7 @@ classdef  DataTab < BasicTab
         end
         
         function listClick(self,obj, ~)
-
+            
             index_selected = get(obj,'Value');
             
             if(index_selected > 1)
@@ -435,13 +504,36 @@ classdef  DataTab < BasicTab
                 self.fillRightPanel();
                 
                 self.drawPlot(selected_name);
+                
+                
+                Labels = cell(size(d.ProcessedData, 1),1);
+                for i = 1:size(d.ProcessedData, 1)
+                    Labels{i} = sprintf('Object No.%d', i);
+                end
+                
+                if(~isempty(d.ObjectNames))
+                    Labels = d.ObjectNames;
+                end
+                
+                
+                self.tblTextResult.Data = [Labels, num2cell(logical(d.SelectedSamples))];
+                self.tblTextResult.ColumnName = {'Sample', 'Included'};
+                self.tblTextResult.ColumnWidth = num2cell([150 50]);
+            
+                
+                self.tblTextResult.ColumnEditable = [false true];
+                self.tblTextResult.CellEditCallback = @self.converttonum;
+                
+                
             else
                 self.resetRightPanel();
                 self.enableRightPanel('off');
                 delete(self.data_plot);
                 delete(self.data_plot_axes);
+                self.tblTextResult.Data = [];
+                self.tblTextResult.ColumnName = [];
             end
-
+            
         end
         
         function resetRightPanel(self)
@@ -465,7 +557,7 @@ classdef  DataTab < BasicTab
             %ax = get(gcf,'CurrentAxes');
             %cla(ax);
             %subplot
-            ha2d = axes('Parent', ttab.middle_panel,'Units', 'normalized','Position', [0.1 0.2 .8 .7]);
+            ha2d = axes('Parent', ttab.tab_img,'Units', 'normalized','Position', [0.1 0.2 .8 .7]);
             %set(gcf,'CurrentAxes',ha2d);
             ttab.data_plot_axes = ha2d;
             
@@ -496,13 +588,13 @@ classdef  DataTab < BasicTab
             
             %d = ttab.Data.(selected_name);
             if index_selected > 1
-            d = evalin('base', selected_name);
-            
-            set(ttab.chkCentering, 'Value', d.Centering);
-            set(ttab.chkScaling, 'Value', d.Scaling);
-            
-            set(ttab.chkTraining, 'Value', d.Training);
-            set(ttab.chkValidation, 'Value', d.Validation);
+                d = evalin('base', selected_name);
+                
+                set(ttab.chkCentering, 'Value', d.Centering);
+                set(ttab.chkScaling, 'Value', d.Scaling);
+                
+                set(ttab.chkTraining, 'Value', d.Training);
+                set(ttab.chkValidation, 'Value', d.Validation);
             end
             %set(ttab.ddlPlotType, 'Value', d.PlotType);
         end
