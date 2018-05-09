@@ -543,16 +543,25 @@ classdef  DataTab < BasicTab
                 end
                 
                 if(isempty(d.VariableNames))
-                    names = arrayfun(@(x) sprintf('%d', x), 1:size(d.ProcessedData, 2), 'UniformOutput', false);
+                    if(isempty(d.Variables))
+                        names = arrayfun(@(x) sprintf('%d', x), 1:size(d.ProcessedData, 2), 'UniformOutput', false);
+                    else
+                        names = arrayfun(@(x) sprintf('%.2f', x), d.Variables, 'UniformOutput', false);
+                    end
                 else
                     names = d.VariableNames;
                 end
+                
+                
+                
                 set(self.ddlPlotVar1, 'String', names);
                 set(self.ddlPlotVar2, 'String', names);
                 
                 self.resetRightPanel();
                 self.fillRightPanel();
                 
+                self.Redraw();
+                self.FillTableView(selected_name);
                 %ttab = DataTab.drawPlot(ttab, selected_name);
                 
             end
@@ -636,11 +645,11 @@ classdef  DataTab < BasicTab
                     Labels = d.ObjectNames;
                 end
                 
-                self.tblTextResult.Data = [Labels, num2cell(logical(d.SelectedSamples))];
-                self.tblTextResult.ColumnName = {'Sample', 'Included'};
-                self.tblTextResult.ColumnWidth = num2cell([150 60]);
+                self.tblTextResult.Data = [Labels, num2cell(d.Classes), num2cell(logical(d.SelectedSamples))];
+                self.tblTextResult.ColumnName = {'Sample', 'Class', 'Included'};
+                self.tblTextResult.ColumnWidth = num2cell([150 60 60]);
             
-                self.tblTextResult.ColumnEditable = [false true];
+                self.tblTextResult.ColumnEditable = [false false true];
                 self.tblTextResult.CellEditCallback = @self.SelectedSamplesChangedCallback;
             
         end
@@ -681,12 +690,27 @@ classdef  DataTab < BasicTab
             switch PlotType
                 case 1 %scatter
                     ttab.data_plot = d.scatter(ttab.data_plot_axes, var1, var2, showClasses, showObjectNames);
+                    
+                    labels = strread(num2str(1:size(d.ProcessedData, 1)),'%s');
+                    if(~isempty(d.ObjectNames))
+                        labels = d.ObjectNames;
+                    end
+                    set(ttab.data_plot_axes,'UserData', {[ttab.data_plot.XData', ttab.data_plot.YData'], labels, d.Classes(logical(d.SelectedSamples),:)});
+                    
+                    datacursormode on
+                    dcm_obj = datacursormode(ttab.parent.fig);
+                    set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
+                    
                 case 2 %line
                     ttab.data_plot = d.line(ttab.data_plot_axes);
+                    datacursormode off
                 case 3 %histogram
                     ttab.data_plot = d.histogram(ttab.data_plot_axes, var1);
+                    datacursormode off
                     
             end
+            
+       
         end
         
         function fillRightPanel(self)

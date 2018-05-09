@@ -305,6 +305,11 @@ classdef PLSDAModel < handle
             
             Centers_ = [self.Centers(:,pc1) self.Centers(:,pc2)];
             
+            labels = strread(num2str(1:size(self.TrainingDataSet.ProcessedData, 1)),'%s');
+                    if(~isempty(self.TrainingDataSet.SelectedObjectNames))
+                        labels = self.TrainingDataSet.SelectedObjectNames;
+                    end                 
+            
             %hard
             if strcmp(self.Mode, 'hard')
                 w_ = [self.w(:,pc1) self.w(:,pc2)];
@@ -312,16 +317,24 @@ classdef PLSDAModel < handle
                 t0_ = [self.t0(pc1) self.t0(pc2)];
                 
                 PLSDAModel.hard_plot(axes,w_,v_,t0_,self.K,Centers_);
+                set(axes,'UserData', {t0_, labels, self.TrainingDataSet.Classes(logical(self.TrainingDataSet.SelectedSamples),:)});
+
             end
             
             %soft
             if strcmp(self.Mode, 'soft')
                 YpredT_ = [self.YpredT(:,pc1) self.YpredT(:,pc2)];
                 PLSDAModel.soft_plot(axes, YpredT_, Y,Centers_,color, self.Alpha, self.numPC_pca, self.Gamma, self.K);
+                set(axes,'UserData', {YpredT_, labels, self.TrainingDataSet.Classes(logical(self.TrainingDataSet.SelectedSamples),:)});
+
             end
             
             %center
             %plot(t0(pc1),t0(pc2), '*');
+            
+            xlabel(sprintf('PC %d', pc1)); % x-axis label
+            ylabel(sprintf('PC %d', pc2));% y-axis label
+            
             hold off
             
             

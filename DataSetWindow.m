@@ -218,6 +218,23 @@ classdef  DataSetWindow<handle
                     end
                 end
                 
+                idx = arrayfun(@(x)self.type_size_filter(x,1,1,gg(2),2,'double'),list);
+                
+                vardisplay={};
+                if sum(idx) > 0
+                    l = list(idx);
+                    %vardisplay = cell(length(idx)+1,1);
+                    vardisplay{1} = '-';
+                    for i = 1:length(l)
+                        ss = l(i).size;
+                        vardisplay{i+1} = sprintf('%s (%dx%d)',l(i).name,ss(1),ss(2));
+                    end
+                    set(self.ddlVariables, 'String', vardisplay);
+                    if length(get(self.ddlVariables, 'String')) > 1
+                        set(self.ddlVariables, 'Value', 2)
+                    end
+                end
+                
             else
                 set(self.ddlClasses, 'String', {'-'});
                 set(self.ddlVariableNames, 'String', {'-'});
@@ -280,6 +297,9 @@ classdef  DataSetWindow<handle
                     
                     if get(self.ddlVariableNames, 'Value') > 1
                         d.VariableNames = self.GetObject(get(self.ddlVariableNames, 'String'), get(self.ddlVariableNames, 'Value'));
+                        if(isa(d.VariableNames(1), 'cell'))
+                            d.VariableNames = cellstr(d.VariableNames);
+                        end
                     end
                     
                     if get(self.ddlVariables, 'Value') > 1
@@ -288,10 +308,16 @@ classdef  DataSetWindow<handle
                     
                     if get(self.ddlObjectNames, 'Value') > 1
                         d.ObjectNames = self.GetObject(get(self.ddlObjectNames, 'String'), get(self.ddlObjectNames, 'Value'));
+                        if(isa(d.ObjectNames(1), 'cell'))
+                            d.ObjectNames = cellstr(d.ObjectNames);
+                        end
                     end
                     
                     if get(self.ddlClassLabels, 'Value') > 1
                         d.ClassLabels = self.GetObject(get(self.ddlClassLabels, 'String'), get(self.ddlClassLabels, 'Value'));
+                        if(isa(d.ClassLabels(1), 'cell'))
+                            d.ClassLabels = cellstr(d.ClassLabels);
+                        end
                     end
                     
                     try

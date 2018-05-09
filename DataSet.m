@@ -31,6 +31,7 @@ classdef DataSet < handle
         
         ProcessedData;
         SelectedObjectNames;
+        NumberOfClasses;
         
     end
     
@@ -49,20 +50,37 @@ classdef DataSet < handle
             
             fig = scatter(axes, self.ProcessedData(:,var1),self.ProcessedData(:,var2));
             
+            if (~isempty(self.VariableNames))
+                xlabel(self.VariableNames{var1}); % x-axis label
+                ylabel(self.VariableNames{var2});% y-axis label
+            else
+                if (~isempty(self.Variables))
+                    xlabel(sprintf('%.2f', self.Variables(var1))); % x-axis label
+                    ylabel(sprintf('%.2f', self.Variables(var2)));% y-axis label
+                else
+                    xlabel(sprintf('Variable %.2f', var1)); % x-axis label
+                    ylabel(sprintf('Variable %.2f', var2));% y-axis label
+                end
+            end
+            
+            
+            
             if(showObjectNames)
                 labels = strread(num2str(1:size(self.ProcessedData, 1)),'%s');
-                if(~isempty(self.ObjectNames))
-                    labels = self.ObjectNames;
+                if(~isempty(self.SelectedObjectNames))
+                    labels = self.SelectedObjectNames;
                 end
                 
                 dx = 0.01; dy = 0.01; % displacement so the text does not overlay the data points
                 text(axes, self.ProcessedData(:,var1)+dx, self.ProcessedData(:,var2)+dy, labels, 'Interpreter', 'none');
+            
+                
             end
             
             if(showClasses)
-                labels = arrayfun(@(x) sprintf('%d',x),self.Classes,'UniformOutput', false);
-                if(~isempty(self.ClassLabels))
-                    labels = self.ClassLabels;
+                labels = arrayfun(@(x) sprintf('%d',x),self.Classes(logical(self.SelectedSamples),:),'UniformOutput', false);
+                if(~isempty(self.ClassLabels) && ~isempty(self.ClassLabels(logical(self.SelectedSamples),:)))
+                    labels = self.ClassLabels(logical(self.SelectedSamples),:);
                 end
                 
                 dx = 0.03; dy = -0.03; % displacement so the text does not overlay the data points
@@ -163,6 +181,12 @@ classdef DataSet < handle
         function value = get.ProcessedData(self)
             
             value = self.Data_;
+            
+        end
+        
+        function value = get.NumberOfClasses(self)
+            
+            value = size(self.DummyMatrix(), 2);
             
         end
         

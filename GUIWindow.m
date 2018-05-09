@@ -4,6 +4,8 @@ classdef  GUIWindow<handle
         modelTab;
         predictTab;
         tgroup;
+        
+        fig;
     end
     methods
         
@@ -49,11 +51,43 @@ classdef  GUIWindow<handle
                 win.predictTab = PredictTab(win.tgroup, win);
             end
             
+            win.fig = f;
+            
         end
         
     end
     
     methods (Static)
+        function output_txt = DataCursorFunc(~,event_obj)
+        % ~            Currently not used (empty)
+        % event_obj    Object containing event data structure
+        % output_txt   Data cursor text
+        if (isa(event_obj.Target, 'matlab.graphics.chart.primitive.Scatter') || ~isequal(event_obj.Target.LineStyle,'-') && ~isequal(event_obj.Target.LineStyle,'--')&& ~isequal(event_obj.Target.LineStyle,'+'))
+            data = event_obj.Target.Parent.UserData{1};
+            Xdata = data(:,1);%get(event_obj.Target,'xdata');
+            Ydata = data(:,2);%get(event_obj.Target,'ydata');
+            
+            Xdiff = Xdata - event_obj.Position(1);
+            Ydiff = Ydata - event_obj.Position(2);
+            
+            distnce=sqrt(Xdiff.^2+Ydiff.^2);
+            
+            labels = event_obj.Target.Parent.UserData{2};
+            classes = event_obj.Target.Parent.UserData{3};
+            
+            index=distnce==min(distnce);
+            
+            str = labels(index);
+            cls = classes(index);
+            
+            output_txt = sprintf('Object: %s\nClass: %d', str{1}, cls);
+
+        else
+            output_txt = 'not an object';
+        end
+        end
+        
+        
         function [varout,varoutnames] = uigetvariables(prompts,varargin)
             % uigetvariables   Open variable selection dialog box
             %

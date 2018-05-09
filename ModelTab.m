@@ -55,9 +55,6 @@ classdef  ModelTab < BasicTab
             set(self.tbAlpha,'string',sprintf('%.2f',self.Model.Alpha));
             set(self.tbGamma,'string',sprintf('%.2f',self.Model.Gamma));
             
-            data = guidata(gcf);
-            data.modeltab = self;
-            guidata(gcf, data);
             r = self;
         end
         
@@ -108,13 +105,13 @@ classdef  ModelTab < BasicTab
             uicontrol('Parent', ttab.pnlModelSettings, 'Style', 'text', 'String', 'Number of PLS PCs', ...
                 'Units', 'normalized','Position', [0.05 0.7 0.85 0.1], 'HorizontalAlignment', 'left');
             ttab.tbNumPCpls = uicontrol('Parent', ttab.pnlModelSettings, 'Style', 'edit', 'String', '12',...
-                'Units', 'normalized','Value',1, 'Position', [0.65 0.7 0.25 0.1], 'BackgroundColor', 'white', 'callback', @ttab.Input_NumPC);
+                'Units', 'normalized','Value',1, 'Position', [0.65 0.7 0.25 0.1], 'BackgroundColor', 'white', 'callback', @ttab.Input_NumPC_PLS);
             
             %PCA PCs
             uicontrol('Parent', ttab.pnlModelSettings, 'Style', 'text', 'String', 'Number of PCA PCs', 'Enable', 'off', ...
                 'Units', 'normalized','Position', [0.05 0.55 0.85 0.1], 'HorizontalAlignment', 'left');
             ttab.tbNumPCpca = uicontrol('Parent', ttab.pnlModelSettings, 'Style', 'edit', 'String', '2', 'Enable', 'off',...
-                'Units', 'normalized','Value',1, 'Position', [0.65 0.55 0.25 0.1], 'BackgroundColor', 'white', 'callback', @ttab.Input_NumPC);
+                'Units', 'normalized','Value',1, 'Position', [0.65 0.55 0.25 0.1], 'BackgroundColor', 'white', 'callback', @ttab.Input_NumPC_PCA);
             
             %lblAlpha
             uicontrol('Parent', ttab.pnlModelSettings, 'Style', 'text', 'String', 'Type I error (alpha)', ...
@@ -146,19 +143,26 @@ classdef  ModelTab < BasicTab
                 'callback', @ttab.CopyPlotToClipboard);
             
             ttab.chkPlotShowClasses = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'checkbox', 'String', 'Show classes',...
-                'Units', 'normalized','Position', [0.05 0.85 0.85 0.1], 'Enable', 'off');%, 'callback', @DataTab.Redraw);
+                'Units', 'normalized','Position', [0.05 0.85 0.85 0.1], 'Enable', 'on', 'callback', @ttab.RedrawCallback);
             ttab.chkPlotShowObjectNames = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'checkbox', 'String', 'Show object names',...
-                'Units', 'normalized','Position', [0.05 0.75 0.85 0.1], 'Enable', 'off');%, 'callback', @DataTab.Redraw);
+                'Units', 'normalized','Position', [0.05 0.75 0.85 0.1], 'Enable', 'on', 'callback', @ttab.RedrawCallback);
             
             uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'PC 1', ...
-                'Units', 'normalized','Position', [0.05 0.58 0.35 0.1], 'Enable', 'off', 'HorizontalAlignment', 'left');
-            ttab.ddlPlotVar1 = uicontrol('Parent', ttab.pnlPlotSettings, 'Enable', 'off', 'Style', 'popupmenu', 'String', {'1'},...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.6 0.35 0.1], 'BackgroundColor', 'white');%, 'callback', @DataTab.Redraw);
+                'Units', 'normalized','Position', [0.05 0.58 0.35 0.1], 'Enable', 'on', 'HorizontalAlignment', 'left');
+            ttab.ddlPlotVar1 = uicontrol('Parent', ttab.pnlPlotSettings, 'Enable', 'on', 'Style', 'popupmenu', 'String', {'-'},...
+                'Units', 'normalized','Value',1, 'Position', [0.45 0.6 0.35 0.1], 'BackgroundColor', 'white', 'callback', @ttab.RedrawCallback);
             
-            uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'PC 2', 'Enable', 'off', ...
+            uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'PC 2', 'Enable', 'on', ...
                 'Units', 'normalized','Position', [0.05 0.38 0.35 0.1], 'HorizontalAlignment', 'left');
-            ttab.ddlPlotVar2 = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu', 'Enable', 'off', 'String', {'2'},...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.4 0.35 0.1], 'BackgroundColor', 'white');%, 'callback', @DataTab.Redraw);
+            ttab.ddlPlotVar2 = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu', 'Enable', 'on', 'String', {'-'},...
+                'Units', 'normalized','Value',1, 'Position', [0.45 0.4 0.35 0.1], 'BackgroundColor', 'white', 'callback', @ttab.RedrawCallbacks);
+            
+            pcs = arrayfun(@(x) sprintf('%d', x), 1:str2double(get(self.tbNumPCpca,'string')), 'UniformOutput', false);
+            
+            set(self.ddlPlotVar1, 'String', pcs);
+            set(self.ddlPlotVar2, 'String', pcs);
+            set(self.ddlPlotVar1, 'Value', 1);
+            set(self.ddlPlotVar2, 'Value', 2);
             
             tg = uitabgroup('Parent', ttab.middle_panel);
             ttab.tab_img = uitab('Parent', tg, 'Title', 'Graphical view');
@@ -178,13 +182,18 @@ classdef  ModelTab < BasicTab
                     Labels{i} = sprintf('Object No.%d', i);
                 end
                 
-                if(~isempty(ttab.Model.TrainingDataSet.ObjectNames))
-                    Labels = ttab.Model.TrainingDataSet.ObjectNames;
+                if(~isempty(ttab.Model.TrainingDataSet.SelectedObjectNames))
+                    Labels = ttab.Model.TrainingDataSet.SelectedObjectNames;
                 end
                 
                 ttab.tblTextResult.Data = {Labels, num2cell(logical(ttab.Model.AllocationMatrix))};
                 
                 ttab.tblTextResult.ColumnName = {'Sample',1:size(ttab.Model.AllocationMatrix, 2)};
+                
+                pcs = arrayfun(@(x) sprintf('%d', x), 1:ttab.Model.TrainingSet.NumberOfClasses, 'UniformOutput', false);
+                
+                set(self.ddlPlotVar1, 'String', pcs);
+                set(self.ddlPlotVar2, 'String', pcs);
                 
                 %set(tbTextResult, 'String', ttab.Model.AllocationTable);
             end
@@ -230,19 +239,37 @@ classdef  ModelTab < BasicTab
             %             guidata(gcf, data);
             
         end
-
+        
+        function RedrawCallback(self, obj, param)
+            self.Redraw();
+        end
+        
         function Redraw(self)
             
             %delete(ttab.model_plot);
             delete(self.model_plot_axes);
             %             ax = get(gcf,'CurrentAxes');
             %             cla(ax);
-            ha2d = axes('Parent', self.tab_img,'Units', 'normalized','Position', [0 0 1 1]);
+            ha2d = axes('Parent', self.tab_img,'Units', 'normalized');
             %set(gcf,'CurrentAxes',ha2d);
             self.model_plot_axes = ha2d;
             
+            pc1 = self.ddlPlotVar1.Value;
+            pc2 = self.ddlPlotVar2.Value;
+            
             if ~isempty(self.Model)
-                self.Model.Plot(self.model_plot_axes);
+                self.Model.Plot(self.model_plot_axes, pc1, pc2);
+                
+                if(self.chkPlotShowObjectNames.Value == 1)
+                    pan off
+                    datacursormode on
+                    dcm_obj = datacursormode(self.parent.fig);
+                    set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
+                else
+                    datacursormode off
+                    pan on
+                end
+                
             end
         end
         
@@ -299,8 +326,8 @@ classdef  ModelTab < BasicTab
                 Labels{i} = sprintf('Object No.%d', i);
             end
             
-            if(~isempty(self.Model.TrainingDataSet.ObjectNames))
-                Labels = self.Model.TrainingDataSet.ObjectNames;
+            if(~isempty(self.Model.TrainingDataSet.SelectedObjectNames))
+                Labels = self.Model.TrainingDataSet.SelectedObjectNames;
             end
             
             self.tblTextResult.Data = [Labels, num2cell(logical(self.Model.AllocationMatrix))];
@@ -421,6 +448,62 @@ classdef  ModelTab < BasicTab
         function Input_NumPC(self, src, ~)
             str=get(src,'String');
             %TBD
+        end
+        
+        function Input_NumPC_PLS(self, src, ~)
+            str=get(src,'String');
+            
+            index_selected = get(self.ddlCalibrationSet,'Value');
+            names = get(self.ddlCalibrationSet,'String');
+            selected_name = names{index_selected};
+            
+            data = evalin('base', selected_name);
+            
+            vmax = min(size(data.ProcessedData));
+            
+            vmin = data.NumberOfClasses;
+            
+            if(data.Centering)
+                vmax = vmax - 1;
+            end
+            
+        end
+        
+        function Input_NumPC_PCA(self, src, ~)
+            str=get(src,'String');
+            
+            index_selected = get(self.ddlCalibrationSet,'Value');
+            names = get(self.ddlCalibrationSet,'String');
+            selected_name = names{index_selected};
+            
+            data = evalin('base', selected_name);
+            numPC = str2double(str);
+            
+            if isempty(numPC) || isnan(numPC)
+                set(src,'string','2');
+                warndlg('Input must be numerical');
+            else
+                if numPC < vmin || numPC > vmax
+                    set(src,'string',sprintf('%d',vmin));
+                    warndlg(sprintf('Number of PCA Principal Components should be not less than %d and not more than %d!', vmin, vmax));
+                else
+%                     set(btnModelGraph,'Enable','off');
+%                     set(btnModelGraphExtreme,'Enable','off');
+%                     set(btnModelSave,'Enable','off');
+%                     
+%                     ClearCurrentModel();
+                end
+            end
+            
+            pcs = arrayfun(@(x) sprintf('%d', x), 1:str2double(get(str,'string')), 'UniformOutput', false);
+            
+            set(self.ddlPlotVar1, 'String', pcs);
+            set(self.ddlPlotVar2, 'String', pcs);
+            set(self.ddlPlotVar1, 'Value', 1);
+            set(self.ddlPlotVar2, 'Value', 2);
+            
+            self.Redraw();
+            
         end
         
         function Input_Alpha(self, src, ~)
