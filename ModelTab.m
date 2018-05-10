@@ -51,7 +51,7 @@ classdef  ModelTab < BasicTab
             set(self.ddlCalibrationSet,'value',idx);
             
             set(self.tbNumPCpls,'string',sprintf('%d',self.Model.NumPC));
-            set(self.tbNumPCpca, 'String', sprintf('%d', max(2, size(self.Model.TrainingDataSet.DummyMatrix(),2)-1)));%%temp
+            set(self.tbNumPCpca, 'String', sprintf('%d', max(2, self.Model.TrainingDataSet.NumberOfClasses-1)));%%temp
             set(self.tbAlpha,'string',sprintf('%.2f',self.Model.Alpha));
             set(self.tbGamma,'string',sprintf('%.2f',self.Model.Gamma));
             
@@ -108,9 +108,9 @@ classdef  ModelTab < BasicTab
                 'Units', 'normalized','Value',1, 'Position', [0.65 0.7 0.25 0.1], 'BackgroundColor', 'white', 'callback', @ttab.Input_NumPC_PLS);
             
             %PCA PCs
-            uicontrol('Parent', ttab.pnlModelSettings, 'Style', 'text', 'String', 'Number of PCA PCs', 'Enable', 'off', ...
+            uicontrol('Parent', ttab.pnlModelSettings, 'Style', 'text', 'String', 'Number of PCA PCs', 'Enable', 'on', ...
                 'Units', 'normalized','Position', [0.05 0.55 0.85 0.1], 'HorizontalAlignment', 'left');
-            ttab.tbNumPCpca = uicontrol('Parent', ttab.pnlModelSettings, 'Style', 'edit', 'String', '2', 'Enable', 'off',...
+            ttab.tbNumPCpca = uicontrol('Parent', ttab.pnlModelSettings, 'Style', 'edit', 'String', '2', 'Enable', 'on',...
                 'Units', 'normalized','Value',1, 'Position', [0.65 0.55 0.25 0.1], 'BackgroundColor', 'white', 'callback', @ttab.Input_NumPC_PCA);
             
             %lblAlpha
@@ -155,14 +155,9 @@ classdef  ModelTab < BasicTab
             uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'PC 2', 'Enable', 'on', ...
                 'Units', 'normalized','Position', [0.05 0.38 0.35 0.1], 'HorizontalAlignment', 'left');
             ttab.ddlPlotVar2 = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu', 'Enable', 'on', 'String', {'-'},...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.4 0.35 0.1], 'BackgroundColor', 'white', 'callback', @ttab.RedrawCallbacks);
+                'Units', 'normalized','Value',1, 'Position', [0.45 0.4 0.35 0.1], 'BackgroundColor', 'white', 'callback', @ttab.RedrawCallback);
             
-            pcs = arrayfun(@(x) sprintf('%d', x), 1:str2double(get(self.tbNumPCpca,'string')), 'UniformOutput', false);
             
-            set(self.ddlPlotVar1, 'String', pcs);
-            set(self.ddlPlotVar2, 'String', pcs);
-            set(self.ddlPlotVar1, 'Value', 1);
-            set(self.ddlPlotVar2, 'Value', 2);
             
             tg = uitabgroup('Parent', ttab.middle_panel);
             ttab.tab_img = uitab('Parent', tg, 'Title', 'Graphical view');
@@ -190,10 +185,12 @@ classdef  ModelTab < BasicTab
                 
                 ttab.tblTextResult.ColumnName = {'Sample',1:size(ttab.Model.AllocationMatrix, 2)};
                 
-                pcs = arrayfun(@(x) sprintf('%d', x), 1:ttab.Model.TrainingSet.NumberOfClasses, 'UniformOutput', false);
+                pcs = arrayfun(@(x) sprintf('%d', x), 1:ttab.Model.TrainingSet.NumberOfClasses-1, 'UniformOutput', false);
                 
                 set(self.ddlPlotVar1, 'String', pcs);
                 set(self.ddlPlotVar2, 'String', pcs);
+                set(ttab.ddlPlotVar1, 'Value', 1);
+                set(ttab.ddlPlotVar2, 'Value', 2);
                 
                 %set(tbTextResult, 'String', ttab.Model.AllocationTable);
             end
@@ -213,7 +210,7 @@ classdef  ModelTab < BasicTab
                     set(ttab.ddlCalibrationSet, 'Value', 2)
                     
                     m = evalin('base',vardisplay{2});
-                    set(ttab.tbNumPCpca, 'String', sprintf('%d', max(2, size(m.DummyMatrix(),2)-1)));%%temp
+                    set(ttab.tbNumPCpca, 'String', sprintf('%d', m.NumberOfClasses-1));
                 end
             end
             
@@ -234,6 +231,14 @@ classdef  ModelTab < BasicTab
                 end
             end
             
+            if isempty(ttab.Model)
+            pcs = arrayfun(@(x) sprintf('%d', x), 1:str2double(get(ttab.tbNumPCpca,'string')), 'UniformOutput', false);
+            
+            set(ttab.ddlPlotVar1, 'String', pcs);
+            set(ttab.ddlPlotVar2, 'String', pcs);
+            set(ttab.ddlPlotVar1, 'Value', 1);
+            set(ttab.ddlPlotVar2, 'Value', 2);
+            end
             %             data = guidata(gcf);
             %             data.modeltab = ttab;
             %             guidata(gcf, data);
@@ -241,6 +246,12 @@ classdef  ModelTab < BasicTab
         end
         
         function RedrawCallback(self, obj, param)
+            
+            if (self.ddlPlotVar1.Value == self.ddlPlotVar2.Value)
+                self.ddlPlotVar1.Value = 1;
+                self.ddlPlotVar2.Value = 2;
+            end
+            
             self.Redraw();
         end
         
@@ -431,6 +442,15 @@ classdef  ModelTab < BasicTab
         
         function SelectCalibratinSet(self, src, ~)
             
+            index_selected = get(src,'Value');
+            
+            if(index_selected > 1)
+                names = get(src,'String');
+                selected_name = names{index_selected};
+                d = evalin('base', selected_name);
+            
+            self(self.tbNumPCpca, 'String', sprintf('%d', d.NumberOfClasses-1));
+            end
         end
         
         function Input_ModelParameters(self, src, ~)
@@ -467,6 +487,24 @@ classdef  ModelTab < BasicTab
                 vmax = vmax - 1;
             end
             
+            numPC = str2double(str);
+            
+            if isempty(numPC) || isnan(numPC)
+                set(src,'string', sprintf('%d', vmin));
+                warndlg('Input must be numerical');
+            else
+                if numPC < vmin || numPC > vmax
+                    set(src,'string',sprintf('%d',vmin));
+                    warndlg(sprintf('Number of PLS Components should be not less than %d and not more than %d!', vmin, vmax));
+                else
+%                     set(btnModelGraph,'Enable','off');
+%                     set(btnModelGraphExtreme,'Enable','off');
+%                     set(btnModelSave,'Enable','off');
+%                     
+%                     ClearCurrentModel();
+                end
+            end
+            
         end
         
         function Input_NumPC_PCA(self, src, ~)
@@ -483,9 +521,9 @@ classdef  ModelTab < BasicTab
                 set(src,'string','2');
                 warndlg('Input must be numerical');
             else
-                if numPC < vmin || numPC > vmax
-                    set(src,'string',sprintf('%d',vmin));
-                    warndlg(sprintf('Number of PCA Principal Components should be not less than %d and not more than %d!', vmin, vmax));
+                if numPC > max(2, data.NumberOfClasses - 1) || numPC < min(2, data.NumberOfClasses - 1)
+                    set(src,'string',sprintf('%d',data.NumberOfClasses - 1));
+                    warndlg(sprintf('Number of Principal Components should be not less than %d and not more than %d!', min(2, data.NumberOfClasses - 1), max(2, data.NumberOfClasses - 1)));
                 else
 %                     set(btnModelGraph,'Enable','off');
 %                     set(btnModelGraphExtreme,'Enable','off');
@@ -495,7 +533,8 @@ classdef  ModelTab < BasicTab
                 end
             end
             
-            pcs = arrayfun(@(x) sprintf('%d', x), 1:str2double(get(str,'string')), 'UniformOutput', false);
+            str=get(src,'String');
+            pcs = arrayfun(@(x) sprintf('%d', x), 1:str2double(str), 'UniformOutput', false);
             
             set(self.ddlPlotVar1, 'String', pcs);
             set(self.ddlPlotVar2, 'String', pcs);

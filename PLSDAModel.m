@@ -296,7 +296,7 @@ classdef PLSDAModel < handle
             axis(axes,[-1 1 -1 1]);
             hold on
             
-            Y = self.TrainingDataSet.DummyMatrix();
+            Y = self.TrainingDataSet.DummyMatrix(); 
             %samples
             for class = 1:self.K
                 temp = self.YpredT(Y(:,class) == 1,:);
@@ -436,7 +436,7 @@ classdef PLSDAModel < handle
             mark_idx = 1;
             color_idx = 0;
             n_marks = length(marks);
-            colors = 'rgbmcyk';
+            colors = 'rgbmck';%'rgbmcyk';
             n_colors = length(colors);
             for idx = 1:class_number
                 
