@@ -23,7 +23,19 @@ classdef  PredictTab < BasicTab
         tblTextResult;
     end
     
+    properties (Access = private)
+        pc_x = 1;
+        pc_y = 2;
+    end
+    
     methods
+        
+        function enablePanel(self, panel, param)
+            
+            children = get(panel,'Children');
+            set(children(strcmpi ( get (children,'Type'),'UIControl')),'enable',param);
+            
+        end
         
         function ttab = PredictTab(tabgroup, parent)
             
@@ -101,10 +113,6 @@ classdef  PredictTab < BasicTab
             guidata(gcf, data);
         end
         
-    end
-    
-    methods
-        
         function btnNew_Callback(self, obj, ~)
             
             idx = get(self.ddlNewSet, 'value');
@@ -127,6 +135,9 @@ classdef  PredictTab < BasicTab
                 
                 self.tblTextResult.ColumnWidth = num2cell([150, 30*ones(1,size(res.AllocationMatrix, 2))]);
                 
+                self.enablePanel(self.pnlPlotSettings, 'on');
+            else
+                self.enablePanel(self.pnlPlotSettings, 'off');
             end
         end
         

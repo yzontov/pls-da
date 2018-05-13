@@ -215,7 +215,7 @@ classdef  DataTab < BasicTab
                 names = get(self.listbox,'String');
                 selected_name = names{index_selected};
                 d = evalin('base', selected_name);
-            
+                
                 d.SelectedSamples = ones(size(d.SelectedSamples));
                 
                 self.FillTableView(selected_name);
@@ -232,9 +232,10 @@ classdef  DataTab < BasicTab
                 d = evalin('base', selected_name);
                 
                 d.SelectedSamples = zeros(size(d.SelectedSamples));
-            
+                
                 self.FillTableView(selected_name);
-                self.Redraw();
+                delete(self.data_plot_axes);
+                
             end
         end
         
@@ -247,7 +248,7 @@ classdef  DataTab < BasicTab
                 d = evalin('base', selected_name);
                 
                 d.SelectedSamples = double(not(d.SelectedSamples));
-            
+                
                 self.FillTableView(selected_name);
                 self.Redraw();
             end
@@ -296,7 +297,7 @@ classdef  DataTab < BasicTab
                     
                     self.FillDataSetList();
                 end
-            
+                
                 %self.FillTableView(selected_name);
                 %self.Redraw();
             end
@@ -310,12 +311,16 @@ classdef  DataTab < BasicTab
                 selected_name = names{index_selected};
                 d = evalin('base', selected_name);
                 
-                d.RawData = d.RawData(not(d.SelectedSamples),:);
-                d.Classes = d.Classes(not(d.SelectedSamples),:);
-                d.ObjectNames = d.ObjectNames(not(d.SelectedSamples),:);
-            
-                self.FillTableView(selected_name);
-                self.Redraw();
+                if sum(not(d.SelectedSamples)) < size(d.RawData, 1)
+                    d.RawData = d.RawData(not(d.SelectedSamples),:);
+                    d.Classes = d.Classes(not(d.SelectedSamples),:);
+                    d.ObjectNames = d.ObjectNames(not(d.SelectedSamples),:);
+                    
+                    self.FillTableView(selected_name);
+                    self.Redraw();
+                else
+                    warndlg('The resulting dataset will be empty!');
+                end
             end
         end
         
@@ -324,6 +329,7 @@ classdef  DataTab < BasicTab
             index_selected = get(self.listbox,'Value');
             names = get(self.listbox,'String');%fieldnames(ttab.Data);
             selected_name = names{index_selected};
+            
             
             self.drawPlot(selected_name);
         end
@@ -634,23 +640,23 @@ classdef  DataTab < BasicTab
         
         function FillTableView(self, selected_name)
             
-                d = evalin('base', selected_name);
+            d = evalin('base', selected_name);
             
-                Labels = cell(size(d.RawData, 1),1);
-                for i = 1:size(d.RawData, 1)
-                    Labels{i} = sprintf('Object No.%d', i);
-                end
-                
-                if(~isempty(d.ObjectNames))
-                    Labels = d.ObjectNames;
-                end
-                
-                self.tblTextResult.Data = [Labels, num2cell(d.Classes), num2cell(logical(d.SelectedSamples))];
-                self.tblTextResult.ColumnName = {'Sample', 'Class', 'Included'};
-                self.tblTextResult.ColumnWidth = num2cell([150 60 60]);
+            Labels = cell(size(d.RawData, 1),1);
+            for i = 1:size(d.RawData, 1)
+                Labels{i} = sprintf('Object No.%d', i);
+            end
             
-                self.tblTextResult.ColumnEditable = [false false true];
-                self.tblTextResult.CellEditCallback = @self.SelectedSamplesChangedCallback;
+            if(~isempty(d.ObjectNames))
+                Labels = d.ObjectNames;
+            end
+            
+            self.tblTextResult.Data = [Labels, num2cell(d.Classes), num2cell(logical(d.SelectedSamples))];
+            self.tblTextResult.ColumnName = {'Sample', 'Class', 'Included'};
+            self.tblTextResult.ColumnWidth = num2cell([150 60 60]);
+            
+            self.tblTextResult.ColumnEditable = [false false true];
+            self.tblTextResult.CellEditCallback = @self.SelectedSamplesChangedCallback;
             
         end
         
@@ -669,48 +675,48 @@ classdef  DataTab < BasicTab
         
         function drawPlot(self, selected_name)
             
-            ttab = self;
-            delete(ttab.data_plot);
-            delete(ttab.data_plot_axes);
+            delete(self.data_plot);
+            delete(self.data_plot_axes);
             %ax = get(gcf,'CurrentAxes');
             %cla(ax);
             %subplot
-            ha2d = axes('Parent', ttab.tab_img,'Units', 'normalized','Position', [0.1 0.2 .8 .7]);
+            ha2d = axes('Parent', self.tab_img,'Units', 'normalized','Position', [0.1 0.2 .8 .7]);
             %set(gcf,'CurrentAxes',ha2d);
-            ttab.data_plot_axes = ha2d;
+            self.data_plot_axes = ha2d;
             
             d = evalin('base', selected_name);%ttab.Data.(selected_name);
             
-            var1 = get(ttab.ddlPlotVar1, 'Value');
-            var2 = get(ttab.ddlPlotVar2, 'Value');
-            showObjectNames = get(ttab.chkPlotShowObjectNames, 'Value');
-            showClasses = get(ttab.chkPlotShowClasses, 'Value');
-            PlotType = get(ttab.ddlPlotType, 'Value');
-            
-            switch PlotType
-                case 1 %scatter
-                    ttab.data_plot = d.scatter(ttab.data_plot_axes, var1, var2, showClasses, showObjectNames);
-                    
-                    labels = strread(num2str(1:size(d.ProcessedData, 1)),'%s');
-                    if(~isempty(d.ObjectNames))
-                        labels = d.ObjectNames;
-                    end
-                    set(ttab.data_plot_axes,'UserData', {[ttab.data_plot.XData', ttab.data_plot.YData'], labels, d.Classes(logical(d.SelectedSamples),:)});
-                    
-                    datacursormode on
-                    dcm_obj = datacursormode(ttab.parent.fig);
-                    set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
-                    
-                case 2 %line
-                    ttab.data_plot = d.line(ttab.data_plot_axes);
-                    datacursormode off
-                case 3 %histogram
-                    ttab.data_plot = d.histogram(ttab.data_plot_axes, var1);
-                    datacursormode off
-                    
+            if sum(d.SelectedSamples) > 0
+                var1 = get(self.ddlPlotVar1, 'Value');
+                var2 = get(self.ddlPlotVar2, 'Value');
+                showObjectNames = get(self.chkPlotShowObjectNames, 'Value');
+                showClasses = get(self.chkPlotShowClasses, 'Value');
+                PlotType = get(self.ddlPlotType, 'Value');
+                
+                switch PlotType
+                    case 1 %scatter
+                        self.data_plot = d.scatter(self.data_plot_axes, var1, var2, showClasses, showObjectNames);
+                        
+                        labels = strread(num2str(1:size(d.ProcessedData, 1)),'%s');
+                        if(~isempty(d.ObjectNames))
+                            labels = d.ObjectNames;
+                        end
+                        set(self.data_plot_axes,'UserData', {[self.data_plot.XData', self.data_plot.YData'], labels, d.Classes(logical(d.SelectedSamples),:)});
+                        
+                        datacursormode on
+                        dcm_obj = datacursormode(self.parent.fig);
+                        set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
+                        
+                    case 2 %line
+                        self.data_plot = d.line(self.data_plot_axes);
+                        datacursormode off
+                    case 3 %histogram
+                        self.data_plot = d.histogram(self.data_plot_axes, var1);
+                        datacursormode off
+                        
+                end
             end
             
-       
         end
         
         function fillRightPanel(self)
