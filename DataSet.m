@@ -186,7 +186,8 @@ classdef DataSet < handle
         
         function value = get.NumberOfClasses(self)
             
-            value = size(self.DummyMatrix(), 2);
+            %value = size(self.DummyMatrix(), 2);
+            value = max(self.Classes);
             
         end
         
