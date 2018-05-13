@@ -311,11 +311,16 @@ classdef  DataTab < BasicTab
                 selected_name = names{index_selected};
                 d = evalin('base', selected_name);
                 
-                if sum(not(d.SelectedSamples)) < size(d.RawData, 1)
-                    d.RawData = d.RawData(not(d.SelectedSamples),:);
-                    d.Classes = d.Classes(not(d.SelectedSamples),:);
-                    d.ObjectNames = d.ObjectNames(not(d.SelectedSamples),:);
-                    
+                t = d.SelectedSamples;
+                if sum(not(t)) < size(d.RawData, 1)
+                    d.RawData = d.RawData(not(t),:);
+                    d.Classes = d.Classes(not(t),:);
+                    if ~isempty(d.ObjectNames)
+                        d.ObjectNames = d.ObjectNames(not(t),:);
+                    end
+                    if ~isempty(d.Variables)
+                        d.Variables = d.Variables(not(t),:);
+                    end
                     self.FillTableView(selected_name);
                     self.Redraw();
                 else
