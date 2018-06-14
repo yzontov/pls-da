@@ -75,12 +75,16 @@ classdef  ModelTab < BasicTab
                 
                 self.tblTextResult.ColumnName = {'Sample',1:size(self.Model.AllocationMatrix, 2)};
                 
-                pcs = arrayfun(@(x) sprintf('%d', x), 1:max(2,self.Model.TrainingDataSet.NumberOfClasses), 'UniformOutput', false);
+                pcs = arrayfun(@(x) sprintf('%d', x), 1:self.Model.TrainingDataSet.NumberOfClasses-1, 'UniformOutput', false);
                 
                 set(self.ddlPlotVar1, 'String', pcs);
                 set(self.ddlPlotVar2, 'String', pcs);
                 set(self.ddlPlotVar1, 'Value', 1);
                 set(self.ddlPlotVar2, 'Value', 2);
+                
+                if (length(pcs) == 1)
+                    set(self.ddlPlotVar2, 'Value',1);
+                end
                 
                 self.chkFinalizeModel.Enable = 'on';
                 self.btnSaveModel.Enable = 'on';
@@ -224,7 +228,7 @@ classdef  ModelTab < BasicTab
                     set(ttab.ddlCalibrationSet, 'Value', 2)
                     
                     m = evalin('base',vardisplay{2});
-                    set(ttab.tbNumPCpca, 'String', sprintf('%d', m.NumberOfClasses));
+                    set(ttab.tbNumPCpca, 'String', sprintf('%d', m.NumberOfClasses-1));
                 end
             end
             
@@ -252,6 +256,10 @@ classdef  ModelTab < BasicTab
                 set(ttab.ddlPlotVar2, 'String', pcs);
                 set(ttab.ddlPlotVar1, 'Value', 1);
                 set(ttab.ddlPlotVar2, 'Value', 2);
+                
+                if(length(pcs) == 1)
+                    set(ttab.ddlPlotVar2, 'Value', 1);
+                end
 
             end
             
@@ -464,7 +472,7 @@ classdef  ModelTab < BasicTab
                 selected_name = names{index_selected};
                 d = evalin('base', selected_name);
             
-                set(self.tbNumPCpca, 'String', sprintf('%d', max(2,d.NumberOfClasses)));
+                set(self.tbNumPCpca, 'String', sprintf('%d', max(1,d.NumberOfClasses-1)));
 
             else
                 self.ClearModel();
@@ -542,18 +550,21 @@ classdef  ModelTab < BasicTab
                 set(src,'string','2');
                 warndlg('Input must be numerical');
             else
-                if numPC > max(2, data.NumberOfClasses) || numPC < min(2, data.NumberOfClasses)
+                if numPC > data.NumberOfClasses-1 || numPC < min(1, data.NumberOfClasses-1)
                     set(src,'string',sprintf('%d',max(2, data.NumberOfClasses)));
                     
-                    pcs = arrayfun(@(x) sprintf('%d', x), 1:max(2,self.Model.TrainingSet.NumberOfClasses), 'UniformOutput', false);
+                    pcs = arrayfun(@(x) sprintf('%d', x), 1:self.Model.TrainingSet.NumberOfClasses-1, 'UniformOutput', false);
                 
                     set(self.ddlPlotVar1, 'String', pcs);
                     set(self.ddlPlotVar2, 'String', pcs);
                     set(self.ddlPlotVar1, 'Value', 1);
                     set(self.ddlPlotVar2, 'Value', 2);
                     
+                    if(length(pcs) == 1)
+                        set(self.ddlPlotVar2, 'Value', 1);
+                    end
                     
-                    warndlg(sprintf('Number of Principal Components should be not less than %d and not more than %d!', min(2, data.NumberOfClasses), max(2, data.NumberOfClasses)));
+                    warndlg(sprintf('Number of Principal Components should be not less than %d and not more than %d!', min(2, data.NumberOfClasses-1), max(2, data.NumberOfClasses-1)));
                 else
                    self.ClearModel();
                 end
@@ -566,8 +577,17 @@ classdef  ModelTab < BasicTab
             set(self.ddlPlotVar2, 'String', pcs);
             set(self.ddlPlotVar1, 'Value', 1);
             set(self.ddlPlotVar2, 'Value', 2);
+            
+            if(length(pcs) == 1)
+                set(self.ddlPlotVar2, 'Value', 1);
+            end
+            
             self.pc_y = 2;
             self.pc_x = 1;
+            
+            if(length(pcs) == 1)
+                self.pc_y = 1;
+            end
             
             self.Redraw();
             

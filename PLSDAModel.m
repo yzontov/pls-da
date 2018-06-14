@@ -109,7 +109,7 @@ classdef PLSDAModel < handle
             %Alpha get/set
             
             self.TrainingDataSet = value;
-            self.numPC_pca = max(2, size(self.TrainingDataSet.DummyMatrix(), 2)-1);%temp
+            self.numPC_pca = self.TrainingDataSet.NumberOfClasses-1;
             
         end
         
@@ -148,7 +148,7 @@ classdef PLSDAModel < handle
             obj.TrainingDataSet = TrainingDataSet;
             obj.numPC_pls = numPC;
             
-            obj.numPC_pca = max(2, size(TrainingDataSet.DummyMatrix(), 2)-1);%temp
+            obj.numPC_pca = TrainingDataSet.NumberOfClasses-1;
             
             obj.Alpha = Alpha;
             obj.Gamma = Gamma;
@@ -284,12 +284,16 @@ classdef PLSDAModel < handle
             if nargin < 4
                 pc1 = 1;
                 pc2 = 2;
-                
+
             end
             
             if nargin < 2
                 fig = figure;
                 axes = gca;
+            end
+            
+            if (self.TrainingDataSet.NumberOfClasses - 1) == 1
+                pc2 = 1;
             end
             
             [mark, color] = PLSDAModel.plotsettings(self.K);
@@ -305,6 +309,10 @@ classdef PLSDAModel < handle
             
             Centers_ = [self.Centers(:,pc1) self.Centers(:,pc2)];
             
+            if (pc1 == 1 && pc2 == 1)
+                Centers_ = self.Centers;
+            end
+            
             labels = strread(num2str(1:size(self.TrainingDataSet.ProcessedData, 1)),'%s');
                     if(~isempty(self.TrainingDataSet.SelectedObjectNames))
                         labels = self.TrainingDataSet.SelectedObjectNames;
@@ -316,6 +324,12 @@ classdef PLSDAModel < handle
                 v_ = self.v;
                 t0_ = [self.t0(pc1) self.t0(pc2)];
                 
+                if (pc1 == 1 && pc2 == 1)
+                    w_ = self.w;
+                    v_ = self.v;
+                    t0_ = self.t0;
+                end
+                
                 PLSDAModel.hard_plot(axes,w_,v_,t0_,self.K,Centers_);
                 set(axes,'UserData', {t0_, labels, self.TrainingDataSet.Classes(logical(self.TrainingDataSet.SelectedSamples),:)});
 
@@ -323,6 +337,11 @@ classdef PLSDAModel < handle
             
             %soft
             if strcmp(self.Mode, 'soft')
+                
+                if (pc1 == 1 && pc2 == 1)
+                    YpredT_ = self.YpredT;
+                end
+                
                 YpredT_ = [self.YpredT(:,pc1) self.YpredT(:,pc2)];
                 PLSDAModel.soft_plot(axes, YpredT_, Y,Centers_,color, self.Alpha, self.numPC_pca, self.Gamma, self.K);
                 set(axes,'UserData', {YpredT_, labels, self.TrainingDataSet.Classes(logical(self.TrainingDataSet.SelectedSamples),:)});
