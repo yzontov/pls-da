@@ -304,7 +304,11 @@ classdef PLSDAModel < handle
             %samples
             for class = 1:self.K
                 temp = self.YpredT(Y(:,class) == 1,:);
-                plot(axes,temp(:,pc1), temp(:,pc2),[mark{class} color{class}]);%,'MarkerFaceColor', color{class});
+                if pc1 ~= pc2
+                    plot(axes,temp(:,pc1), temp(:,pc2),[mark{class} color{class}]);%,'MarkerFaceColor', color{class});
+                else
+                    plot(axes,temp(:,pc1), 0,[mark{class} color{class}]);
+                end
             end
             
             Centers_ = [self.Centers(:,pc1) self.Centers(:,pc2)];
@@ -861,6 +865,11 @@ classdef PLSDAModel < handle
                     end
                 end
                 temp_c =Centers(class,:);
+                
+                if(numPCpca == 1)
+                    temp_c = [ temp_c 0];
+                end
+                
                 if ~isempty(axes)
                     plot(axes, temp_c(:,1), temp_c(:,2),['+' color{class}]);
                 else
@@ -871,6 +880,11 @@ classdef PLSDAModel < handle
         
         function [AcceptancePlot, OutliersPlot] =soft_classes_plot(pcaScoresK, Center, Alpha, numPC, Gamma, K)
             
+            if numPC == 1
+                pcaScoresK = pcaScoresK(:,1);
+                %pcaScoresK = [pcaScoresK(:,1) zeros(size(pcaScoresK(:,1)))];
+                Center = [Center 0];
+            end
             len = size(pcaScoresK,1);
             cov = inv(((pcaScoresK-repmat(Center, len, 1))'*(pcaScoresK-repmat(Center, len, 1)))/len);
             [~, P, Eig] = PLSDAModel.decomp(cov, 2);%
