@@ -294,6 +294,7 @@ classdef PLSDAModel < handle
             
             if (self.TrainingDataSet.NumberOfClasses - 1) == 1
                 pc2 = 1;
+                pc1 = 1;
             end
             
             [mark, color] = PLSDAModel.plotsettings(self.K);
@@ -334,7 +335,7 @@ classdef PLSDAModel < handle
                     t0_ = self.t0;
                 end
                 
-                PLSDAModel.hard_plot(axes,w_,v_,t0_,self.K,Centers_);
+                PLSDAModel.hard_plot(axes,w_,v_,t0_,self.K,Centers_,self.TrainingDataSet.NumberOfClasses - 1);
                 set(axes,'UserData', {t0_, labels, self.TrainingDataSet.Classes(logical(self.TrainingDataSet.SelectedSamples),:)});
 
             end
@@ -800,7 +801,7 @@ classdef PLSDAModel < handle
             end
         end
         
-        function hard_plot(axes,w,v,t0,K,Centers)
+        function hard_plot(axes,w,v,t0,K,Centers, numPCpca)
             delta = 1.5;
             
             x_min = t0(1) - delta;
@@ -836,17 +837,29 @@ classdef PLSDAModel < handle
             else
                 wij = w(1,:)-w(2,:);
                 vij = v(1)-v(2);
-                y_min = -(x_min*wij(1) - vij)/wij(2);
-                y_max = -(x_max*wij(1) - vij)/wij(2);
                 
-                if ~isempty(axes)
-                    plot(axes,[ x_min t0(1)],[ y_min t0(2)], '-k');
-                    plot(axes,[t0(1) x_max],[t0(2) y_max], '-k');
+                if numPCpca == 1
+                    t0 = [t0 t0];
                 else
-                    plot([ x_min t0(1)],[ y_min t0(2)], '-k');
-                    plot([t0(1) x_max],[t0(2) y_max], '-k');
+                    y_min = -(x_min*wij(1) - vij)/wij(2);
+                    y_max = -(x_max*wij(1) - vij)/wij(2);
                 end
                 
+                if numPCpca > 1
+                    if ~isempty(axes)
+                        plot(axes,[ x_min t0(1)],[ y_min t0(2)], '-k');
+                        plot(axes,[t0(1) x_max],[t0(2) y_max], '-k');
+                    else
+                        plot([ x_min t0(1)],[ y_min t0(2)], '-k');
+                        plot([t0(1) x_max],[t0(2) y_max], '-k');
+                    end
+                else
+                    if ~isempty(axes)
+                        plot(axes,t0,[ -1000 1000], '-k');
+                    else
+                        plot(t0,[ -1000 1000], '-k');
+                    end
+                end
             end
             
         end
@@ -867,7 +880,7 @@ classdef PLSDAModel < handle
                 temp_c =Centers(class,:);
                 
                 if(numPCpca == 1)
-                    temp_c = [ temp_c 0];
+                    temp_c = [temp_c 0];
                 end
                 
                 if ~isempty(axes)
