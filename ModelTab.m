@@ -57,7 +57,7 @@ classdef  ModelTab < BasicTab
                 set(self.ddlCalibrationSet,'value',idx);
             
                 set(self.tbNumPCpls,'string',sprintf('%d',self.Model.NumPC));
-                set(self.tbNumPCpca, 'String', sprintf('%d', max(2, self.Model.TrainingDataSet.NumberOfClasses-1)));%%temp
+                set(self.tbNumPCpca, 'String', sprintf('%d', max(1, self.Model.TrainingDataSet.NumberOfClasses-1)));%%temp
                 set(self.tbAlpha,'string',sprintf('%.2f',self.Model.Alpha));
                 set(self.tbGamma,'string',sprintf('%.2f',self.Model.Gamma));
             
