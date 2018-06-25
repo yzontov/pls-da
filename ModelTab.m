@@ -84,6 +84,8 @@ classdef  ModelTab < BasicTab
                 
                 if (length(pcs) == 1)
                     set(self.ddlPlotVar2, 'Value',1);
+                    self.pc_x = 1;
+                    self.pc_y = 1;
                 end
                 
                 self.chkFinalizeModel.Enable = 'on';
@@ -267,6 +269,7 @@ classdef  ModelTab < BasicTab
         
         function RedrawCallback(self, obj, param)
             
+        if self.pc_x ~= self.pc_y
             prev_x = self.pc_x;
             prev_y = self.pc_y;
             
@@ -277,8 +280,9 @@ classdef  ModelTab < BasicTab
             
             self.pc_x = self.ddlPlotVar1.Value;
             self.pc_y = self.ddlPlotVar2.Value;
-            
+        end    
             self.Redraw();
+        
         end
         
         function Redraw(self)
@@ -295,7 +299,7 @@ classdef  ModelTab < BasicTab
             pc2 = self.pc_y;%self.ddlPlotVar2.Value;
             
             if ~isempty(self.Model)
-                self.Model.Plot(self.model_plot_axes, pc1, pc2);
+                self.Model.Plot(self.model_plot_axes, pc1, pc2, self.chkPlotShowClasses.Value);
                 
                 if(self.chkPlotShowObjectNames.Value == 1)
                     pan off
@@ -547,13 +551,11 @@ classdef  ModelTab < BasicTab
             numPC = str2double(str);
             
             if isempty(numPC) || isnan(numPC)
-                set(src,'string','2');
+                set(src,'string',sprintf('%d',max(1, self.Model.TrainingDataSet.NumberOfClasses-1)));
                 warndlg('Input must be numerical');
             else
-                if numPC > data.NumberOfClasses-1 || numPC < min(1, data.NumberOfClasses-1)
-                    set(src,'string',sprintf('%d',max(2, data.NumberOfClasses)));
-                    
-                    pcs = arrayfun(@(x) sprintf('%d', x), 1:self.Model.TrainingSet.NumberOfClasses-1, 'UniformOutput', false);
+                if (numPC >= 1 && numPC <= self.Model.TrainingDataSet.NumberOfClasses-1)
+                    pcs = arrayfun(@(x) sprintf('%d', x), 1:self.Model.TrainingDataSet.NumberOfClasses-1, 'UniformOutput', false);
                 
                     set(self.ddlPlotVar1, 'String', pcs);
                     set(self.ddlPlotVar2, 'String', pcs);
@@ -564,9 +566,11 @@ classdef  ModelTab < BasicTab
                         set(self.ddlPlotVar2, 'Value', 1);
                     end
                     
-                    warndlg(sprintf('Number of Principal Components should be not less than %d and not more than %d!', min(2, data.NumberOfClasses-1), max(2, data.NumberOfClasses-1)));
                 else
-                   self.ClearModel();
+                    warndlg(sprintf('Number of Principal Components should be not less than %d and not more than %d!', min(1, data.NumberOfClasses-1), max(1, data.NumberOfClasses-1)));
+                    set(src,'string',sprintf('%d',max(1, self.Model.TrainingDataSet.NumberOfClasses-1)));
+                    self.ClearModel();
+
                 end
             end
             

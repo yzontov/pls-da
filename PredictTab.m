@@ -107,10 +107,24 @@ classdef  PredictTab < BasicTab
             ttab.tblTextResult.Units = 'normalized';
             ttab.tblTextResult.Position = [0 0 1 1];
             
-            %
-            data = guidata(gcf);
-            data.predicttab = ttab;
-            guidata(gcf, data);
+            m = ttab.parent.modelTab.Model;
+            
+            if ~isempty(m)
+                pcs = arrayfun(@(x) sprintf('%d', x), 1:m.TrainingDataSet.NumberOfClasses-1, 'UniformOutput', false);
+            
+                set(ttab.ddlPlotVar1, 'String', pcs);
+                set(ttab.ddlPlotVar2, 'String', pcs);
+                set(ttab.ddlPlotVar1, 'Value', 1);
+                
+                
+                if(length(pcs) == 1)
+                    set(ttab.ddlPlotVar2, 'Value', 1);
+                else
+                    set(ttab.ddlPlotVar2, 'Value', 2);
+                end
+
+            end
+
         end
         
         function btnNew_Callback(self, obj, ~)

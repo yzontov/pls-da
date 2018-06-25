@@ -279,12 +279,16 @@ classdef PLSDAModel < handle
             
         end
         
-        function fig = Plot(self, axes, pc1, pc2)
+        function fig = Plot(self, axes, pc1, pc2, show_legend)
             
             if nargin < 4
                 pc1 = 1;
                 pc2 = 2;
 
+            end
+            
+            if nargin < 5
+                show_legend = 1;
             end
             
             if nargin < 2
@@ -335,20 +339,20 @@ classdef PLSDAModel < handle
                     t0_ = self.t0;
                 end
                 
-                PLSDAModel.hard_plot(axes,w_,v_,t0_,self.K,Centers_,self.TrainingDataSet.NumberOfClasses - 1);
+                PLSDAModel.hard_plot(axes,w_,v_,t0_,self.K,Centers_,self.TrainingDataSet.NumberOfClasses - 1, show_legend);
                 set(axes,'UserData', {t0_, labels, self.TrainingDataSet.Classes(logical(self.TrainingDataSet.SelectedSamples),:)});
 
             end
             
             %soft
             if strcmp(self.Mode, 'soft')
+                YpredT_ = [self.YpredT(:,pc1) self.YpredT(:,pc2)];
                 
                 if (pc1 == 1 && pc2 == 1)
                     YpredT_ = self.YpredT;
                 end
                 
-                YpredT_ = [self.YpredT(:,pc1) self.YpredT(:,pc2)];
-                PLSDAModel.soft_plot(axes, YpredT_, Y,Centers_,color, self.Alpha, self.numPC_pca, self.Gamma, self.K);
+                PLSDAModel.soft_plot(axes, YpredT_, Y,Centers_,color, self.Alpha, self.numPC_pca, self.Gamma, self.K, show_legend);
                 set(axes,'UserData', {YpredT_, labels, self.TrainingDataSet.Classes(logical(self.TrainingDataSet.SelectedSamples),:)});
 
             end
@@ -364,12 +368,20 @@ classdef PLSDAModel < handle
             
         end
         
-        function fig = PlotNewSet(self, axes, pc1, pc2)
+        function fig = PlotNewSet(self, axes, pc1, pc2, show_legend)
             
             if nargin < 4
                 pc1 = 1;
                 pc2 = 2;
-                
+            end
+            
+            if nargin < 5
+                show_legend = 1;
+            end
+            
+            if (self.TrainingDataSet.NumberOfClasses - 1) == 1
+                pc2 = 1;
+                pc1 = 1;
             end
             
             if nargin < 2
@@ -386,26 +398,47 @@ classdef PLSDAModel < handle
             %for class = 1:self.K
             %    temp = self.YpredTnew(Y(:,class) == 1,:);
             
-            plot(axes,self.YpredTnew(:,pc1), self.YpredTnew(:,pc2),'ok');%[mark{class} color{class}]);%,'MarkerFaceColor', color{class});
+            if pc1 ~= pc2
+               plot(axes,self.YpredTnew(:,pc1), self.YpredTnew(:,pc2),'ok');%,'MarkerFaceColor', color{class});
+            else
+               plot(axes,self.YpredTnew(:,pc1), 0,'ok');
+            end
+            
+            %[mark{class} color{class}]);%,'MarkerFaceColor', color{class});
             
             %end
             
             Centers_ = [self.Centers(:,pc1) self.Centers(:,pc2)];
+            
+            if (pc1 == 1 && pc2 == 1)
+                Centers_ = self.Centers;
+            end
             
             %hard
             if strcmp(self.Mode, 'hard')
                 w_ = [self.w(:,pc1) self.w(:,pc2)];
                 v_ = self.v;
                 t0_ = [self.t0(pc1) self.t0(pc2)];
+                
+                if (pc1 == 1 && pc2 == 1)
+                    w_ = self.w;
+                    v_ = self.v;
+                    t0_ = self.t0;
+                end
 
-                PLSDAModel.hard_plot(axes,w_,v_,t0_,self.K,Centers_);
+                PLSDAModel.hard_plot(axes,w_,v_,t0_,self.K,Centers_,self.TrainingDataSet.NumberOfClasses - 1, show_legend);
             end
             
             %soft
             if strcmp(self.Mode, 'soft')
                 Y = self.TrainingDataSet.DummyMatrix();
                 YpredT_ = [self.YpredT(:,pc1) self.YpredT(:,pc2)];
-                PLSDAModel.soft_plot(axes, YpredT_, Y,Centers_,color, self.Alpha, self.numPC_pca, self.Gamma, self.K);
+                
+                if (pc1 == 1 && pc2 == 1)
+                    YpredT_ = self.YpredT;
+                end
+                
+                PLSDAModel.soft_plot(axes, YpredT_, Y,Centers_,color, self.Alpha, self.numPC_pca, self.Gamma, self.K, show_legend);
             end
             
             %center
@@ -801,7 +834,7 @@ classdef PLSDAModel < handle
             end
         end
         
-        function hard_plot(axes,w,v,t0,K,Centers, numPCpca)
+        function hard_plot(axes,w,v,t0,K,Centers, numPCpca, show_legend)
             delta = 1.5;
             
             x_min = t0(1) - delta;
@@ -862,9 +895,13 @@ classdef PLSDAModel < handle
                 end
             end
             
+            if show_legend
+               legend;
+            end
+            
         end
         
-        function soft_plot(axes,YpredT, Y,Centers,color, Alpha, numPCpca, Gamma, K)
+        function soft_plot(axes,YpredT, Y,Centers,color, Alpha, numPCpca, Gamma, K, show_legend)
             AcceptancePlot = cell(K,1);
             OutliersPlot = cell(K,1);
             for class = 1:K
@@ -887,6 +924,10 @@ classdef PLSDAModel < handle
                     plot(axes, temp_c(:,1), temp_c(:,2),['+' color{class}]);
                 else
                     plot(temp_c(:,1), temp_c(:,2),['+' color{class}]);
+                end
+                
+                if show_legend
+                    legend;
                 end
             end
         end
