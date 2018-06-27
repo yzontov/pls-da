@@ -64,8 +64,14 @@ classdef  GUIWindow<handle
         % output_txt   Data cursor text
         if (isa(event_obj.Target, 'matlab.graphics.chart.primitive.Scatter') || ~isequal(event_obj.Target.LineStyle,'-') && ~isequal(event_obj.Target.LineStyle,'--')&& ~isequal(event_obj.Target.LineStyle,'+'))
             data = event_obj.Target.Parent.UserData{1};
-            Xdata = data(:,1);%get(event_obj.Target,'xdata');
-            Ydata = data(:,2);%get(event_obj.Target,'ydata');
+            d = data;
+            
+            if(size(data,2) == 1)
+                d = [d zeros(size(d))];
+            end
+            
+            Xdata = d(:,1);%get(event_obj.Target,'xdata');
+            Ydata = d(:,2);%get(event_obj.Target,'ydata');
             
             Xdiff = Xdata - event_obj.Position(1);
             Ydiff = Ydata - event_obj.Position(2);

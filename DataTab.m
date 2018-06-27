@@ -479,7 +479,25 @@ classdef  DataTab < BasicTab
                 win = self.parent;
                 if sum(idx) > 0 && isempty(win.modelTab)
                     win.modelTab = ModelTab(win.tgroup, win);
-                    
+                end
+                
+                if sum(idx) > 0 && ~isempty(win.modelTab)
+                    idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
+                    vardisplay={};
+                    if sum(idx) > 0
+                        l = allvars(idx);
+                        vardisplay{1} = '-';
+                        for i = 1:length(l)
+                            vardisplay{i+1} = l(i).name;
+                        end
+                        set(win.modelTab.ddlCalibrationSet, 'String', vardisplay);
+                        if length(get(win.modelTab.ddlCalibrationSet, 'String')) > 1
+                            set(win.modelTab.ddlCalibrationSet, 'Value', 2)
+                            
+                            m = evalin('base',vardisplay{2});
+                            set(win.modelTab.tbNumPCpca, 'String', sprintf('%d', m.NumberOfClasses-1));
+                        end
+                    end
                 end
                 
                 if sum(idx) == 0 && ~isempty(win.modelTab)

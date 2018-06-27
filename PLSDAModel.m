@@ -718,10 +718,10 @@ classdef PLSDAModel < handle
         function res = preprocess_newset(self, XTest1)
             %apply preprocessing defind by the model to the new set
             XTest = XTest1;
-            if ~isempty(self.Model.TrainingSet_mean)
+            if isfield(self,'Model') && ~isempty(self.Model.TrainingSet_mean)
                 XTest = bsxfun(@minus, XTest, self.Model.TrainingSet_mean);
             end
-            if ~isempty(self.Model.TrainingSet_std)
+            if isfield(self,'Model') && ~isempty(self.Model.TrainingSet_std)
                 XTest = bsxfun(@rdivide, XTest, self.Model.TrainingSet_std);
             end
             res = XTest;
@@ -730,10 +730,10 @@ classdef PLSDAModel < handle
         function res = postprocess(self, XTest1)
             %apply preprocessing defind by the model to the new set
             XTest = XTest1;
-            if ~isempty(self.Model.TrainingSet_std)
+            if isfield(self,'Model') && ~isempty(self.Model.TrainingSet_std)
                 XTest = bsxfun(@times, XTest, self.Model.TrainingSet_std);
             end
-            if ~isempty(self.Model.TrainingSet_mean)
+            if isfield(self,'Model') && ~isempty(self.Model.TrainingSet_mean)
                 XTest = bsxfun(@plus, XTest, self.Model.TrainingSet_mean);
             end
             res = XTest;
@@ -906,13 +906,42 @@ classdef PLSDAModel < handle
             OutliersPlot = cell(K,1);
             for class = 1:K
                 [AcceptancePlot{class}, OutliersPlot{class}] = PLSDAModel.soft_classes_plot(YpredT(Y(:,class) == 1,:), Centers(class,:), Alpha, numPCpca, Gamma, K);
-                plot(AcceptancePlot{class}(:,1), AcceptancePlot{class}(:,2),['-' color{class}]);
+                
+                if(numPCpca == 1)
+                    x = [AcceptancePlot{class}(2,1) AcceptancePlot{class}(2,1) AcceptancePlot{class}(1,1) AcceptancePlot{class}(1,1) AcceptancePlot{class}(2,1)];
+                    y = [0.05 -0.05 -0.05 0.05 0.05];
+                    if ~isempty(axes)
+                        plot(axes, x, y,['-' color{class}]);
+                    else
+                        plot( x, y ,['-' color{class}]);
+                    end
+                else
+                    if ~isempty(axes)
+                        plot(axes,AcceptancePlot{class}(:,1), AcceptancePlot{class}(:,2),['-' color{class}]);
+                    else
+                        plot(AcceptancePlot{class}(:,1), AcceptancePlot{class}(:,2),['-' color{class}]);
+                    end
+                
+                end
+                
+                
                 if ~isempty(Gamma)
+                if(numPCpca == 1)
+                    x = [OutliersPlot{class}(2,1) OutliersPlot{class}(2,1) OutliersPlot{class}(1,1) OutliersPlot{class}(1,1) OutliersPlot{class}(2,1)];
+                    y = [0.1 -0.1 -0.1 0.1 0.1];
+                    if ~isempty(axes)
+                        plot(axes, x, y,['--' color{class}]);
+                    else
+                        plot( x, y ,['--' color{class}]);
+                    end
+                else
                     if ~isempty(axes)
                         plot(axes, OutliersPlot{class}(:,1), OutliersPlot{class}(:,2),['--' color{class}]);
                     else
                         plot(OutliersPlot{class}(:,1), OutliersPlot{class}(:,2),['--' color{class}]);
                     end
+                
+                end
                 end
                 temp_c =Centers(class,:);
                 
@@ -934,35 +963,69 @@ classdef PLSDAModel < handle
         
         function [AcceptancePlot, OutliersPlot] =soft_classes_plot(pcaScoresK, Center, Alpha, numPC, Gamma, K)
             
-            if numPC == 1
-                pcaScoresK = pcaScoresK(:,1);
+            %if numPC == 1
+                %pcaScoresK = pcaScoresK(:,1);
                 %pcaScoresK = [pcaScoresK(:,1) zeros(size(pcaScoresK(:,1)))];
-                Center = [Center 0];
-            end
+                %Center = [Center 0];
+            %else
             len = size(pcaScoresK,1);
             cov = inv(((pcaScoresK-repmat(Center, len, 1))'*(pcaScoresK-repmat(Center, len, 1)))/len);
+            
+            if numPC > 1
             [~, P, Eig] = PLSDAModel.decomp(cov, 2);%
             P = -P;%!!!!!!
             SqrtSing = diag(sqrt(Eig))';
+            else
+            SqrtSing = sqrt(cov);
+            end
             
+            
+            
+            
+            if numPC > 1
+                
             fi = zeros(1,91);
             
             for i = 2:91
                 fi(i) = pi/45 + fi(i-1);
             end
-            
             xy = bsxfun(@rdivide, [cos(fi)' sin(fi)'], SqrtSing);
             J = 1:size(xy,1);
             pc = cell2mat(arrayfun(@(i) xy(i,:)*P, J.','UniformOutput', false));
-            sqrtchi = sqrt(PLSDAModel.chi2inv_(1-Alpha, 2));
-            AcceptancePlot = pc*sqrtchi + repmat(Center, size(xy,1), 1);
+            else
+            fi = [0 pi];
+            xy = bsxfun(@rdivide, [cos(fi)' sin(fi)'], SqrtSing);
+            pc = xy;    
+            end
             
+            sqrtchi = sqrt(PLSDAModel.chi2inv_(1-Alpha, 2));
+            
+            if numPC == 1
+            Center = [Center 0];
+            end
+            
+            AcceptancePlot = pc*sqrtchi + repmat(Center, size(xy,1), 1);
+            %end
+%             if numPC == 1
+%                 dd = PLSDAModel.chi2inv_(1-Alpha, K-1);
+%                 d1 = [Center(1) - dd, Center(1) - dd, Center(1) + dd, Center(1) + dd ,Center(1) - dd]';
+%                 d2 =[0.1 -0.1 -0.1 0.1 0.1]';
+%                 AcceptancePlot = [d1 d2];
+%             end    
+                
             if ~isempty(Gamma)
                 Dout = sqrt(PLSDAModel.chi2inv_((1-Gamma)^(1/len), K-1));
                 OutliersPlot = pc*Dout + repmat(Center, size(xy,1), 1);
-            else
-                OutliersPlot = [];
-            end
+                
+%                 if numPC == 1
+%                     d1 = [Center(1) - Dout, Center(1) - Dout, Center(1) + Dout, Center(1) + Dout ,Center(1) - Dout]';
+%                     d2 =[0.1 -0.1 -0.1 0.1 0.1]';
+%                     OutliersPlot = [d1 d2];
+%                 end 
+                
+            %else
+            %    OutliersPlot = [];
+           end
             
         end
         

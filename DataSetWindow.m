@@ -131,7 +131,9 @@ classdef  DataSetWindow<handle
         
         function r = type_size_filter(self, x, k, n, k2, n2, t)
             s = x.size;
-            if isequal(x.class,t) && ((~isempty(k) && ~isempty(n) && s(n) == k || isempty(k) && isempty(n))) && (~isempty(k2) && ~isempty(n2) && (k2 >=1 && s(n2) == k2 || k2 == -1 && s(n2) > 1) || isempty(k2) && isempty(n2))
+            if isequal(x.class,t) && ((~isempty(k) && ~isempty(n) && s(n) == k || isempty(k) && isempty(n))) && ...
+                (~isempty(k2) && ~isempty(n2) && (k2 >=1 && s(n2) == k2 || k2 == -1 && s(n2) > 1) || ...
+            isempty(k2) && isempty(n2))
                 r = true;
             else
                 r = false;
@@ -184,7 +186,7 @@ classdef  DataSetWindow<handle
                     end
                 end
                 
-                idx = arrayfun(@(x)self.type_size_filter(x,gg(2),1,[],[],'cell'),list);
+                idx = arrayfun(@(x)self.type_size_filter(x,1,1,gg(2),2,'cell'),list);
                 
                 vardisplay={};
                 if sum(idx) > 0
