@@ -159,7 +159,7 @@ classdef PLSDAModel < handle
         
         function Rebuild(self)
             
-            X = self.TrainingDataSet.RawData();
+            X = self.TrainingDataSet.RawData(logical(self.TrainingDataSet.SelectedSamples),:);
             Y = self.TrainingDataSet.DummyMatrix();
             
             self.rX.Mat = X;

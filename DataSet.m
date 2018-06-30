@@ -44,6 +44,8 @@ classdef DataSet < handle
             for cl = 1:class_number
                 Y(:,cl) = (self.Classes == cl);  
             end
+            
+            Y = Y(logical(self.SelectedSamples),:);
         end
         
         function fig = scatter(self, axes, var1, var2, showClasses, showObjectNames)
