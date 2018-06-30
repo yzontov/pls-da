@@ -333,16 +333,16 @@ classdef  ModelTab < BasicTab
             alpha = str2double(get(self.tbAlpha,'string'));
             gamma = str2double(get(self.tbGamma,'string'));
             
-            if ~isempty(self.Model)
-                
-                self.Model.TrainingDataSet = d;
-                self.Model.Mode = mode;
-                self.Model.Alpha = alpha;
-                self.Model.Gamma = gamma;
-                self.Model.NumPC = numPC;
-                
-                self.Model.Rebuild();
-            else
+%             if ~isempty(self.Model)
+%                 
+%                 self.Model.TrainingDataSet = d;
+%                 self.Model.Mode = mode;
+%                 self.Model.Alpha = alpha;
+%                 self.Model.Gamma = gamma;
+%                 self.Model.NumPC = numPC;
+%                 
+%                 self.Model.Rebuild();
+%             else
                 self.Model = PLSDAModel(d, numPC, alpha, gamma);
                 
                 if strcmp(mode, 'hard')
@@ -350,7 +350,7 @@ classdef  ModelTab < BasicTab
                     self.Model.Rebuild();
                 end
                 
-            end
+%             end
             
             set(self.chkFinalizeModel,'enable','on');
             set(self.btnSaveModel,'enable','on');
