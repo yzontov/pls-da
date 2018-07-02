@@ -896,7 +896,9 @@ classdef PLSDAModel < handle
             end
             
             if show_legend
-               legend;
+                
+                
+               %legend('boxon');
             end
             
         end
@@ -956,7 +958,7 @@ classdef PLSDAModel < handle
                 end
                 
                 if show_legend
-                    legend;
+                    legend('boxon');
                 end
             end
         end
