@@ -25,6 +25,8 @@ classdef PLSDAModel < handle
         
         NewDataSet;
         YpredTnew;
+        
+        NewDataSetObjectNames;
     end
     
     properties
@@ -226,7 +228,7 @@ classdef PLSDAModel < handle
         end
         
         function Result = Apply(self, NewDataSet)
-            Xnew_p = PLSDAModel.preprocess_newset(self.rX, NewDataSet.RawData);
+            Xnew_p = PLSDAModel.preprocess_newset(self.rX, NewDataSet.RawData(logical(NewDataSet.SelectedSamples),:));
 
             I = size(Xnew_p, 1);
             
@@ -245,8 +247,10 @@ classdef PLSDAModel < handle
             end
             
             if(~isempty(NewDataSet.ObjectNames))
-                Labels = NewDataSet.ObjectNames;
+                Labels = NewDataSet.ObjectNames(logical(NewDataSet.SelectedSamples),:);
             end
+            
+            self.NewDataSetObjectNames = Labels;
             
             Result.Labels = Labels;
             
@@ -307,13 +311,28 @@ classdef PLSDAModel < handle
             
             Y = self.TrainingDataSet.DummyMatrix(); 
             %samples
+            plots = [];
+            names = {};
             for class = 1:self.K
                 temp = self.YpredT(Y(:,class) == 1,:);
+                names{class} = sprintf('class %d', class);
                 if pc1 ~= pc2
-                    plot(axes,temp(:,pc1), temp(:,pc2),[mark{class} color{class}]);%,'MarkerFaceColor', color{class});
+                    plots(class) = plot(axes,temp(:,pc1), temp(:,pc2),[mark{class} color{class}]);%,'MarkerFaceColor', color{class});
                 else
-                    plot(axes,temp(:,pc1), 0,[mark{class} color{class}]);
+                    plots(class) = plot(axes,temp(:,pc1), 0,[mark{class} color{class}]);
                 end
+            end
+            
+            if show_legend
+            if ~isempty(axes)
+                legend(axes, plots, names);
+                legend(axes,'location','northeast');
+                legend(axes,'boxon');
+            else
+                legend(plots, names);
+                legend('location','northeast');
+                legend('boxon');
+            end
             end
             
             Centers_ = [self.Centers(:,pc1) self.Centers(:,pc2)];
@@ -339,7 +358,7 @@ classdef PLSDAModel < handle
                     t0_ = self.t0;
                 end
                 
-                PLSDAModel.hard_plot(axes,w_,v_,t0_,self.K,Centers_,self.TrainingDataSet.NumberOfClasses - 1, show_legend);
+                PLSDAModel.hard_plot(axes,w_,v_,t0_,self.K,Centers_,self.TrainingDataSet.NumberOfClasses - 1, false);
                 set(axes,'UserData', {t0_, labels, self.TrainingDataSet.Classes(logical(self.TrainingDataSet.SelectedSamples),:)});
 
             end
@@ -352,13 +371,15 @@ classdef PLSDAModel < handle
                     YpredT_ = self.YpredT;
                 end
                 
-                PLSDAModel.soft_plot(axes, YpredT_, Y,Centers_,color, self.Alpha, self.numPC_pca, self.Gamma, self.K, show_legend);
+                PLSDAModel.soft_plot(axes, YpredT_, Y,Centers_,color, self.Alpha, self.numPC_pca, self.Gamma, self.K, false);
                 set(axes,'UserData', {YpredT_, labels, self.TrainingDataSet.Classes(logical(self.TrainingDataSet.SelectedSamples),:)});
 
             end
             
             %center
             %plot(t0(pc1),t0(pc2), '*');
+            
+            
             
             xlabel(sprintf('PC %d', pc1)); % x-axis label
             ylabel(sprintf('PC %d', pc2));% y-axis label
@@ -399,9 +420,9 @@ classdef PLSDAModel < handle
             %    temp = self.YpredTnew(Y(:,class) == 1,:);
             
             if pc1 ~= pc2
-               plot(axes,self.YpredTnew(:,pc1), self.YpredTnew(:,pc2),'ok');%,'MarkerFaceColor', color{class});
+               plot(axes,self.YpredTnew(:,pc1), self.YpredTnew(:,pc2),'ok','HandleVisibility','off');%,'MarkerFaceColor', color{class});
             else
-               plot(axes,self.YpredTnew(:,pc1), 0,'ok');
+               plot(axes,self.YpredTnew(:,pc1), 0,'ok','HandleVisibility','off');
             end
             
             %[mark{class} color{class}]);%,'MarkerFaceColor', color{class});
@@ -413,6 +434,11 @@ classdef PLSDAModel < handle
             if (pc1 == 1 && pc2 == 1)
                 Centers_ = self.Centers;
             end
+            
+            labels = strread(num2str(1:size(self.NewDataSetObjectNames, 1)),'%s');
+                    if(~isempty(self.NewDataSetObjectNames))
+                        labels = self.NewDataSetObjectNames;
+                    end   
             
             %hard
             if strcmp(self.Mode, 'hard')
@@ -427,6 +453,7 @@ classdef PLSDAModel < handle
                 end
 
                 PLSDAModel.hard_plot(axes,w_,v_,t0_,self.K,Centers_,self.TrainingDataSet.NumberOfClasses - 1, show_legend);
+                set(axes,'UserData', {t0_, labels, []});
             end
             
             %soft
@@ -439,10 +466,34 @@ classdef PLSDAModel < handle
                 end
                 
                 PLSDAModel.soft_plot(axes, YpredT_, Y,Centers_,color, self.Alpha, self.numPC_pca, self.Gamma, self.K, show_legend);
+                set(axes,'UserData', {YpredT_, labels, []});
+
+            end
+            
+            if show_legend
+               
+            names = {};
+            for i=1:self.K
+               names{i} = sprintf('class %d', i); 
+            end
+                
+            if ~isempty(axes)
+                legend(axes, names);
+                legend(axes,'location','northeast');
+                legend(axes,'boxon');
+            else
+                legend(names);
+                legend('location','northeast');
+                legend('boxon');
+            end
             end
             
             %center
             %plot(t0(pc1),t0(pc2), '*');
+            
+            xlabel(sprintf('PC %d', pc1)); % x-axis label
+            ylabel(sprintf('PC %d', pc2));% y-axis label
+            
             hold off
             
             
@@ -896,9 +947,13 @@ classdef PLSDAModel < handle
             end
             
             if show_legend
-                
-                
-               %legend('boxon');
+%                     if ~isempty(axes)
+%                         legend(axes,'location','northeast');
+%                         legend(axes,'boxon');
+%                     else
+%                         legend('location','northeast');
+%                         legend('boxon');
+%                     end
             end
             
         end
@@ -913,15 +968,31 @@ classdef PLSDAModel < handle
                     x = [AcceptancePlot{class}(2,1) AcceptancePlot{class}(2,1) AcceptancePlot{class}(1,1) AcceptancePlot{class}(1,1) AcceptancePlot{class}(2,1)];
                     y = [0.05 -0.05 -0.05 0.05 0.05];
                     if ~isempty(axes)
-                        plot(axes, x, y,['-' color{class}]);
+                        if show_legend
+                            plot(axes, x, y,['-' color{class}]);
+                        else
+                            plot(axes, x, y,['-' color{class}],'HandleVisibility','off');
+                        end
                     else
-                        plot( x, y ,['-' color{class}]);
+                        if show_legend
+                            plot(x, y,['-' color{class}]);
+                        else
+                            plot(x, y,['-' color{class}],'HandleVisibility','off');
+                        end
                     end
                 else
                     if ~isempty(axes)
-                        plot(axes,AcceptancePlot{class}(:,1), AcceptancePlot{class}(:,2),['-' color{class}]);
+                        if show_legend
+                            plot(axes,AcceptancePlot{class}(:,1), AcceptancePlot{class}(:,2),['-' color{class}]);
+                        else
+                            plot(axes,AcceptancePlot{class}(:,1), AcceptancePlot{class}(:,2),['-' color{class}],'HandleVisibility','off');
+                        end
                     else
-                        plot(AcceptancePlot{class}(:,1), AcceptancePlot{class}(:,2),['-' color{class}]);
+                        if show_legend
+                            plot(AcceptancePlot{class}(:,1), AcceptancePlot{class}(:,2),['-' color{class}]);
+                        else
+                            plot(AcceptancePlot{class}(:,1), AcceptancePlot{class}(:,2),['-' color{class}],'HandleVisibility','off');
+                        end
                     end
                 
                 end
@@ -932,15 +1003,15 @@ classdef PLSDAModel < handle
                     x = [OutliersPlot{class}(2,1) OutliersPlot{class}(2,1) OutliersPlot{class}(1,1) OutliersPlot{class}(1,1) OutliersPlot{class}(2,1)];
                     y = [0.1 -0.1 -0.1 0.1 0.1];
                     if ~isempty(axes)
-                        plot(axes, x, y,['--' color{class}]);
+                        plot(axes, x, y,['--' color{class}],'HandleVisibility','off');
                     else
-                        plot( x, y ,['--' color{class}]);
+                        plot( x, y ,['--' color{class}],'HandleVisibility','off');
                     end
                 else
                     if ~isempty(axes)
-                        plot(axes, OutliersPlot{class}(:,1), OutliersPlot{class}(:,2),['--' color{class}]);
+                        plot(axes, OutliersPlot{class}(:,1), OutliersPlot{class}(:,2),['--' color{class}],'HandleVisibility','off');
                     else
-                        plot(OutliersPlot{class}(:,1), OutliersPlot{class}(:,2),['--' color{class}]);
+                        plot(OutliersPlot{class}(:,1), OutliersPlot{class}(:,2),['--' color{class}],'HandleVisibility','off');
                     end
                 
                 end
@@ -952,13 +1023,19 @@ classdef PLSDAModel < handle
                 end
                 
                 if ~isempty(axes)
-                    plot(axes, temp_c(:,1), temp_c(:,2),['+' color{class}]);
+                    plot(axes, temp_c(:,1), temp_c(:,2),['+' color{class}],'HandleVisibility','off');
                 else
-                    plot(temp_c(:,1), temp_c(:,2),['+' color{class}]);
+                    plot(temp_c(:,1), temp_c(:,2),['+' color{class}],'HandleVisibility','off');
                 end
                 
                 if show_legend
-                    legend('boxon');
+%                     if ~isempty(axes)
+%                         legend(axes,'location','northeast');
+%                         legend(axes,'boxon');
+%                     else
+%                         legend('location','northeast');
+%                         legend('boxon');
+%                     end
                 end
             end
         end

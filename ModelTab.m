@@ -554,7 +554,7 @@ classdef  ModelTab < BasicTab
                 set(src,'string',sprintf('%d',max(1, self.Model.TrainingDataSet.NumberOfClasses-1)));
                 warndlg('Input must be numerical');
             else
-                if (numPC >= 1 && numPC <= self.Model.TrainingDataSet.NumberOfClasses-1)
+                if (numPC >= self.Model.TrainingDataSet.NumberOfClasses-1 && numPC <= self.Model.TrainingDataSet.NumberOfClasses-1)
                     pcs = arrayfun(@(x) sprintf('%d', x), 1:self.Model.TrainingDataSet.NumberOfClasses-1, 'UniformOutput', false);
                 
                     set(self.ddlPlotVar1, 'String', pcs);
@@ -567,7 +567,12 @@ classdef  ModelTab < BasicTab
                     end
                     
                 else
-                    warndlg(sprintf('Number of Principal Components should be not less than %d and not more than %d!', min(1, data.NumberOfClasses-1), max(1, data.NumberOfClasses-1)));
+                    if self.Model.TrainingDataSet.NumberOfClasses-1 > 1
+                        warndlg(sprintf('Number of Principal Components should be not less than %d and not more than %d!', min(2, data.NumberOfClasses-1), max(2, data.NumberOfClasses-1)));
+                    else
+                        warndlg(sprintf('Number of Principal Components should be not less than %d and not more than %d!', min(1, data.NumberOfClasses-1), max(1, data.NumberOfClasses-1)));
+                    end
+                    
                     set(src,'string',sprintf('%d',max(1, self.Model.TrainingDataSet.NumberOfClasses-1)));
                     self.ClearModel();
 

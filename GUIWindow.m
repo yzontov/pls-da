@@ -84,10 +84,14 @@ classdef  GUIWindow<handle
             index=distnce==min(distnce);
             
             str = labels(index);
-            cls = classes(index);
             
-            output_txt = sprintf('Object: %s\nClass: %d', str{1}, cls);
-
+            if ~isempty(classes)
+                cls = classes(index);
+                output_txt = sprintf('Object: %s\nClass: %d', str{1}, cls);
+            else
+                output_txt = sprintf('Object: %s', str{1});
+            end
+            
         else
             output_txt = 'not an object';
         end

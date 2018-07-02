@@ -67,19 +67,19 @@ classdef  PredictTab < BasicTab
                 'callback', @ttab.CopyPlotToClipboard);
             
             ttab.chkPlotShowClasses = uicontrol('Parent', ttab.pnlPlotSettings,'Enable','off', 'Style', 'checkbox', 'String', 'Show classes',...
-                'Units', 'normalized','Position', [0.05 0.85 0.85 0.1]);%, 'callback', @DataTab.Redraw);
+                'Units', 'normalized','Position', [0.05 0.85 0.85 0.1], 'callback', @ttab.RedrawCallback);%, 'callback', @DataTab.Redraw);
             ttab.chkPlotShowObjectNames = uicontrol('Parent', ttab.pnlPlotSettings,'Enable','off', 'Style', 'checkbox', 'String', 'Show object names',...
-                'Units', 'normalized','Position', [0.05 0.75 0.85 0.1]);%, 'callback', @DataTab.Redraw);
+                'Units', 'normalized','Position', [0.05 0.75 0.85 0.1], 'callback', @ttab.RedrawCallback);%, 'callback', @DataTab.Redraw);
             
             uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'PC 1','Enable','off', ...
                 'Units', 'normalized','Position', [0.05 0.58 0.35 0.1], 'HorizontalAlignment', 'left');
             ttab.ddlPlotVar1 = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu','Enable','off', 'String', {'1'},...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.6 0.35 0.1], 'BackgroundColor', 'white');%, 'callback', @DataTab.Redraw);
+                'Units', 'normalized','Value',1, 'Position', [0.45 0.6 0.35 0.1], 'BackgroundColor', 'white', 'callback', @ttab.RedrawCallback);%, 'callback', @DataTab.Redraw);
             
             uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'PC 2','Enable','off', ...
                 'Units', 'normalized','Position', [0.05 0.38 0.35 0.1], 'HorizontalAlignment', 'left');
             ttab.ddlPlotVar2 = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu','Enable','off', 'String', {'2'},...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.4 0.35 0.1], 'BackgroundColor', 'white');%, 'callback', @DataTab.Redraw);
+                'Units', 'normalized','Value',1, 'Position', [0.45 0.4 0.35 0.1], 'BackgroundColor', 'white', 'callback', @ttab.RedrawCallback);%, 'callback', @DataTab.Redraw);
             
             
             
@@ -161,13 +161,28 @@ classdef  PredictTab < BasicTab
             delete(self.predict_plot_axes);
             %ax = get(gcf,'CurrentAxes');
             %cla(ax);
-            ha2d = axes('Parent', self.tab_img,'Units', 'normalized','Position', [0 0 1 1]);
+            ha2d = axes('Parent', self.tab_img,'Units', 'normalized');%,'Position', [0 0 1 1]);
             %set(gcf,'CurrentAxes',ha2d);
             self.predict_plot_axes = ha2d;
             
+            pc1 = self.pc_x;%self.ddlPlotVar1.Value;
+            pc2 = self.pc_y;%self.ddlPlotVar2.Value;
+            
             if ~isempty(self.parent.modelTab.Model)
-                self.parent.modelTab.Model.PlotNewSet(self.predict_plot_axes);
+                self.parent.modelTab.Model.PlotNewSet(self.predict_plot_axes, pc1, pc2, self.chkPlotShowClasses.Value);
+                
+                if(self.chkPlotShowObjectNames.Value == 1)
+                    pan off
+                    datacursormode on
+                    dcm_obj = datacursormode(self.parent.fig);
+                    set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
+                else
+                    datacursormode off
+                    pan on
+                end
+                
             end
+
         end
         
         function SavePlot(self, obj, ~)
@@ -202,6 +217,24 @@ classdef  PredictTab < BasicTab
                 print(fig2,'-clipboard', '-dpng');
             end
             
+        end
+        
+        function RedrawCallback(self, obj, param)
+            
+        if self.pc_x ~= self.pc_y
+            prev_x = self.pc_x;
+            prev_y = self.pc_y;
+            
+            if (self.ddlPlotVar1.Value == self.ddlPlotVar2.Value)
+                self.ddlPlotVar1.Value = prev_y;
+                self.ddlPlotVar2.Value = prev_x;
+            end
+            
+            self.pc_x = self.ddlPlotVar1.Value;
+            self.pc_y = self.ddlPlotVar2.Value;
+        end    
+            self.Redraw();
+        
         end
         
     end
