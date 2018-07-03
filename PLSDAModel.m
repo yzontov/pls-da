@@ -319,11 +319,13 @@ classdef PLSDAModel < handle
                 if pc1 ~= pc2
                     plots(class) = plot(axes,temp(:,pc1), temp(:,pc2),[mark{class} color{class}]);%,'MarkerFaceColor', color{class});
                 else
-                    plots(class) = plot(axes,temp(:,pc1), 0,[mark{class} color{class}]);
+                    plots(class) = plot(axes,temp, zeros(size(temp)),[mark{class} color{class}]);
                 end
             end
             
+            zoom off
             if show_legend
+                zoom on
             if ~isempty(axes)
                 legend(axes, plots, names);
                 legend(axes,'location','northeast');
@@ -422,7 +424,7 @@ classdef PLSDAModel < handle
             if pc1 ~= pc2
                plot(axes,self.YpredTnew(:,pc1), self.YpredTnew(:,pc2),'ok','HandleVisibility','off');%,'MarkerFaceColor', color{class});
             else
-               plot(axes,self.YpredTnew(:,pc1), 0,'ok','HandleVisibility','off');
+               plot(axes,self.YpredTnew, zeros(size(self.YpredTnew)),'ok','HandleVisibility','off');
             end
             
             %[mark{class} color{class}]);%,'MarkerFaceColor', color{class});
