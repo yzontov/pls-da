@@ -312,14 +312,18 @@ classdef PLSDAModel < handle
             Y = self.TrainingDataSet.DummyMatrix(); 
             %samples
             plots = [];
-            names = {};
+            names = cell(1,self.K);
             for class = 1:self.K
                 temp = self.YpredT(Y(:,class) == 1,:);
                 names{class} = sprintf('class %d', class);
                 if pc1 ~= pc2
-                    plots(class) = plot(axes,temp(:,pc1), temp(:,pc2),[mark{class} color{class}]);%,'MarkerFaceColor', color{class});
+                    plot(axes,temp(:,pc1), temp(:,pc2),[mark{class} color{class}]);%,'MarkerFaceColor', color{class});
                 else
+<<<<<<< HEAD
                     plots(class) = plot(axes,temp, zeros(size(temp)),[mark{class} color{class}]);
+=======
+                    plot(axes,temp(:,pc1), 0,[mark{class} color{class}]);
+>>>>>>> bc436f28d25e25513762dc4869f02fa1677064b2
                 end
             end
             
@@ -327,11 +331,11 @@ classdef PLSDAModel < handle
             if show_legend
                 zoom on
             if ~isempty(axes)
-                legend(axes, plots, names);
+                legend(axes, names);
                 legend(axes,'location','northeast');
                 legend(axes,'boxon');
             else
-                legend(plots, names);
+                legend(names);
                 legend('location','northeast');
                 legend('boxon');
             end
