@@ -1,0 +1,19 @@
+data tab - add legend and color classes to scatter plot
+model tab - fix dataset onclick wavelengths
+
+classes colors - rgb
+fonts and sizes
+
+edit dataset
+clear model on dataset change
+
+info bar messages?
+
+help
+
+create dataset without classes
+check for classes in calibration set
+check for 0 samples on delete
+
+PCA PC number?
+PCA PC number warnings on error message

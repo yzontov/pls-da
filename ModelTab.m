@@ -57,7 +57,7 @@ classdef  ModelTab < BasicTab
                 set(self.ddlCalibrationSet,'value',idx);
             
                 set(self.tbNumPCpls,'string',sprintf('%d',self.Model.NumPC));
-                set(self.tbNumPCpca, 'String', sprintf('%d', max(1, self.Model.TrainingDataSet.NumberOfClasses-1)));%%temp
+                %set(self.tbNumPCpca, 'String', sprintf('%d', max(1, self.Model.TrainingDataSet.NumberOfClasses-1)));%%temp
                 set(self.tbAlpha,'string',sprintf('%.2f',self.Model.Alpha));
                 set(self.tbGamma,'string',sprintf('%.2f',self.Model.Gamma));
             
@@ -190,7 +190,7 @@ classdef  ModelTab < BasicTab
                 'Units', 'Normalized', 'Position', [0.51 0.1 0.4 0.18], ...
                 'callback', @ttab.CopyPlotToClipboard, 'enable', 'off');
             
-            ttab.chkPlotShowClasses = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'checkbox', 'String', 'Show classes',...
+            ttab.chkPlotShowClasses = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'checkbox', 'Value', 1, 'String', 'Show classes',...
                 'Units', 'normalized','Position', [0.05 0.85 0.85 0.1], 'Enable', 'off', 'callback', @ttab.RedrawCallback);
             ttab.chkPlotShowObjectNames = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'checkbox', 'String', 'Show object names',...
                 'Units', 'normalized','Position', [0.05 0.75 0.85 0.1], 'Enable', 'off', 'callback', @ttab.RedrawCallback);
@@ -554,24 +554,22 @@ classdef  ModelTab < BasicTab
                 set(src,'string',sprintf('%d',max(1, self.Model.TrainingDataSet.NumberOfClasses-1)));
                 warndlg('Input must be numerical');
             else
-                if (numPC >= self.Model.TrainingDataSet.NumberOfClasses-1 && numPC <= self.Model.TrainingDataSet.NumberOfClasses-1)
-                    pcs = arrayfun(@(x) sprintf('%d', x), 1:self.Model.TrainingDataSet.NumberOfClasses-1, 'UniformOutput', false);
+                if (numPC >= 1 && numPC <= self.Model.TrainingDataSet.NumberOfClasses-1)
+                    pcs = arrayfun(@(x) sprintf('%d', x), 1:numPC, 'UniformOutput', false);
                 
                     set(self.ddlPlotVar1, 'String', pcs);
                     set(self.ddlPlotVar2, 'String', pcs);
                     set(self.ddlPlotVar1, 'Value', 1);
-                    set(self.ddlPlotVar2, 'Value', 2);
+                    
                     
                     if(length(pcs) == 1)
                         set(self.ddlPlotVar2, 'Value', 1);
+                    else
+                        set(self.ddlPlotVar2, 'Value', 2);
                     end
                     
                 else
-                    if self.Model.TrainingDataSet.NumberOfClasses-1 > 1
-                        warndlg(sprintf('Number of Principal Components should be not less than %d and not more than %d!', min(2, data.NumberOfClasses-1), max(2, data.NumberOfClasses-1)));
-                    else
-                        warndlg(sprintf('Number of Principal Components should be not less than %d and not more than %d!', min(1, data.NumberOfClasses-1), max(1, data.NumberOfClasses-1)));
-                    end
+                    warndlg(sprintf('Number of Principal Components should be not less than %d and not more than %d!', 1, data.NumberOfClasses-1));
                     
                     set(src,'string',sprintf('%d',max(1, self.Model.TrainingDataSet.NumberOfClasses-1)));
                     self.ClearModel();
