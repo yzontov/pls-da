@@ -15,5 +15,4 @@ create dataset without classes
 check for classes in calibration set
 check for 0 samples on delete
 
-PCA PC number?
-PCA PC number warnings on error message
+test on Aml 7

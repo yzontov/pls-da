@@ -57,7 +57,7 @@ classdef  ModelTab < BasicTab
                 set(self.ddlCalibrationSet,'value',idx);
             
                 set(self.tbNumPCpls,'string',sprintf('%d',self.Model.NumPC));
-                %set(self.tbNumPCpca, 'String', sprintf('%d', max(1, self.Model.TrainingDataSet.NumberOfClasses-1)));%%temp
+                set(self.tbNumPCpca, 'String', sprintf('%d', max(1, self.Model.TrainingDataSet.NumberOfClasses-1)));%%temp
                 set(self.tbAlpha,'string',sprintf('%.2f',self.Model.Alpha));
                 set(self.tbGamma,'string',sprintf('%.2f',self.Model.Gamma));
             
@@ -158,7 +158,7 @@ classdef  ModelTab < BasicTab
             %PCA PCs
             uicontrol('Parent', ttab.pnlModelSettings, 'Style', 'text', 'String', 'Number of PCA PCs', 'Enable', 'on', ...
                 'Units', 'normalized','Position', [0.05 0.55 0.85 0.1], 'HorizontalAlignment', 'left');
-            ttab.tbNumPCpca = uicontrol('Parent', ttab.pnlModelSettings, 'Style', 'edit', 'String', '2', 'Enable', 'on',...
+            ttab.tbNumPCpca = uicontrol('Parent', ttab.pnlModelSettings, 'Style', 'edit', 'String', '2', 'Enable', 'off',...
                 'Units', 'normalized','Value',1, 'Position', [0.65 0.55 0.25 0.1], 'BackgroundColor', 'white', 'callback', @ttab.Input_NumPC_PCA);
             
             %lblAlpha
