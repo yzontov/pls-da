@@ -46,12 +46,18 @@ classdef  DataTab < BasicTab
                 'Units', 'normalized','Value',1, 'Position', [0.45 0.805 0.45 0.05], 'BackgroundColor', 'white', 'callback',@ttab.listClick);
             
             %categories
-            ttab.pnlDataCategories = uipanel('Parent', ttab.left_panel, 'Title', 'Categories','Units', 'normalized', ...
+            ttab.pnlDataCategories = uibuttongroup('Parent', ttab.left_panel, 'Title', 'Categories','Units', 'normalized', ...
                 'Position', [0.05   0.65   0.9  0.12]);
-            ttab.chkTraining = uicontrol('Parent', ttab.pnlDataCategories, 'Style', 'checkbox', 'String', 'Calibration',...
+            
+%             bg = uibuttongroup('Parent',ttab.pnlDataCategories,...
+%                   'Position',[0 0 1 1],...
+%                   'SelectionChangedFcn',@bselection);
+              
+            ttab.chkTraining = uicontrol('Parent', ttab.pnlDataCategories, 'Style', 'radiobutton', 'String', 'Calibration',...
                 'Units', 'normalized','Position', [0.1 0.45 0.45 0.25], 'callback', @ttab.Input_Training);
-            ttab.chkValidation = uicontrol('Parent', ttab.pnlDataCategories, 'Style', 'checkbox', 'String', 'Validation',...
-                'Units', 'normalized','Position', [0.55 0.45 0.45 0.25], 'callback', @ttab.Input_Validation, 'Enable', 'off');%temp
+            ttab.chkValidation = uicontrol('Parent', ttab.pnlDataCategories, 'Style', 'radiobutton', 'String', 'New or Test',...
+                'Units', 'normalized','Position', [0.55 0.45 0.45 0.25], 'callback', @ttab.Input_Validation);
+            
             
             %preprocessing
             ttab.pnlDataSettings = uipanel('Parent', ttab.left_panel, 'Title', 'Preprocessing','Units', 'normalized', ...
@@ -466,6 +472,7 @@ classdef  DataTab < BasicTab
                 
                 d = evalin('base', selected_name);
                 d.Training = val;
+                d.Validation = 0;
                 %lst = DataTab.redrawListbox(ttab);
                 
                 %ttab = DataTab.drawPlot(ttab, selected_name);
@@ -520,6 +527,42 @@ classdef  DataTab < BasicTab
                 
                 d = evalin('base', selected_name);
                 d.Validation = val;
+                d.Training = 0;
+                
+                allvars = evalin('base','whos');
+                idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
+                
+                win = self.parent;
+                if sum(idx) > 0 && isempty(win.modelTab)
+                    win.modelTab = ModelTab(win.tgroup, win);
+                end
+                
+                if sum(idx) > 0 && ~isempty(win.modelTab)
+                    idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
+                    vardisplay={};
+                    if sum(idx) > 0
+                        l = allvars(idx);
+                        vardisplay{1} = '-';
+                        for i = 1:length(l)
+                            vardisplay{i+1} = l(i).name;
+                        end
+                        set(win.modelTab.ddlCalibrationSet, 'String', vardisplay);
+                        if length(get(win.modelTab.ddlCalibrationSet, 'String')) > 1
+                            set(win.modelTab.ddlCalibrationSet, 'Value', 2)
+                            
+                            m = evalin('base',vardisplay{2});
+                            set(win.modelTab.tbNumPCpca, 'String', sprintf('%d', m.NumberOfClasses-1));
+                        end
+                    end
+                end
+                
+                if sum(idx) == 0 && ~isempty(win.modelTab)
+                    mtab = win.tgroup.Children(2);
+                    delete(mtab);
+                    win.modelTab = [];
+                    
+                end
+                
                 %lst = DataTab.redrawListbox(ttab);
                 
                 %ttab = DataTab.drawPlot(ttab, selected_name);
@@ -772,7 +815,7 @@ classdef  DataTab < BasicTab
             set(children1(strcmpi ( get (children1,'Type'),'UIControl')),'enable',param);
             set(children2(strcmpi ( get (children2,'Type'),'UIControl')),'enable',param);
             
-            children2(1).Enable = 'off';% temporary disable validation set selection
+            %children2(1).Enable = 'off';% temporary disable validation set selection
         end
         
         

@@ -178,7 +178,7 @@ classdef PLSDAModel < handle
                 self.rX = PLSDAModel.preprocess(2, X);%autoscale
             end
             
-            rY = PLSDAModel.preprocess(0, self.TrainingDataSet.DummyMatrix());%center
+            self.rY = PLSDAModel.preprocess(0, self.TrainingDataSet.DummyMatrix());%center
             
             self.K = size(Y, 2);
             I = size(Y, 1);
@@ -186,7 +186,7 @@ classdef PLSDAModel < handle
             numPCpls = self.numPC_pls;%12;
             numPCpca = self.numPC_pca;%max(2, K - 1);
             
-            [plsT,self.plsP,self.plsQ,self.plsW] = PLSDAModel.plsnipals(self.rX.Mat,rY.Mat,numPCpls);
+            [plsT,self.plsP,self.plsQ,self.plsW] = PLSDAModel.plsnipals(self.rX.Mat,self.rY.Mat,numPCpls);
             
             Ypred = plsT*self.plsQ';
             
@@ -199,7 +199,7 @@ classdef PLSDAModel < handle
             
             %Hard
             E = eye(self.K);
-            E = PLSDAModel.preprocess_newset(rY, E);
+            E = PLSDAModel.preprocess_newset(self.rY, E);
             
             self.Centers = E*self.YpredP;
             
@@ -229,7 +229,7 @@ classdef PLSDAModel < handle
         
         function Result = Apply(self, NewDataSet)
             Xnew_p = PLSDAModel.preprocess_newset(self.rX, NewDataSet.RawData(logical(NewDataSet.SelectedSamples),:));
-
+            
             I = size(Xnew_p, 1);
             
             Wstar=self.plsW*(self.plsP'*self.plsW)^(-1);
@@ -239,7 +239,7 @@ classdef PLSDAModel < handle
             self.YpredTnew = Ypred_new*self.YpredP;
             
             Result.Mode = self.Mode;
-
+            
             %AllocationTable get
             Labels = cell(size(Xnew_p, 1),1);
             for i = 1:size(Xnew_p, 1)
@@ -256,13 +256,13 @@ classdef PLSDAModel < handle
             
             if strcmp(self.Mode, 'hard')
                 
-                 Distances_Hard_New = zeros(size(Ypred_new));
-            for k = 1:self.K
-                for i = 1:I
-                    Distances_Hard_New(i,k) = ((self.YpredTnew(i,:) - self.Centers(k,:))/self.Lambda)*(self.YpredTnew(i,:) - self.Centers(k,:))';
+                Distances_Hard_New = zeros(size(Ypred_new));
+                for k = 1:self.K
+                    for i = 1:I
+                        Distances_Hard_New(i,k) = ((self.YpredTnew(i,:) - self.Centers(k,:))/self.Lambda)*(self.YpredTnew(i,:) - self.Centers(k,:))';
+                    end
                 end
-            end
-            
+                
                 Result.Distances = Distances_Hard_New;
                 Result.AllocationTable = PLSDAModel.allocation_hard(Labels, Distances_Hard_New);
                 Result.AllocationMatrix = self.calculateAllocationMatrix(Distances_Hard_New);
@@ -270,12 +270,12 @@ classdef PLSDAModel < handle
             
             if strcmp(self.Mode, 'soft')
                 Y = self.TrainingDataSet.DummyMatrix();
-                 Distances_Soft_New = zeros(size(Ypred_new));
-            for k = 1:self.K
-                for i = 1:I
-                    Distances_Soft_New(i,k) = PLSDAModel.mahdis(self.YpredTnew(i,:), self.Centers(k,:), self.YpredT(Y(:,k) == 1,:));
+                Distances_Soft_New = zeros(size(Ypred_new));
+                for k = 1:self.K
+                    for i = 1:I
+                        Distances_Soft_New(i,k) = PLSDAModel.mahdis(self.YpredTnew(i,:), self.Centers(k,:), self.YpredT(Y(:,k) == 1,:));
+                    end
                 end
-            end
                 Result.Distances = Distances_Soft_New;
                 Result.AllocationTable = PLSDAModel.allocation_soft(Labels, self.Alpha, Distances_Soft_New);
                 Result.AllocationMatrix = self.calculateAllocationMatrix(Distances_Soft_New);
@@ -288,7 +288,7 @@ classdef PLSDAModel < handle
             if nargin < 4
                 pc1 = 1;
                 pc2 = 2;
-
+                
             end
             
             if nargin < 5
@@ -309,9 +309,8 @@ classdef PLSDAModel < handle
             axis(axes,[-1 1 -1 1]);
             hold on
             
-            Y = self.TrainingDataSet.DummyMatrix(); 
+            Y = self.TrainingDataSet.DummyMatrix();
             %samples
-            plots = [];
             names = cell(1,self.K);
             for class = 1:self.K
                 temp = self.YpredT(Y(:,class) == 1,:);
@@ -319,26 +318,20 @@ classdef PLSDAModel < handle
                 if pc1 ~= pc2
                     plot(axes,temp(:,pc1), temp(:,pc2),[mark{class} color{class}]);%,'MarkerFaceColor', color{class});
                 else
-<<<<<<< HEAD
-                    plots(class) = plot(axes,temp, zeros(size(temp)),[mark{class} color{class}]);
-=======
-                    plot(axes,temp(:,pc1), 0,[mark{class} color{class}]);
->>>>>>> bc436f28d25e25513762dc4869f02fa1677064b2
+                    plot(axes,temp, zeros(size(temp)),[mark{class} color{class}]);
                 end
             end
             
-            zoom off
             if show_legend
-                zoom on
-            if ~isempty(axes)
-                legend(axes, names);
-                legend(axes,'location','northeast');
-                legend(axes,'boxon');
-            else
-                legend(names);
-                legend('location','northeast');
-                legend('boxon');
-            end
+                if ~isempty(axes)
+                    legend(axes, names);
+                    legend(axes,'location','northeast');
+                    legend(axes,'boxon');
+                else
+                    legend(names);
+                    legend('location','northeast');
+                    legend('boxon');
+                end
             end
             
             Centers_ = [self.Centers(:,pc1) self.Centers(:,pc2)];
@@ -348,9 +341,9 @@ classdef PLSDAModel < handle
             end
             
             labels = strread(num2str(1:size(self.TrainingDataSet.ProcessedData, 1)),'%s');
-                    if(~isempty(self.TrainingDataSet.SelectedObjectNames))
-                        labels = self.TrainingDataSet.SelectedObjectNames;
-                    end                 
+            if(~isempty(self.TrainingDataSet.SelectedObjectNames))
+                labels = self.TrainingDataSet.SelectedObjectNames;
+            end
             
             %hard
             if strcmp(self.Mode, 'hard')
@@ -366,7 +359,7 @@ classdef PLSDAModel < handle
                 
                 PLSDAModel.hard_plot(axes,w_,v_,t0_,self.K,Centers_,self.TrainingDataSet.NumberOfClasses - 1, false);
                 set(axes,'UserData', {t0_, labels, self.TrainingDataSet.Classes(logical(self.TrainingDataSet.SelectedSamples),:)});
-
+                
             end
             
             %soft
@@ -379,7 +372,7 @@ classdef PLSDAModel < handle
                 
                 PLSDAModel.soft_plot(axes, YpredT_, Y,Centers_,color, self.Alpha, self.numPC_pca, self.Gamma, self.K, false);
                 set(axes,'UserData', {YpredT_, labels, self.TrainingDataSet.Classes(logical(self.TrainingDataSet.SelectedSamples),:)});
-
+                
             end
             
             %center
@@ -426,9 +419,9 @@ classdef PLSDAModel < handle
             %    temp = self.YpredTnew(Y(:,class) == 1,:);
             
             if pc1 ~= pc2
-               plot(axes,self.YpredTnew(:,pc1), self.YpredTnew(:,pc2),'ok','HandleVisibility','off');%,'MarkerFaceColor', color{class});
+                plot(axes,self.YpredTnew(:,pc1), self.YpredTnew(:,pc2),'ok','HandleVisibility','off');%,'MarkerFaceColor', color{class});
             else
-               plot(axes,self.YpredTnew, zeros(size(self.YpredTnew)),'ok','HandleVisibility','off');
+                plot(axes,self.YpredTnew, zeros(size(self.YpredTnew)),'ok','HandleVisibility','off');
             end
             
             %[mark{class} color{class}]);%,'MarkerFaceColor', color{class});
@@ -442,9 +435,9 @@ classdef PLSDAModel < handle
             end
             
             labels = strread(num2str(1:size(self.NewDataSetObjectNames, 1)),'%s');
-                    if(~isempty(self.NewDataSetObjectNames))
-                        labels = self.NewDataSetObjectNames;
-                    end   
+            if(~isempty(self.NewDataSetObjectNames))
+                labels = self.NewDataSetObjectNames;
+            end
             
             %hard
             if strcmp(self.Mode, 'hard')
@@ -457,7 +450,7 @@ classdef PLSDAModel < handle
                     v_ = self.v;
                     t0_ = self.t0;
                 end
-
+                
                 PLSDAModel.hard_plot(axes,w_,v_,t0_,self.K,Centers_,self.TrainingDataSet.NumberOfClasses - 1, show_legend);
                 set(axes,'UserData', {t0_, labels, []});
             end
@@ -466,32 +459,34 @@ classdef PLSDAModel < handle
             if strcmp(self.Mode, 'soft')
                 Y = self.TrainingDataSet.DummyMatrix();
                 YpredT_ = [self.YpredT(:,pc1) self.YpredT(:,pc2)];
+                YpredTnew_ = [self.YpredTnew(:,pc1) self.YpredTnew(:,pc2)];
                 
                 if (pc1 == 1 && pc2 == 1)
                     YpredT_ = self.YpredT;
+                    YpredTnew_ = self.YpredTnew;
                 end
                 
                 PLSDAModel.soft_plot(axes, YpredT_, Y,Centers_,color, self.Alpha, self.numPC_pca, self.Gamma, self.K, show_legend);
-                set(axes,'UserData', {YpredT_, labels, []});
-
+                set(axes,'UserData', {YpredTnew_, labels, []});
+                
             end
             
             if show_legend
-               
-            names = {};
-            for i=1:self.K
-               names{i} = sprintf('class %d', i); 
-            end
                 
-            if ~isempty(axes)
-                legend(axes, names);
-                legend(axes,'location','northeast');
-                legend(axes,'boxon');
-            else
-                legend(names);
-                legend('location','northeast');
-                legend('boxon');
-            end
+                names = {};
+                for i=1:self.K
+                    names{i} = sprintf('class %d', i);
+                end
+                
+                if ~isempty(axes)
+                    legend(axes, names);
+                    legend(axes,'location','northeast');
+                    legend(axes,'boxon');
+                else
+                    legend(names);
+                    legend('location','northeast');
+                    legend('boxon');
+                end
             end
             
             %center
@@ -515,27 +510,27 @@ classdef PLSDAModel < handle
             
             if strcmp(self.Mode, 'hard')
                 
-            for i = 1:I
-                for k = 1:self.K
-                    if Distances(i,k) == min(Distances(i,:))
-                        m(i,k) = 1;
+                for i = 1:I
+                    for k = 1:self.K
+                        if Distances(i,k) == min(Distances(i,:))
+                            m(i,k) = 1;
+                        end
                     end
                 end
-            end
                 
             end
             
             if strcmp(self.Mode, 'soft')
-        
+                
                 Dcrit = PLSDAModel.chi2inv_(1-self.Alpha, self.K-1);
                 
-            for i = 1:I
-                for k = 1:self.K
-                    if Distances(i,k) < Dcrit 
-                        m(i,k) = 1;
+                for i = 1:I
+                    for k = 1:self.K
+                        if Distances(i,k) < Dcrit
+                            m(i,k) = 1;
+                        end
                     end
                 end
-            end
             end
         end
         
@@ -951,17 +946,7 @@ classdef PLSDAModel < handle
                     end
                 end
             end
-            
-            if show_legend
-%                     if ~isempty(axes)
-%                         legend(axes,'location','northeast');
-%                         legend(axes,'boxon');
-%                     else
-%                         legend('location','northeast');
-%                         legend('boxon');
-%                     end
-            end
-            
+           
         end
         
         function soft_plot(axes,YpredT, Y,Centers,color, Alpha, numPCpca, Gamma, K, show_legend)
@@ -1000,27 +985,27 @@ classdef PLSDAModel < handle
                             plot(AcceptancePlot{class}(:,1), AcceptancePlot{class}(:,2),['-' color{class}],'HandleVisibility','off');
                         end
                     end
-                
+                    
                 end
                 
                 
                 if ~isempty(Gamma)
-                if(numPCpca == 1)
-                    x = [OutliersPlot{class}(2,1) OutliersPlot{class}(2,1) OutliersPlot{class}(1,1) OutliersPlot{class}(1,1) OutliersPlot{class}(2,1)];
-                    y = [0.1 -0.1 -0.1 0.1 0.1];
-                    if ~isempty(axes)
-                        plot(axes, x, y,['--' color{class}],'HandleVisibility','off');
+                    if(numPCpca == 1)
+                        x = [OutliersPlot{class}(2,1) OutliersPlot{class}(2,1) OutliersPlot{class}(1,1) OutliersPlot{class}(1,1) OutliersPlot{class}(2,1)];
+                        y = [0.1 -0.1 -0.1 0.1 0.1];
+                        if ~isempty(axes)
+                            plot(axes, x, y,['--' color{class}],'HandleVisibility','off');
+                        else
+                            plot( x, y ,['--' color{class}],'HandleVisibility','off');
+                        end
                     else
-                        plot( x, y ,['--' color{class}],'HandleVisibility','off');
+                        if ~isempty(axes)
+                            plot(axes, OutliersPlot{class}(:,1), OutliersPlot{class}(:,2),['--' color{class}],'HandleVisibility','off');
+                        else
+                            plot(OutliersPlot{class}(:,1), OutliersPlot{class}(:,2),['--' color{class}],'HandleVisibility','off');
+                        end
+                        
                     end
-                else
-                    if ~isempty(axes)
-                        plot(axes, OutliersPlot{class}(:,1), OutliersPlot{class}(:,2),['--' color{class}],'HandleVisibility','off');
-                    else
-                        plot(OutliersPlot{class}(:,1), OutliersPlot{class}(:,2),['--' color{class}],'HandleVisibility','off');
-                    end
-                
-                end
                 end
                 temp_c =Centers(class,:);
                 
@@ -1033,84 +1018,51 @@ classdef PLSDAModel < handle
                 else
                     plot(temp_c(:,1), temp_c(:,2),['+' color{class}],'HandleVisibility','off');
                 end
-                
-                if show_legend
-%                     if ~isempty(axes)
-%                         legend(axes,'location','northeast');
-%                         legend(axes,'boxon');
-%                     else
-%                         legend('location','northeast');
-%                         legend('boxon');
-%                     end
-                end
+
             end
         end
         
         function [AcceptancePlot, OutliersPlot] =soft_classes_plot(pcaScoresK, Center, Alpha, numPC, Gamma, K)
             
-            %if numPC == 1
-                %pcaScoresK = pcaScoresK(:,1);
-                %pcaScoresK = [pcaScoresK(:,1) zeros(size(pcaScoresK(:,1)))];
-                %Center = [Center 0];
-            %else
             len = size(pcaScoresK,1);
             cov = inv(((pcaScoresK-repmat(Center, len, 1))'*(pcaScoresK-repmat(Center, len, 1)))/len);
             
             if numPC > 1
-            [~, P, Eig] = PLSDAModel.decomp(cov, 2);%
-            P = -P;%!!!!!!
-            SqrtSing = diag(sqrt(Eig))';
+                [~, P, Eig] = PLSDAModel.decomp(cov, 2);%
+                P = -P;%!!!!!!
+                SqrtSing = diag(sqrt(Eig))';
             else
-            SqrtSing = sqrt(cov);
+                SqrtSing = sqrt(cov);
             end
-            
-            
-            
-            
+
             if numPC > 1
                 
-            fi = zeros(1,91);
-            
-            for i = 2:91
-                fi(i) = pi/45 + fi(i-1);
-            end
-            xy = bsxfun(@rdivide, [cos(fi)' sin(fi)'], SqrtSing);
-            J = 1:size(xy,1);
-            pc = cell2mat(arrayfun(@(i) xy(i,:)*P, J.','UniformOutput', false));
+                fi = zeros(1,91);
+                
+                for i = 2:91
+                    fi(i) = pi/45 + fi(i-1);
+                end
+                xy = bsxfun(@rdivide, [cos(fi)' sin(fi)'], SqrtSing);
+                J = 1:size(xy,1);
+                pc = cell2mat(arrayfun(@(i) xy(i,:)*P, J.','UniformOutput', false));
             else
-            fi = [0 pi];
-            xy = bsxfun(@rdivide, [cos(fi)' sin(fi)'], SqrtSing);
-            pc = xy;    
+                fi = [0 pi];
+                xy = bsxfun(@rdivide, [cos(fi)' sin(fi)'], SqrtSing);
+                pc = xy;
             end
             
-            sqrtchi = sqrt(PLSDAModel.chi2inv_(1-Alpha, 2));
+            sqrtchi = sqrt(PLSDAModel.chi2inv_(1-Alpha, K-1));
             
             if numPC == 1
-            Center = [Center 0];
+                Center = [Center 0];
             end
             
             AcceptancePlot = pc*sqrtchi + repmat(Center, size(xy,1), 1);
-            %end
-%             if numPC == 1
-%                 dd = PLSDAModel.chi2inv_(1-Alpha, K-1);
-%                 d1 = [Center(1) - dd, Center(1) - dd, Center(1) + dd, Center(1) + dd ,Center(1) - dd]';
-%                 d2 =[0.1 -0.1 -0.1 0.1 0.1]';
-%                 AcceptancePlot = [d1 d2];
-%             end    
-                
+            
             if ~isempty(Gamma)
                 Dout = sqrt(PLSDAModel.chi2inv_((1-Gamma)^(1/len), K-1));
                 OutliersPlot = pc*Dout + repmat(Center, size(xy,1), 1);
-                
-%                 if numPC == 1
-%                     d1 = [Center(1) - Dout, Center(1) - Dout, Center(1) + Dout, Center(1) + Dout ,Center(1) - Dout]';
-%                     d2 =[0.1 -0.1 -0.1 0.1 0.1]';
-%                     OutliersPlot = [d1 d2];
-%                 end 
-                
-            %else
-            %    OutliersPlot = [];
-           end
+            end
             
         end
         

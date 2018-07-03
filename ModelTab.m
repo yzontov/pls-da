@@ -111,13 +111,13 @@ classdef  ModelTab < BasicTab
             ttab = ttab@BasicTab(tabgroup, 'Model', parent);
             
             ttab.pnlDataSettings = uipanel('Parent', ttab.left_panel, 'Title', 'Data','Units', 'normalized', ...
-                'Position', [0.05   0.85   0.9  0.14]);
+                'Position', [0.05   0.85   0.9  0.1]);
             
             ttab.pnlCrossValidationSettings = uipanel('Parent', ttab.left_panel, 'Title', 'CrossValidation','Units', 'normalized', ...
-                'Position', [0.05   0.71   0.9  0.14]);
+                'Position', [0.05   0.71   0.9  0.14],'Visible','off');
             
             ttab.pnlModelSettings = uipanel('Parent', ttab.left_panel, 'Title', 'Model','Units', 'normalized', ...
-                'Position', [0.05   0.29   0.9  0.42]);
+                'Position', [0.05   0.35   0.9  0.42]);
             
             ttab.pnlPlotSettings = uipanel('Parent', ttab.left_panel, 'Title', 'Plot','Units', 'normalized', ...
                 'Position', [0.05   0.01   0.9  0.28]);
@@ -128,8 +128,8 @@ classdef  ModelTab < BasicTab
                 'Units', 'normalized','Value',1, 'Position', [0.4 0.67 0.55 0.2], 'BackgroundColor', 'white', 'callback', @ttab.SelectCalibratinSet);
             
             uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'text', 'String', 'Validation', ...
-                'Units', 'normalized','Position', [0.05 0.25 0.35 0.25], 'HorizontalAlignment', 'left', 'Enable', 'off');
-            ttab.ddlValidationSet = uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'popupmenu', 'String', {'-'},...
+                'Units', 'normalized','Position', [0.05 0.25 0.35 0.25], 'HorizontalAlignment', 'left', 'Enable', 'off','Visible','off');
+            ttab.ddlValidationSet = uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'popupmenu', 'String', {'-'},'Visible','off',...
                 'Units', 'normalized','Value',1, 'Position', [0.4 0.27 0.55 0.2], 'BackgroundColor', 'white', 'callback', @ttab.SelectValidationSet, 'Enable', 'off');
             
             
