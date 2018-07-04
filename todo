@@ -1,18 +1,36 @@
+------
+todo
+------
+
 data tab - add legend and color classes to scatter plot
 model tab - fix dataset onclick wavelengths
 
 classes colors - rgb
-fonts and sizes
+adjust fonts and sizes?
 
-edit dataset
+allow to edit dataset
 clear model on dataset change
 
 info bar messages?
 
+on change show object names - apply on all tabs
+
 help
 
-create dataset without classes
+allow to create dataset without classes
 check for classes in calibration set
 check for 0 samples on delete
 
-test on Aml 7
+table view add sub tab for FoM etc - predict tab
+Allocation table color indications
+Allocation table show classes if present - predict tab
+
+fix hard plot legend
+
+data tab add pca and stats?
+
+------
+done
+------
+test on Aml 7 - success
+table view add sub tab for FoM etc - model tab

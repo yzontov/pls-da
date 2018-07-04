@@ -266,6 +266,11 @@ classdef PLSDAModel < handle
                 Result.Distances = Distances_Hard_New;
                 Result.AllocationTable = PLSDAModel.allocation_hard(Labels, Distances_Hard_New);
                 Result.AllocationMatrix = self.calculateAllocationMatrix(Distances_Hard_New);
+                
+                if ~isempty(NewDataSet.Classes)
+                   Result.ConfusionMatrix = PLSDAModel.confusionMatrix(NewDataSet.DummyMatrix(),Distances_Hard_New,0);
+                   Result.FiguresOfMerit = PLSDAModel.FoM(Result.ConfusionMatrix, sum(NewDataSet.DummyMatrix()));
+                end
             end
             
             if strcmp(self.Mode, 'soft')
@@ -279,6 +284,11 @@ classdef PLSDAModel < handle
                 Result.Distances = Distances_Soft_New;
                 Result.AllocationTable = PLSDAModel.allocation_soft(Labels, self.Alpha, Distances_Soft_New);
                 Result.AllocationMatrix = self.calculateAllocationMatrix(Distances_Soft_New);
+                
+                if ~isempty(NewDataSet.Classes)
+                    Result.ConfusionMatrix = PLSDAModel.confusionMatrix(NewDataSet.DummyMatrix(),Distances_Soft_New, 1, self.Alpha);
+                    Result.FiguresOfMerit = PLSDAModel.FoM(Result.ConfusionMatrix, sum(NewDataSet.DummyMatrix()));
+                end
             end
             
         end

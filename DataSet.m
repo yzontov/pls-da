@@ -39,13 +39,17 @@ classdef DataSet < handle
         
         function Y = DummyMatrix(self)
             
-            class_number = max(self.Classes);
-            Y = zeros(length(self.Classes), class_number);
-            for cl = 1:class_number
-                Y(:,cl) = (self.Classes == cl);  
+            if ~isempty(self.Classes)
+                class_number = max(self.Classes);
+                Y = zeros(length(self.Classes), class_number);
+                for cl = 1:class_number
+                    Y(:,cl) = (self.Classes == cl);
+                end
+                
+                Y = Y(logical(self.SelectedSamples),:);
+            else
+                Y = [];
             end
-            
-            Y = Y(logical(self.SelectedSamples),:);
         end
         
         function fig = scatter(self, axes, var1, var2, showClasses, showObjectNames)
@@ -75,7 +79,7 @@ classdef DataSet < handle
                 
                 dx = 0.01; dy = 0.01; % displacement so the text does not overlay the data points
                 text(axes, self.ProcessedData(:,var1)+dx, self.ProcessedData(:,var2)+dy, labels, 'Interpreter', 'none');
-            
+                
                 
             end
             
@@ -193,7 +197,7 @@ classdef DataSet < handle
             
         end
         
-        function value = get.SelectedObjectNames(self)   
+        function value = get.SelectedObjectNames(self)
             
             value = self.ObjectNames(logical(self.SelectedSamples),:);
             

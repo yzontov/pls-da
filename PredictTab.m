@@ -21,11 +21,15 @@ classdef  PredictTab < BasicTab
         
         %tbTextEdit;
         tblTextResult;
+        tblTextConfusion;
+        tblTextFoM;
     end
     
     properties (Access = private)
         pc_x = 1;
         pc_y = 2;
+        
+        tg2;
     end
     
     methods
@@ -103,7 +107,10 @@ classdef  PredictTab < BasicTab
             %ttab.tbTextEdit = uicontrol('Parent', tab_txt, 'Style', 'edit', 'String', '', ...
             %    'Units', 'normalized','Position', [0 0 1 1], 'HorizontalAlignment', 'left', 'Max', 2);
             
-            ttab.tblTextResult = uitable(tab_txt);
+            ttab.tg2 = uitabgroup('Parent', tab_txt);
+            tab_alloc = uitab('Parent', tg2, 'Title', 'Allocation table');
+
+            ttab.tblTextResult = uitable(tab_alloc);
             ttab.tblTextResult.Units = 'normalized';
             ttab.tblTextResult.Position = [0 0 1 1];
             
@@ -148,6 +155,7 @@ classdef  PredictTab < BasicTab
                 self.tblTextResult.Data = [res.Labels, num2cell(logical(res.AllocationMatrix))];
                 
                 self.tblTextResult.ColumnWidth = num2cell([150, 30*ones(1,size(res.AllocationMatrix, 2))]);
+                
                 
                 self.enablePanel(self.pnlPlotSettings, 'on');
             else
