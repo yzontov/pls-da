@@ -471,6 +471,7 @@ classdef  DataTab < BasicTab
                 selected_name = names{index_selected};
                 
                 d = evalin('base', selected_name);
+                
                 d.Training = val;
                 d.Validation = 0;
                 %lst = DataTab.redrawListbox(ttab);
@@ -663,17 +664,24 @@ classdef  DataTab < BasicTab
                 selected_name = names{index_selected};
                 
                 d = evalin('base', selected_name);%ttab.Data.(selected_name);
-                if d.Training
-                    set(self.lbox_mnu_train, 'Checked', 'on');
+                
+                if isempty(d.Classes)
+                    set(self.chkTraining, 'Enable', 'off');
                 else
-                    set(self.lbox_mnu_train, 'Checked', 'off');
+                    set(self.chkTraining, 'Enable', 'on');
                 end
                 
-                if d.Validation
-                    set(self.lbox_mnu_val, 'Checked', 'on');
-                else
-                    set(self.lbox_mnu_val, 'Checked', 'off');
-                end
+%                 if d.Training
+%                     set(self.lbox_mnu_train, 'Checked', 'on');
+%                 else
+%                     set(self.lbox_mnu_train, 'Checked', 'off');
+%                 end
+%                 
+%                 if d.Validation
+%                     set(self.lbox_mnu_val, 'Checked', 'on');
+%                 else
+%                     set(self.lbox_mnu_val, 'Checked', 'off');
+%                 end
                 
                 if(isempty(d.VariableNames))
                     names = arrayfun(@(x) sprintf('%d', x), 1:size(d.ProcessedData, 2), 'UniformOutput', false);

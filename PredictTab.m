@@ -108,7 +108,7 @@ classdef  PredictTab < BasicTab
             %    'Units', 'normalized','Position', [0 0 1 1], 'HorizontalAlignment', 'left', 'Max', 2);
             
             ttab.tg2 = uitabgroup('Parent', tab_txt);
-            tab_alloc = uitab('Parent', tg2, 'Title', 'Allocation table');
+            tab_alloc = uitab('Parent', ttab.tg2, 'Title', 'Allocation table');
 
             ttab.tblTextResult = uitable(tab_alloc);
             ttab.tblTextResult.Units = 'normalized';
@@ -150,12 +150,53 @@ classdef  PredictTab < BasicTab
                 
                 %set(ttab.tbTextEdit, 'max', 2);
                 %self.tbTextEdit.String = ff;
-                self.tblTextResult.ColumnName = {'Sample',1:size(res.AllocationMatrix, 2)};
                 
-                self.tblTextResult.Data = [res.Labels, num2cell(logical(res.AllocationMatrix))];
+                if isempty(set.Classes)
+                    self.tblTextResult.ColumnName = {'Sample',1:size(res.AllocationMatrix, 2)};
                 
-                self.tblTextResult.ColumnWidth = num2cell([150, 30*ones(1,size(res.AllocationMatrix, 2))]);
+                    self.tblTextResult.Data = [res.Labels, num2cell(logical(res.AllocationMatrix))];
                 
+                    self.tblTextResult.ColumnWidth = num2cell([150, 30*ones(1,size(res.AllocationMatrix, 2))]);
+                
+                else
+                   self.tblTextResult.ColumnName = {'Sample','Class', 1:size(res.AllocationMatrix, 2)};
+                
+                    self.tblTextResult.Data = [res.Labels, num2cell(set.Classes), num2cell(logical(res.AllocationMatrix))];
+                    self.tblTextResult.ColumnFormat = ['char' 'char' repmat({'logical'},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses)];
+
+                    self.tblTextResult.ColumnWidth = num2cell([150, 60, 30*ones(1,size(res.AllocationMatrix, 2))]); 
+                
+                    tab_confusion = uitab('Parent', self.tg2, 'Title', 'Confusion matrix');
+                    tab_fom = uitab('Parent', self.tg2, 'Title', 'Figures of merit');
+
+                    self.tblTextConfusion = uitable(tab_confusion);
+                    self.tblTextConfusion.Units = 'normalized';
+                    self.tblTextConfusion.Position = [0 0 1 1];
+            
+                    self.tblTextFoM = uitable(tab_fom);
+                    self.tblTextFoM.Units = 'normalized';
+                    self.tblTextFoM.Position = [0 0 1 1];
+                    
+                    self.tblTextFoM.ColumnName = {'Statistics',1:self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses};
+                    self.tblTextFoM.ColumnWidth = num2cell([120, 30*ones(1,size(res.AllocationMatrix(:,1:self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses), 2))]);
+                    self.tblTextFoM.ColumnFormat = ['char' repmat({'numeric'},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses)];
+                    
+                    self.tblTextConfusion.Data = res.ConfusionMatrix;
+                    
+                    fields = {'True Positive';'False Positive';'';'Class Sensitivity (%)';'Class Specificity (%)';'Class Efficiency (%)';'';'Total Sensitivity (%)';'Total Specificity (%)';'Total Efficiency (%)'};
+                    fom = res.FiguresOfMerit;
+                    
+                    self.tblTextFoM.Data = [fields,  [num2cell(round([fom.TP; fom.FP])); ...
+                        repmat({''},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses);...
+                        num2cell(round([fom.CSNS; fom.CSPS; fom.CEFF])); ...
+                        repmat({''},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses);...
+                        [round(fom.TSNS) repmat({''},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses-1)];...
+                        [round(fom.TSPS) repmat({''},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses-1)];...
+                        [round(fom.TEFF) repmat({''},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses-1)]...
+                        ]];
+                
+                
+                end
                 
                 self.enablePanel(self.pnlPlotSettings, 'on');
             else

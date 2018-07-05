@@ -290,12 +290,17 @@ classdef  DataSetWindow<handle
             
             if ~isempty(name)
                 
-                if get(self.ddlData, 'Value') > 1 && get(self.ddlClasses, 'Value') > 1
+                if get(self.ddlData, 'Value') > 1 %&& get(self.ddlClasses, 'Value') > 1
                     d = DataSet();
                     d.RawData = self.GetObject(get(self.ddlData, 'String'), get(self.ddlData, 'Value'));
                     d.Name = name;
                     
-                    d.Classes = self.GetObject(get(self.ddlClasses, 'String'), get(self.ddlClasses, 'Value'));
+                    if get(self.ddlClasses, 'Value') > 1
+                        d.Classes = self.GetObject(get(self.ddlClasses, 'String'), get(self.ddlClasses, 'Value'));
+                    else
+                        d.Training = false;
+                        d.Validation = true;
+                    end
                     
                     if get(self.ddlVariableNames, 'Value') > 1
                         d.VariableNames = self.GetObject(get(self.ddlVariableNames, 'String'), get(self.ddlVariableNames, 'Value'));
@@ -335,7 +340,7 @@ classdef  DataSetWindow<handle
                     notify(self, 'DataUpdated',evtdata);
                     
                 else
-                    waitfor(errordlg('You should indicate at least Data and Classes matrices!'));
+                    waitfor(errordlg('You should indicate at least Data matrix!'));
                 end
                 
             else
