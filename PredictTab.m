@@ -30,6 +30,8 @@ classdef  PredictTab < BasicTab
         pc_y = 2;
         
         tg2;
+        tab_confusion;
+        tab_fom;
     end
     
     methods
@@ -150,14 +152,26 @@ classdef  PredictTab < BasicTab
                 
                 %set(ttab.tbTextEdit, 'max', 2);
                 %self.tbTextEdit.String = ff;
-                
+                if ~isempty(self.tab_confusion) && ~isempty(self.tab_fom)
+                    mtab = self.tg2.Children(2);
+                    delete(mtab);
+                    self.tab_confusion = [];
+                    
+                    mtab = self.tg2.Children(2);
+                    delete(mtab);
+                    
+                    self.tab_fom = [];
+                end
+                    
                 if isempty(set.Classes)
                     self.tblTextResult.ColumnName = {'Sample',1:size(res.AllocationMatrix, 2)};
                 
                     self.tblTextResult.Data = [res.Labels, num2cell(logical(res.AllocationMatrix))];
                 
                     self.tblTextResult.ColumnWidth = num2cell([150, 30*ones(1,size(res.AllocationMatrix, 2))]);
-                
+                    self.tblTextResult.ColumnFormat = ['char' repmat({'logical'},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses)];
+
+                    
                 else
                    self.tblTextResult.ColumnName = {'Sample','Class', 1:size(res.AllocationMatrix, 2)};
                 
@@ -166,14 +180,15 @@ classdef  PredictTab < BasicTab
 
                     self.tblTextResult.ColumnWidth = num2cell([150, 60, 30*ones(1,size(res.AllocationMatrix, 2))]); 
                 
-                    tab_confusion = uitab('Parent', self.tg2, 'Title', 'Confusion matrix');
-                    tab_fom = uitab('Parent', self.tg2, 'Title', 'Figures of merit');
+                    
+                    self.tab_confusion = uitab('Parent', self.tg2, 'Title', 'Confusion matrix');
+                    self.tab_fom = uitab('Parent', self.tg2, 'Title', 'Figures of merit');
 
-                    self.tblTextConfusion = uitable(tab_confusion);
+                    self.tblTextConfusion = uitable(self.tab_confusion);
                     self.tblTextConfusion.Units = 'normalized';
                     self.tblTextConfusion.Position = [0 0 1 1];
             
-                    self.tblTextFoM = uitable(tab_fom);
+                    self.tblTextFoM = uitable(self.tab_fom);
                     self.tblTextFoM.Units = 'normalized';
                     self.tblTextFoM.Position = [0 0 1 1];
                     

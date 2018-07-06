@@ -19,9 +19,9 @@ help
 
 check for 0 samples on delete
 
-table view add sub tab for FoM etc - predict tab
+
 Allocation table color indications
-Allocation table show classes if present - predict tab
+
 
 fix hard plot legend
 
@@ -30,6 +30,8 @@ data tab add pca and stats?
 ------
 done
 ------
+table view add sub tab for FoM etc - predict tab
+Allocation table show classes if present - predict tab
 test on Aml 7 - success
 table view add sub tab for FoM etc - model tab
 allow to create dataset without classes
