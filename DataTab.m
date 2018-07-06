@@ -770,24 +770,37 @@ classdef  DataTab < BasicTab
                 switch PlotType
                     case 1 %scatter
                         self.data_plot = d.scatter(self.data_plot_axes, var1, var2, showClasses, showObjectNames);
+                        set(self.chkPlotShowObjectNames, 'Enable', 'on');
                         
                         labels = strread(num2str(1:size(d.ProcessedData, 1)),'%s');
                         if(~isempty(d.ObjectNames))
                             labels = d.ObjectNames;
                         end
-                        set(self.data_plot_axes,'UserData', {[self.data_plot.XData', self.data_plot.YData'], labels, d.Classes(logical(d.SelectedSamples),:)});
                         
-                        datacursormode on
-                        dcm_obj = datacursormode(self.parent.fig);
-                        set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
+                        if ~isempty(d.Classes)
+                            set(self.data_plot_axes,'UserData', {[self.data_plot.XData', self.data_plot.YData'], labels, d.Classes(logical(d.SelectedSamples),:)});
+                        else
+                            set(self.data_plot_axes,'UserData', {[self.data_plot.XData', self.data_plot.YData'], labels, []});
+                        end
+                        
+                        if showObjectNames
+                            datacursormode on
+                            dcm_obj = datacursormode(self.parent.fig);
+                            set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
+                        else
+                            datacursormode off
+                        end
                         
                     case 2 %line
                         self.data_plot = d.line(self.data_plot_axes);
                         datacursormode off
+                        set(self.chkPlotShowObjectNames, 'Value', 0);
+                        set(self.chkPlotShowObjectNames, 'Enable', 'off');
                     case 3 %histogram
                         self.data_plot = d.histogram(self.data_plot_axes, var1);
                         datacursormode off
-                        
+                        set(self.chkPlotShowObjectNames, 'Value', 0);
+                        set(self.chkPlotShowObjectNames, 'Enable', 'off');
                 end
             end
             

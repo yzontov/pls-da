@@ -19,9 +19,12 @@ help
 
 check for 0 samples on delete
 
+switch off calibration opt on new set creation and  app start
+
 
 Allocation table color indications
-
+%colergen = @(color,text) ['<html><table border=0 width=400 bgcolor=',color,'><TR><TD>',text,'</TD></TR> </table></html>'];
+%arrayfun(colergen,[1 2 3], [1 2 3])
 
 fix hard plot legend
 

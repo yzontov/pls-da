@@ -54,6 +54,14 @@ classdef DataSet < handle
         
         function fig = scatter(self, axes, var1, var2, showClasses, showObjectNames)
             
+            if showClasses
+                colors
+                for i = 1:self.NumberOfClasses
+                    
+                end
+            end
+            
+            
             fig = scatter(axes, self.ProcessedData(:,var1),self.ProcessedData(:,var2));
             
             if (~isempty(self.VariableNames))
@@ -83,7 +91,7 @@ classdef DataSet < handle
                 
             end
             
-            if(showClasses)
+            if(showClasses && ~isempty(self.Classes))
                 labels = arrayfun(@(x) sprintf('%d',x),self.Classes(logical(self.SelectedSamples),:),'UniformOutput', false);
                 if(~isempty(self.ClassLabels) && ~isempty(self.ClassLabels(logical(self.SelectedSamples),:)))
                     labels = self.ClassLabels(logical(self.SelectedSamples),:);

@@ -487,19 +487,7 @@ classdef  ModelTab < BasicTab
                 
             end
         end
-        
-        function Callback_CrossValidationType(self, src, ~)
-            
-        end
-        
-        function Callback_UseCrossValidation(self, src, ~)
-            
-        end
-        
-        function SelectValidationSet(self, src, ~)
-            
-        end
-        
+              
         function SelectCalibratinSet(self, src, ~)
             
             index_selected = get(src,'Value');
