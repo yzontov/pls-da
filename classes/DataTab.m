@@ -31,9 +31,11 @@ classdef  DataTab < BasicTab
         
     end
     methods
+       
         
         function ttab = DataTab(tabgroup, parent)
             ttab = ttab@BasicTab(tabgroup, 'Data', parent);
+            
             
             uicontrol('Parent', ttab.left_panel, 'Style', 'pushbutton', 'String', 'New dataset',...
                 'Units', 'Normalized', 'Position', [0.3 0.9 0.35 0.05], ...
@@ -323,20 +325,24 @@ classdef  DataTab < BasicTab
                 selected_name = names{index_selected};
                 d = evalin('base', selected_name);
                 
-                t = d.SelectedSamples;
-                if sum(not(t)) < size(d.RawData, 1)
-                    d.RawData = d.RawData(not(t),:);
-                    d.Classes = d.Classes(not(t),:);
-                    if ~isempty(d.ObjectNames)
-                        d.ObjectNames = d.ObjectNames(not(t),:);
+                answer = questdlg('Do you want to delete selected rows from the dataset?', ...
+                    'Delete selected rows', ...
+                    'Yes','No','No');
+                
+                if isequal(answer, 'Yes')
+                    
+                    t = d.SelectedSamples;
+                    if sum(t) < size(d.RawData, 1)
+                        d.RawData = d.RawData(not(t),:);
+                        d.RawClasses = d.RawClasses(not(t),:);
+                        if ~isempty(d.ObjectNames)
+                            d.ObjectNames = d.ObjectNames(not(t),:);
+                        end
+                        self.FillTableView(selected_name);
+                        self.Redraw();
+                    else
+                        warndlg('The resulting dataset will be empty!');
                     end
-                    if ~isempty(d.Variables)
-                        d.Variables = d.Variables(not(t),:);
-                    end
-                    self.FillTableView(selected_name);
-                    self.Redraw();
-                else
-                    warndlg('The resulting dataset will be empty!');
                 end
             end
         end
@@ -758,11 +764,18 @@ classdef  DataTab < BasicTab
                 Labels = d.ObjectNames;
             end
             
-            self.tblTextResult.Data = [Labels, num2cell(d.Classes), num2cell(logical(d.SelectedSamples))];
-            self.tblTextResult.ColumnName = {'Sample', 'Class', 'Included'};
-            self.tblTextResult.ColumnWidth = num2cell([150 60 60]);
+            if ~isempty(d.Classes)
+                self.tblTextResult.Data = [Labels, num2cell(d.Classes), num2cell(logical(d.SelectedSamples))];
+                self.tblTextResult.ColumnName = {'Sample', 'Class', 'Included'};
+                self.tblTextResult.ColumnWidth = num2cell([150 60 60]);
+                self.tblTextResult.ColumnEditable = [false false true];
+            else
+                self.tblTextResult.Data = [Labels, num2cell(logical(d.SelectedSamples))];
+                self.tblTextResult.ColumnName = {'Sample', 'Included'};
+                self.tblTextResult.ColumnWidth = num2cell([150 60]);
+                self.tblTextResult.ColumnEditable = [false true];
+            end
             
-            self.tblTextResult.ColumnEditable = [false false true];
             self.tblTextResult.CellEditCallback = @self.SelectedSamplesChangedCallback;
             
         end
@@ -811,26 +824,30 @@ classdef  DataTab < BasicTab
                         end
                         
                         if ~isempty(d.Classes)
-                            set(self.data_plot_axes,'UserData', {[self.data_plot.XData', self.data_plot.YData'], labels, d.Classes(logical(d.SelectedSamples),:)});
+                            set(self.data_plot_axes,'UserData', {[self.data_plot.XData', self.data_plot.YData'], labels, d.Classes});
                         else
                             set(self.data_plot_axes,'UserData', {[self.data_plot.XData', self.data_plot.YData'], labels, []});
                         end
                         
                         if showObjectNames
+                            pan off
                             datacursormode on
                             dcm_obj = datacursormode(self.parent.fig);
                             set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
                         else
                             datacursormode off
+                            pan on
                         end
                         
                     case 2 %line
                         self.data_plot = d.line(self.data_plot_axes);
+                        pan off
                         datacursormode off
                         set(self.chkPlotShowObjectNames, 'Value', 0);
                         set(self.chkPlotShowObjectNames, 'Enable', 'off');
                     case 3 %histogram
                         self.data_plot = d.histogram(self.data_plot_axes, var1);
+                        pan off
                         datacursormode off
                         set(self.chkPlotShowObjectNames, 'Value', 0);
                         set(self.chkPlotShowObjectNames, 'Enable', 'off');

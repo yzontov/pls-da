@@ -112,6 +112,7 @@ classdef  ModelTab < BasicTab
             
             ttab = ttab@BasicTab(tabgroup, 'Model', parent);
             
+            
             ttab.pnlDataSettings = uipanel('Parent', ttab.left_panel, 'Title', 'Data','Units', 'normalized', ...
                 'Position', [0.05   0.85   0.9  0.1]);
             

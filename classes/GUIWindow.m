@@ -9,6 +9,38 @@ classdef  GUIWindow<handle
     end
     methods
         
+        function TabSelected(self, obj, param)
+
+            var = [];
+            PlotType = [];
+            
+            switch obj.SelectedTab.Title
+                case 'Data'
+                    var = self.dataTab.chkPlotShowObjectNames.Value;
+                    PlotType = get(self.dataTab.ddlPlotType, 'Value');
+                case 'Model'
+                    var = self.modelTab.chkPlotShowObjectNames.Value;
+                case 'Prediction'
+                    var = self.predictTab.chkPlotShowObjectNames.Value;
+            end
+            
+            if(~isempty(var))
+                if(var == 1)
+                    pan off
+                    datacursormode on
+                    dcm_obj = datacursormode(self.fig);
+                    set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
+                else
+                    datacursormode off
+                    if isempty(PlotType) || PlotType == 1
+                        pan on
+                    else
+                        pan off
+                    end
+                end
+            end
+        end
+        
         function win = GUIWindow(tabs, extra_title)
             
             if nargin == 1
@@ -52,6 +84,8 @@ classdef  GUIWindow<handle
             end
             
             win.fig = f;
+            
+            set(win.tgroup, 'SelectionChangedFcn', @win.TabSelected);
             
         end
         

@@ -2,19 +2,16 @@
 todo
 ------
 
-classes colors - rgb
-adjust fonts and sizes?
+update predict tab on dataset add/change
 
-allow to edit dataset
+classes colors - rgb
+
+allow to edit and deletedataset
 clear model on dataset change
 
 info bar messages?
 
-on change show object names - apply on all tabs
-
 help
-
-check for 0 samples on delete
 
 Allocation table color indications
 %colergen = @(color,text) ['<html><table border=0 width=400 bgcolor=',color,'><TR><TD>',text,'</TD></TR> </table></html>'];
@@ -25,6 +22,9 @@ data tab add pca and stats?
 ------
 done
 ------
+check for 0 samples on delete
+adjust fonts and sizes?
+on change show object names - apply on all tabs - solved by selectionchangedfcn in guiwindow
 data tab - add legend and color classes to scatter plot
 data tab - fix dataset onclick wavelengths
 table view add sub tab for FoM etc - predict tab

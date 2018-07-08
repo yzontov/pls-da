@@ -4,9 +4,10 @@ classdef DataSet < handle
     properties
         Name;
         RawData;
+        RawClasses;
+        
         ObjectNames;
         
-        Classes;
         Variables;
         VariableNames;
         ClassLabels;
@@ -25,10 +26,12 @@ classdef DataSet < handle
     
     properties (Access = private)
         Data_;
+        Classes_;
     end
     
     properties (Dependent = true)
         
+        Classes;
         ProcessedData;
         SelectedObjectNames;
         NumberOfClasses;
@@ -46,7 +49,7 @@ classdef DataSet < handle
                     Y(:,cl) = (self.Classes == cl);
                 end
                 
-                Y = Y(logical(self.SelectedSamples),:);
+                %Y = Y(logical(self.SelectedSamples),:);
             else
                 Y = [];
             end
@@ -55,17 +58,29 @@ classdef DataSet < handle
         function fig = scatter(self, axes, var1, var2, showClasses, showObjectNames)
             
             if showClasses
-                colors = [];
+
+                names = cell(1,self.NumberOfClasses);
                 color = PLSDAModel.colors_rgb(self.NumberOfClasses);
                 for i = 1:self.NumberOfClasses
                     %colors = [colors; repmat(color(i,:), sum(self.Classes == i), 1)];
                     %colors = repmat(color(i,:), sum(self.Classes == i), 1);
                     hold on;
                     fig = plot(axes, self.ProcessedData(self.Classes == i,var1),self.ProcessedData(self.Classes == i,var2),'o','color',color(i,:));
+                    names{i} = sprintf('class %d', i);
                 end
-                %fig = scatter(axes, self.ProcessedData(:,var1),self.ProcessedData(:,var2), [], colors);
-                legend;
-            else    
+                
+                if ~isempty(axes)
+                    legend(axes, names);
+                    legend(axes,'location','northeast');
+                    legend(axes,'boxon');
+                else
+                    legend(names);
+                    legend('location','northeast');
+                    legend('boxon');
+                end
+
+                
+            else
                 fig = scatter(axes, self.ProcessedData(:,var1),self.ProcessedData(:,var2));
             end
             
@@ -82,29 +97,27 @@ classdef DataSet < handle
                 end
             end
             
+            %             if(showObjectNames)
+            %                 labels = strread(num2str(1:size(self.ProcessedData, 1)),'%s');
+            %                 if(~isempty(self.SelectedObjectNames))
+            %                     labels = self.SelectedObjectNames;
+            %                 end
+            %
+            %                 dx = 0.01; dy = 0.01; % displacement so the text does not overlay the data points
+            %                 text(axes, self.ProcessedData(:,var1)+dx, self.ProcessedData(:,var2)+dy, labels, 'Interpreter', 'none');
+            %
+            %
+            %             end
             
-            
-            if(showObjectNames)
-                labels = strread(num2str(1:size(self.ProcessedData, 1)),'%s');
-                if(~isempty(self.SelectedObjectNames))
-                    labels = self.SelectedObjectNames;
-                end
-                
-                dx = 0.01; dy = 0.01; % displacement so the text does not overlay the data points
-                text(axes, self.ProcessedData(:,var1)+dx, self.ProcessedData(:,var2)+dy, labels, 'Interpreter', 'none');
-                
-                
-            end
-            
-            if(showClasses && ~isempty(self.Classes))
-                labels = arrayfun(@(x) sprintf('%d',x),self.Classes(logical(self.SelectedSamples),:),'UniformOutput', false);
-                if(~isempty(self.ClassLabels) && ~isempty(self.ClassLabels(logical(self.SelectedSamples),:)))
-                    labels = self.ClassLabels(logical(self.SelectedSamples),:);
-                end
-                
-                dx = 0.03; dy = -0.03; % displacement so the text does not overlay the data points
-                text(axes, self.ProcessedData(:,var1)+dx, self.ProcessedData(:,var2)+dy, labels, 'Interpreter', 'none');
-            end
+            %             if(showClasses && ~isempty(self.Classes))
+            %                 labels = arrayfun(@(x) sprintf('%d',x),self.Classes(logical(self.SelectedSamples),:),'UniformOutput', false);
+            %                 if(~isempty(self.ClassLabels) && ~isempty(self.ClassLabels(logical(self.SelectedSamples),:)))
+            %                     labels = self.ClassLabels(logical(self.SelectedSamples),:);
+            %                 end
+            %
+            %                 dx = 0.03; dy = -0.03; % displacement so the text does not overlay the data points
+            %                 text(axes, self.ProcessedData(:,var1)+dx, self.ProcessedData(:,var2)+dy, labels, 'Interpreter', 'none');
+            %             end
             
         end
         
@@ -210,6 +223,23 @@ classdef DataSet < handle
             
         end
         
+        function set.Classes(self, value)
+            
+            self.RawClasses = value;
+            
+        end
+        
+        function value = get.Classes(self)
+            
+            %value = size(self.DummyMatrix(), 2);
+            if isempty(self.RawClasses)
+                value = [];
+            else
+                value = self.RawClasses(logical(self.SelectedSamples),:);
+            end
+            
+        end
+        
         function value = get.SelectedObjectNames(self)
             
             value = self.ObjectNames(logical(self.SelectedSamples),:);
@@ -303,7 +333,7 @@ classdef DataSet < handle
     end
     
     methods (Access = private)
-                
+        
     end
 end
 

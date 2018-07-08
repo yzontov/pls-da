@@ -16,6 +16,9 @@ classdef  BasicTab < handle
     end
     methods
         
+                
+        
+        
         function ttab = BasicTab(tabgroup, title, parent)
             %Model
             
@@ -38,6 +41,7 @@ classdef  BasicTab < handle
             %ttab.right_panel = uipanel('Parent', ttab.tab, 'Title', 'Right', 'Units','normalized', 'Position', [0.8   0.05   0.2  0.95]);
             ttab.statusbar_panel = uipanel('Parent', ttab.tab, 'Title', '', 'Units','normalized', 'Position', [0.0   0.0   1  0.05]);
             
+
         end
         
     end

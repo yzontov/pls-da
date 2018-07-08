@@ -1,5 +1,8 @@
 function scripting_example()
 
+%add path to classes subfolder
+addpath('classes');
+
 %load data
 clc
 clear

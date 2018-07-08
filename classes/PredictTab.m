@@ -42,8 +42,8 @@ classdef  PredictTab < BasicTab
             set(children(strcmpi ( get (children,'Type'),'UIControl')),'enable',param);
             
             if isequal(self.parent.modelTab.Model.Mode, 'hard')
-                ttab.chkPlotShowClasses.Value = 0;
-                ttab.chkPlotShowClasses.Enable = 'off';
+                self.chkPlotShowClasses.Value = 0;
+                self.chkPlotShowClasses.Enable = 'off';
             end
             
         end

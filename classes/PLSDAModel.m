@@ -26,7 +26,10 @@ classdef PLSDAModel < handle
         NewDataSet;
         YpredTnew;
         
+        NewDataSetClasses;
         NewDataSetObjectNames;
+        
+        NewDataSetHasClasses;
     end
     
     properties
@@ -230,6 +233,13 @@ classdef PLSDAModel < handle
         function Result = Apply(self, NewDataSet)
             Xnew_p = PLSDAModel.preprocess_newset(self.rX, NewDataSet.RawData(logical(NewDataSet.SelectedSamples),:));
             
+            if isempty(NewDataSet.Classes)
+                self.NewDataSetHasClasses = false;
+            else
+                self.NewDataSetClasses = NewDataSet.Classes;
+                self.NewDataSetHasClasses = true;
+            end
+            
             I = size(Xnew_p, 1);
             
             Wstar=self.plsW*(self.plsP'*self.plsW)^(-1);
@@ -381,7 +391,7 @@ classdef PLSDAModel < handle
                 end
                 
                 PLSDAModel.soft_plot(axes, YpredT_, Y,Centers_,color, self.Alpha, self.numPC_pca, self.Gamma, self.K, false);
-                set(axes,'UserData', {YpredT_, labels, self.TrainingDataSet.Classes(logical(self.TrainingDataSet.SelectedSamples),:)});
+                set(axes,'UserData', {YpredT_, labels, self.TrainingDataSet.Classes});
                 
             end
             
@@ -462,7 +472,12 @@ classdef PLSDAModel < handle
                 end
                 
                 PLSDAModel.hard_plot(axes,w_,v_,t0_,self.K,Centers_,self.TrainingDataSet.NumberOfClasses - 1, show_legend);
-                set(axes,'UserData', {t0_, labels, []});
+                
+                if ~self.NewDataSetHasClasses
+                    set(axes,'UserData', {t0_, labels, []});
+                else
+                    set(axes,'UserData', {t0_, labels, self.NewDataSetClasses});
+                end
             end
             
             %soft
@@ -477,7 +492,12 @@ classdef PLSDAModel < handle
                 end
                 
                 PLSDAModel.soft_plot(axes, YpredT_, Y,Centers_,color, self.Alpha, self.numPC_pca, self.Gamma, self.K, show_legend);
-                set(axes,'UserData', {YpredTnew_, labels, []});
+                
+                if ~self.NewDataSetHasClasses
+                    set(axes,'UserData', {YpredTnew_, labels, []});
+                else
+                    set(axes,'UserData', {YpredTnew_, labels, self.NewDataSetClasses});
+                end
                 
             end
             
