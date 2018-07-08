@@ -53,16 +53,16 @@ classdef  ModelTab < BasicTab
                 if self.Model.Finalized
                     set(self.chkFinalizeModel,'value',1);
                 end
-            
+                
                 G = self.Model.TrainingDataSet.Name;
                 idx = find(cell2mat(cellfun(@(x) strcmp(x, G), get(self.ddlCalibrationSet,'string'), 'UniformOutput',false)));
                 set(self.ddlCalibrationSet,'value',idx);
-            
+                
                 set(self.tbNumPCpls,'string',sprintf('%d',self.Model.NumPC));
                 set(self.tbNumPCpca, 'String', sprintf('%d', max(1, self.Model.TrainingDataSet.NumberOfClasses-1)));%%temp
                 set(self.tbAlpha,'string',sprintf('%.2f',self.Model.Alpha));
                 set(self.tbGamma,'string',sprintf('%.2f',self.Model.Gamma));
-            
+                
                 
                 Labels = cell(size(self.Model.TrainingDataSet.ProcessedData, 1),1);
                 for i = 1:size(self.Model.TrainingDataSet.ProcessedData, 1)
@@ -97,7 +97,7 @@ classdef  ModelTab < BasicTab
                 self.Redraw();
                 
                 r = self;
-
+                
             end
         end
         
@@ -218,7 +218,7 @@ classdef  ModelTab < BasicTab
             tab_alloc = uitab('Parent', tg2, 'Title', 'Allocation table');
             tab_confusion = uitab('Parent', tg2, 'Title', 'Confusion matrix');
             tab_fom = uitab('Parent', tg2, 'Title', 'Figures of merit');
-
+            
             ttab.tblTextConfusion = uitable(tab_confusion);
             ttab.tblTextConfusion.Units = 'normalized';
             ttab.tblTextConfusion.Position = [0 0 1 1];
@@ -230,7 +230,7 @@ classdef  ModelTab < BasicTab
             ttab.tblTextResult = uitable(tab_alloc);
             ttab.tblTextResult.Units = 'normalized';
             ttab.tblTextResult.Position = [0 0 1 1];
-
+            
             allvars = evalin('base','whos');
             
             idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
@@ -269,7 +269,7 @@ classdef  ModelTab < BasicTab
             
             if isempty(ttab.Model)
                 pcs = arrayfun(@(x) sprintf('%d', x), 1:str2double(get(ttab.tbNumPCpca,'string')), 'UniformOutput', false);
-            
+                
                 set(ttab.ddlPlotVar1, 'String', pcs);
                 set(ttab.ddlPlotVar2, 'String', pcs);
                 set(ttab.ddlPlotVar1, 'Value', 1);
@@ -278,27 +278,27 @@ classdef  ModelTab < BasicTab
                 if(length(pcs) == 1)
                     set(ttab.ddlPlotVar2, 'Value', 1);
                 end
-
+                
             end
             
         end
         
         function RedrawCallback(self, obj, param)
             
-        if self.pc_x ~= self.pc_y
-            prev_x = self.pc_x;
-            prev_y = self.pc_y;
-            
-            if (self.ddlPlotVar1.Value == self.ddlPlotVar2.Value)
-                self.ddlPlotVar1.Value = prev_y;
-                self.ddlPlotVar2.Value = prev_x;
+            if self.pc_x ~= self.pc_y
+                prev_x = self.pc_x;
+                prev_y = self.pc_y;
+                
+                if (self.ddlPlotVar1.Value == self.ddlPlotVar2.Value)
+                    self.ddlPlotVar1.Value = prev_y;
+                    self.ddlPlotVar2.Value = prev_x;
+                end
+                
+                self.pc_x = self.ddlPlotVar1.Value;
+                self.pc_y = self.ddlPlotVar2.Value;
             end
-            
-            self.pc_x = self.ddlPlotVar1.Value;
-            self.pc_y = self.ddlPlotVar2.Value;
-        end    
             self.Redraw();
-        
+            
         end
         
         function Redraw(self)
@@ -349,25 +349,28 @@ classdef  ModelTab < BasicTab
             alpha = str2double(get(self.tbAlpha,'string'));
             gamma = str2double(get(self.tbGamma,'string'));
             
-%             if ~isempty(self.Model)
-%                 
-%                 self.Model.TrainingDataSet = d;
-%                 self.Model.Mode = mode;
-%                 self.Model.Alpha = alpha;
-%                 self.Model.Gamma = gamma;
-%                 self.Model.NumPC = numPC;
-%                 
-%                 self.Model.Rebuild();
-%             else
-                self.Model = PLSDAModel(d, numPC, alpha, gamma);
-                
-                if strcmp(mode, 'hard')
-                    self.Model.Mode = mode;
-                    self.Model.Rebuild();
-                end
-                
-%             end
+            %             if ~isempty(self.Model)
+            %
+            %                 self.Model.TrainingDataSet = d;
+            %                 self.Model.Mode = mode;
+            %                 self.Model.Alpha = alpha;
+            %                 self.Model.Gamma = gamma;
+            %                 self.Model.NumPC = numPC;
+            %
+            %                 self.Model.Rebuild();
+            %             else
             
+            h = waitbar(0, 'Please wait...');
+            
+            self.Model = PLSDAModel(d, numPC, alpha, gamma);
+            
+            if strcmp(mode, 'hard')
+                self.Model.Mode = mode;
+                self.Model.Rebuild();
+            end
+            
+            %             end
+            waitbar(5/10, h);
             set(self.chkFinalizeModel,'enable','on');
             set(self.btnSaveModel,'enable','on');
             %set(self.tbTextResult, 'String', self.Model.AllocationTable);
@@ -377,7 +380,7 @@ classdef  ModelTab < BasicTab
             
             self.tblTextResult.ColumnName = {'Sample', 'Class', 1:self.Model.TrainingDataSet.NumberOfClasses};
             self.tblTextResult.ColumnFormat = ['char' 'char' repmat({'logical'},1,self.Model.TrainingDataSet.NumberOfClasses)];
-            
+            waitbar(8/10, h);
             Labels = cell(size(self.Model.TrainingDataSet.ProcessedData, 1),1);
             for i = 1:size(self.Model.TrainingDataSet.ProcessedData, 1)
                 Labels{i} = sprintf('Object No.%d', i);
@@ -395,9 +398,10 @@ classdef  ModelTab < BasicTab
             self.tblTextFoM.ColumnWidth = num2cell([120, 30*ones(1,size(self.Model.AllocationMatrix(:,1:self.Model.TrainingDataSet.NumberOfClasses), 2))]);
             self.tblTextFoM.ColumnFormat = ['char' repmat({'numeric'},1,self.Model.TrainingDataSet.NumberOfClasses)];
             
+            waitbar(9/10, h);
             fields = {'True Positive';'False Positive';'';'Class Sensitivity (%)';'Class Specificity (%)';'Class Efficiency (%)';'';'Total Sensitivity (%)';'Total Specificity (%)';'Total Efficiency (%)'};
             fom = self.Model.FiguresOfMerit;
-
+            
             self.tblTextFoM.Data = [fields,  [num2cell(round([fom.TP; fom.FP])); ...
                 repmat({''},1,self.Model.TrainingDataSet.NumberOfClasses);...
                 num2cell(round([fom.CSNS; fom.CSPS; fom.CEFF])); ...
@@ -412,6 +416,10 @@ classdef  ModelTab < BasicTab
             %d = {'Male',52,true;'Male',40,true;'Female',25,false};
             %self.tblTextResult.Data = d;
             %self.tblTextResult.Position = [20 20 258 78];
+            
+            waitbar(10/10, h);
+            %pause(.5);
+            delete(h);
             
             self.Redraw();
             self.enablePanel(self.pnlPlotSettings, 'on');
@@ -488,7 +496,7 @@ classdef  ModelTab < BasicTab
                 
             end
         end
-              
+        
         function SelectCalibratinSet(self, src, ~)
             
             index_selected = get(src,'Value');
@@ -497,9 +505,9 @@ classdef  ModelTab < BasicTab
                 names = get(src,'String');
                 selected_name = names{index_selected};
                 d = evalin('base', selected_name);
-            
+                
                 set(self.tbNumPCpca, 'String', sprintf('%d', max(1,d.NumberOfClasses-1)));
-
+                
             else
                 self.ClearModel();
             end
@@ -580,7 +588,7 @@ classdef  ModelTab < BasicTab
             else
                 if (numPC >= 1 && numPC <= self.Model.TrainingDataSet.NumberOfClasses-1)
                     pcs = arrayfun(@(x) sprintf('%d', x), 1:numPC, 'UniformOutput', false);
-                
+                    
                     set(self.ddlPlotVar1, 'String', pcs);
                     set(self.ddlPlotVar2, 'String', pcs);
                     set(self.ddlPlotVar1, 'Value', 1);
@@ -597,7 +605,7 @@ classdef  ModelTab < BasicTab
                     
                     set(src,'string',sprintf('%d',max(1, self.Model.TrainingDataSet.NumberOfClasses-1)));
                     self.ClearModel();
-
+                    
                 end
             end
             

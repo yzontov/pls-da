@@ -2,14 +2,10 @@
 todo
 ------
 
-update predict tab on dataset add/change
-
 classes colors - rgb
 
 allow to edit and deletedataset
 clear model on dataset change
-
-info bar messages?
 
 help
 
@@ -22,6 +18,9 @@ data tab add pca and stats?
 ------
 done
 ------
+-info bar messages?
+
+update predict tab on dataset add/change
 check for 0 samples on delete
 adjust fonts and sizes?
 on change show object names - apply on all tabs - solved by selectionchangedfcn in guiwindow

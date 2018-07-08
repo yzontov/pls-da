@@ -31,7 +31,7 @@ classdef  DataTab < BasicTab
         
     end
     methods
-       
+        
         
         function ttab = DataTab(tabgroup, parent)
             ttab = ttab@BasicTab(tabgroup, 'Data', parent);
@@ -51,10 +51,10 @@ classdef  DataTab < BasicTab
             ttab.pnlDataCategories = uibuttongroup('Parent', ttab.left_panel, 'Title', 'Categories','Units', 'normalized', ...
                 'Position', [0.05   0.65   0.9  0.12]);
             
-%             bg = uibuttongroup('Parent',ttab.pnlDataCategories,...
-%                   'Position',[0 0 1 1],...
-%                   'SelectionChangedFcn',@bselection);
-              
+            %             bg = uibuttongroup('Parent',ttab.pnlDataCategories,...
+            %                   'Position',[0 0 1 1],...
+            %                   'SelectionChangedFcn',@bselection);
+            
             ttab.chkTraining = uicontrol('Parent', ttab.pnlDataCategories, 'Style', 'radiobutton', 'String', 'Calibration',...
                 'Units', 'normalized','Position', [0.1 0.4 0.45 0.4], 'callback', @ttab.Input_Training);
             ttab.chkValidation = uicontrol('Parent', ttab.pnlDataCategories, 'Style', 'radiobutton', 'String', 'New or Test',...
@@ -422,7 +422,7 @@ classdef  DataTab < BasicTab
                     index_selected = get(self.listbox,'Value');
                     names = get(self.listbox,'String');
                     selected_name = names{index_selected};
-                
+                    
                     d = evalin('base', selected_name);
                     
                     if isempty(d.Classes)
@@ -431,7 +431,7 @@ classdef  DataTab < BasicTab
                     else
                         set(self.chkPlotShowClasses, 'enable', 'on');
                     end
-
+                    
                 case 2 %line
                     set(self.ddlPlotVar1, 'enable', 'off');
                     set(self.ddlPlotVar2, 'enable', 'off');
@@ -515,6 +515,7 @@ classdef  DataTab < BasicTab
                 end
                 
                 if sum(idx) > 0 && ~isempty(win.modelTab)
+                    
                     idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
                     vardisplay={};
                     if sum(idx) > 0
@@ -524,6 +525,7 @@ classdef  DataTab < BasicTab
                             vardisplay{i+1} = l(i).name;
                         end
                         set(win.modelTab.ddlCalibrationSet, 'String', vardisplay);
+                        
                         if length(get(win.modelTab.ddlCalibrationSet, 'String')) > 1
                             set(win.modelTab.ddlCalibrationSet, 'Value', 2)
                             
@@ -619,26 +621,15 @@ classdef  DataTab < BasicTab
                 set(self.listbox, 'String', vardisplay);
                 set(self.listbox, 'Value', selected_index);
                 
+                   if (~isempty(self.parent.predictTab))
+                      set(win.predictTab.ddlNewSet, 'String', vardisplay);
+                   end
+                    
+                
                 % extract all children
                 self.enableRightPanel('on');
                 
-                %names = varnames(idx);%fieldnames(ttab.Data);
-                %names{1};
-                
-                %d = ttab.Data.(selected_name);
-                d = evalin('base', selected_name);
-                
-                if d.Training
-                    set(self.lbox_mnu_train, 'Checked', 'on');
-                else
-                    set(self.lbox_mnu_train, 'Checked', 'off');
-                end
-                
-                if d.Validation
-                    set(self.lbox_mnu_val, 'Checked', 'on');
-                else
-                    set(self.lbox_mnu_val, 'Checked', 'off');
-                end
+                d = evalin('base', selected_name);   
                 
                 if(isempty(d.VariableNames))
                     if(isempty(d.Variables))
@@ -666,12 +657,8 @@ classdef  DataTab < BasicTab
                 
                 self.Redraw();
                 self.FillTableView(selected_name);
-                %ttab = DataTab.drawPlot(ttab, selected_name);
                 
             end
-            
-            %ttab = DataTab.resetRightPanel(ttab);
-            %ttab = DataTab.enableRightPanel(ttab, 'off');
             
         end
         
@@ -704,18 +691,6 @@ classdef  DataTab < BasicTab
                     set(self.chkTraining, 'Enable', 'on');
                     set(self.chkPlotShowClasses, 'Enable', 'on');
                 end
-                
-%                 if d.Training
-%                     set(self.lbox_mnu_train, 'Checked', 'on');
-%                 else
-%                     set(self.lbox_mnu_train, 'Checked', 'off');
-%                 end
-%                 
-%                 if d.Validation
-%                     set(self.lbox_mnu_val, 'Checked', 'on');
-%                 else
-%                     set(self.lbox_mnu_val, 'Checked', 'off');
-%                 end
                 
                 if(isempty(d.VariableNames))
                     if(isempty(d.Variables))

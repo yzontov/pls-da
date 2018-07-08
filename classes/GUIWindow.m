@@ -41,6 +41,10 @@ classdef  GUIWindow<handle
             end
         end
         
+        function Help_Callback(~, ~)
+            web('help/index.html')
+        end
+        
         function win = GUIWindow(tabs, extra_title)
             
             if nargin == 1
@@ -62,6 +66,9 @@ classdef  GUIWindow<handle
             %set(f, 'Resize', 'off');
             set(f, 'Units', 'Normalized');
             set(f, 'Position', [0.1 0.1 0.8 0.7]);
+            
+            mh = uimenu(f,'Label','Help');
+            uimenu(mh,'Label','Help on DDSGUI','Callback', @win.Help_Callback);
             
             if vyear < 2014
                 win.tgroup = uitabgroup('v0','Parent', f);

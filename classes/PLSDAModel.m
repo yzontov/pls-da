@@ -303,7 +303,7 @@ classdef PLSDAModel < handle
             
         end
         
-        function fig = Plot(self, axes, pc1, pc2, show_legend)
+        function fig =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       Plot(self, axes, pc1, pc2, show_legend)
             
             if nargin < 4
                 pc1 = 1;
@@ -378,7 +378,7 @@ classdef PLSDAModel < handle
                 end
                 
                 PLSDAModel.hard_plot(axes,w_,v_,t0_,self.K,Centers_,self.TrainingDataSet.NumberOfClasses - 1, false);
-                set(axes,'UserData', {t0_, labels, self.TrainingDataSet.Classes(logical(self.TrainingDataSet.SelectedSamples),:)});
+                set(axes,'UserData', {t0_, labels, self.TrainingDataSet.Classes});
                 
             end
             
