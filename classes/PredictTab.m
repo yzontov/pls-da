@@ -41,6 +41,11 @@ classdef  PredictTab < BasicTab
             children = get(panel,'Children');
             set(children(strcmpi ( get (children,'Type'),'UIControl')),'enable',param);
             
+            if isequal(self.parent.modelTab.Model.Mode, 'hard')
+                ttab.chkPlotShowClasses.Value = 0;
+                ttab.chkPlotShowClasses.Enable = 'off';
+            end
+            
         end
         
         function ttab = PredictTab(tabgroup, parent)
@@ -56,7 +61,7 @@ classdef  PredictTab < BasicTab
             uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'text', 'String', 'New DataSet', ...
                 'Units', 'normalized','Position', [0.05 0.65 0.35 0.2], 'HorizontalAlignment', 'left');
             ttab.ddlNewSet = uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'popupmenu', 'String', {'-'},...
-                'Units', 'normalized','Value',1, 'Position', [0.4 0.67 0.55 0.2], 'BackgroundColor', 'white');
+                'Units', 'normalized','Value',1, 'Position', [0.4 0.67 0.55 0.2], 'BackgroundColor', 'white', 'callback', @ttab.SelectNewSet);
             
             
             
@@ -77,6 +82,7 @@ classdef  PredictTab < BasicTab
             ttab.chkPlotShowObjectNames = uicontrol('Parent', ttab.pnlPlotSettings,'Enable','off', 'Style', 'checkbox', 'String', 'Show object names',...
                 'Units', 'normalized','Position', [0.05 0.75 0.85 0.1], 'callback', @ttab.RedrawCallback);%, 'callback', @DataTab.Redraw);
             
+
             uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'PC 1','Enable','off', ...
                 'Units', 'normalized','Position', [0.05 0.58 0.35 0.1], 'HorizontalAlignment', 'left');
             ttab.ddlPlotVar1 = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu','Enable','off', 'String', {'1'},...
@@ -214,6 +220,14 @@ classdef  PredictTab < BasicTab
                 end
                 
                 self.enablePanel(self.pnlPlotSettings, 'on');
+                
+                if isequal(self.parent.modelTab.Model.Mode, 'hard')
+                    self.chkPlotShowClasses.Value = 0;
+                    self.chkPlotShowClasses.Enable = 'off';
+                else
+                    self.chkPlotShowClasses.Enable = 'on';
+                end
+                
             else
                 self.enablePanel(self.pnlPlotSettings, 'off');
             end
@@ -299,6 +313,15 @@ classdef  PredictTab < BasicTab
         end    
             self.Redraw();
         
+        end
+        
+        function SelectNewSet(self,obj, ~)
+            self.enablePanel(self.pnlPlotSettings, 'off');
+            
+            delete(self.predict_plot_axes);
+            self.tblTextResult.Data = [];
+            self.tblTextConfusion.Data = [];
+            self.tblTextFoM.Data = [];
         end
         
     end

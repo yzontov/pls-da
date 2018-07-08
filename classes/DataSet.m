@@ -55,14 +55,19 @@ classdef DataSet < handle
         function fig = scatter(self, axes, var1, var2, showClasses, showObjectNames)
             
             if showClasses
-                colors
+                colors = [];
+                color = PLSDAModel.colors_rgb(self.NumberOfClasses);
                 for i = 1:self.NumberOfClasses
-                    
+                    %colors = [colors; repmat(color(i,:), sum(self.Classes == i), 1)];
+                    %colors = repmat(color(i,:), sum(self.Classes == i), 1);
+                    hold on;
+                    fig = plot(axes, self.ProcessedData(self.Classes == i,var1),self.ProcessedData(self.Classes == i,var2),'o','color',color(i,:));
                 end
+                %fig = scatter(axes, self.ProcessedData(:,var1),self.ProcessedData(:,var2), [], colors);
+                legend;
+            else    
+                fig = scatter(axes, self.ProcessedData(:,var1),self.ProcessedData(:,var2));
             end
-            
-            
-            fig = scatter(axes, self.ProcessedData(:,var1),self.ProcessedData(:,var2));
             
             if (~isempty(self.VariableNames))
                 xlabel(self.VariableNames{var1}); % x-axis label
@@ -297,5 +302,8 @@ classdef DataSet < handle
         end
     end
     
+    methods (Access = private)
+                
+    end
 end
 

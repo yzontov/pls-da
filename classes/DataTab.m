@@ -54,18 +54,18 @@ classdef  DataTab < BasicTab
 %                   'SelectionChangedFcn',@bselection);
               
             ttab.chkTraining = uicontrol('Parent', ttab.pnlDataCategories, 'Style', 'radiobutton', 'String', 'Calibration',...
-                'Units', 'normalized','Position', [0.1 0.45 0.45 0.25], 'callback', @ttab.Input_Training);
+                'Units', 'normalized','Position', [0.1 0.4 0.45 0.4], 'callback', @ttab.Input_Training);
             ttab.chkValidation = uicontrol('Parent', ttab.pnlDataCategories, 'Style', 'radiobutton', 'String', 'New or Test',...
-                'Units', 'normalized','Position', [0.55 0.45 0.45 0.25], 'callback', @ttab.Input_Validation);
+                'Units', 'normalized','Position', [0.55 0.4 0.45 0.4], 'callback', @ttab.Input_Validation);
             
             
             %preprocessing
             ttab.pnlDataSettings = uipanel('Parent', ttab.left_panel, 'Title', 'Preprocessing','Units', 'normalized', ...
                 'Position', [0.05   0.52   0.9  0.12]);
             ttab.chkCentering = uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'checkbox', 'String', 'Centering',...
-                'Units', 'normalized','Position', [0.1 0.45 0.45 0.25], 'callback', @ttab.Input_Centering);
+                'Units', 'normalized','Position', [0.1 0.4 0.45 0.4], 'callback', @ttab.Input_Centering);
             ttab.chkScaling = uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'checkbox', 'String', 'Scaling',...
-                'Units', 'normalized','Position', [0.55 0.45 0.45 0.25], 'callback', @ttab.Input_Scaling);
+                'Units', 'normalized','Position', [0.55 0.4 0.45 0.4], 'callback', @ttab.Input_Scaling);
             
             %lblPlotType
             ttab.pnlPlotSettings = uipanel('Parent', ttab.left_panel, 'Title', 'Plot','Units', 'normalized', ...
@@ -132,6 +132,8 @@ classdef  DataTab < BasicTab
             
             ttab.FillDataSetList();
             
+            
+            
         end
         
         function FillDataSetList(self)
@@ -159,28 +161,32 @@ classdef  DataTab < BasicTab
                 %d = ttab.Data.(selected_name);
                 d = evalin('base', selected_name);
                 
-                if d.Training
-                    set(self.lbox_mnu_train, 'Checked', 'on');
-                else
-                    set(self.lbox_mnu_train, 'Checked', 'off');
-                end
                 
-                if d.Validation
-                    set(self.lbox_mnu_val, 'Checked', 'on');
-                else
-                    set(self.lbox_mnu_val, 'Checked', 'off');
-                end
+                
+                
                 
                 if(isempty(d.VariableNames))
-                    names = arrayfun(@(x) sprintf('%d', x), 1:size(d.ProcessedData, 2), 'UniformOutput', false);
+                    if(isempty(d.Variables))
+                        names = arrayfun(@(x) sprintf('%d', x), 1:size(d.ProcessedData, 2), 'UniformOutput', false);
+                    else
+                        names = arrayfun(@(x) sprintf('%.2f', x), d.Variables, 'UniformOutput', false);
+                    end
                 else
                     names = d.VariableNames;
                 end
+                
                 set(self.ddlPlotVar1, 'String', names);
                 set(self.ddlPlotVar2, 'String', names);
                 
                 self.resetRightPanel();
                 self.fillRightPanel();
+                
+                if isempty(d.Classes)
+                    set(self.chkPlotShowClasses, 'enable', 'off');
+                    set(self.chkPlotShowClasses, 'value', 0);
+                    set(self.chkTraining, 'enable', 'off');
+                    set(self.chkTraining, 'value', 0);
+                end
                 
                 self.drawPlot(selected_name);
                 
@@ -406,7 +412,20 @@ classdef  DataTab < BasicTab
                     set(self.ddlPlotVar1, 'enable', 'on');
                     set(self.ddlPlotVar2, 'enable', 'on');
                     set(self.chkPlotShowObjectNames, 'enable', 'on');
-                    set(self.chkPlotShowClasses, 'enable', 'on');
+                    
+                    index_selected = get(self.listbox,'Value');
+                    names = get(self.listbox,'String');
+                    selected_name = names{index_selected};
+                
+                    d = evalin('base', selected_name);
+                    
+                    if isempty(d.Classes)
+                        set(self.chkPlotShowClasses, 'enable', 'off');
+                        set(self.chkPlotShowClasses, 'value', 0);
+                    else
+                        set(self.chkPlotShowClasses, 'enable', 'on');
+                    end
+
                 case 2 %line
                     set(self.ddlPlotVar1, 'enable', 'off');
                     set(self.ddlPlotVar2, 'enable', 'off');
@@ -625,7 +644,13 @@ classdef  DataTab < BasicTab
                     names = d.VariableNames;
                 end
                 
-                
+                if isempty(d.Classes)
+                    set(self.chkTraining, 'Enable', 'off');
+                    set(self.chkTraining, 'Value', 0);
+                    set(self.chkValidation, 'Value', 1);
+                    set(self.chkPlotShowClasses, 'Enable', 'off');
+                    set(self.chkPlotShowClasses, 'Value', 0);
+                end
                 
                 set(self.ddlPlotVar1, 'String', names);
                 set(self.ddlPlotVar2, 'String', names);
@@ -667,8 +692,11 @@ classdef  DataTab < BasicTab
                 
                 if isempty(d.Classes)
                     set(self.chkTraining, 'Enable', 'off');
+                    set(self.chkPlotShowClasses, 'Enable', 'off');
+                    set(self.chkPlotShowClasses, 'Value', 0);
                 else
                     set(self.chkTraining, 'Enable', 'on');
+                    set(self.chkPlotShowClasses, 'Enable', 'on');
                 end
                 
 %                 if d.Training
@@ -684,10 +712,15 @@ classdef  DataTab < BasicTab
 %                 end
                 
                 if(isempty(d.VariableNames))
-                    names = arrayfun(@(x) sprintf('%d', x), 1:size(d.ProcessedData, 2), 'UniformOutput', false);
+                    if(isempty(d.Variables))
+                        names = arrayfun(@(x) sprintf('%d', x), 1:size(d.ProcessedData, 2), 'UniformOutput', false);
+                    else
+                        names = arrayfun(@(x) sprintf('%.2f', x), d.Variables, 'UniformOutput', false);
+                    end
                 else
                     names = d.VariableNames;
                 end
+                
                 set(self.ddlPlotVar1, 'String', names);
                 set(self.ddlPlotVar2, 'String', names);
                 

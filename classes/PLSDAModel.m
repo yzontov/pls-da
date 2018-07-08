@@ -268,8 +268,8 @@ classdef PLSDAModel < handle
                 Result.AllocationMatrix = self.calculateAllocationMatrix(Distances_Hard_New);
                 
                 if ~isempty(NewDataSet.Classes)
-                   Result.ConfusionMatrix = PLSDAModel.confusionMatrix(NewDataSet.DummyMatrix(),Distances_Hard_New,0);
-                   Result.FiguresOfMerit = PLSDAModel.FoM(Result.ConfusionMatrix, sum(NewDataSet.DummyMatrix()));
+                    Result.ConfusionMatrix = PLSDAModel.confusionMatrix(NewDataSet.DummyMatrix(),Distances_Hard_New,0);
+                    Result.FiguresOfMerit = PLSDAModel.FoM(Result.ConfusionMatrix, sum(NewDataSet.DummyMatrix()));
                 end
             end
             
@@ -547,32 +547,6 @@ classdef PLSDAModel < handle
     end
     
     methods (Static, Access = private)
-        
-        function [mark, color] = plotsettings(class_number)
-            mark = cell(1,class_number);
-            color = cell(1,class_number);
-            marks = 'osd*+.x^v><ph';
-            mark_idx = 1;
-            color_idx = 0;
-            n_marks = length(marks);
-            colors = 'rgbmck';%'rgbmcyk';
-            n_colors = length(colors);
-            for idx = 1:class_number
-                
-                color_idx = color_idx + 1;
-                if color_idx > n_colors
-                    color_idx = 1;
-                    mark_idx = mark_idx + 1;
-                    if mark_idx > n_marks
-                        error('Too many classes');
-                    end
-                end
-                
-                mark{idx} = marks(mark_idx);
-                color{idx} = colors(color_idx);
-                
-            end
-        end
         
         function r = chi2cdf_(val, dof)
             %Chi-square cumulative distribution function.
@@ -923,9 +897,9 @@ classdef PLSDAModel < handle
                     end
                     
                     if ~isempty(axes)
-                        plot(axes, [t0(1) x],[t0(2) y], '-k');
+                        plot(axes, [t0(1) x],[t0(2) y], '-k','HandleVisibility','off');
                     else
-                        plot([t0(1) x],[t0(2) y], '-k');
+                        plot([t0(1) x],[t0(2) y], '-k','HandleVisibility','off');
                     end
                 end
                 
@@ -942,21 +916,21 @@ classdef PLSDAModel < handle
                 
                 if numPCpca > 1
                     if ~isempty(axes)
-                        plot(axes,[ x_min t0(1)],[ y_min t0(2)], '-k');
-                        plot(axes,[t0(1) x_max],[t0(2) y_max], '-k');
+                        plot(axes,[ x_min t0(1)],[ y_min t0(2)], '-k','HandleVisibility','off');
+                        plot(axes,[t0(1) x_max],[t0(2) y_max], '-k','HandleVisibility','off');
                     else
-                        plot([ x_min t0(1)],[ y_min t0(2)], '-k');
-                        plot([t0(1) x_max],[t0(2) y_max], '-k');
+                        plot([ x_min t0(1)],[ y_min t0(2)], '-k','HandleVisibility','off');
+                        plot([t0(1) x_max],[t0(2) y_max], '-k','HandleVisibility','off');
                     end
                 else
                     if ~isempty(axes)
-                        plot(axes,t0,[ -1000 1000], '-k');
+                        plot(axes,t0,[ -1000 1000], '-k','HandleVisibility','off');
                     else
-                        plot(t0,[ -1000 1000], '-k');
+                        plot(t0,[ -1000 1000], '-k','HandleVisibility','off');
                     end
                 end
             end
-           
+            
         end
         
         function soft_plot(axes,YpredT, Y,Centers,color, Alpha, numPCpca, Gamma, K, show_legend)
@@ -1028,7 +1002,7 @@ classdef PLSDAModel < handle
                 else
                     plot(temp_c(:,1), temp_c(:,2),['+' color{class}],'HandleVisibility','off');
                 end
-
+                
             end
         end
         
@@ -1044,7 +1018,7 @@ classdef PLSDAModel < handle
             else
                 SqrtSing = sqrt(cov);
             end
-
+            
             if numPC > 1
                 
                 fi = zeros(1,91);
@@ -1206,5 +1180,54 @@ classdef PLSDAModel < handle
         
     end
     
+    methods (Static)
+        function [mark, color] = plotsettings(class_number)
+            mark = cell(1,class_number);
+            color = cell(1,class_number);
+            marks = 'osd*+.x^v><ph';
+            mark_idx = 1;
+            color_idx = 0;
+            n_marks = length(marks);
+            colors = 'rgbmck';%'rgbmcyk';
+            n_colors = length(colors);
+            for idx = 1:class_number
+                
+                color_idx = color_idx + 1;
+                if color_idx > n_colors
+                    color_idx = 1;
+                    mark_idx = mark_idx + 1;
+                    if mark_idx > n_marks
+                        error('Too many classes');
+                    end
+                end
+                
+                mark{idx} = marks(mark_idx);
+                color{idx} = colors(color_idx);
+                
+            end
+        end
+        
+        function colors = colors_rgb(class_number)
+            %  "FF0000", "00FF00", "0000FF", "FFFF00", "FF00FF", "00FFFF", "000000",
+            %  "800000", "008000", "000080", "808000", "800080", "008080", "808080",
+            %  "C00000", "00C000", "0000C0", "C0C000", "C000C0", "00C0C0", "C0C0C0",
+            %  "400000", "004000", "000040", "404000", "400040", "004040", "404040",
+            %  "200000", "002000", "000020", "202000", "200020", "002020", "202020",
+            %  "600000", "006000", "000060", "606000", "600060", "006060", "606060",
+            %  "A00000", "00A000", "0000A0", "A0A000", "A000A0", "00A0A0", "A0A0A0",
+            %  "E00000", "00E000", "0000E0", "E0E000", "E000E0", "00E0E0", "E0E0E0",
+            c = [1 0 0; 0 1 0; 0 0 1; 1 0.75 0; 1 0 1; 0 1 1; 0 0 0;...
+                0.5 0 0; 0 0.5 0; 0 0 0.5; 0.5 0.5 0; 0.5 0 0.5; 0 0.5 0.5; 0.5 0.5 0.5; ...
+                0.75 0 0; 0 0.75 0;0 0 0.75; 0.75 0.75 0; 0.75 0 0.75; 0 0.75 0.75; 0.75 0.75 0.75; ...
+                0.25 0 0; 0 0.25 0;0 0 0.25; 0.25 0.25 0; 0.25 0 0.25; 0 0.25 0.25; 0.25 0.25 0.25; ...
+                0.125 0 0; 0 0.125 0;0 0 0.125; 0.125 0.125 0; 0.125 0 0.125; 0 0.125 0.125; 0.125 0.125 0.125; ...
+                0.375 0 0; 0 0.375 0;0 0 0.375; 0.375 0.375 0; 0.375 0 0.375; 0 0.375 0.375; 0.375 0.375 0.375; ...
+                0.625 0 0; 0 0.625 0;0 0 0.625; 0.625 0.625 0; 0.625 0 0.625; 0 0.625 0.625; 0.625 0.625 0.625; ...
+                0.875 0 0; 0 0.875 0;0 0 0.875; 0.875 0.875 0; 0.875 0 0.875; 0 0.875 0.875; 0.875 0.875 0.875];
+            
+            colors = c(1:class_number,:);
+            
+        end
+    end
 end
 

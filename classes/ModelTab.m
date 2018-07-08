@@ -125,7 +125,7 @@ classdef  ModelTab < BasicTab
                 'Position', [0.05   0.01   0.9  0.28]);
             
             uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'text', 'String', 'Calibration', ...
-                'Units', 'normalized','Position', [0.05 0.65 0.35 0.25], 'HorizontalAlignment', 'left');
+                'Units', 'normalized','Position', [0.05 0.45 0.35 0.4], 'HorizontalAlignment', 'left');
             ttab.ddlCalibrationSet = uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'popupmenu', 'String', {'-'},...
                 'Units', 'normalized','Value',1, 'Position', [0.4 0.67 0.55 0.2], 'BackgroundColor', 'white', 'callback', @ttab.SelectCalibratinSet);
             

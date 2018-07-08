@@ -1,8 +1,12 @@
 function PLSDAGUI(varargin)
 
+addpath('classes');
+
 ShowStartScreen();
 
     function ShowStartScreen()
+        
+        warning('off','all');
         
         %get version year
         v = version('-release');
