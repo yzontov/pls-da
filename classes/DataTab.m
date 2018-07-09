@@ -629,15 +629,15 @@ classdef  DataTab < BasicTab
                 set(self.listbox, 'String', vardisplay);
                 set(self.listbox, 'Value', selected_index);
                 
-                   if (~isempty(self.parent.predictTab))
-                      set(win.predictTab.ddlNewSet, 'String', vardisplay);
-                   end
-                    
+                if (~isempty(self.parent.predictTab))
+                    set(self.parent.predictTab.ddlNewSet, 'String', vardisplay);
+                end
+                
                 
                 % extract all children
                 self.enableRightPanel('on');
                 
-                d = evalin('base', selected_name);   
+                d = evalin('base', selected_name);
                 
                 if(isempty(d.VariableNames))
                     if(isempty(d.Variables))
@@ -672,15 +672,135 @@ classdef  DataTab < BasicTab
         
         function btnSetEdit_Callback(self,obj, ~)
             
-%             win = DataSetWindow(self);
-%             
-%             addlistener(win,'DataUpdated', @self.DataSetWindowCloseCallback);
+            %             win = DataSetWindow(self);
+            %
+            %             addlistener(win,'DataUpdated', @self.DataSetWindowCloseCallback);
             
         end
         
         function btnSetDelete_Callback(self,obj, ~)
             
+            index_selected = get(self.listbox,'Value');
             
+            if(index_selected > 1)
+                names = get(self.listbox,'String');
+                selected_name = names{index_selected};
+                d = evalin('base', selected_name);
+                
+                answer = questdlg('Do you want to delete selected dataset?', ...
+                    'Delete dataset', ...
+                    'Yes','No','No');
+                
+                if isequal(answer, 'Yes')
+                    
+                    evalin( 'base', ['clear ' selected_name] );
+                    
+                    allvars = evalin('base','whos');
+                    varnames = {allvars.name};
+                    win = self.parent;
+                    idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
+                    
+                    if ~isempty(idx)
+                        selected_index = 2;
+                        
+                        vardisplay = cell(length(idx)+1,1);
+                        vardisplay{1} = '-';
+                        for i = 1:length(idx)
+                            vardisplay{i+1} = varnames{idx(i)};
+                            if(isequal(selected_name, varnames{idx(i)}))
+                                selected_index = i+1;
+                            end
+                        end
+                        set(self.listbox, 'String', vardisplay);
+                        set(self.listbox, 'Value', selected_index);
+                        
+                        selected_name = vardisplay{2};
+                        
+                        if (~isempty(win.predictTab))
+                            set(win.predictTab.ddlNewSet, 'String', vardisplay);
+                        end
+                        
+                        
+                        % extract all children
+                        self.enableRightPanel('on');
+                        
+                        d = evalin('base', selected_name);
+                        
+                        if(isempty(d.VariableNames))
+                            if(isempty(d.Variables))
+                                names = arrayfun(@(x) sprintf('%d', x), 1:size(d.ProcessedData, 2), 'UniformOutput', false);
+                            else
+                                names = arrayfun(@(x) sprintf('%.2f', x), d.Variables, 'UniformOutput', false);
+                            end
+                        else
+                            names = d.VariableNames;
+                        end
+                        
+                        if isempty(d.Classes)
+                            set(self.chkTraining, 'Enable', 'off');
+                            set(self.chkTraining, 'Value', 0);
+                            set(self.chkValidation, 'Value', 1);
+                            set(self.chkPlotShowClasses, 'Enable', 'off');
+                            set(self.chkPlotShowClasses, 'Value', 0);
+                        end
+                        
+                        set(self.ddlPlotVar1, 'String', names);
+                        set(self.ddlPlotVar2, 'String', names);
+                        
+                        self.resetRightPanel();
+                        self.fillRightPanel();
+                        
+                        self.Redraw();
+                        self.FillTableView(selected_name);
+                    else
+                        
+                        set(self.listbox, 'String', {'-'});
+                        set(self.listbox, 'Value', 1);
+                        
+                        self.resetRightPanel();
+                        self.enableRightPanel('off');
+                        delete(self.data_plot);
+                        delete(self.data_plot_axes);
+                        
+                        self.tblTextResult.Data = [];
+                        self.tblTextResult.ColumnName = [];
+                        
+                        
+                    end
+                    
+                    idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
+                    
+                    if sum(idx) > 0 && ~isempty(win.modelTab)
+                        
+                        idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
+                        vardisplay={};
+                        if sum(idx) > 0
+                            l = allvars(idx);
+                            vardisplay{1} = '-';
+                            for i = 1:length(l)
+                                vardisplay{i+1} = l(i).name;
+                            end
+                            set(win.modelTab.ddlCalibrationSet, 'String', vardisplay);
+                            
+                            if length(get(win.modelTab.ddlCalibrationSet, 'String')) > 1
+                                set(win.modelTab.ddlCalibrationSet, 'Value', 2)
+                                
+                                m = evalin('base',vardisplay{2});
+                                set(win.modelTab.tbNumPCpca, 'String', sprintf('%d', m.NumberOfClasses-1));
+                            end
+                        end
+                    end
+                    
+                    if sum(idx) == 0 && ~isempty(win.modelTab)
+                        mtab = win.tgroup.Children(2);
+                        delete(mtab);
+                        win.modelTab = [];
+                        
+                    end
+                    
+                end
+                
+            end
             
         end
         
