@@ -41,11 +41,19 @@ classdef  DataTab < BasicTab
                 'Units', 'Normalized', 'Position', [0.3 0.9 0.35 0.05], ...
                 'callback', @ttab.btnNew_Callback);%,'FontUnits', 'Normalized'
             
-            uicontrol('Parent', ttab.left_panel, 'Style', 'text', 'String', 'DataSet', ...
+            uicontrol('Parent', ttab.left_panel, 'Style', 'text', 'String', 'Data Set', ...
                 'Units', 'normalized','Position', [0.05 0.8 0.35 0.05], 'HorizontalAlignment', 'left');
             ttab.listbox = uicontrol('Parent', ttab.left_panel, 'Style', 'popupmenu',...
                 'String', {'-'}, ...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.805 0.45 0.05], 'BackgroundColor', 'white', 'callback',@ttab.listClick);
+                'Units', 'normalized','Value',1, 'Position', [0.21 0.805 0.45 0.05], 'BackgroundColor', 'white', 'callback',@ttab.listClick);
+            
+            uicontrol('Parent', ttab.left_panel, 'Style', 'pushbutton', 'String', 'Edit',...
+                'Units', 'Normalized', 'Position', [0.67 0.815 0.14 0.04], ...
+                'callback', @ttab.btnSetEdit_Callback);%,'FontUnits', 'Normalized'
+            
+            uicontrol('Parent', ttab.left_panel, 'Style', 'pushbutton', 'String', 'Delete',...
+                'Units', 'Normalized', 'Position', [0.82 0.815 0.14 0.04], ...
+                'callback', @ttab.btnSetDelete_Callback);%,'FontUnits', 'Normalized'
             
             %categories
             ttab.pnlDataCategories = uibuttongroup('Parent', ttab.left_panel, 'Title', 'Categories','Units', 'normalized', ...
@@ -659,6 +667,20 @@ classdef  DataTab < BasicTab
                 self.FillTableView(selected_name);
                 
             end
+            
+        end
+        
+        function btnSetEdit_Callback(self,obj, ~)
+            
+%             win = DataSetWindow(self);
+%             
+%             addlistener(win,'DataUpdated', @self.DataSetWindowCloseCallback);
+            
+        end
+        
+        function btnSetDelete_Callback(self,obj, ~)
+            
+            
             
         end
         

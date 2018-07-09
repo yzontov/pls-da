@@ -41,7 +41,7 @@ classdef  GUIWindow<handle
             end
         end
         
-        function Help_Callback(~, ~)
+        function Help_Callback(self, obj, param)
             web('help/index.html')
         end
         
@@ -68,7 +68,7 @@ classdef  GUIWindow<handle
             set(f, 'Position', [0.1 0.1 0.8 0.7]);
             
             mh = uimenu(f,'Label','Help');
-            uimenu(mh,'Label','Help on DDSGUI','Callback', @win.Help_Callback);
+            uimenu(mh,'Label','Help on PLSDAGUI','Callback', @win.Help_Callback);
             
             if vyear < 2014
                 win.tgroup = uitabgroup('v0','Parent', f);
