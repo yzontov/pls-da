@@ -390,6 +390,24 @@ classdef  ModelTab < BasicTab
                 Labels = self.Model.TrainingDataSet.SelectedObjectNames;
             end
             
+            
+            for i = 1:length(self.Model.TrainingDataSet.Classes)
+                c = self.Model.TrainingDataSet.Classes(i);
+
+                if (sum(self.Model.AllocationMatrix(i,:)) == 0)% no classes
+                    Labels{i} = ['<html><table border=0 width=100% bgcolor=#FFC000><TR><TD>',Labels{i},'</TD></TR> </table></html>'];
+                else
+                    t = Labels{i};
+                    if (~self.Model.AllocationMatrix(i,c))% wrong class
+                        Labels{i} = ['<html><table border=0 width=100% bgcolor=#FF0000><TR><TD>',t,'</TD></TR> </table></html>'];
+                    end
+                    
+                    if (sum(self.Model.AllocationMatrix(i,:)) > 1)% multiple classes
+                        Labels{i} = ['<html><table border=0 width=100% bgcolor=#FFA0A0><TR><TD>',t,'</TD></TR> </table></html>'];
+                    end
+                end
+            end
+            
             self.tblTextResult.Data = [Labels, num2cell(self.Model.TrainingDataSet.Classes), num2cell(logical(self.Model.AllocationMatrix(:,1:self.Model.TrainingDataSet.NumberOfClasses)))];
             
             self.tblTextConfusion.Data = self.Model.ConfusionMatrix;

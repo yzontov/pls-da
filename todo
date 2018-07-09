@@ -9,16 +9,16 @@ clear model on dataset change
 
 help
 
-Allocation table color indications
-%colergen = @(color,text) ['<html><table border=0 width=400 bgcolor=',color,'><TR><TD>',text,'</TD></TR> </table></html>'];
-%arrayfun(colergen,[1 2 3], [1 2 3])
-
 data tab add pca and stats?
 
 ------
 done
 ------
 -info bar messages?
+
+Allocation table color indications
+%colergen = @(color,text) ['<html><table border=0 width=400 bgcolor=',color,'><TR><TD>',text,'</TD></TR> </table></html>'];
+%arrayfun(colergen,[1 2 3], [1 2 3])
 
 update predict tab on dataset add/change
 check for 0 samples on delete
