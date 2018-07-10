@@ -2,6 +2,8 @@
 todo
 ------
 
+class labels
+
 classes colors - rgb
 
 allow to edit dataset
@@ -11,13 +13,14 @@ help
 
 data tab add pca and stats?
 
-fix: remove predict tab with model
+
 
 ------
 done
 ------
 -info bar messages?
 
+fix: remove predict tab with model
 allow to delete dataset
 Allocation table color indications
 %colergen = @(color,text) ['<html><table border=0 width=400 bgcolor=',color,'><TR><TD>',text,'</TD></TR> </table></html>'];

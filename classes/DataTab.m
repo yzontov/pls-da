@@ -497,21 +497,15 @@ classdef  DataTab < BasicTab
             
             index_selected = get(self.listbox,'Value');
             
-            if ~isempty(val) && ~isnan(val) && index_selected > 0
-                
-                
-                names = get(self.listbox,'String');%fieldnames(ttab.Data);
+            if ~isempty(val) && ~isnan(val) && index_selected > 1
+
+                names = get(self.listbox,'String');
                 selected_name = names{index_selected};
                 
                 d = evalin('base', selected_name);
                 
                 d.Training = val;
                 d.Validation = 0;
-                %lst = DataTab.redrawListbox(ttab);
-                
-                %ttab = DataTab.drawPlot(ttab, selected_name);
-                
-                %set(ttab.listbox, 'String', lst);
                 
                 allvars = evalin('base','whos');
                 
@@ -548,6 +542,11 @@ classdef  DataTab < BasicTab
                     delete(mtab);
                     win.modelTab = [];
                     
+                    if ~isempty(win.predictTab)
+                        ptab = win.tgroup.Children(3);
+                        delete(ptab);
+                        win.predictTab = [];
+                    end
                 end
                 
             end
@@ -596,6 +595,12 @@ classdef  DataTab < BasicTab
                     mtab = win.tgroup.Children(2);
                     delete(mtab);
                     win.modelTab = [];
+                    
+                    if ~isempty(win.predictTab)
+                        ptab = win.tgroup.Children(3);
+                        delete(ptab);
+                        win.predictTab = [];
+                    end
                     
                 end
                 
@@ -672,9 +677,15 @@ classdef  DataTab < BasicTab
         
         function btnSetEdit_Callback(self,obj, ~)
             
-            %             win = DataSetWindow(self);
-            %
-            %             addlistener(win,'DataUpdated', @self.DataSetWindowCloseCallback);
+            index_selected = get(self.listbox,'Value');
+            
+            if index_selected > 1
+                names = get(self.listbox,'String');
+                selected_name = names{index_selected};
+
+                win = DataSetWindow(self, selected_name);
+                addlistener(win,'DataUpdated', @self.DataSetWindowCloseCallback);
+            end
             
         end
         
@@ -796,6 +807,11 @@ classdef  DataTab < BasicTab
                         delete(mtab);
                         win.modelTab = [];
                         
+                        if ~isempty(win.predictTab)
+                            ptab = win.tgroup.Children(3);
+                            delete(ptab);
+                            win.predictTab = [];
+                        end
                     end
                     
                 end
