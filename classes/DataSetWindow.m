@@ -30,7 +30,7 @@ classdef  DataSetWindow<handle
         function win = DataSetWindow(parent, dataset_name)
             
             if nargin == 1
-               dataset_name = []; 
+                dataset_name = [];
             end
             
             win.dataset_name = dataset_name;
@@ -111,7 +111,7 @@ classdef  DataSetWindow<handle
             if ~isempty(win.dataset_name)
                 set(win.ddlData, 'Value', 2);
             end
-
+            
             uicontrol('Parent', input_win, 'Style', 'text', 'String', 'Classes', ...
                 'Units', 'normalized','Position', [0.05 0.65 0.35 0.05], 'HorizontalAlignment', 'left');
             win.ddlClasses = uicontrol('Parent', input_win, 'Style', 'popupmenu', 'String', {'-'}, ...
@@ -145,10 +145,141 @@ classdef  DataSetWindow<handle
                 set(win.btnAdd, 'String', 'Save');
                 %win.dataset_name;win.dataset;
                 %todo
+                list = evalin('base','whos');
+                
+                t = win.dataset.RawData;
+                
+                gg = size(t);
+                idx = arrayfun(@(x)win.type_size_filter(x,gg(1),1,1,2,'double'),list);
+                
+                vardisplay={};
+                vardisplay{1} = '-';
+                
+                if ~isempty(win.dataset.RawClasses)
+                    ss = size(win.dataset.RawClasses);
+                    vardisplay{2} = sprintf('%s.Classes (%dx%d)',win.dataset_name,ss(1),ss(2));
+                end
+                
+                if sum(idx) > 0
+                    l = list(idx);
+                    
+                    offset = 2;
+                    
+                    for i = 1:length(l)
+                        ss = l(i).size;
+                        vardisplay{i+offset} = sprintf('%s (%dx%d)',l(i).name,ss(1),ss(2));
+                    end
+                end
+                
+                set(win.ddlClasses, 'String', vardisplay);
+                if length(get(win.ddlClasses, 'String')) > 1
+                    set(win.ddlClasses, 'Value', 2)
+                end
+                
+                idx = arrayfun(@(x)win.type_size_filter(x,gg(1),1,1,2,'cell'),list);
+                
+                vardisplay={};
+                vardisplay{1} = '-';
+                if ~isempty(win.dataset.ObjectNames)
+                    ss = size(win.dataset.ObjectNames);
+                    vardisplay{2} = sprintf('%s.ObjectNames (%dx%d)',win.dataset_name,ss(1),ss(2));
+                end
+                if sum(idx) > 0
+                    l = list(idx);
+                    
+                    offset = 2;
+                    
+                    for i = 1:length(l)
+                        ss = l(i).size;
+                        vardisplay{i+offset} = sprintf('%s (%dx%d)',l(i).name,ss(1),ss(2));
+                    end
+                    
+                end
+                
+                set(win.ddlObjectNames, 'String', vardisplay);
+                if length(get(win.ddlObjectNames, 'String')) > 1
+                    set(win.ddlObjectNames, 'Value', 2)
+                end
+                
+                idx = arrayfun(@(x)win.type_size_filter(x,1,1,gg(2),2,'cell'),list);
+                
+                vardisplay={};
+                vardisplay{1} = '-';
+                if ~isempty(win.dataset.VariableNames)
+                    ss = size(win.dataset.VariableNames);
+                    vardisplay{2} = sprintf('%s.VariableNames (%dx%d)',win.dataset_name,ss(1),ss(2));
+                end
+                if sum(idx) > 0
+                    l = list(idx);
+                    
+                    offset = 2;
+                    
+                    for i = 1:length(l)
+                        ss = l(i).size;
+                        vardisplay{i+offset} = sprintf('%s (%dx%d)',l(i).name,ss(1),ss(2));
+                    end
+                    
+                end
+                
+                set(win.ddlVariableNames, 'String', vardisplay);
+                if length(get(win.ddlVariableNames, 'String')) > 1
+                    set(win.ddlVariableNames, 'Value', 2)
+                end
+                
+                idx = arrayfun(@(x)win.type_size_filter(x,gg(2),1,[],[],'double'),list);
+                
+                vardisplay={};
+                vardisplay{1} = '-';
+                if ~isempty(win.dataset.ClassLabels)
+                    ss = size(win.dataset.ClassLabels);
+                    vardisplay{2} = sprintf('%s.ClassLabels (%dx%d)',win.dataset_name,ss(1),ss(2));
+                end
+                if sum(idx) > 0
+                    l = list(idx);
+                    
+                    offset = 2;
+                    
+                    for i = 1:length(l)
+                        ss = l(i).size;
+                        vardisplay{i+offset} = sprintf('%s (%dx%d)',l(i).name,ss(1),ss(2));
+                    end
+                    
+                end
+                
+                set(win.ddlClassLabels, 'String', vardisplay);
+                if length(get(win.ddlClassLabels, 'String')) > 1
+                    set(win.ddlClassLabels, 'Value', 2)
+                end
+                
+                idx = arrayfun(@(x)win.type_size_filter(x,1,1,gg(2),2,'double'),list);
+                
+                vardisplay={};
+                vardisplay{1} = '-';
+                if ~isempty(win.dataset.Variables)
+                    ss = size(win.dataset.Variables);
+                    vardisplay{2} = sprintf('%s.Variables (%dx%d)',win.dataset_name,ss(1),ss(2));
+                end
+                if sum(idx) > 0
+                    l = list(idx);
+                    
+                    offset = 2;
+                    
+                    for i = 1:length(l)
+                        ss = l(i).size;
+                        vardisplay{i+offset} = sprintf('%s (%dx%d)',l(i).name,ss(1),ss(2));
+                    end
+                    
+                end
+                
+                set(win.ddlVariables, 'String', vardisplay);
+                if length(get(win.ddlVariables, 'String')) > 1
+                    set(win.ddlVariables, 'Value', 2)
+                end
+                
             end
             
             win.win = input_win;
-
+            
         end
         
         function obj = GetObject(self, list, idx)
@@ -160,6 +291,7 @@ classdef  DataSetWindow<handle
     
     events
         DataUpdated
+        DataEdited
     end
     
     methods
@@ -167,8 +299,8 @@ classdef  DataSetWindow<handle
         function r = type_size_filter(self, x, k, n, k2, n2, t)
             s = x.size;
             if isequal(x.class,t) && ((~isempty(k) && ~isempty(n) && s(n) == k || isempty(k) && isempty(n))) && ...
-                (~isempty(k2) && ~isempty(n2) && (k2 >=1 && s(n2) == k2 || k2 == -1 && s(n2) > 1) || ...
-            isempty(k2) && isempty(n2))
+                    (~isempty(k2) && ~isempty(n2) && (k2 >=1 && s(n2) == k2 || k2 == -1 && s(n2) > 1) || ...
+                    isempty(k2) && isempty(n2))
                 r = true;
             else
                 r = false;
@@ -205,7 +337,7 @@ classdef  DataSetWindow<handle
                 
                 if sum(idx) > 0
                     l = list(idx);
-
+                    
                     offset = 1;
                     if ~isempty(self.dataset_name) && ~isempty(self.dataset.RawClasses)
                         offset = 2;
@@ -226,6 +358,10 @@ classdef  DataSetWindow<handle
                 
                 vardisplay={};
                 vardisplay{1} = '-';
+                if ~isempty(self.dataset) && ~isempty(self.dataset.ObjectNames)
+                    ss = size(self.dataset.ObjectNames);
+                    vardisplay{2} = sprintf('%s.ObjectNames (%dx%d)',self.dataset_name,ss(1),ss(2));
+                end
                 if sum(idx) > 0
                     l = list(idx);
                     
@@ -250,6 +386,10 @@ classdef  DataSetWindow<handle
                 
                 vardisplay={};
                 vardisplay{1} = '-';
+                if ~isempty(self.dataset) && ~isempty(self.dataset.VariableNames)
+                    ss = size(self.dataset.VariableNames);
+                    vardisplay{2} = sprintf('%s.VariableNames (%dx%d)',self.dataset_name,ss(1),ss(2));
+                end
                 if sum(idx) > 0
                     l = list(idx);
                     
@@ -262,7 +402,7 @@ classdef  DataSetWindow<handle
                         ss = l(i).size;
                         vardisplay{i+offset} = sprintf('%s (%dx%d)',l(i).name,ss(1),ss(2));
                     end
-
+                    
                 end
                 
                 set(self.ddlVariableNames, 'String', vardisplay);
@@ -274,6 +414,10 @@ classdef  DataSetWindow<handle
                 
                 vardisplay={};
                 vardisplay{1} = '-';
+                if ~isempty(self.dataset) && ~isempty(self.dataset.ClassLabels)
+                    ss = size(self.dataset.ClassLabels);
+                    vardisplay{2} = sprintf('%s.ClassLabels (%dx%d)',self.dataset_name,ss(1),ss(2));
+                end
                 if sum(idx) > 0
                     l = list(idx);
                     
@@ -286,18 +430,22 @@ classdef  DataSetWindow<handle
                         ss = l(i).size;
                         vardisplay{i+offset} = sprintf('%s (%dx%d)',l(i).name,ss(1),ss(2));
                     end
-
+                    
                 end
                 
                 set(self.ddlClassLabels, 'String', vardisplay);
                 if length(get(self.ddlClassLabels, 'String')) > 1
                     set(self.ddlClassLabels, 'Value', 2)
                 end
-
+                
                 idx = arrayfun(@(x)self.type_size_filter(x,1,1,gg(2),2,'double'),list);
                 
                 vardisplay={};
                 vardisplay{1} = '-';
+                if ~isempty(self.dataset) && ~isempty(self.dataset.Variables)
+                    ss = size(self.dataset.Variables);
+                    vardisplay{2} = sprintf('%s.Variables (%dx%d)',self.dataset_name,ss(1),ss(2));
+                end
                 if sum(idx) > 0
                     l = list(idx);
                     
@@ -347,7 +495,7 @@ classdef  DataSetWindow<handle
                     mm = ll{K};
                     t = evalin('base',mm(1:strfind(mm, ' ')-1));
                 end
-
+                
                 cl_num = size(unique(t),1);
                 idx = arrayfun(@(x)self.type_size_filter(x,cl_num,1,1,2,'cell'),list);
                 
@@ -383,10 +531,10 @@ classdef  DataSetWindow<handle
             
             if ~isempty(name)
                 
-                 if get(self.ddlData, 'Value') > 1 %&& get(self.ddlClasses, 'Value') > 1
+                if get(self.ddlData, 'Value') > 1 %&& get(self.ddlClasses, 'Value') > 1
                     d = DataSet();
                     
-                    if ~isemply(self.dataset_name) && get(self.ddlData, 'Value') == 2
+                    if ~isempty(self.dataset_name) && get(self.ddlData, 'Value') == 2
                         d.RawData = self.dataset.RawData;
                     else
                         d.RawData = self.GetObject(get(self.ddlData, 'String'), get(self.ddlData, 'Value'));
@@ -396,7 +544,7 @@ classdef  DataSetWindow<handle
                     
                     if get(self.ddlClasses, 'Value') > 1
                         
-                        if ~isemply(self.dataset_name) && ~isemply(self.dataset.RawClasses) && get(self.ddlClasses, 'Value') == 2
+                        if ~isempty(self.dataset_name) && ~isempty(self.dataset.RawClasses) && get(self.ddlClasses, 'Value') == 2
                             d.RawClasses = self.dataset.RawClasses;
                         else
                             d.RawClasses = self.GetObject(get(self.ddlClasses, 'String'), get(self.ddlClasses, 'Value'));
@@ -408,7 +556,7 @@ classdef  DataSetWindow<handle
                     
                     if get(self.ddlVariableNames, 'Value') > 1
                         
-                        if ~isemply(self.dataset_name) && ~isemply(self.dataset.VariableNames) && get(self.ddlVariableNames, 'Value') == 2
+                        if ~isempty(self.dataset_name) && ~isempty(self.dataset.VariableNames) && get(self.ddlVariableNames, 'Value') == 2
                             d.VariableNames = self.dataset.VariableNames;
                         else
                             
@@ -424,7 +572,7 @@ classdef  DataSetWindow<handle
                     
                     if get(self.ddlVariables, 'Value') > 1
                         
-                        if ~isemply(self.dataset_name) && ~isemply(self.dataset.Variables) && get(self.ddlVariables, 'Value') == 2
+                        if ~isempty(self.dataset_name) && ~isempty(self.dataset.Variables) && get(self.ddlVariables, 'Value') == 2
                             d.Variables = self.dataset.Variables;
                         else
                             d.Variables = self.GetObject(get(self.ddlVariables, 'String'), get(self.ddlVariables, 'Value'));
@@ -433,28 +581,28 @@ classdef  DataSetWindow<handle
                     
                     if get(self.ddlObjectNames, 'Value') > 1
                         
-                        if ~isemply(self.dataset_name) && ~isemply(self.dataset.ObjectNames) && get(self.ddlObjectNames, 'Value') == 2
+                        if ~isempty(self.dataset_name) && ~isempty(self.dataset.ObjectNames) && get(self.ddlObjectNames, 'Value') == 2
                             d.ObjectNames = self.dataset.ObjectNames;
                         else
                             d.ObjectNames = self.GetObject(get(self.ddlObjectNames, 'String'), get(self.ddlObjectNames, 'Value'));
                             if(isa(d.ObjectNames(1), 'cell'))
                                 d.ObjectNames = cellstr(d.ObjectNames);
                             end
-
+                            
                         end
                         
                     end
                     
                     if get(self.ddlClassLabels, 'Value') > 1
                         
-                        if ~isemply(self.dataset_name) && ~isemply(self.dataset.ClassLabels) && get(self.ddlClassLabels, 'Value') == 2
+                        if ~isempty(self.dataset_name) && ~isempty(self.dataset.ClassLabels) && get(self.ddlClassLabels, 'Value') == 2
                             d.ClassLabels = self.dataset.ClassLabels;
                         else
                             d.ClassLabels = self.GetObject(get(self.ddlClassLabels, 'String'), get(self.ddlClassLabels, 'Value'));
                             if(isa(d.ClassLabels(1), 'cell'))
                                 d.ClassLabels = cellstr(d.ClassLabels);
                             end
-
+                            
                         end
                         
                     end
@@ -468,8 +616,13 @@ classdef  DataSetWindow<handle
                         name = regexprep(name, '[^a-zA-Z0-9_]', '_');
                     end
                     
-                    evtdata = DatasetCreatedEventData(name);
-                    notify(self, 'DataUpdated',evtdata);
+                    if isempty(self.dataset_name)
+                        evtdata = DatasetCreatedEventData(name, false);
+                        notify(self, 'DataUpdated',evtdata);
+                    else
+                        evtdata = DatasetCreatedEventData(name, true);
+                        notify(self, 'DataEdited',evtdata);
+                    end 
                     
                 else
                     waitfor(errordlg('You should indicate at least Data matrix!'));
