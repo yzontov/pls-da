@@ -4,13 +4,15 @@ todo
 
 class labels
 
-classes colors - rgb
+predict tab hard model legend remove
 
-help
+classes colors - rgb
 
 data tab add pca and stats?
 
+help
 
+adjust fonts and sizes?
 
 ------
 done
@@ -27,7 +29,7 @@ Allocation table color indications
 %arrayfun(colergen,[1 2 3], [1 2 3])
 update predict tab on dataset add/change
 check for 0 samples on delete
-adjust fonts and sizes?
+
 on change show object names - apply on all tabs - solved by selectionchangedfcn in guiwindow
 data tab - add legend and color classes to scatter plot
 data tab - fix dataset onclick wavelengths
