@@ -619,9 +619,10 @@ classdef  DataSetWindow<handle
                     if isempty(self.dataset_name)
                         evtdata = DatasetCreatedEventData(name, false);
                         notify(self, 'DataUpdated',evtdata);
+                        self.parent.DataSetWindowCloseCallback(self,evtdata);
                     else
                         evtdata = DatasetCreatedEventData(name, true);
-                        notify(self, 'DataEdited',evtdata);
+                        self.parent.DataSetWindowCloseCallback(self,evtdata);
                     end 
                     
                 else

@@ -7,6 +7,7 @@ class labels
 classes colors - rgb
 
 allow to edit dataset
+remove model tab on remove classes
 clear model on dataset change
 
 help

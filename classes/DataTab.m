@@ -621,7 +621,7 @@ classdef  DataTab < BasicTab
             idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
             
             if ~isempty(self.parent.modelTab)
-                names = getet(self.parent.modelTab.ddlCalibrationSet, 'String');
+                names = get(self.parent.modelTab.ddlCalibrationSet, 'String');
                 sel = get(self.parent.modelTab.ddlCalibrationSet, 'Value');
                 
                 if (isequal(names{sel}, callbackdata.VariableName) && callbackdata.EditMode)
@@ -684,79 +684,7 @@ classdef  DataTab < BasicTab
             end
             
         end
-        
-        function DataSetWindowCloseEditCallback(self,obj,callbackdata)
-            
-            allvars = evalin('base','whos');
-            varnames = {allvars.name};
-            
-            idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
-            
-            if ~isempty(self.parent.modelTab)
-                names = getet(self.parent.modelTab.ddlCalibrationSet, 'String');
-                sel = get(self.parent.modelTab.ddlCalibrationSet, 'Value');
-                
-                if (isequal(names{sel}, callbackdata.VariableName) && callbackdata.EditMode)
-                    self.parent.modelTab.ClearModel();
-                end
-            end
-            
-            if ~isempty(idx)
-                selected_name = callbackdata.VariableName;
-                selected_index = 2;
-                
-                vardisplay = cell(length(idx)+1,1);
-                vardisplay{1} = '-';
-                for i = 1:length(idx)
-                    vardisplay{i+1} = varnames{idx(i)};
-                    if(isequal(selected_name, varnames{idx(i)}))
-                        selected_index = i+1;
-                    end
-                end
-                set(self.listbox, 'String', vardisplay);
-                set(self.listbox, 'Value', selected_index);
-                
-                if (~isempty(self.parent.predictTab))
-                    set(self.parent.predictTab.ddlNewSet, 'String', vardisplay);
-                end
-                
-                
-                % extract all children
-                self.enableRightPanel('on');
-                
-                d = evalin('base', selected_name);
-                
-                if(isempty(d.VariableNames))
-                    if(isempty(d.Variables))
-                        names = arrayfun(@(x) sprintf('%d', x), 1:size(d.ProcessedData, 2), 'UniformOutput', false);
-                    else
-                        names = arrayfun(@(x) sprintf('%.2f', x), d.Variables, 'UniformOutput', false);
-                    end
-                else
-                    names = d.VariableNames;
-                end
-                
-                if isempty(d.Classes)
-                    set(self.chkTraining, 'Enable', 'off');
-                    set(self.chkTraining, 'Value', 0);
-                    set(self.chkValidation, 'Value', 1);
-                    set(self.chkPlotShowClasses, 'Enable', 'off');
-                    set(self.chkPlotShowClasses, 'Value', 0);
-                end
-                
-                set(self.ddlPlotVar1, 'String', names);
-                set(self.ddlPlotVar2, 'String', names);
-                
-                self.resetRightPanel();
-                self.fillRightPanel();
-                
-                self.Redraw();
-                self.FillTableView(selected_name);
-                
-            end
-            
-        end
-        
+         
         function btnSetEdit_Callback(self,obj, ~)
             
             index_selected = get(self.listbox,'Value');
@@ -766,8 +694,8 @@ classdef  DataTab < BasicTab
                 selected_name = names{index_selected};
 
                 self.datasetwin = DataSetWindow(self, selected_name);
-                delete(self.evthandler);
-                self.evthandler = addlistener(self.datasetwin,'DataEdited', @self.DataSetWindowCloseEditCallback);
+                %delete(self.evthandler);
+                %self.evthandler = addlistener(self.datasetwin,'DataEdited', @self.DataSetWindowCloseEditCallback);
             end
             
         end
@@ -907,8 +835,8 @@ classdef  DataTab < BasicTab
             
             self.datasetwin = DataSetWindow(self);
             
-            delete(self.evthandler);
-            self.evthandler = addlistener(self.datasetwin,'DataUpdated', @self.DataSetWindowCloseCallback);
+            %delete(self.evthandler);
+            %self.evthandler = addlistener(self.datasetwin,'DataUpdated', @self.DataSetWindowCloseCallback);
         end
         
         function listClick(self,obj, ~)
