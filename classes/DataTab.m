@@ -643,11 +643,10 @@ classdef  DataTab < BasicTab
                 end
                 set(self.listbox, 'String', vardisplay);
                 set(self.listbox, 'Value', selected_index);
-                
+                              
                 if (~isempty(self.parent.predictTab))
                     set(self.parent.predictTab.ddlNewSet, 'String', vardisplay);
                 end
-                
                 
                 % extract all children
                 self.enableRightPanel('on');
@@ -682,6 +681,41 @@ classdef  DataTab < BasicTab
                 self.FillTableView(selected_name);
                 
             end
+            
+            win = self.parent;
+            idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
+                if sum(idx) > 0 && ~isempty(win.modelTab)
+                    
+                    idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
+                    vardisplay={};
+                    if sum(idx) > 0
+                        l = allvars(idx);
+                        vardisplay{1} = '-';
+                        for i = 1:length(l)
+                            vardisplay{i+1} = l(i).name;
+                        end
+                        set(win.modelTab.ddlCalibrationSet, 'String', vardisplay);
+                        
+                        if length(get(win.modelTab.ddlCalibrationSet, 'String')) > 1
+                            set(win.modelTab.ddlCalibrationSet, 'Value', 2)
+                            
+                            m = evalin('base',vardisplay{2});
+                            set(win.modelTab.tbNumPCpca, 'String', sprintf('%d', m.NumberOfClasses-1));
+                        end
+                    end
+                end
+                
+                if sum(idx) == 0 && ~isempty(win.modelTab)
+                    mtab = win.tgroup.Children(2);
+                    delete(mtab);
+                    win.modelTab = [];
+                    
+                    if ~isempty(win.predictTab)
+                        ptab = win.tgroup.Children(3);
+                        delete(ptab);
+                        win.predictTab = [];
+                    end
+                end
             
         end
          

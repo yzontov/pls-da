@@ -6,10 +6,6 @@ class labels
 
 classes colors - rgb
 
-allow to edit dataset
-remove model tab on remove classes
-clear model on dataset change
-
 help
 
 data tab add pca and stats?
@@ -21,12 +17,14 @@ done
 ------
 -info bar messages?
 
+allow to edit dataset
+remove model tab on remove classes
+clear model on dataset change
 fix: remove predict tab with model
 allow to delete dataset
 Allocation table color indications
 %colergen = @(color,text) ['<html><table border=0 width=400 bgcolor=',color,'><TR><TD>',text,'</TD></TR> </table></html>'];
 %arrayfun(colergen,[1 2 3], [1 2 3])
-
 update predict tab on dataset add/change
 check for 0 samples on delete
 adjust fonts and sizes?
