@@ -114,6 +114,12 @@ classdef  DataTab < BasicTab
             ttab.tab_img = uitab('Parent', tg, 'Title', 'Graphical view');
             tab_txt = uitab('Parent', tg, 'Title', 'Table view');
             
+            tab_pca = uitab('Parent', tg, 'Title', 'PCA');
+            tg2 = uitabgroup('Parent', tab_pca);
+            tab_pca_scores = uitab('Parent', tg2, 'Title', 'Scores');
+            tab_pca_loadings = uitab('Parent', tg2, 'Title', 'Loadings');
+            tab_pca_stat = uitab('Parent', tg2, 'Title', 'Statistics');
+            
             %             ttab.tbTextResult = uicontrol('Parent', tab_txt, 'Style', 'edit', 'String', '', ...
             %                 'Units', 'normalized','Position', [0 0 1 1], 'HorizontalAlignment', 'left', 'Max', 2);
             %
@@ -942,8 +948,8 @@ classdef  DataTab < BasicTab
                 Labels = d.ObjectNames;
             end
             
-            if ~isempty(d.Classes)
-                self.tblTextResult.Data = [Labels, num2cell(d.Classes), num2cell(logical(d.SelectedSamples))];
+            if ~isempty(d.RawClasses)
+                self.tblTextResult.Data = [Labels, num2cell(d.RawClasses), num2cell(logical(d.SelectedSamples))];
                 self.tblTextResult.ColumnName = {'Sample', 'Class', 'Included'};
                 self.tblTextResult.ColumnWidth = num2cell([150 60 60]);
                 self.tblTextResult.ColumnEditable = [false false true];
