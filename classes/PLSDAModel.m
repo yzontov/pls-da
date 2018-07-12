@@ -517,6 +517,12 @@ classdef PLSDAModel < handle
                     legend('location','northeast');
                     legend('boxon');
                 end
+            else
+                if ~isempty(axes)
+                    legend(axes,'off');
+                else
+                    legend('off');
+                end
             end
             
             %center

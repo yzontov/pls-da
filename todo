@@ -2,6 +2,14 @@
 todo
 ------
 
+clear model on dataset change (preprocessing)
+
+predict tab show class color if present
+
+predict tab Allocation table color indications
+
+update hard plot algorithm
+
 class labels
 
 predict tab hard model legend remove
@@ -9,6 +17,11 @@ predict tab hard model legend remove
 classes colors - rgb
 
 data tab add pca and stats?
+pc number validator
+show classes and object names
+pc selection callback
+
+check model tab availability on sample selection (also on select none, inverse)
 
 help
 
@@ -21,7 +34,7 @@ done
 
 allow to edit dataset
 remove model tab on remove classes
-clear model on dataset change
+clear model on dataset change (set editing)
 fix: remove predict tab with model
 allow to delete dataset
 Allocation table color indications

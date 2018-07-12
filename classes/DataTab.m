@@ -115,7 +115,24 @@ classdef  DataTab < BasicTab
             tab_txt = uitab('Parent', tg, 'Title', 'Table view');
             
             tab_pca = uitab('Parent', tg, 'Title', 'PCA');
-            tg2 = uitabgroup('Parent', tab_pca);
+
+            
+            uicontrol('Parent', tab_pca, 'Style', 'text', 'String', 'Number of PCs', ...
+                'Units', 'normalized','Position', [0.01 0.91 0.2 0.05], 'HorizontalAlignment', 'left');
+            ddlPCApcnumber = uicontrol('Parent', tab_pca, 'Style', 'edit', 'String', '2',...
+                'Units', 'normalized','Value',1, 'Position', [0.15 0.93 0.07 0.04], 'BackgroundColor', 'white', 'callback', @ttab.Callback_PCApcnumber);
+            
+            uicontrol('Parent', tab_pca, 'Style', 'text', 'String', 'PC 1', ...
+                'Units', 'normalized','Position', [0.3 0.91 0.2 0.05], 'HorizontalAlignment', 'left');
+            ddlPCApc1 = uicontrol('Parent', tab_pca, 'Style', 'popupmenu', 'String', {'-'},...
+                'Units', 'normalized','Value',1, 'Position', [0.35 0.92 0.07 0.05], 'BackgroundColor', 'white', 'callback', @ttab.Callback_PCApc1);
+            
+            uicontrol('Parent', tab_pca, 'Style', 'text', 'String', 'PC 2', ...
+                'Units', 'normalized','Position', [0.45 0.91 0.2 0.05], 'HorizontalAlignment', 'left');
+            ddlPCApc2 = uicontrol('Parent', tab_pca, 'Style', 'popupmenu', 'String', {'-'},...
+                'Units', 'normalized','Value',1, 'Position', [0.5 0.92 0.07 0.05], 'BackgroundColor', 'white', 'callback', @ttab.Callback_PCApc2);
+
+            tg2 = uitabgroup('Parent', tab_pca,'Position', [0 0 1 0.9]);
             tab_pca_scores = uitab('Parent', tg2, 'Title', 'Scores');
             tab_pca_loadings = uitab('Parent', tg2, 'Title', 'Loadings');
             tab_pca_stat = uitab('Parent', tg2, 'Title', 'Statistics');
