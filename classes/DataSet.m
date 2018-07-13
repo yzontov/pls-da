@@ -242,7 +242,11 @@ classdef DataSet < handle
         
         function value = get.SelectedObjectNames(self)
             
-            value = self.ObjectNames(logical(self.SelectedSamples),:);
+            if isempty(self.ObjectNames)
+                value = [];
+            else
+                value = self.ObjectNames(logical(self.SelectedSamples),:);
+            end
             
         end
         

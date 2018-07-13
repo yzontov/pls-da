@@ -30,6 +30,9 @@ classdef  DataTab < BasicTab
         tab_img;
         datasetwin;
         evthandler;
+        
+        tblPCATextResult;
+        
     end
     methods
         
@@ -115,7 +118,7 @@ classdef  DataTab < BasicTab
             tab_txt = uitab('Parent', tg, 'Title', 'Table view');
             
             tab_pca = uitab('Parent', tg, 'Title', 'PCA');
-
+            
             
             uicontrol('Parent', tab_pca, 'Style', 'text', 'String', 'Number of PCs', ...
                 'Units', 'normalized','Position', [0.01 0.91 0.2 0.05], 'HorizontalAlignment', 'left');
@@ -131,7 +134,7 @@ classdef  DataTab < BasicTab
                 'Units', 'normalized','Position', [0.45 0.91 0.2 0.05], 'HorizontalAlignment', 'left');
             ddlPCApc2 = uicontrol('Parent', tab_pca, 'Style', 'popupmenu', 'String', {'-'},...
                 'Units', 'normalized','Value',1, 'Position', [0.5 0.92 0.07 0.05], 'BackgroundColor', 'white', 'callback', @ttab.Callback_PCApc2);
-
+            
             tg2 = uitabgroup('Parent', tab_pca,'Position', [0 0 1 0.9]);
             tab_pca_scores = uitab('Parent', tg2, 'Title', 'Scores');
             tab_pca_loadings = uitab('Parent', tg2, 'Title', 'Loadings');
@@ -166,6 +169,73 @@ classdef  DataTab < BasicTab
             
             ttab.FillDataSetList();
             
+            
+            
+        end
+        
+        function DrawPCA(self, pc1, pc2)
+            
+        end
+        
+        function FillPCAStat(self)
+            
+        end
+        
+        function ClearPCA(self)
+            
+        end
+        
+        function FillPCApcDDL(self)
+            
+        end
+        
+        function Callback_PCApcnumber(self,src,callbackdata)
+            str=get(src,'String');
+            
+            index_selected = get(self.listbox,'Value');
+            
+            if(index_selected > 1)
+                
+                names = get(self.listbox,'String');%fieldnames(ttab.Data);
+                selected_name = names{index_selected};
+                
+                d = evalin('base', selected_name);
+
+                vmax = min(size(d.RawData));
+                
+                if d.Centering
+                    vmax = vmax - 1;
+                end
+                
+                if d.Scaling
+                    vmax = vmax - 1;
+                end
+                
+                val = str2double(str);
+                if isempty(val) || isnan(val)
+                    set(src,'string','2');
+                    warndlg('Input must be numerical');
+                else
+                    if val < 1 || val > vmax
+                        set(src,'string','2');
+                        warndlg(sprintf('Number of Principal Components should not less than 1 and not greater than %d!', vmax));
+                    else
+                        %todo
+                    end
+                end
+                
+            else
+                set(src,'string','2');
+                warndlg('You should select the Data Set first!');
+            end
+        end
+        
+        function Callback_PCApc1(self,hObject,callbackdata)
+            
+            
+        end
+        
+        function Callback_PCApc2(self,hObject,callbackdata)
             
             
         end
@@ -522,7 +592,7 @@ classdef  DataTab < BasicTab
             index_selected = get(self.listbox,'Value');
             
             if ~isempty(val) && ~isnan(val) && index_selected > 1
-
+                
                 names = get(self.listbox,'String');
                 selected_name = names{index_selected};
                 
@@ -666,7 +736,7 @@ classdef  DataTab < BasicTab
                 end
                 set(self.listbox, 'String', vardisplay);
                 set(self.listbox, 'Value', selected_index);
-                              
+                
                 if (~isempty(self.parent.predictTab))
                     set(self.parent.predictTab.ddlNewSet, 'String', vardisplay);
                 end
@@ -707,41 +777,41 @@ classdef  DataTab < BasicTab
             
             win = self.parent;
             idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
-                if sum(idx) > 0 && ~isempty(win.modelTab)
-                    
-                    idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
-                    vardisplay={};
-                    if sum(idx) > 0
-                        l = allvars(idx);
-                        vardisplay{1} = '-';
-                        for i = 1:length(l)
-                            vardisplay{i+1} = l(i).name;
-                        end
-                        set(win.modelTab.ddlCalibrationSet, 'String', vardisplay);
-                        
-                        if length(get(win.modelTab.ddlCalibrationSet, 'String')) > 1
-                            set(win.modelTab.ddlCalibrationSet, 'Value', 2)
-                            
-                            m = evalin('base',vardisplay{2});
-                            set(win.modelTab.tbNumPCpca, 'String', sprintf('%d', m.NumberOfClasses-1));
-                        end
-                    end
-                end
+            if sum(idx) > 0 && ~isempty(win.modelTab)
                 
-                if sum(idx) == 0 && ~isempty(win.modelTab)
-                    mtab = win.tgroup.Children(2);
-                    delete(mtab);
-                    win.modelTab = [];
+                idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
+                vardisplay={};
+                if sum(idx) > 0
+                    l = allvars(idx);
+                    vardisplay{1} = '-';
+                    for i = 1:length(l)
+                        vardisplay{i+1} = l(i).name;
+                    end
+                    set(win.modelTab.ddlCalibrationSet, 'String', vardisplay);
                     
-                    if ~isempty(win.predictTab)
-                        ptab = win.tgroup.Children(3);
-                        delete(ptab);
-                        win.predictTab = [];
+                    if length(get(win.modelTab.ddlCalibrationSet, 'String')) > 1
+                        set(win.modelTab.ddlCalibrationSet, 'Value', 2)
+                        
+                        m = evalin('base',vardisplay{2});
+                        set(win.modelTab.tbNumPCpca, 'String', sprintf('%d', m.NumberOfClasses-1));
                     end
                 end
+            end
+            
+            if sum(idx) == 0 && ~isempty(win.modelTab)
+                mtab = win.tgroup.Children(2);
+                delete(mtab);
+                win.modelTab = [];
+                
+                if ~isempty(win.predictTab)
+                    ptab = win.tgroup.Children(3);
+                    delete(ptab);
+                    win.predictTab = [];
+                end
+            end
             
         end
-         
+        
         function btnSetEdit_Callback(self,obj, ~)
             
             index_selected = get(self.listbox,'Value');
@@ -749,7 +819,7 @@ classdef  DataTab < BasicTab
             if index_selected > 1
                 names = get(self.listbox,'String');
                 selected_name = names{index_selected};
-
+                
                 self.datasetwin = DataSetWindow(self, selected_name);
                 %delete(self.evthandler);
                 %self.evthandler = addlistener(self.datasetwin,'DataEdited', @self.DataSetWindowCloseEditCallback);
