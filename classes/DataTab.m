@@ -223,7 +223,7 @@ classdef  DataTab < BasicTab
             end
         end
         
-        function Callback_PCApcnumber(self,src,callbackdata)
+        function Callback_PCApcnumber(self,src,~)
             str=get(src,'String');
             
             index_selected = get(self.listbox,'Value');
@@ -266,12 +266,12 @@ classdef  DataTab < BasicTab
             end
         end
         
-        function Callback_PCApc1(self,hObject,callbackdata)
+        function Callback_PCApc1(self,src,~)
             
             
         end
         
-        function Callback_PCApc2(self,hObject,callbackdata)
+        function Callback_PCApc2(self,src,~)
             
             
         end
@@ -601,6 +601,15 @@ classdef  DataTab < BasicTab
                 
                 self.drawPlot(selected_name);
                 
+                if ~isempty(self.parent.modelTab)
+                    names = get(self.parent.modelTab.ddlCalibrationSet, 'String');
+                    sel = get(self.parent.modelTab.ddlCalibrationSet, 'Value');
+                
+                    if (isequal(names{sel}, selected_name))
+                        self.parent.modelTab.ClearModel();
+                    end
+                end
+                
             end
         end
         
@@ -619,6 +628,16 @@ classdef  DataTab < BasicTab
                 self.drawPlot(selected_name);
                 
                 %set(ttab.listbox, 'String', lst);
+                
+                if ~isempty(self.parent.modelTab)
+                    names = get(self.parent.modelTab.ddlCalibrationSet, 'String');
+                    sel = get(self.parent.modelTab.ddlCalibrationSet, 'Value');
+                
+                    if (isequal(names{sel}, selected_name))
+                        self.parent.modelTab.ClearModel();
+                    end
+                end
+                
             end
         end
         

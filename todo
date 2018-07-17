@@ -2,8 +2,6 @@
 todo
 ------
 
-clear model on dataset change (preprocessing)
-
 predict tab show class color if present
 
 predict tab Allocation table color indications
@@ -32,6 +30,7 @@ done
 ------
 -info bar messages?
 
+clear model on dataset change (preprocessing)
 pc number validator
 allow to edit dataset
 remove model tab on remove classes
