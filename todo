@@ -17,7 +17,7 @@ predict tab hard model legend remove
 classes colors - rgb
 
 data tab add pca and stats?
-pc number validator
+
 show classes and object names
 pc selection callback
 
@@ -32,6 +32,7 @@ done
 ------
 -info bar messages?
 
+pc number validator
 allow to edit dataset
 remove model tab on remove classes
 clear model on dataset change (set editing)

@@ -22,6 +22,10 @@ classdef DataSet < handle
         
         Mean;
         Std;
+        
+        PCAScores;
+        PCALoadings;
+        PCAStats;
     end
     
     properties (Access = private)
@@ -269,7 +273,7 @@ classdef DataSet < handle
                 self.Data_ = bsxfun(@rdivide, self.Data_, temp);
             end
             
-            
+            self.PCA();
             
         end
         
@@ -312,6 +316,8 @@ classdef DataSet < handle
                 self.Data_ = bsxfun(@rdivide, self.Data_, self.Std);
             end
             
+            self.PCA();
+            
         end
         
         function set.Scaling(self,value)
@@ -333,11 +339,29 @@ classdef DataSet < handle
                 self.Data_ = bsxfun(@rdivide, self.Data_, self.Std);
             end
             
+            self.PCA();
+            
         end
     end
     
     methods (Access = private)
-        
+        function PCA(self)
+            
+            NumPC = min(size(self.RawData));
+                
+                if self.Centering
+                    NumPC = NumPC - 1;
+                end
+                
+                if self.Scaling
+                    NumPC = NumPC - 1;
+                end
+            
+            [V,D,P] = svd(self.ProcessedData);
+            T = V*D;
+            self.PCAScores = T(:,1:NumPC);
+            self.PCALoadings = P(:,1:NumPC);
+        end
     end
 end
 

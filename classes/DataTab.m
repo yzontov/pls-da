@@ -28,11 +28,14 @@ classdef  DataTab < BasicTab
         
         tblTextResult;
         tab_img;
-        datasetwin;
-        evthandler;
         
         tblPCATextResult;
+        tab_pca_scores;
+        tab_pca_loadings;
         
+        txtPCApcnumber;
+        ddlPCApc1;
+        ddlPCApc2;
     end
     methods
         
@@ -122,23 +125,27 @@ classdef  DataTab < BasicTab
             
             uicontrol('Parent', tab_pca, 'Style', 'text', 'String', 'Number of PCs', ...
                 'Units', 'normalized','Position', [0.01 0.91 0.2 0.05], 'HorizontalAlignment', 'left');
-            ddlPCApcnumber = uicontrol('Parent', tab_pca, 'Style', 'edit', 'String', '2',...
+            self.txtPCApcnumber = uicontrol('Parent', tab_pca, 'Style', 'edit', 'String', '2',...
                 'Units', 'normalized','Value',1, 'Position', [0.15 0.93 0.07 0.04], 'BackgroundColor', 'white', 'callback', @ttab.Callback_PCApcnumber);
             
             uicontrol('Parent', tab_pca, 'Style', 'text', 'String', 'PC 1', ...
-                'Units', 'normalized','Position', [0.3 0.91 0.2 0.05], 'HorizontalAlignment', 'left');
-            ddlPCApc1 = uicontrol('Parent', tab_pca, 'Style', 'popupmenu', 'String', {'-'},...
-                'Units', 'normalized','Value',1, 'Position', [0.35 0.92 0.07 0.05], 'BackgroundColor', 'white', 'callback', @ttab.Callback_PCApc1);
+                'Units', 'normalized','Position', [0.3 0.91 0.3 0.05], 'HorizontalAlignment', 'left');
+            self.ddlPCApc1 = uicontrol('Parent', tab_pca, 'Style', 'popupmenu', 'String', {'-'},...
+                'Units', 'normalized','Value',1, 'Position', [0.35 0.92 0.1 0.05], 'BackgroundColor', 'white', 'callback', @ttab.Callback_PCApc1);
             
             uicontrol('Parent', tab_pca, 'Style', 'text', 'String', 'PC 2', ...
                 'Units', 'normalized','Position', [0.45 0.91 0.2 0.05], 'HorizontalAlignment', 'left');
-            ddlPCApc2 = uicontrol('Parent', tab_pca, 'Style', 'popupmenu', 'String', {'-'},...
-                'Units', 'normalized','Value',1, 'Position', [0.5 0.92 0.07 0.05], 'BackgroundColor', 'white', 'callback', @ttab.Callback_PCApc2);
+            self.ddlPCApc2 = uicontrol('Parent', tab_pca, 'Style', 'popupmenu', 'String', {'-'},...
+                'Units', 'normalized','Value',1, 'Position', [0.5 0.92 0.1 0.05], 'BackgroundColor', 'white', 'callback', @ttab.Callback_PCApc2);
             
             tg2 = uitabgroup('Parent', tab_pca,'Position', [0 0 1 0.9]);
-            tab_pca_scores = uitab('Parent', tg2, 'Title', 'Scores');
-            tab_pca_loadings = uitab('Parent', tg2, 'Title', 'Loadings');
+            ttab.tab_pca_scores = uitab('Parent', tg2, 'Title', 'Scores');
+            ttab.tab_pca_loadings = uitab('Parent', tg2, 'Title', 'Loadings');
             tab_pca_stat = uitab('Parent', tg2, 'Title', 'Statistics');
+            
+            ttab.tblPCATextResult = uitable(tab_pca_stat);
+            ttab.tblPCATextResult.Units = 'normalized';
+            ttab.tblPCATextResult.Position = [0 0 1 1];
             
             %             ttab.tbTextResult = uicontrol('Parent', tab_txt, 'Style', 'edit', 'String', '', ...
             %                 'Units', 'normalized','Position', [0 0 1 1], 'HorizontalAlignment', 'left', 'Max', 2);
@@ -174,11 +181,29 @@ classdef  DataTab < BasicTab
         end
         
         function DrawPCA(self, pc1, pc2)
+            index_selected = get(self.listbox,'Value');
             
+            if(index_selected > 1)
+                
+                names = get(self.listbox,'String');%fieldnames(ttab.Data);
+                selected_name = names{index_selected};
+                
+                d = evalin('base', selected_name);
+
+            end
         end
         
         function FillPCAStat(self)
+            index_selected = get(self.listbox,'Value');
             
+            if(index_selected > 1)
+                
+                names = get(self.listbox,'String');%fieldnames(ttab.Data);
+                selected_name = names{index_selected};
+                
+                d = evalin('base', selected_name);
+
+            end
         end
         
         function ClearPCA(self)
@@ -186,7 +211,16 @@ classdef  DataTab < BasicTab
         end
         
         function FillPCApcDDL(self)
+            pc = get(self.listbox,'Value');
             
+            if(index_selected > 1)
+                
+                names = get(self.listbox,'String');%fieldnames(ttab.Data);
+                selected_name = names{index_selected};
+                
+                d = evalin('base', selected_name);
+
+            end
         end
         
         function Callback_PCApcnumber(self,src,callbackdata)
@@ -220,7 +254,9 @@ classdef  DataTab < BasicTab
                         set(src,'string','2');
                         warndlg(sprintf('Number of Principal Components should not less than 1 and not greater than %d!', vmax));
                     else
-                        %todo
+                        self.FillPCApcDDL();
+                        self.DrawPCA();
+                        self.FillPCAStat();
                     end
                 end
                 
