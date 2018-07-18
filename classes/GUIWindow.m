@@ -76,7 +76,7 @@ classdef  GUIWindow<handle
                 win.tgroup = uitabgroup('Parent', f);
             end
             
-            
+            win.fig = f;
             
             if tabs(1)
                 win.dataTab = DataTab(win.tgroup, win);
@@ -90,7 +90,7 @@ classdef  GUIWindow<handle
                 win.predictTab = PredictTab(win.tgroup, win);
             end
             
-            win.fig = f;
+            
             
             set(win.tgroup, 'SelectionChangedFcn', @win.TabSelected);
             
@@ -117,20 +117,34 @@ classdef  GUIWindow<handle
             Xdiff = Xdata - event_obj.Position(1);
             Ydiff = Ydata - event_obj.Position(2);
             
-            distnce=sqrt(Xdiff.^2+Ydiff.^2);
+            distnce = sqrt(Xdiff.^2+Ydiff.^2);
             
             labels = event_obj.Target.Parent.UserData{2};
             classes = event_obj.Target.Parent.UserData{3};
             
-            index=distnce==min(distnce);
+            flag = event_obj.Target.Parent.UserData{4};
+            
+            index = distnce == min(distnce);
             
             str = labels(index);
             
             if ~isempty(classes)
                 cls = classes(index);
-                output_txt = sprintf('Object: %s\nClass: %d', str{1}, cls);
+                
+                if isempty(flag)
+                    output_txt = sprintf('Object: %s\nClass: %d', str{1}, cls);
+                else
+                    output_txt = sprintf('Variable: %s', str{1});
+                end
+                
             else
-                output_txt = sprintf('Object: %s', str{1});
+                
+                if isempty(flag)
+                    output_txt = sprintf('Object: %s', str{1});
+                else
+                    output_txt = sprintf('Variable: %s', str{1});
+                end
+                
             end
             
         else

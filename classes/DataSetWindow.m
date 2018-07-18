@@ -581,6 +581,11 @@ classdef  DataSetWindow<handle
                     
                     d.Name = name;
                     
+                    if(~isempty(self.dataset))
+                        d.Training = self.dataset.Training;
+                        d.Validation = self.dataset.Validation;
+                    end
+                    
                     if get(self.ddlClasses, 'Value') > 1
                         
                         if ~isempty(self.dataset_name) && ~isempty(self.dataset.RawClasses) && get(self.ddlClasses, 'Value') == 2
@@ -644,6 +649,11 @@ classdef  DataSetWindow<handle
                             
                         end
                         
+                    end
+                    
+                    if(~isempty(self.dataset))
+                        d.Centering = self.dataset.Centering;
+                        d.Scaling = self.dataset.Scaling;
                     end
                     
                     try

@@ -2,22 +2,16 @@
 todo
 ------
 
+check if new set corresponds to the selected model (number of classes, data dimensions)
+
 predict tab show class color if present
-
-predict tab Allocation table color indications
-
-update hard plot algorithm
 
 class labels
 
-predict tab hard model legend remove
-
 classes colors - rgb
 
-data tab add pca and stats?
-
-show classes and object names
-pc selection callback
+pca: statistics
+pca: show classes
 
 check model tab availability on sample selection (also on select none, inverse)
 
@@ -30,6 +24,12 @@ done
 ------
 -info bar messages?
 
+pca: show object names
+pca: pc selection callback
+predict tab hard model legend remove (first drawing)
+fix hard plot object names 
+update hard plot algorithm (case of 3 classes)
+predict tab Allocation table color indications
 clear model on dataset change (preprocessing)
 pc number validator
 allow to edit dataset

@@ -59,10 +59,9 @@ classdef  PredictTab < BasicTab
                 'Position', [0.05   0.5   0.9  0.28]);
             
             uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'text', 'String', 'New or Test Data Set', ...
-                'Units', 'normalized','Position', [0.05 0.65 0.35 0.2], 'HorizontalAlignment', 'left');
+                'Units', 'normalized','Position', [0.05 0.65 0.35 0.25], 'HorizontalAlignment', 'left');
             ttab.ddlNewSet = uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'popupmenu', 'String', {'-'},...
                 'Units', 'normalized','Value',1, 'Position', [0.4 0.67 0.55 0.2], 'BackgroundColor', 'white', 'callback', @ttab.SelectNewSet);
-            
             
             
             uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'pushbutton', 'String', 'Predict',...
@@ -93,7 +92,10 @@ classdef  PredictTab < BasicTab
             ttab.ddlPlotVar2 = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu','Enable','off', 'String', {'2'},...
                 'Units', 'normalized','Value',1, 'Position', [0.45 0.4 0.35 0.1], 'BackgroundColor', 'white', 'callback', @ttab.RedrawCallback);%, 'callback', @DataTab.Redraw);
             
-            
+            if isequal(ttab.parent.modelTab.Model.Mode, 'hard')
+                ttab.chkPlotShowClasses.Value = 0;
+                ttab.chkPlotShowClasses.Enable = 'off';
+            end
             
             allvars = evalin('base','whos');
             varnames = {allvars.name};
@@ -172,7 +174,7 @@ classdef  PredictTab < BasicTab
                     
                 if isempty(set.Classes)
                     self.tblTextResult.ColumnName = {'Sample',1:size(res.AllocationMatrix, 2)};
-                
+                    
                     self.tblTextResult.Data = [res.Labels, num2cell(logical(res.AllocationMatrix))];
                 
                     self.tblTextResult.ColumnWidth = num2cell([150, 30*ones(1,size(res.AllocationMatrix, 2))]);
@@ -182,6 +184,26 @@ classdef  PredictTab < BasicTab
                 else
                    self.tblTextResult.ColumnName = {'Sample','Class', 1:size(res.AllocationMatrix, 2)};
                 
+                                   
+                    
+                    for i = 1:length(set.Classes)
+                        c = set.Classes(i);
+                        
+                        if (sum(res.AllocationMatrix(i,:)) == 0)% no classes
+                            res.Labels{i} = ['<html><table border=0 width=100% bgcolor=#FFC000><TR><TD>',res.Labels{i},'</TD></TR> </table></html>'];
+                        else
+                            t = res.Labels{i};
+                            if (~res.AllocationMatrix(i,c))% wrong class
+                                res.Labels{i} = ['<html><table border=0 width=100% bgcolor=#FF0000><TR><TD>',t,'</TD></TR> </table></html>'];
+                            end
+                            
+                            if (sum(res.AllocationMatrix(i,:)) > 1)% multiple classes
+                                res.Labels{i} = ['<html><table border=0 width=100% bgcolor=#FFA0A0><TR><TD>',t,'</TD></TR> </table></html>'];
+                            end
+                        end
+                    end
+                   
+                   
                     self.tblTextResult.Data = [res.Labels, num2cell(set.Classes), num2cell(logical(res.AllocationMatrix))];
                     self.tblTextResult.ColumnFormat = ['char' 'char' repmat({'logical'},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses)];
 

@@ -518,6 +518,7 @@ classdef  ModelTab < BasicTab
         function SelectCalibratinSet(self, src, ~)
             
             index_selected = get(src,'Value');
+            self.ClearModel();
             
             if(index_selected > 1)
                 names = get(src,'String');
@@ -525,9 +526,6 @@ classdef  ModelTab < BasicTab
                 d = evalin('base', selected_name);
                 
                 set(self.tbNumPCpca, 'String', sprintf('%d', max(1,d.NumberOfClasses-1)));
-                
-            else
-                self.ClearModel();
             end
         end
         
@@ -549,6 +547,9 @@ classdef  ModelTab < BasicTab
                 self.parent.predictTab = [];
                 
             end
+            
+            self.pc_x = 1;
+            self.pc_y = 2;
         end
         
         function Input_ModelParameters(self, src, ~)

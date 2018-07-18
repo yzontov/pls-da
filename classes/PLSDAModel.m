@@ -303,12 +303,11 @@ classdef PLSDAModel < handle
             
         end
         
-        function fig =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       Plot(self, axes, pc1, pc2, show_legend)
+        function fig = Plot(self, axes, pc1, pc2, show_legend)
             
             if nargin < 4
                 pc1 = 1;
                 pc2 = 2;
-                
             end
             
             if nargin < 5
@@ -377,8 +376,14 @@ classdef PLSDAModel < handle
                     t0_ = self.t0;
                 end
                 
+                YpredT_ = [self.YpredT(:,pc1) self.YpredT(:,pc2)];
+                
+                if (pc1 == 1 && pc2 == 1)
+                    YpredT_ = self.YpredT;
+                end
+                
                 PLSDAModel.hard_plot(axes,w_,v_,t0_,self.K,Centers_,self.TrainingDataSet.NumberOfClasses - 1, false);
-                set(axes,'UserData', {t0_, labels, self.TrainingDataSet.Classes});
+                set(axes,'UserData', {YpredT_, labels, self.TrainingDataSet.Classes,[]});
                 
             end
             
@@ -391,20 +396,17 @@ classdef PLSDAModel < handle
                 end
                 
                 PLSDAModel.soft_plot(axes, YpredT_, Y,Centers_,color, self.Alpha, self.numPC_pca, self.Gamma, self.K, false);
-                set(axes,'UserData', {YpredT_, labels, self.TrainingDataSet.Classes});
+                set(axes,'UserData', {YpredT_, labels, self.TrainingDataSet.Classes,[]});
                 
             end
             
             %center
             %plot(t0(pc1),t0(pc2), '*');
-            
-            
-            
+
             xlabel(sprintf('PC %d', pc1)); % x-axis label
             ylabel(sprintf('PC %d', pc2));% y-axis label
             
             hold off
-            
             
         end
         
@@ -473,10 +475,16 @@ classdef PLSDAModel < handle
                 
                 PLSDAModel.hard_plot(axes,w_,v_,t0_,self.K,Centers_,self.TrainingDataSet.NumberOfClasses - 1, show_legend);
                 
+                YpredTnew_ = [self.YpredTnew(:,pc1) self.YpredTnew(:,pc2)];
+                
+                if (pc1 == 1 && pc2 == 1)
+                    YpredTnew_ = self.YpredTnew;
+                end
+                
                 if ~self.NewDataSetHasClasses
-                    set(axes,'UserData', {t0_, labels, []});
+                    set(axes,'UserData', {YpredTnew_, labels, [],[]});
                 else
-                    set(axes,'UserData', {t0_, labels, self.NewDataSetClasses});
+                    set(axes,'UserData', {YpredTnew_, labels, self.NewDataSetClasses,[]});
                 end
             end
             
@@ -494,9 +502,9 @@ classdef PLSDAModel < handle
                 PLSDAModel.soft_plot(axes, YpredT_, Y,Centers_,color, self.Alpha, self.numPC_pca, self.Gamma, self.K, show_legend);
                 
                 if ~self.NewDataSetHasClasses
-                    set(axes,'UserData', {YpredTnew_, labels, []});
+                    set(axes,'UserData', {YpredTnew_, labels, [],[]});
                 else
-                    set(axes,'UserData', {YpredTnew_, labels, self.NewDataSetClasses});
+                    set(axes,'UserData', {YpredTnew_, labels, self.NewDataSetClasses,[]});
                 end
                 
             end
@@ -914,7 +922,27 @@ classdef PLSDAModel < handle
                     middle = (Centers(cl(1),:) + Centers(cl(2),:))/2;
                     min_dis = (x_min - middle(1))^2 + (y_min - middle(2))^2;
                     max_dis = (x_max - middle(1))^2 + (y_max - middle(2))^2;
-                    if min_dis < max_dis
+                    
+                    crit = min_dis < max_dis;
+                    
+                    if K == 3
+                        r = 1;
+                        if cl(1) == 1 && cl(2) == 2
+                         r = 3;
+                        end
+                        
+                        if cl(1) == 1 && cl(2) == 3
+                         r = 2;
+                        end
+                        
+                        if cl(1) == 2 && cl(2) == 3
+                         r = 1;
+                        end
+                        
+                        crit = (x_min - t0(1))*(Centers(r,1) - t0(1)) + (y_min - t0(2))*(Centers(r,2) - t0(2)) < 0;
+                    end
+                    
+                    if crit
                         x = x_min;
                         y = y_min;
                     else
