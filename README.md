@@ -11,14 +11,6 @@ Disclaimer
 -----------
 The Tool is still in Beta version. Please feel free to contact the author about any errors encountered in the software.
 
-Coming soon
------------
-Validation tools
-
-User documentation and examples
-
-Additional visualization options in the GUI
-
 How to install
 --------------
 To get the latest release plase use [GitHub sources](https://github.com/yzontov/pls-da/). 
