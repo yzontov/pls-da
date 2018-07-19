@@ -295,6 +295,7 @@ classdef DataSet < handle
                 self.Data_ = bsxfun(@rdivide, self.Data_, self.Std);
             end
             
+            self.PCA();
         end
         
         function set.Centering(self,value)

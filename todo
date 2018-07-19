@@ -8,22 +8,18 @@ predict tab show class color if present
 
 class labels
 
-classes colors - rgb
-
-pca: statistics
-pca: show classes
-
-check model tab availability on sample selection (also on select none, inverse)
-
 help
-
-adjust fonts and sizes?
 
 ------
 done
 ------
 -info bar messages?
+-pca: statistics
 
+check model tab availability on sample selection (also on select none, inverse)
+adjust fonts and sizes?
+classes colors - rgb
+pca: show classes
 pca: show object names
 pca: pc selection callback
 predict tab hard model legend remove (first drawing)

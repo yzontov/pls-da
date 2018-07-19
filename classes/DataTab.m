@@ -149,11 +149,11 @@ classdef  DataTab < BasicTab
             tg2 = uitabgroup('Parent', tab_pca,'Position', [0 0 1 0.9]);
             ttab.tab_pca_scores = uitab('Parent', tg2, 'Title', 'Scores');
             ttab.tab_pca_loadings = uitab('Parent', tg2, 'Title', 'Loadings');
-            tab_pca_stat = uitab('Parent', tg2, 'Title', 'Statistics');
-            
-            ttab.tblPCATextResult = uitable(tab_pca_stat);
-            ttab.tblPCATextResult.Units = 'normalized';
-            ttab.tblPCATextResult.Position = [0 0 1 1];
+%             tab_pca_stat = uitab('Parent', tg2, 'Title', 'Statistics');
+%             
+%             ttab.tblPCATextResult = uitable(tab_pca_stat);
+%             ttab.tblPCATextResult.Units = 'normalized';
+%             ttab.tblPCATextResult.Position = [0 0 1 1];
             
             %             ttab.tbTextResult = uicontrol('Parent', tab_txt, 'Style', 'edit', 'String', '', ...
             %                 'Units', 'normalized','Position', [0 0 1 1], 'HorizontalAlignment', 'left', 'Max', 2);
@@ -210,31 +210,46 @@ classdef  DataTab < BasicTab
             
                 pc1 = self.pc_x;
                 pc2 = self.pc_y;
+                hold(self.tab_pca_scores_axes, 'on');
+                if get(self.chkPlotShowClasses,'Value') == 1 && ~isempty(d.Classes)
+                    
+                    names_ = cell(1,d.NumberOfClasses);
+                    color_ = PLSDAModel.colors_rgb(d.NumberOfClasses);
+                    for i = 1:d.NumberOfClasses
+                        
+                        plot(self.tab_pca_scores_axes,d.PCAScores(d.Classes == i,pc1), d.PCAScores(d.Classes == i,pc2), 'o','color',color_(i,:));
+                        names_{i} = sprintf('class %d', i);
+                    end
+                    
+                    legend(self.tab_pca_scores_axes, names_);
+                    legend(self.tab_pca_scores_axes,'location','northeast');
+                    legend(self.tab_pca_scores_axes,'boxon');
+                else
+                    plot(self.tab_pca_scores_axes,d.PCAScores(:,pc1), d.PCAScores(:,pc2), 'o');
+                end
                 
-                hold on
-                f1 = plot(self.tab_pca_scores_axes,d.PCAScores(:,pc1), d.PCAScores(:,pc2), 'o');
+                plot(self.tab_pca_loadings_axes,d.PCALoadings(:,pc1), d.PCALoadings(:,pc2), 'o');
                 
-                xlabel(self.tab_pca_scores_axes,sprintf('PC %d', pc1)); % x-axis label
-                ylabel(self.tab_pca_scores_axes,sprintf('PC %d', pc2));% y-axis label
+                xlabel(self.tab_pca_scores_axes,sprintf('PC %d', pc1));
+                ylabel(self.tab_pca_scores_axes,sprintf('PC %d', pc2));
                 
+                xlabel(self.tab_pca_loadings_axes,sprintf('PC %d', pc1));
+                ylabel(self.tab_pca_loadings_axes,sprintf('PC %d', pc2));
                 
-                
-                f2 = plot(self.tab_pca_loadings_axes,d.PCALoadings(:,pc1), d.PCALoadings(:,pc2), 'o');
-                
-                xlabel(self.tab_pca_loadings_axes,sprintf('PC %d', pc1)); % x-axis label
-                ylabel(self.tab_pca_loadings_axes,sprintf('PC %d', pc2));% y-axis label
-                
-                
-                if(~isempty(d.ObjectNames))
-                    score_labels= d.ObjectNames;
+                if(~isempty(d.SelectedObjectNames))
+                    score_labels= d.SelectedObjectNames;
                 else
                     score_labels = strread(num2str(1:size(d.ProcessedData, 1)),'%s');
                 end
                 
                 if(~isempty(d.VariableNames))
-                    loadings_labels= d.VariableNames;
-                else
-                    loadings_labels = strread(num2str(1:size(d.ProcessedData, 1)),'%s');
+                    loadings_labels = d.VariableNames;
+                else    
+                    if(~isempty(d.Variables))
+                        loadings_labels = strread(num2str(d.Variables),'%s');
+                    else
+                        loadings_labels = strread(num2str(1:size(d.ProcessedData, 2)),'%s');
+                    end
                 end
                 
                 dcm_obj = datacursormode(self.parent.fig);
@@ -247,7 +262,6 @@ classdef  DataTab < BasicTab
                 end
                 
                 set(self.tab_pca_loadings_axes,'UserData', {[d.PCALoadings(:,pc1), d.PCALoadings(:,pc2)], loadings_labels, [], true});
-                
             end
         end
         
@@ -397,6 +411,9 @@ classdef  DataTab < BasicTab
                 set(self.ddlPlotVar1, 'String', names);
                 set(self.ddlPlotVar2, 'String', names);
                 
+                set(self.ddlPlotVar1, 'Value', 1);
+                set(self.ddlPlotVar2, 'Value', 2);
+                
                 self.resetRightPanel();
                 self.fillRightPanel();
                 
@@ -433,6 +450,8 @@ classdef  DataTab < BasicTab
             d.SelectedSamples(r) = double(numval);
             
             self.Redraw();
+            
+            self.RefreshModel();
         end
         
         function obj = GetObject(self,list, idx)
@@ -452,6 +471,9 @@ classdef  DataTab < BasicTab
                 
                 self.FillTableView(selected_name);
                 self.Redraw();
+                
+                self.RefreshModel();
+                self.DrawPCA();
             end
         end
         
@@ -468,6 +490,8 @@ classdef  DataTab < BasicTab
                 self.FillTableView(selected_name);
                 delete(self.data_plot_axes);
                 
+                self.RefreshModel();
+                self.DrawPCA();
             end
         end
         
@@ -483,6 +507,9 @@ classdef  DataTab < BasicTab
                 
                 self.FillTableView(selected_name);
                 self.Redraw();
+                
+                self.RefreshModel();
+                self.DrawPCA();
             end
         end
         
@@ -573,6 +600,8 @@ classdef  DataTab < BasicTab
             
             
             self.drawPlot(selected_name);
+            
+            self.DrawPCA();
         end
         
         function SavePlot(self,obj, ~)
@@ -905,6 +934,9 @@ classdef  DataTab < BasicTab
                 set(self.ddlPlotVar1, 'String', names);
                 set(self.ddlPlotVar2, 'String', names);
                 
+                set(self.ddlPlotVar1, 'Value', 1);
+                set(self.ddlPlotVar2, 'Value', 2);
+                
                 self.resetRightPanel();
                 self.fillRightPanel();
                 
@@ -915,8 +947,20 @@ classdef  DataTab < BasicTab
                 self.DrawPCA();
             end
             
+            self.RefreshModel();
+            
+        end
+        
+        function RefreshModel(self)
+            
+            allvars = evalin('base','whos');
             win = self.parent;
             idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
+            
+            if sum(idx) > 0 && isempty(win.modelTab)
+                win.modelTab = ModelTab(win.tgroup, win);
+            end
+            
             if sum(idx) > 0 && ~isempty(win.modelTab)
                 
                 idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
@@ -1036,6 +1080,9 @@ classdef  DataTab < BasicTab
                         set(self.ddlPlotVar1, 'String', names);
                         set(self.ddlPlotVar2, 'String', names);
                         
+                        set(self.ddlPlotVar1, 'Value', 1);
+                        set(self.ddlPlotVar2, 'Value', 2);
+                        
                         self.resetRightPanel();
                         self.fillRightPanel();
                         
@@ -1101,9 +1148,7 @@ classdef  DataTab < BasicTab
         function btnNew_Callback(self,obj, ~)
             
             self.datasetwin = DataSetWindow(self);
-            
-            %delete(self.evthandler);
-            %self.evthandler = addlistener(self.datasetwin,'DataUpdated', @self.DataSetWindowCloseCallback);
+
         end
         
         function listClick(self,obj, ~)
@@ -1114,10 +1159,10 @@ classdef  DataTab < BasicTab
                 % extract all children
                 self.enableRightPanel('on');
                 
-                names = get(self.listbox, 'String'); %fieldnames(ttab.Data);
+                names = get(self.listbox, 'String');
                 selected_name = names{index_selected};
                 
-                d = evalin('base', selected_name);%ttab.Data.(selected_name);
+                d = evalin('base', selected_name);
                 
                 if isempty(d.Classes)
                     set(self.chkTraining, 'Enable', 'off');
@@ -1140,6 +1185,9 @@ classdef  DataTab < BasicTab
                 
                 set(self.ddlPlotVar1, 'String', names);
                 set(self.ddlPlotVar2, 'String', names);
+                
+                set(self.ddlPlotVar1, 'Value', 1);
+                set(self.ddlPlotVar2, 'Value', 2);
                 
                 self.resetRightPanel();
                 self.fillRightPanel();
@@ -1277,10 +1325,9 @@ classdef  DataTab < BasicTab
         function fillRightPanel(self)
             ttab = self;
             index_selected = get(ttab.listbox,'Value');
-            names = get(ttab.listbox,'String');%fieldnames(ttab.Data);
+            names = get(ttab.listbox,'String');
             selected_name = names{index_selected};
             
-            %d = ttab.Data.(selected_name);
             if index_selected > 1
                 d = evalin('base', selected_name);
                 
@@ -1290,7 +1337,7 @@ classdef  DataTab < BasicTab
                 set(ttab.chkTraining, 'Value', d.Training);
                 set(ttab.chkValidation, 'Value', d.Validation);
             end
-            %set(ttab.ddlPlotType, 'Value', d.PlotType);
+
         end
         
         function enableRightPanel(self, param)
@@ -1303,8 +1350,7 @@ classdef  DataTab < BasicTab
             set(children(strcmpi ( get (children,'Type'),'UIControl')),'enable',param);
             set(children1(strcmpi ( get (children1,'Type'),'UIControl')),'enable',param);
             set(children2(strcmpi ( get (children2,'Type'),'UIControl')),'enable',param);
-            
-            %children2(1).Enable = 'off';% temporary disable validation set selection
+
         end
         
         

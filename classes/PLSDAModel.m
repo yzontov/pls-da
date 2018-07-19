@@ -324,7 +324,9 @@ classdef PLSDAModel < handle
                 pc1 = 1;
             end
             
-            [mark, color] = PLSDAModel.plotsettings(self.K);
+            [mark, ~] = PLSDAModel.plotsettings(self.K);
+            color = PLSDAModel.colors_rgb(self.K);
+            
             axis(axes,[-1 1 -1 1]);
             hold on
             
@@ -335,9 +337,9 @@ classdef PLSDAModel < handle
                 temp = self.YpredT(Y(:,class) == 1,:);
                 names{class} = sprintf('class %d', class);
                 if pc1 ~= pc2
-                    plot(axes,temp(:,pc1), temp(:,pc2),[mark{class} color{class}]);%,'MarkerFaceColor', color{class});
+                    plot(axes,temp(:,pc1), temp(:,pc2),mark{class},'color', color(class,:));%,'MarkerFaceColor', color{class});
                 else
-                    plot(axes,temp, zeros(size(temp)),[mark{class} color{class}]);
+                    plot(axes,temp, zeros(size(temp)),mark{class},'color', color(class,:));
                 end
             end
             
@@ -431,7 +433,9 @@ classdef PLSDAModel < handle
                 axes = gca;
             end
             
-            [mark, color] = PLSDAModel.plotsettings(self.K);
+            [mark, ~] = PLSDAModel.plotsettings(self.K);
+            color = PLSDAModel.colors_rgb(self.K);
+            
             axis(axes,[-1 1 -1 1]);
             hold on
             
@@ -998,29 +1002,29 @@ classdef PLSDAModel < handle
                     y = [0.05 -0.05 -0.05 0.05 0.05];
                     if ~isempty(axes)
                         if show_legend
-                            plot(axes, x, y,['-' color{class}]);
+                            plot(axes, x, y,'-', 'color',color(class,:));
                         else
-                            plot(axes, x, y,['-' color{class}],'HandleVisibility','off');
+                            plot(axes, x, y,'-', 'color',color(class,:),'HandleVisibility','off');
                         end
                     else
                         if show_legend
-                            plot(x, y,['-' color{class}]);
+                            plot(x, y,'-', 'color',color(class,:));
                         else
-                            plot(x, y,['-' color{class}],'HandleVisibility','off');
+                            plot(x, y,'-', 'color',color(class,:),'HandleVisibility','off');
                         end
                     end
                 else
                     if ~isempty(axes)
                         if show_legend
-                            plot(axes,AcceptancePlot{class}(:,1), AcceptancePlot{class}(:,2),['-' color{class}]);
+                            plot(axes,AcceptancePlot{class}(:,1), AcceptancePlot{class}(:,2),'-', 'color',color(class,:));
                         else
-                            plot(axes,AcceptancePlot{class}(:,1), AcceptancePlot{class}(:,2),['-' color{class}],'HandleVisibility','off');
+                            plot(axes,AcceptancePlot{class}(:,1), AcceptancePlot{class}(:,2),'-', 'color',color(class,:),'HandleVisibility','off');
                         end
                     else
                         if show_legend
-                            plot(AcceptancePlot{class}(:,1), AcceptancePlot{class}(:,2),['-' color{class}]);
+                            plot(AcceptancePlot{class}(:,1), AcceptancePlot{class}(:,2),'-', 'color',color(class,:));
                         else
-                            plot(AcceptancePlot{class}(:,1), AcceptancePlot{class}(:,2),['-' color{class}],'HandleVisibility','off');
+                            plot(AcceptancePlot{class}(:,1), AcceptancePlot{class}(:,2),'-', 'color',color(class,:),'HandleVisibility','off');
                         end
                     end
                     
@@ -1032,15 +1036,15 @@ classdef PLSDAModel < handle
                         x = [OutliersPlot{class}(2,1) OutliersPlot{class}(2,1) OutliersPlot{class}(1,1) OutliersPlot{class}(1,1) OutliersPlot{class}(2,1)];
                         y = [0.1 -0.1 -0.1 0.1 0.1];
                         if ~isempty(axes)
-                            plot(axes, x, y,['--' color{class}],'HandleVisibility','off');
+                            plot(axes, x, y,'--', 'color',color(class,:),'HandleVisibility','off');
                         else
-                            plot( x, y ,['--' color{class}],'HandleVisibility','off');
+                            plot( x, y ,'--', 'color',color(class,:),'HandleVisibility','off');
                         end
                     else
                         if ~isempty(axes)
-                            plot(axes, OutliersPlot{class}(:,1), OutliersPlot{class}(:,2),['--' color{class}],'HandleVisibility','off');
+                            plot(axes, OutliersPlot{class}(:,1), OutliersPlot{class}(:,2),'--', 'color',color(class,:),'HandleVisibility','off');
                         else
-                            plot(OutliersPlot{class}(:,1), OutliersPlot{class}(:,2),['--' color{class}],'HandleVisibility','off');
+                            plot(OutliersPlot{class}(:,1), OutliersPlot{class}(:,2),'--', 'color',color(class,:),'HandleVisibility','off');
                         end
                         
                     end
@@ -1052,9 +1056,9 @@ classdef PLSDAModel < handle
                 end
                 
                 if ~isempty(axes)
-                    plot(axes, temp_c(:,1), temp_c(:,2),['+' color{class}],'HandleVisibility','off');
+                    plot(axes, temp_c(:,1), temp_c(:,2),'+', 'color',color(class,:),'HandleVisibility','off');
                 else
-                    plot(temp_c(:,1), temp_c(:,2),['+' color{class}],'HandleVisibility','off');
+                    plot(temp_c(:,1), temp_c(:,2),'+', 'color',color(class,:),'HandleVisibility','off');
                 end
                 
             end
@@ -1242,7 +1246,7 @@ classdef PLSDAModel < handle
             mark_idx = 1;
             color_idx = 0;
             n_marks = length(marks);
-            colors = 'rgbmck';%'rgbmcyk';
+            colors = 'rgbmcyk';
             n_colors = length(colors);
             for idx = 1:class_number
                 

@@ -688,7 +688,7 @@ classdef  ModelTab < BasicTab
         
         function r = filter_training(x)
             d = evalin('base', x.name);
-            if isequal(x.class,'DataSet') && d.Training
+            if isequal(x.class,'DataSet') && d.Training && ~isempty(d.Classes)
                 r = true;
             else
                 r = false;
