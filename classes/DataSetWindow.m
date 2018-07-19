@@ -251,8 +251,8 @@ classdef  DataSetWindow<handle
                     end
                 end
                 
-                cl_var_size = size(cl_var);
-                idx = arrayfun(@(x)win.type_size_filter(x,cl_var_size(2),1,[],[],'cell'),list);
+                cl_var_size = max(cl_var);
+                idx = arrayfun(@(x)win.type_size_filter(x,cl_var_size,2,1,1,'cell'),list);
                 
                 vardisplay={};
                 vardisplay{1} = '-';
@@ -462,8 +462,8 @@ classdef  DataSetWindow<handle
                     set(self.ddlVariableNames, 'Value', 2)
                 end
                 
-                cl_var_size = size(cl_var);
-                idx = arrayfun(@(x)self.type_size_filter(x,cl_var_size(2),1,[],[],'cell'),list);
+                cl_var_size = max(cl_var);
+                idx = arrayfun(@(x)self.type_size_filter(x,cl_var_size,2,1,1,'cell'),list);
                 
                 vardisplay={};
                 vardisplay{1} = '-';
@@ -550,10 +550,14 @@ classdef  DataSetWindow<handle
                 end
                 
                 cl_num = size(unique(t),1);
-                idx = arrayfun(@(x)self.type_size_filter(x,cl_num,1,1,2,'cell'),list);
+                idx = arrayfun(@(x)self.type_size_filter(x,cl_num,2,1,1,'cell'),list);
                 
                 vardisplay={};
                 vardisplay{1} = '-';
+                if ~isempty(self.dataset) && ~isempty(self.dataset.ClassLabels)
+                    ss = size(self.dataset.ClassLabels);
+                    vardisplay{2} = sprintf('%s.ClassLabels (%dx%d)',self.dataset_name,ss(1),ss(2));
+                end
                 if sum(idx) > 0
                     l = list(idx);
                     

@@ -2,10 +2,6 @@
 todo
 ------
 
-class labels
-
-clear finalise on model rebuild
-
 help
 
 ------
@@ -15,6 +11,8 @@ done
 -pca: statistics
 -predict tab show class color if present
 
+clear finalise on model rebuild
+class labels
 check if new set corresponds to the selected model (number of classes, data dimensions)
 check model tab availability on sample selection (also on select none, inverse)
 adjust fonts and sizes?

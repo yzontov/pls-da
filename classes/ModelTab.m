@@ -332,6 +332,8 @@ classdef  ModelTab < BasicTab
         
         function Recalibrate(self, src, ~)
             
+            self.ClearModel();
+            
             index_selected = get(self.ddlCalibrationSet,'Value');
             names = get(self.ddlCalibrationSet,'String');%fieldnames(ttab.Data);
             selected_name = names{index_selected};

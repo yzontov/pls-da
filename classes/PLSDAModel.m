@@ -23,9 +23,9 @@ classdef PLSDAModel < handle
         K;
         Centers;
         
-        NewDataSet;
         YpredTnew;
         
+        NewDataSetClassLabels;
         NewDataSetClasses;
         NewDataSetObjectNames;
         
@@ -233,6 +233,12 @@ classdef PLSDAModel < handle
         function Result = Apply(self, NewDataSet)
             Xnew_p = PLSDAModel.preprocess_newset(self.rX, NewDataSet.RawData(logical(NewDataSet.SelectedSamples),:));
             
+            if ~isempty(NewDataSet.ClassLabels)
+                self.NewDataSetClassLabels = NewDataSet.ClassLabels;
+            else
+                self.NewDataSetClassLabels = [];
+            end
+            
             if isempty(NewDataSet.Classes)
                 self.NewDataSetHasClasses = false;
             else
@@ -335,7 +341,12 @@ classdef PLSDAModel < handle
             names = cell(1,self.K);
             for class = 1:self.K
                 temp = self.YpredT(Y(:,class) == 1,:);
-                names{class} = sprintf('class %d', class);
+                if isempty(self.TrainingDataSet.ClassLabels)
+                    names{class} = sprintf('class %d', class);
+                else
+                    names{class} = self.TrainingDataSet.ClassLabels{class};
+                end
+                
                 if pc1 ~= pc2
                     plot(axes,temp(:,pc1), temp(:,pc2),mark{class},'color', color(class,:));%,'MarkerFaceColor', color{class});
                 else
@@ -517,7 +528,11 @@ classdef PLSDAModel < handle
                 
                 names = {};
                 for i=1:self.K
-                    names{i} = sprintf('class %d', i);
+                    if isempty(self.NewDataSetClassLabels)
+                        names{i} = sprintf('class %d', i);
+                    else
+                        names{i} = self.NewDataSetClassLabels{i};
+                    end
                 end
                 
                 if ~isempty(axes)
@@ -1119,7 +1134,6 @@ classdef PLSDAModel < handle
             if nargin == 4 && mode == 1
                 Dcrit = PLSDAModel.chi2inv_(1-Alpha, K-1);
             end
-            
             
             m = zeros(K);
             Ypred = zeros(size(Distances));

@@ -71,6 +71,12 @@ classdef DataSet < handle
                     hold on;
                     fig = plot(axes, self.ProcessedData(self.Classes == i,var1),self.ProcessedData(self.Classes == i,var2),'o','color',color(i,:));
                     names{i} = sprintf('class %d', i);
+                    
+                    if isempty(self.ClassLabels)
+                        names{i} = sprintf('class %d', i);
+                    else
+                        names{i} = self.ClassLabels{i};
+                    end
                 end
                 
                 if ~isempty(axes)

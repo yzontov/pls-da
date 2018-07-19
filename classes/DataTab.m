@@ -218,7 +218,12 @@ classdef  DataTab < BasicTab
                     for i = 1:d.NumberOfClasses
                         
                         plot(self.tab_pca_scores_axes,d.PCAScores(d.Classes == i,pc1), d.PCAScores(d.Classes == i,pc2), 'o','color',color_(i,:));
-                        names_{i} = sprintf('class %d', i);
+
+                        if isempty(d.ClassLabels)
+                            names_{i} = sprintf('class %d', i);
+                        else
+                            names_{i} = d.ClassLabels{i};
+                        end
                     end
                     
                     legend(self.tab_pca_scores_axes, names_);
