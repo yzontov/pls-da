@@ -2,10 +2,6 @@
 todo
 ------
 
-check if new set corresponds to the selected model (number of classes, data dimensions)
-
-predict tab show class color if present
-
 class labels
 
 help
@@ -15,7 +11,9 @@ done
 ------
 -info bar messages?
 -pca: statistics
+-predict tab show class color if present
 
+check if new set corresponds to the selected model (number of classes, data dimensions)
 check model tab availability on sample selection (also on select none, inverse)
 adjust fonts and sizes?
 classes colors - rgb
@@ -34,11 +32,8 @@ clear model on dataset change (set editing)
 fix: remove predict tab with model
 allow to delete dataset
 Allocation table color indications
-%colergen = @(color,text) ['<html><table border=0 width=400 bgcolor=',color,'><TR><TD>',text,'</TD></TR> </table></html>'];
-%arrayfun(colergen,[1 2 3], [1 2 3])
 update predict tab on dataset add/change
 check for 0 samples on delete
-
 on change show object names - apply on all tabs - solved by selectionchangedfcn in guiwindow
 data tab - add legend and color classes to scatter plot
 data tab - fix dataset onclick wavelengths

@@ -98,15 +98,14 @@ classdef  PredictTab < BasicTab
             end
             
             allvars = evalin('base','whos');
-            varnames = {allvars.name};
             
-            idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
+            idx = arrayfun(@(x)ttab.filter_test(x), allvars);
             
-            if ~isempty(idx)
-                vardisplay = cell(length(idx),1);
-
-                for i = 1:length(idx)
-                    vardisplay{i} = varnames{idx(i)};
+            if sum(idx) > 0
+                vardisplay = {};
+                l = allvars(idx);
+                for i = 1:length(l)
+                    vardisplay{i} = l(i).name;
                 end
                 set(ttab.ddlNewSet, 'String', vardisplay);
             end
@@ -345,6 +344,16 @@ classdef  PredictTab < BasicTab
             self.tblTextResult.Data = [];
             self.tblTextConfusion.Data = [];
             self.tblTextFoM.Data = [];
+        end
+        
+        function r = filter_test(self, x)
+            d = evalin('base', x.name);
+            if isequal(x.class,'DataSet') && size(d, 2) == size(self.parent.modelTab.Model.TrainingDataSet, 2) && ...
+                    (~isempty(d.Classes) && d.NumberOfClasses == self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses || isempty(d.Classes))
+                r = true;
+            else
+                r = false;
+            end
         end
         
     end

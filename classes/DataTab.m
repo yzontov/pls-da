@@ -905,7 +905,21 @@ classdef  DataTab < BasicTab
                 set(self.listbox, 'Value', selected_index);
                 
                 if (~isempty(self.parent.predictTab))
-                    set(self.parent.predictTab.ddlNewSet, 'String', vardisplay);
+                    
+                    allvarsp = evalin('base','whos');
+                                        
+                    idx = arrayfun(@(x)self.parent.predictTab.filter_test(x), allvarsp);
+                    
+                    if sum(idx) > 0
+                        vardisplay = {};
+                        l = allvars(idx);
+                        for i = 1:length(l)
+                            vardisplay{i} = l(i).name;
+                        end
+                        set(self.parent.predictTab.ddlNewSet, 'String', vardisplay);
+                    end
+                    
+                    
                 end
                 
                 % extract all children
@@ -1050,7 +1064,18 @@ classdef  DataTab < BasicTab
                         selected_name = vardisplay{2};
                         
                         if (~isempty(win.predictTab))
-                            set(win.predictTab.ddlNewSet, 'String', vardisplay);
+                            allvarsp = evalin('base','whos');
+                            
+                            idx = arrayfun(@(x)self.parent.predictTab.filter_test(x), allvarsp);
+                            
+                            if sum(idx) > 0
+                                vardisplay = {};
+                                l = allvars(idx);
+                                for i = 1:length(l)
+                                    vardisplay{i} = l(i).name;
+                                end
+                                set(self.parent.predictTab.ddlNewSet, 'String', vardisplay);
+                            end
                         end
                         
                         

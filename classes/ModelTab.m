@@ -250,22 +250,22 @@ classdef  ModelTab < BasicTab
                 end
             end
             
-            idx = arrayfun(@(x)ModelTab.filter_validation(x), allvars);
-            vardisplay={};
-            if sum(idx) > 0
-                l = allvars(idx);
-                vardisplay{1} = '-';
-                for i = 1:length(l)
-                    vardisplay{i+1} = l(i).name;
-                end
-                set(ttab.ddlValidationSet, 'String', vardisplay);
-                if length(get(ttab.ddlValidationSet, 'String')) > 1
-                    set(ttab.ddlValidationSet, 'Value', 2)
-                    set(ttab.ddlValidationSet, 'enable', 'on');
-                else
-                    set(ttab.ddlValidationSet, 'enable', 'off');
-                end
-            end
+%             idx = arrayfun(@(x)ModelTab.filter_validation(x), allvars);
+%             vardisplay={};
+%             if sum(idx) > 0
+%                 l = allvars(idx);
+%                 vardisplay{1} = '-';
+%                 for i = 1:length(l)
+%                     vardisplay{i+1} = l(i).name;
+%                 end
+%                 set(ttab.ddlValidationSet, 'String', vardisplay);
+%                 if length(get(ttab.ddlValidationSet, 'String')) > 1
+%                     set(ttab.ddlValidationSet, 'Value', 2)
+%                     set(ttab.ddlValidationSet, 'enable', 'on');
+%                 else
+%                     set(ttab.ddlValidationSet, 'enable', 'off');
+%                 end
+%             end
             
             if isempty(ttab.Model)
                 pcs = arrayfun(@(x) sprintf('%d', x), 1:str2double(get(ttab.tbNumPCpca,'string')), 'UniformOutput', false);
@@ -689,24 +689,6 @@ classdef  ModelTab < BasicTab
         function r = filter_training(x)
             d = evalin('base', x.name);
             if isequal(x.class,'DataSet') && d.Training && ~isempty(d.Classes)
-                r = true;
-            else
-                r = false;
-            end
-        end
-        
-        function r = filter_validation(x)
-            d = evalin('base', x.name);
-            if isequal(x.class,'DataSet') && d.Validation
-                r = true;
-            else
-                r = false;
-            end
-        end
-        
-        function r = filter_model(x)
-            d = evalin('base', x.name);
-            if isequal(x.class,'PLSDAModel') && d.Finalized
                 r = true;
             else
                 r = false;
