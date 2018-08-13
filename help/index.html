@@ -26,14 +26,21 @@ implementation of all necessary statistical functions and does not require the M
 Toolbox.
 
 <h2>PLSDAGUI</h2>
-<p>The PLSDAGUI module provides the graphical user interface for classes DataSet and PLSDAModel.</p>
+<p>The PLSDAGUI module provides the graphical user interface for classes DataSet and PLSDAModel. The <i>classes</i> subfolder contains auxiliary classes used by the GUI.</p>
 <h3>Installation and first steps</h3>
 To get the latest release plase use <a href="https://github.com/yzontov/pls-da/">GitHub sources</a>. 
 One can clone the git repository or download the source as a zip-file and install it in your Matlab environment. 
-To use the Tool you should set the Matlab current directory to the folder, which contains the Tool's main classes ("PLSDAGUI.m", "PLSDAModel.m", "DataSet.m") as well as all auxiliary files, or add this folder to the Matlab Path. 
-One should load the analyzed data into MATLAB workspace before launching the GUI.
+<ul>
+	<li>To use the Tool you should set the Matlab current directory to the folder, which contains the Tool's main classes ("PLSDAGUI.m", "PLSDAModel.m", "DataSet.m") as well as all auxiliary files, or add this folder to the Matlab Path.</li>
+	<li>By default it is assumed that none of the built-in Matlab functions on the user's machine has been overloaded due to the use of a third-party toolbox.</li>
+	<li>Before you start working with the GUI you should load the data for analysis into the MATLAB workspace.</li>
+	<li>The data set and model objects can be saved from the GUI to the MATLAB workspace.</li>
+</ul>
+
 <h3>Description</h3>
-todo
+<p>The GUI window is separated into 3 tabs: Data, Model and Prediction. Their asvailability depends on the user's actions.
+</p>
+
 <h3>Examples</h3>
 todo
 <h3>References</h3>
