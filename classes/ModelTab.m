@@ -332,6 +332,9 @@ classdef  ModelTab < BasicTab
         
         function Recalibrate(self, src, ~)
             
+            index_selected = get(self.ddlCalibrationSet,'Value');
+            
+            if index_selected > 1
             self.ClearModel();
             
             index_selected = get(self.ddlCalibrationSet,'Value');
@@ -443,6 +446,8 @@ classdef  ModelTab < BasicTab
             
             self.Redraw();
             self.enablePanel(self.pnlPlotSettings, 'on');
+            
+            end
         end
         
         function SaveModel(self, src, ~)
