@@ -87,8 +87,8 @@ One can clone the git repository or download the source as a zip-file and instal
 <li>In the modal window select the new variables for Data matrix, Classes, Object names, Variable names (or Wavelegths) or Class labels.
 <br/>Data fields of the selected DataSet object are shown in the drop-down list as variables with a prefix (equal to DataSet's name).
 <br/><b>Warning:</b> A DataSet object without Classes can not be used for Calibration!</li>
-<li>Click the <b>Add data set</b> button to create the DataSet object.</li>
-<li>The newly created object is now available in the Matlab workspace as a variable and in the Data Set drop-down list under the specified name.</li>
+<li>Click the <b>Save</b> button to apply changes to the DataSet object.</li>
+<li>The modified object is now available in the Matlab workspace as a variable and in the Data Set drop-down list under the specified name.</li>
 </ol>
     <figure style="text-align:center;">
         <img src="data.png" alt="Data tab" height="500" width="500">
@@ -107,7 +107,7 @@ One can clone the git repository or download the source as a zip-file and instal
 </p>
 
 <p>
-    To  a DataSet object:
+    To apply preprocessing and analyze a DataSet object:
 <ol>
 <li>Load all neccessary data as variables into the current Matlab workspace.</li>
 <li>On the <b>Data</b> tab click the <b>New dataset</b> button.</li>
@@ -121,34 +121,89 @@ One can clone the git repository or download the source as a zip-file and instal
         <img src="new_dataset.png" alt="New DataSet" height="500" width="500">
         <figcaption>Create New Data Set window</figcaption>
     </figure>
-    </p>
+</p>
+
+<p>
+    To manipulate the samples in a DataSet object:
+<ol>
+<li>Load all neccessary data as variables into the current Matlab workspace.</li>
+<li>On the <b>Data</b> tab click the <b>New dataset</b> button.</li>
+<li>In the modal window input the <b>Name</b> of the new Data Set and select the <b>Data</b> matrix.</li>
+<li>Optionally one can select variables for Classes, Object names, Variable names (or Wavelegths) and Class labels.
+<br/><b>Warning:</b> A DataSet object without Classes can not be used for Calibration!</li>
+<li>Click the <b>Add data set</b> button to create the DataSet object.</li>
+<li>The newly created object is now available in the Matlab workspace as a variable and in the Data Set drop-down list under the specified name.</li>
+</ol>
+    <figure style="text-align:center;">
+        <img src="new_dataset.png" alt="New DataSet" height="500" width="500">
+        <figcaption>Create New Data Set window</figcaption>
+    </figure>
+</p>
+
+<p>
+    To apply Principal Component Analysis to a DataSet object:
+<ol>
+<li>Select the object of interest in the Data Set drop-down list.</li>
+<li>In the left part of the <b>Data</b> tab select the <i>PCA</i> sub-tab.</li>
+<li>In the modal window input the <b>Name</b> of the new Data Set and select the <b>Data</b> matrix.</li>
+<li>Optionally one can select variables for Classes, Object names, Variable names (or Wavelegths) and Class labels.
+<br/><b>Warning:</b> A DataSet object without Classes can not be used for Calibration!</li>
+<li>Click the <b>Add data set</b> button to create the DataSet object.</li>
+<li>The newly created object is now available in the Matlab workspace as a variable and in the Data Set drop-down list under the specified name.</li>
+</ol>
+    <figure style="text-align:center;">
+        <img src="new_dataset.png" alt="New DataSet" height="500" width="500">
+        <figcaption>Create New Data Set window</figcaption>
+    </figure>
+</p>
 
 <h4>Working with the Model tab</h4>
+<i>The Model tab becomes available if at least one DataSet object with Calibration property set to True is present in the Matlab Workspace.</i>
 <p>
-    <ol>
-        <li></li>
-        <li></li>
-        <li></li>
-    </ol>
-    <figure style="text-align:center;">
-        <img src="model.png" alt="Model tab" height="500" width="500">
-        <figcaption>Model tab</figcaption>
-    </figure>
+<ol>
+<li>On the <b>Model</b> tab click the <b>Training Set</b> button.</li>
+<li>In the modal window select the matrix containing the training set.</li>
+<li>Optionally click the <b>Labels</b> button to select the cell array of strings for names of samples in the data set.</li>
+<li>Adjust the parameters of the model. It is possible to indicate a value of a type I error or switch to automatic calculation by checking the <b>Auto checkbox</b></li>
+<li>Click the <b>Build</b> button to create the model.</li>
+<li>The results are now available in the <i>Current model</i> and <i>Results and statistics</i> sections.</li>
+<li>Click on the <b>Acceptance plot</b> and <b>Extreme plot</b> buttons to study the results visually.</li>
+<li>To get complete modelling results collected in a DDSimca object click the <b>Save model</b> button and select a name of the new model. It will be created in the Matlab workspace.</li>
+<li>You can save your current workspace to a <b>.mat</b> file to preserve the results. Later on you can load the <b>.mat</b> file into the Matlab workspace and resume working with the model by clicking on the <b>Load model</b> button.</li>
+<li>Click the <b>Clear</b> button to reset all the setting to default and to remove the current model.</li>
+</ol>
+
+<figure style="text-align:center;">
+  <img src="model.png" alt="Model tab." height="500" width="500">
+  <figcaption>Model tab</figcaption>
+</figure>
+
     
 </p>
 
 <h4>Working with the Prediction tab</h4>
+<i>The Prediction tab becomes available if the current model is finalized (on the Model tab).</i>
 <p>
-    <ol>
-        <li></li>
-        <li></li>
-        <li></li>
-    </ol>
-    <figure style="text-align:center;">
-        <img src="predict.png" alt="Prediction tab" height="500" width="500">
-        <figcaption>Prediction tab</figcaption>
-    </figure>
-    
+To apply a PLS-DA model to the new data:
+<br/>
+<i>Here we assume that a model was previously loaded into the GUI or created on the Model tab.</i>
+<ol>
+<li>On the <b>Prediction</b> tab click the <b>New Set</b> button.</li>
+<li>In the modal window select the matrix containing the new data set.</li>
+<li>Optionally click the <b>Labels</b> button to select the cell array of strings for names of samples in the data set.</li>
+<li>By default a type II error is estimated for the new data set. It is possible to switch to a type I error calculation based on the predefined type II error.</li>
+<li>Click the <b>Decide</b> button to apply the model to the new data set.</li>
+<li>The results are now available in the <i>Results and statistics</i> sections. </li>
+<li>Click on the <b>Acceptance plot</b> to study the results visually.</li>
+<li>To get the results stored in a DDSTask object click the <b>Save results</b> button and select a name. It will be created in the Matlab workspace. Note that the DDSTask object contains all the data related to the analyzed task including the data sets as well as the related DDSimca model object.</li>
+<li>You can save your current workspace to a <b>.mat</b> file to preserve the results. Later on you can load the <b>.mat</b> file into the Matlab workspace and resume the analysis by cliking on the <b>Load results</b> button.</li>
+<li>Click the <b>Clear</b> button to reset all the setting to default and to remove the current model.</li>
+</ol>
+<figure style="text-align:center;">
+  <img src="prediction.png" alt="Prediction tab" height="500" width="500">
+  <figcaption>Prediction tab</figcaption>
+</figure>
+
 </p>
 
 <h3>References</h3>

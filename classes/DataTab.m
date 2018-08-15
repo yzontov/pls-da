@@ -646,6 +646,7 @@ classdef  DataTab < BasicTab
                 
                 fig2 = figure('visible','off');
                 copyobj(self.data_plot_axes,fig2);
+                %fig2.Children(1).Legend = self.data_plot_axes.Legend; !!!
                 saveas(fig2, filename);
                 %print(ttab.data_plot, filename, '-dpng');
             end
