@@ -22,7 +22,7 @@ ShowStartScreen();
         set(start_screen,'Visible','on');
         set(start_screen, 'MenuBar', 'none');
         set(start_screen, 'ToolBar', 'none');
-        set(start_screen,'name','PLS-DA Tool (Beta)','numbertitle','off');
+        set(start_screen,'name','PLS-DA Tool','numbertitle','off');
         set(start_screen, 'Resize', 'off');
         set(start_screen, 'Position', [screensize(3)/2 - 100 screensize(4)/2 - 100 200 100]);
         
