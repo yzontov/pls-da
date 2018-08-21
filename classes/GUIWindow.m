@@ -62,7 +62,7 @@ classdef  GUIWindow<handle
             set(f,'Visible','on');
             set(f, 'MenuBar', 'none');
             set(f, 'ToolBar', 'none');
-            set(f,'name',['PLS-DA Tool (Beta)' extra_title],'numbertitle','off');
+            set(f,'name',['PLS-DA Tool' extra_title],'numbertitle','off');
             %set(f, 'Resize', 'off');
             set(f, 'Units', 'Normalized');
             set(f, 'Position', [0.1 0.1 0.8 0.7]);
