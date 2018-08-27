@@ -2,7 +2,6 @@
 todo
 ------
 
-help
 bug?: legend not saved to file and clipboard
 
 ------
@@ -12,6 +11,7 @@ done
 -pca: statistics
 -predict tab show class color if present
 
+help
 clear finalise on model rebuild
 class labels
 check if new set corresponds to the selected model (number of classes, data dimensions)
