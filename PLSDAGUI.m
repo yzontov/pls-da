@@ -1,37 +1,50 @@
 function PLSDAGUI(varargin)
 
 addpath('classes');
+addpath('utils');
 
 ShowStartScreen();
 
     function ShowStartScreen()
         
-        warning('off','all');
-        
-        %get version year
-        v = version('-release');
-        vyear = str2double(v(1:4));
-        
-        if vyear < 2014
-            screensize = get( 0, 'Screensize' );
+        v = ver;
+        if ~any(strcmp({v.Name},'GUI Layout Toolbox'))
+            warndlg(sprintf('Please install the GUI Layout Toolbox first!\nhttps://www.mathworks.com/matlabcentral/fileexchange/47982-gui-layout-toolbox'));
         else
-            screensize = get( groot, 'Screensize' );
+            
+            allvars = evalin('base','whos');
+            
+            if isempty(allvars)
+                warndlg('You should load all neccessary data as variables into the current Matlab workspace first!');
+            else
+                warning('off','all');
+                
+                %get version year
+                v = version('-release');
+                vyear = str2double(v(1:4));
+                
+                if vyear < 2014
+                    screensize = get( 0, 'Screensize' );
+                else
+                    screensize = get( groot, 'Screensize' );
+                end
+                
+                start_screen = figure;
+                set(start_screen,'Visible','on');
+                set(start_screen, 'MenuBar', 'none');
+                set(start_screen, 'ToolBar', 'none');
+                set(start_screen,'name','PLS-DA Tool','numbertitle','off');
+                set(start_screen, 'Resize', 'off');
+                set(start_screen, 'Position', [screensize(3)/2 - 100 screensize(4)/2 - 100 200 100]);
+                
+                uicontrol('Parent', start_screen, 'Style', 'pushbutton', 'String', 'New model',...
+                    'Position', [50 55 100 30], 'callback', @btnNewModel_Callback);
+                
+                uicontrol('Parent', start_screen, 'Style', 'pushbutton', 'String', 'Existing model',...
+                    'Position', [50 15 100 30], 'callback', @btnExistingModel_Callback);
+                
+            end
         end
-        
-        start_screen = figure;
-        set(start_screen,'Visible','on');
-        set(start_screen, 'MenuBar', 'none');
-        set(start_screen, 'ToolBar', 'none');
-        set(start_screen,'name','PLS-DA Tool','numbertitle','off');
-        set(start_screen, 'Resize', 'off');
-        set(start_screen, 'Position', [screensize(3)/2 - 100 screensize(4)/2 - 100 200 100]);
-        
-        uicontrol('Parent', start_screen, 'Style', 'pushbutton', 'String', 'New model',...
-            'Position', [50 55 100 30], 'callback', @btnNewModel_Callback);
-        
-        uicontrol('Parent', start_screen, 'Style', 'pushbutton', 'String', 'Existing model',...
-            'Position', [50 15 100 30], 'callback', @btnExistingModel_Callback);
-        
     end
 
     function btnNewModel_Callback(obj, ~)

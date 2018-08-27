@@ -57,6 +57,12 @@ classdef  GUIWindow<handle
             v = version('-release');
             vyear = str2double(v(1:4));
             
+            if vyear < 2014
+                screensize = get( 0, 'Screensize' );
+            else
+                screensize = get( groot, 'Screensize' );
+            end        
+            
             %gui
             f = figure;
             set(f,'Visible','on');
@@ -64,8 +70,10 @@ classdef  GUIWindow<handle
             set(f, 'ToolBar', 'none');
             set(f,'name',['PLS-DA Tool' extra_title],'numbertitle','off');
             %set(f, 'Resize', 'off');
-            set(f, 'Units', 'Normalized');
-            set(f, 'Position', [0.1 0.1 0.8 0.7]);
+            %set(f, 'Units', 'pixels');
+            set(f, 'OuterPosition', [screensize(3)/2 - 400 screensize(4)/2 - 200 800 400]);
+            
+            LimitFigSize(f, 'min', [800, 400]);
             
             mh = uimenu(f,'Label','Help');
             uimenu(mh,'Label','Help on PLSDAGUI','Callback', @win.Help_Callback);
