@@ -52,13 +52,13 @@ classdef  DataTab < BasicTab
         function ttab = DataTab(tabgroup, parent)
             ttab = ttab@BasicTab(tabgroup, 'Data', parent);
             
-            vbox = uiextras.VBox( 'Parent', ttab.left_panel, 'Padding', 25, 'Spacing', 25 );
+            vbox = uix.VBox( 'Parent', ttab.left_panel, 'Padding', 5, 'Spacing', 15 );
             
             uicontrol('Parent', vbox, 'Style', 'pushbutton', 'String', 'New dataset',...
                 'Position', [90 360 100 20], ...
                 'callback', @ttab.btnNew_Callback);%,'FontUnits', 'Normalized'
             
-            hbox_input = uiextras.HBox( 'Parent', vbox);
+            hbox_input = uix.HBox( 'Parent', vbox);
             uicontrol('Parent', hbox_input, 'Style', 'text', 'String', 'Data Set', ...
                 'Position', [20 320 100 20], 'HorizontalAlignment', 'left');
             ttab.listbox = uicontrol('Parent', hbox_input, 'Style', 'popupmenu',...
@@ -72,9 +72,9 @@ classdef  DataTab < BasicTab
             uicontrol('Parent', hbox_input, 'Style', 'pushbutton', 'String', 'Delete',...
                 'Position', [0.82 0.815 0.14 0.04], ...
                 'callback', @ttab.btnSetDelete_Callback);%,'FontUnits', 'Normalized'
-            vbox.Sizes=[100,-1];
+            
             %categories
-            ttab.pnlDataCategories = uibuttongroup('Parent', ttab.left_panel, 'Title', 'Categories', ...
+            ttab.pnlDataCategories = uibuttongroup('Parent', vbox, 'Title', 'Categories', ...
                 'Position', [20   0.65   0.9  0.12]);
             
             %             bg = uibuttongroup('Parent',ttab.pnlDataCategories,...
@@ -88,7 +88,7 @@ classdef  DataTab < BasicTab
             
             
             %preprocessing
-            ttab.pnlDataSettings = uipanel('Parent', ttab.left_panel, 'Title', 'Preprocessing', ...
+            ttab.pnlDataSettings = uipanel('Parent', vbox, 'Title', 'Preprocessing', ...
                 'Position', [0.05   0.52   0.9  0.12]);
             ttab.chkCentering = uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'checkbox', 'String', 'Centering',...
                 'Position', [0.1 0.4 0.45 0.4], 'callback', @ttab.Input_Centering);
@@ -96,7 +96,7 @@ classdef  DataTab < BasicTab
                 'Position', [0.55 0.4 0.45 0.4], 'callback', @ttab.Input_Scaling);
             
             %lblPlotType
-            ttab.pnlPlotSettings = uipanel('Parent', ttab.left_panel, 'Title', 'Plot', ...
+            ttab.pnlPlotSettings = uipanel('Parent', vbox, 'Title', 'Plot', ...
                 'Position', [0.05   0.01   0.9  0.5]);
             uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'Type', ...
                 'Position', [0.05 0.78 0.35 0.1], 'HorizontalAlignment', 'left');
@@ -126,6 +126,7 @@ classdef  DataTab < BasicTab
                  'Position', [0.51 0.1 0.4 0.1], ...
                 'callback', @ttab.CopyPlotToClipboard);
             
+            vbox.Heights=[50,50,100,100,100];
             
             tg = uitabgroup('Parent', ttab.middle_panel);
             ttab.tab_img = uitab('Parent', tg, 'Title', 'Graphical view');
