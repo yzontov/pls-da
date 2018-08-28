@@ -2,7 +2,10 @@
 todo
 ------
 
-bug?: legend not saved to file and clipboard
+График для Loadings -должна быть возможность строить линейный график  ГКi(переменных)
+check classes numeration
+bug: legend not saved to file and clipboard
+bug: allocation color, fom and confusion not shown for existing model on open
 
 ------
 done
