@@ -66,7 +66,7 @@ ShowStartScreen();
 
     function btnExistingModel_Callback(obj, ~)
         
-        [tvar, tvarname] = GUIWindow.uigetvariables({'Pick a PLSDAModel object:'}, ...
+        [tvar, tvarname] = uigetvariables({'Pick a PLSDAModel object:'}, ...
             'ValidationFcn',{@(x) isa(x, 'PLSDAModel')});
         if ~isempty(tvar)
             close(get(obj,'Parent'));
