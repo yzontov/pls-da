@@ -2,11 +2,15 @@
 todo
 ------
 
-График для Loadings -должна быть возможность строить линейный график  ГКi(переменных)
+пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ Loadings -пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ  пїЅпїЅi(пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
 check classes numeration
 bug: legend not saved to file and clipboard
 bug: allocation color, fom and confusion not shown for existing model on open
-only number dataset name
+
+layout
+hide/disable unaccessible UI elements
+different classes in new set
+
 ------
 done
 ------
@@ -14,6 +18,7 @@ done
 -pca: statistics
 -predict tab show class color if present
 
+only number dataset name
 help
 clear finalise on model rebuild
 class labels

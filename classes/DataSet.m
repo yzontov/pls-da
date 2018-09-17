@@ -26,6 +26,8 @@ classdef DataSet < handle
         PCAScores;
         PCALoadings;
         PCAStats;
+        
+        HasPCA = false;
     end
     
     properties (Access = private)
@@ -279,7 +281,8 @@ classdef DataSet < handle
                 self.Data_ = bsxfun(@rdivide, self.Data_, temp);
             end
             
-            self.PCA();
+            %self.PCA();
+            self.HasPCA = false;
             
         end
         
@@ -301,7 +304,8 @@ classdef DataSet < handle
                 self.Data_ = bsxfun(@rdivide, self.Data_, self.Std);
             end
             
-            self.PCA();
+            %self.PCA();
+            self.HasPCA = false;
         end
         
         function set.Centering(self,value)
@@ -323,7 +327,8 @@ classdef DataSet < handle
                 self.Data_ = bsxfun(@rdivide, self.Data_, self.Std);
             end
             
-            self.PCA();
+            %self.PCA();
+            self.HasPCA = false;
             
         end
         
@@ -346,12 +351,10 @@ classdef DataSet < handle
                 self.Data_ = bsxfun(@rdivide, self.Data_, self.Std);
             end
             
-            self.PCA();
-            
+            %self.PCA();
+            self.HasPCA = false;
         end
-    end
-    
-    methods (Access = private)
+        
         function PCA(self)
             
             NumPC = min(size(self.RawData));
@@ -368,7 +371,10 @@ classdef DataSet < handle
             T = V*D;
             self.PCAScores = T(:,1:NumPC);
             self.PCALoadings = P(:,1:NumPC);
+            
+            self.HasPCA = true;
         end
     end
+
 end
 

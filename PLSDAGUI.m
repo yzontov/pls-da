@@ -10,6 +10,7 @@ ShowStartScreen();
         v = ver;
         if ~any(strcmp({v.Name},'GUI Layout Toolbox'))
             warndlg(sprintf('Please install the GUI Layout Toolbox first!\nhttps://www.mathworks.com/matlabcentral/fileexchange/47982-gui-layout-toolbox'));
+            fprintf('Please install the GUI Layout Toolbox first!\nhttps://www.mathworks.com/matlabcentral/fileexchange/47982-gui-layout-toolbox\n');
         else
             
             allvars = evalin('base','whos');
@@ -40,8 +41,16 @@ ShowStartScreen();
                 uicontrol('Parent', start_screen, 'Style', 'pushbutton', 'String', 'New model',...
                     'Position', [50 55 100 30], 'callback', @btnNewModel_Callback);
                 
-                uicontrol('Parent', start_screen, 'Style', 'pushbutton', 'String', 'Existing model',...
-                    'Position', [50 15 100 30], 'callback', @btnExistingModel_Callback);
+                btnSelectModel = uicontrol('Parent', start_screen, 'Style', 'pushbutton', 'String', 'Existing model',...
+                    'Position', [50 15 100 30], 'Enable', 'off', 'callback', @btnExistingModel_Callback);
+                
+                allvars = evalin('base','whos');
+        
+                idx = arrayfun(@(x)filter_model(x), allvars);
+                
+                if(sum(idx) > 1)
+                    set(btnSelectModel, 'Enable', 'on');
+                end
                 
             end
         end
@@ -62,6 +71,15 @@ ShowStartScreen();
         
         win = GUIWindow(vect);
         
+    end
+
+    function r = filter_model(x)
+            d = evalin('base', x.name);
+            if isequal(x.class,'PLSDAModel')
+                r = true;
+            else
+                r = false;
+            end
     end
 
     function btnExistingModel_Callback(obj, ~)

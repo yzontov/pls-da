@@ -6,7 +6,34 @@ classdef  GUIWindow<handle
         tgroup;
         
         fig;
+        selected_tab = GUIWindow.DataTabSelected;
+        selected_panel = GUIWindow.DataGraph;
+        selected_text_panel = GUIWindow.DataGraph;
+        selected_panel_pca = GUIWindow.DataPCAScores;
     end
+    
+    properties (Constant)
+        DataTabSelected = -1;
+        ModelTabSelected = -2;
+        PredictTabSelected = -3;
+        DataGraph = 1;
+        DataTable = 2;
+        DataPCA = 13;
+        DataPCAScores = 3;
+        DataPCALoadings = 4;
+        ModelGraph = 5;
+        ModelTable = 14;
+        ModelTableAllocation = 6;
+        ModelTableConfusion = 7;
+        ModelTableFoM = 8;
+        PredictGraph = 9;
+        PredictTable = 15;
+        PredictTableAllocation = 10;
+        PredictTableConfusion = 11;
+        PredictTableFoM = 12;
+    end
+    
+    
     methods
         
         function TabSelected(self, obj, param)
@@ -18,10 +45,13 @@ classdef  GUIWindow<handle
                 case 'Data'
                     var = self.dataTab.chkPlotShowObjectNames.Value;
                     PlotType = get(self.dataTab.ddlPlotType, 'Value');
+                    self.selected_tab = GUIWindow.DataTabSelected;
                 case 'Model'
                     var = self.modelTab.chkPlotShowObjectNames.Value;
+                    self.selected_tab = GUIWindow.ModelTabSelected;
                 case 'Prediction'
                     var = self.predictTab.chkPlotShowObjectNames.Value;
+                    self.selected_tab = GUIWindow.PredictTabSelected;
             end
             
             if(~isempty(var))
@@ -39,6 +69,84 @@ classdef  GUIWindow<handle
                     end
                 end
             end
+        end
+        
+        function ActiveTabSelected(self, obj, param)
+
+            var = [];
+            str = obj.SelectedTab.Title;
+            
+            switch self.selected_tab
+                case GUIWindow.DataTabSelected
+                    switch obj.SelectedTab.Title
+                        case 'Graphical view'
+                            self.selected_panel = GUIWindow.DataGraph;
+                        case 'Table view'
+                            self.selected_panel = GUIWindow.DataTable;
+                        case 'PCA'
+                            self.selected_panel = GUIWindow.DataPCA;
+                        case 'Scores'
+                            self.selected_panel_pca = GUIWindow.DataPCAScores;
+                        case 'Loadings'
+                            self.selected_panel_pca = GUIWindow.DataPCALoadings;
+                    end
+                case GUIWindow.ModelTabSelected
+                    switch obj.SelectedTab.Title
+                        case 'Graphical view'
+                            self.selected_panel = GUIWindow.DataGraph;
+                        case 'Table view'
+                            self.selected_panel = GUIWindow.DataTable;
+                        case 'Allocation table'
+                            self.selected_text_panel = GUIWindow.ModelTableAllocation;
+                        case 'Confusion matrix'
+                            self.selected_text_panel = GUIWindow.ModelTableConfusion;
+                        case 'Figures of merit'
+                            self.selected_text_panel = GUIWindow.ModelTableFoM;
+                    end
+                case GUIWindow.PredictTabSelected
+                    switch obj.SelectedTab.Title
+                        case 'Graphical view'
+                            self.selected_panel = GUIWindow.PredictGraph;
+                        case 'Table view'
+                            self.selected_panel = GUIWindow.PredictTable;
+                        case 'Allocation table'
+                            self.selected_text_panel = GUIWindow.PredictTableAllocation;
+                        case 'Confusion matrix'
+                            self.selected_text_panel = GUIWindow.PredictTableConfusion;
+                        case 'Figures of merit'
+                            self.selected_text_panel = GUIWindow.PredictTableFoM;
+                    end
+            end
+%             disp(self.selected_tab)
+%             disp(self.selected_panel)
+%             disp(self.selected_text_panel)
+%             disp(self.selected_panel_pca)
+        
+        if self.selected_tab == GUIWindow.DataTabSelected
+            if self.selected_panel == GUIWindow.DataTable
+                set(self.dataTab.pnlPlotSettings,'visible','off');
+                set(self.dataTab.pnlTableSettings,'visible','on');
+                set(self.dataTab.pnlPCASettings,'visible','off');
+                self.dataTab.vbox.Heights=[40,30,40,40,0,150,0];
+            end
+        
+            if self.selected_panel == GUIWindow.DataGraph
+                set(self.dataTab.pnlPlotSettings,'visible','on');
+                set(self.dataTab.pnlTableSettings,'visible','off');
+                set(self.dataTab.pnlPCASettings,'visible','off');
+                self.dataTab.vbox.Heights=[40,30,40,40,160,0,0];
+            end
+        
+            if self.selected_panel == GUIWindow.DataPCA
+                set(self.dataTab.pnlPlotSettings,'visible','off');
+                set(self.dataTab.pnlTableSettings,'visible','off');
+                set(self.dataTab.pnlPCASettings,'visible','on');
+                
+                self.dataTab.vbox.Heights=[40,30,40,40,0,0,150];
+            end
+        
+        end
+            
         end
         
         function Help_Callback(self, obj, param)

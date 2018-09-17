@@ -675,14 +675,18 @@ classdef  DataSetWindow<handle
                     end
                     
                     try
+                        s = regexprep(name, '[^a-zA-Z0-9_]', '_');
+
+                        if(~isempty(regexp(s,'^\d+$', 'once')))
+                            s = ['dataset_' s];
+                        end
+                        
+                        d.Name = s;
+                        name = s;
+                        
                         assignin('base', name, d)
                     catch
-                        errordlg('The invalid characters have been replaced. Please use only latin characters, numbers and underscore for the name of DataSet!');
-                        d.Name = name;
-                        s = regexprep(name, '[^a-zA-Z0-9_]', '_');
-                        s = regexprep(name, '[^a-zA-Z0-9_]', '_');
-                        assignin('base',s,d);
-                        name = regexprep(name, '[^a-zA-Z0-9_]', '_');
+                        waitfor(errordlg('The name contains invalid characters. Please use only latin characters, numbers and underscore for the name of DataSet!'));
                     end
                     
                     if isempty(self.dataset_name)

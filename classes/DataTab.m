@@ -13,6 +13,8 @@ classdef  DataTab < BasicTab
         pnlDataSettings;
         pnlPlotSettings;
         pnlDataCategories;
+        pnlTableSettings;
+        pnlPCASettings;
         
         ddlPlotType;
         ddlPlotVar1;
@@ -40,6 +42,19 @@ classdef  DataTab < BasicTab
         txtPCApcnumber;
         ddlPCApc1;
         ddlPCApc2;
+        
+        ddlPlotTypePCA;
+        chkPlotShowClassesPCA;
+        chkPlotShowObjectNamesPCA;
+        
+        btnDataSetEdit;
+        btnDataSetDelete;
+        btnSavePlotToFile;
+        btnSavePlotToClipboard;
+        
+        vbox;
+        hbox_pca_plot_type;
+        hbox_pca_plot_options;
     end
     
     properties (Access = private)
@@ -52,136 +67,206 @@ classdef  DataTab < BasicTab
         function ttab = DataTab(tabgroup, parent)
             ttab = ttab@BasicTab(tabgroup, 'Data', parent);
             
-            vbox = uix.VBox( 'Parent', ttab.left_panel, 'Padding', 5, 'Spacing', 15 );
+            ttab.vbox = uix.VBox( 'Parent', ttab.left_panel, 'Padding', 15, 'Spacing', 5 );
             
-            btn_box = uix.HButtonBox('Parent',vbox,'ButtonSize', [100 25]);
+            btn_box = uiextras.HButtonBox('Parent',ttab.vbox,'ButtonSize', [200 25]);
             uicontrol('Parent', btn_box, 'Style', 'pushbutton', 'String', 'New dataset',...
                 'Position', [90 360 100 20], ...
                 'callback', @ttab.btnNew_Callback);%,'FontUnits', 'Normalized'
             
-            hbox_input = uix.HButtonBox( 'Parent', vbox, 'Padding', 5);
-            uicontrol('Parent', hbox_input, 'Style', 'text', 'String', 'Data Set', ...
+            %hbox_input = uix.HBox( 'Parent', vbox);
+            hbox_input_g = uiextras.Grid( 'Parent', ttab.vbox );
+            uicontrol('Parent', hbox_input_g, 'Style', 'text', 'String', 'Data Set', ...
                 'Position', [20 320 100 20], 'HorizontalAlignment', 'left');
-            ttab.listbox = uicontrol('Parent', hbox_input, 'Style', 'popupmenu',...
+            ttab.listbox = uicontrol('Parent', hbox_input_g, 'Style', 'popupmenu',...
                 'String', {'-'}, ...
                 'Value',1, 'Position', [63 322 135 20], 'BackgroundColor', 'white', 'callback',@ttab.listClick);
             
-            uicontrol('Parent', hbox_input, 'Style', 'pushbutton', 'String', 'Edit',...
+            ttab.btnDataSetEdit = uicontrol('Parent', hbox_input_g, 'Style', 'pushbutton', 'String', 'Edit',...
                 'Position', [0.67 0.815 0.14 0.04], ...
                 'callback', @ttab.btnSetEdit_Callback);%,'FontUnits', 'Normalized'
             
-            uicontrol('Parent', hbox_input, 'Style', 'pushbutton', 'String', 'Delete',...
+            ttab.btnDataSetDelete = uicontrol('Parent', hbox_input_g, 'Style', 'pushbutton', 'String', 'Delete',...
                 'Position', [0.82 0.815 0.14 0.04], ...
                 'callback', @ttab.btnSetDelete_Callback);%,'FontUnits', 'Normalized'
             
+            set( hbox_input_g, 'ColumnSizes', [50 100 50 50]);
+            
             %categories
-            ttab.pnlDataCategories = uibuttongroup('Parent', vbox, 'Title', 'Categories', ...
-                'Position', [20   0.65   0.9  0.12]);
+            ttab.pnlDataCategories = uibuttongroup('Parent', ttab.vbox, 'Title', 'Categories');
+            hbox_cat = uiextras.HButtonBox( 'Parent', ttab.pnlDataCategories, 'ButtonSize', [120 25]);
             
             %             bg = uibuttongroup('Parent',ttab.pnlDataCategories,...
             %                   'Position',[0 0 1 1],...
             %                   'SelectionChangedFcn',@bselection);
             
-            ttab.chkTraining = uicontrol('Parent', ttab.pnlDataCategories, 'Style', 'radiobutton', 'String', 'Calibration',...
+            ttab.chkTraining = uicontrol('Parent', hbox_cat, 'Style', 'radiobutton', 'String', 'Calibration',...
                 'Position', [0.1 0.4 0.45 0.4], 'callback', @ttab.Input_Training);
-            ttab.chkValidation = uicontrol('Parent', ttab.pnlDataCategories, 'Style', 'radiobutton', 'String', 'New or Test',...
+            ttab.chkValidation = uicontrol('Parent', hbox_cat, 'Style', 'radiobutton', 'String', 'New or Test',...
                 'Position', [0.55 0.4 0.45 0.4], 'callback', @ttab.Input_Validation);
             
-            
             %preprocessing
-            ttab.pnlDataSettings = uipanel('Parent', vbox, 'Title', 'Preprocessing', ...
-                'Position', [0.05   0.52   0.9  0.12]);
-            ttab.chkCentering = uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'checkbox', 'String', 'Centering',...
+            ttab.pnlDataSettings = uiextras.Panel( 'Parent', ttab.vbox, 'Title', 'Preprocessing', 'TitlePosition', 'LeftTop');
+            %uipanel('Parent', vbox, 'Title', 'Preprocessing', ...
+            %    'Position', [0.05   0.52   0.9  0.12]);
+            hbox_set = uix.HButtonBox( 'Parent', ttab.pnlDataSettings, 'ButtonSize', [120 25]);
+            ttab.chkCentering = uicontrol('Parent', hbox_set, 'Style', 'checkbox', 'String', 'Centering',...
                 'Position', [0.1 0.4 0.45 0.4], 'callback', @ttab.Input_Centering);
-            ttab.chkScaling = uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'checkbox', 'String', 'Scaling',...
+            ttab.chkScaling = uicontrol('Parent', hbox_set, 'Style', 'checkbox', 'String', 'Scaling',...
                 'Position', [0.55 0.4 0.45 0.4], 'callback', @ttab.Input_Scaling);
             
             %lblPlotType
-            ttab.pnlPlotSettings = uipanel('Parent', vbox, 'Title', 'Plot', ...
-                'Position', [0.05   0.01   0.9  0.5]);
-            uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'Type', ...
+            ttab.pnlPlotSettings = uiextras.Panel( 'Parent', ttab.vbox, 'Title', 'Plot settings', 'TitlePosition', 'LeftTop');
+            %uipanel('Parent', vbox, 'Title', 'Plot', ...
+                %'Position', [0.05   0.01   0.9  0.5]);
+            vbox_plot = uiextras.VBox( 'Parent', ttab.pnlPlotSettings);
+            hbox1_plot = uiextras.HButtonBox( 'Parent', vbox_plot, 'ButtonSize', [120 25]);
+            uicontrol('Parent', hbox1_plot, 'Style', 'text', 'String', 'Plot type', ...
                 'Position', [0.05 0.78 0.35 0.1], 'HorizontalAlignment', 'left');
-            ttab.ddlPlotType = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu', 'String', {'Scatter', 'Line', 'Histogram'},...
+            ttab.ddlPlotType = uicontrol('Parent', hbox1_plot, 'Style', 'popupmenu', 'String', {'Scatter', 'Line', 'Histogram'},...
                 'Value',2, 'Position', [0.45 0.85 0.35 0.05], 'BackgroundColor', 'white', 'callback', @ttab.Callback_PlotType);
             
-            ttab.chkPlotShowClasses = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'checkbox', 'String', 'Show classes',...
+            hbox2_plot = uiextras.HButtonBox( 'Parent', vbox_plot, 'ButtonSize', [120 25]);
+            ttab.chkPlotShowClasses = uicontrol('Parent', hbox2_plot, 'Style', 'checkbox', 'String', 'Show classes',...
                 'Position', [0.05 0.65 0.85 0.1], 'callback', @ttab.Redraw);
-            ttab.chkPlotShowObjectNames = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'checkbox', 'String', 'Show object names',...
+            ttab.chkPlotShowObjectNames = uicontrol('Parent', hbox2_plot, 'Style', 'checkbox', 'String', 'Show object names',...
                 'Position', [0.05 0.55 0.85 0.1], 'callback', @ttab.Redraw);
             
-            uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'X-axis', ...
+            hbox3_plot = uiextras.HButtonBox( 'Parent', vbox_plot, 'ButtonSize', [120 25]);
+            uicontrol('Parent', hbox3_plot, 'Style', 'text', 'String', 'X-axis', ...
                 'Position', [0.05 0.35 0.35 0.1], 'HorizontalAlignment', 'left');
-            ttab.ddlPlotVar1 = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu', 'String', {'-'},...
+            ttab.ddlPlotVar1 = uicontrol('Parent', hbox3_plot, 'Style', 'popupmenu', 'String', {'-'},...
                 'Value',1, 'Position', [0.45 0.35 0.35 0.1], 'BackgroundColor', 'white', 'callback', @ttab.Redraw);
             
-            uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'Y-axis', ...
-                'Position', [0.05 0.25 0.35 0.1], 'HorizontalAlignment', 'left');
-            ttab.ddlPlotVar2 = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu', 'String', {'-'},...
-                'Value',1, 'Position', [0.45 0.25 0.35 0.1], 'BackgroundColor', 'white', 'callback', @ttab.Redraw);
+            hbox4_plot = uiextras.HButtonBox( 'Parent', vbox_plot, 'ButtonSize', [120 25]);
+            uicontrol('Parent', hbox4_plot, 'Style', 'text', 'String', 'Y-axis', ...
+                 'HorizontalAlignment', 'left');
+            ttab.ddlPlotVar2 = uicontrol('Parent', hbox4_plot, 'Style', 'popupmenu', 'String', {'-'},...
+                'Value',1,'BackgroundColor', 'white', 'callback', @ttab.Redraw);
             
-            
-            uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'pushbutton', 'String', 'Save',...
-                 'Position', [0.05 0.1 0.4 0.1], ...
+            hbox5_plot = uiextras.HButtonBox( 'Parent', vbox_plot, 'ButtonSize', [120 25]);
+            ttab.btnSavePlotToFile = uicontrol('Parent', hbox5_plot, 'Style', 'pushbutton', 'String', 'Save to file',...
                 'callback', @ttab.SavePlot);
-            uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'pushbutton', 'String', 'Copy to clipboard',...
-                 'Position', [0.51 0.1 0.4 0.1], ...
+            ttab.btnSavePlotToClipboard = uicontrol('Parent', hbox5_plot, 'Style', 'pushbutton', 'String', 'Copy to clipboard',...
                 'callback', @ttab.CopyPlotToClipboard);
             
-            vbox.Heights=[50,50,100,100,100];
+            vbox_plot.Heights=[30,30,30,30,30];
+            %set( hbox_plot, 'RowSizes', [50 50 50 50], 'ColumnSizes', [100 100]);
+            
+            %Table view settings
+            ttab.pnlTableSettings = uiextras.Panel( 'Parent', ttab.vbox, 'Title', 'Table view settings', 'TitlePosition', 'LeftTop','visible', 'off');
+            vbox_txt = uiextras.VBox( 'Parent', ttab.pnlTableSettings);
+            hbox1_txt = uiextras.HButtonBox( 'Parent', vbox_txt, 'ButtonSize', [120 25]);
+            
+            uicontrol('Parent', hbox1_txt, 'Style', 'pushbutton', 'String', 'Select all',...
+                 'Position', [0.01 0.91 0.1 0.05], ...
+                'callback', @ttab.SamplesSelectAll);
+            
+            uicontrol('Parent', hbox1_txt, 'Style', 'pushbutton', 'String', 'Select none',...
+                 'Position', [0.15 0.91 0.1 0.05], ...
+                'callback', @ttab.SamplesSelectNone);
+            
+            hbox2_txt = uiextras.HButtonBox( 'Parent', vbox_txt, 'ButtonSize', [120 25]);
+            uicontrol('Parent', hbox2_txt, 'Style', 'pushbutton', 'String', 'Inverse selection',...
+                 'Position', [0.3 0.91 0.15 0.05], ...
+                'callback', @ttab.SamplesInverseSelection);
+            
+            uicontrol('Parent', hbox2_txt, 'Style', 'pushbutton', 'String', 'Remove selected',...
+                 'Position', [0.8 0.91 0.15 0.05], ...
+                'callback', @ttab.SamplesRemoveSelection);
+            
+            
+            hbox3_txt = uiextras.HButtonBox( 'Parent', vbox_txt, 'ButtonSize', [200 25]);
+            uicontrol('Parent', hbox3_txt, 'Style', 'pushbutton', 'String', 'Copy selected to new DataSet',...
+                 'Position', [0.5 0.91 0.25 0.05], ...
+                'callback', @ttab.SamplesCopyToNewDataSet);
+            
+            
+            %PCA settings
+            ttab.pnlPCASettings = uiextras.Panel( 'Parent', ttab.vbox, 'Title', 'PCA settings', 'TitlePosition', 'LeftTop','visible', 'off');
+            
+            vbox_pca = uiextras.VBox( 'Parent', ttab.pnlPCASettings, 'Padding', 15, 'Spacing', 5);
+            grid1_pca = uiextras.Grid( 'Parent', vbox_pca, 'Spacing', 10);
+            uicontrol('Parent', grid1_pca, 'Style', 'text', 'String', 'Number of PCs', ...
+                'HorizontalAlignment', 'left');
+            ttab.txtPCApcnumber = uicontrol('Parent', grid1_pca, 'Style', 'edit', 'String', '2',...
+                'BackgroundColor', 'white', 'callback', @ttab.Callback_PCApcnumber);
+            
+            uicontrol('Parent', grid1_pca, 'Style', 'pushbutton', 'String', 'Build',...
+                'callback', @ttab.DoPCA);
+            set( grid1_pca, 'ColumnSizes', [100 50 60], 'RowSizes', 20);
+            
+            grid2_pca = uiextras.Grid( 'Parent', vbox_pca, 'Spacing', 10);
+            uicontrol('Parent', grid2_pca, 'Style', 'text', 'String', 'PC 1', 'HorizontalAlignment', 'left');
+            ttab.ddlPCApc1 = uicontrol('Parent', grid2_pca, 'Style', 'popupmenu', 'String', {'-'},...
+                'Value',1, 'BackgroundColor', 'white', 'callback', @ttab.Callback_PCApc);
+
+            uicontrol('Parent', grid2_pca, 'Style', 'text', 'String', 'PC 2', 'HorizontalAlignment', 'left');
+            ttab.ddlPCApc2 = uicontrol('Parent', grid2_pca, 'Style', 'popupmenu', 'String', {'-'},...
+                'Value',1, 'BackgroundColor', 'white', 'callback', @ttab.Callback_PCApc);
+            set( grid2_pca, 'ColumnSizes', [30 60 30 60]);
+            
+            ttab.hbox_pca_plot_type = uiextras.HButtonBox( 'Parent', vbox_pca, 'ButtonSize', [120 20]);
+            uicontrol('Parent', ttab.hbox_pca_plot_type, 'Style', 'text', 'String', 'Plot type', ...
+                'HorizontalAlignment', 'left');
+            ttab.ddlPlotTypePCA = uicontrol('Parent', ttab.hbox_pca_plot_type, 'Style', 'popupmenu', 'String', {'Scatter', 'Line', 'Histogram'},...
+                'Value',2, 'BackgroundColor', 'white', 'callback', @ttab.Callback_PlotType);
+
+            
+            ttab.hbox_pca_plot_options = uiextras.HButtonBox( 'Parent', vbox_pca, 'ButtonSize', [120 20]);
+            ttab.chkPlotShowClassesPCA = uicontrol('Parent', ttab.hbox_pca_plot_options, 'Style', 'checkbox', 'String', 'Show classes',...
+                'callback', @ttab.Redraw);
+            ttab.chkPlotShowObjectNamesPCA = uicontrol('Parent', ttab.hbox_pca_plot_options, 'Style', 'checkbox', 'String', 'Show object names',...
+                'callback', @ttab.Redraw);
+            
+
+            
+            ttab.vbox.Heights=[40,30,40,40,160,0,0];
             
             tg = uitabgroup('Parent', ttab.middle_panel);
+            
+            w = ttab.parent;
+            set(tg, 'SelectionChangedFcn', @w.ActiveTabSelected);
+            
             ttab.tab_img = uitab('Parent', tg, 'Title', 'Graphical view');
             tab_txt = uitab('Parent', tg, 'Title', 'Table view');
             
             tab_pca = uitab('Parent', tg, 'Title', 'PCA');
             
-            uicontrol('Parent', tab_pca, 'Style', 'text', 'String', 'Number of PCs', ...
-                'Position', [0.01 0.91 0.2 0.05], 'HorizontalAlignment', 'left');
-            ttab.txtPCApcnumber = uicontrol('Parent', tab_pca, 'Style', 'edit', 'String', '2',...
-                'Value',1, 'Position', [0.15 0.93 0.07 0.04], 'BackgroundColor', 'white', 'callback', @ttab.Callback_PCApcnumber);
+                        
+            tg2 = uitabgroup('Parent', tab_pca,'Position', [0 0 1 1]);
+            w = ttab.parent;
+            set(tg2, 'SelectionChangedFcn', @w.ActiveTabSelected);
             
-            uicontrol('Parent', tab_pca, 'Style', 'text', 'String', 'PC 1', ...
-               'Position', [0.3 0.91 0.3 0.05], 'HorizontalAlignment', 'left');
-            ttab.ddlPCApc1 = uicontrol('Parent', tab_pca, 'Style', 'popupmenu', 'String', {'-'},...
-                'Value',1, 'Position', [0.35 0.92 0.1 0.05], 'BackgroundColor', 'white', 'callback', @ttab.Callback_PCApc);
-            
-            uicontrol('Parent', tab_pca, 'Style', 'text', 'String', 'PC 2', ...
-                'Position', [0.55 0.91 0.2 0.05], 'HorizontalAlignment', 'left');
-            ttab.ddlPCApc2 = uicontrol('Parent', tab_pca, 'Style', 'popupmenu', 'String', {'-'},...
-                'Value',1, 'Position', [0.6 0.92 0.1 0.05], 'BackgroundColor', 'white', 'callback', @ttab.Callback_PCApc);
-            
-            tg2 = uitabgroup('Parent', tab_pca,'Position', [0 0 1 0.9]);
             ttab.tab_pca_scores = uitab('Parent', tg2, 'Title', 'Scores');
             ttab.tab_pca_loadings = uitab('Parent', tg2, 'Title', 'Loadings');
 
             ttab.tblTextResult = uitable(tab_txt);
             ttab.tblTextResult.Units = 'normalized';
-            ttab.tblTextResult.Position = [0 0 1 0.9];
+            ttab.tblTextResult.Position = [0 0 1 1];
             
-            uicontrol('Parent', tab_txt, 'Style', 'pushbutton', 'String', 'Select all',...
-                 'Position', [0.01 0.91 0.1 0.05], ...
-                'callback', @ttab.SamplesSelectAll);
             
-            uicontrol('Parent', tab_txt, 'Style', 'pushbutton', 'String', 'Select none',...
-                 'Position', [0.15 0.91 0.1 0.05], ...
-                'callback', @ttab.SamplesSelectNone);
-            
-            uicontrol('Parent', tab_txt, 'Style', 'pushbutton', 'String', 'Inverse selection',...
-                 'Position', [0.3 0.91 0.15 0.05], ...
-                'callback', @ttab.SamplesInverseSelection);
-            
-            uicontrol('Parent', tab_txt, 'Style', 'pushbutton', 'String', 'Copy selected to new DataSet',...
-                 'Position', [0.5 0.91 0.25 0.05], ...
-                'callback', @ttab.SamplesCopyToNewDataSet);
-            
-            uicontrol('Parent', tab_txt, 'Style', 'pushbutton', 'String', 'Remove selected',...
-                 'Position', [0.8 0.91 0.15 0.05], ...
-                'callback', @ttab.SamplesRemoveSelection);
             
             ttab.FillDataSetList();
             
             
             
+        end
+        
+        function DoPCA(self,~,~)
+                                  
+            index_selected = get(self.listbox,'Value');
+            
+            if(index_selected > 1)
+                
+                names = get(self.listbox,'String');
+                selected_name = names{index_selected};
+                
+                d = evalin('base', selected_name);
+                d.PCA();
+            end   
+
+            self.DrawPCA();
         end
         
         function DrawPCA(self)
@@ -343,7 +428,7 @@ classdef  DataTab < BasicTab
                 
                 self.FillPCApcDDL(numPC);
                 
-                self.DrawPCA();
+                %self.DrawPCA();
                 self.FillPCAStat();
                 
             else
@@ -370,7 +455,7 @@ classdef  DataTab < BasicTab
                     self.pc_y = self.ddlPCApc2.Value;
                 end
                 
-                self.DrawPCA();
+                %self.DrawPCA();
             end
         end
         
@@ -428,7 +513,7 @@ classdef  DataTab < BasicTab
                 self.drawPlot(selected_name);
                 self.FillTableView(selected_name);
                 self.FillPCApcDDL(2);
-                self.DrawPCA();
+                %self.DrawPCA();
             else
                 self.resetRightPanel();
                 self.enableRightPanel('off');
@@ -474,7 +559,7 @@ classdef  DataTab < BasicTab
                 self.Redraw();
                 
                 self.RefreshModel();
-                self.DrawPCA();
+                %self.DrawPCA();
             end
         end
         
@@ -492,7 +577,7 @@ classdef  DataTab < BasicTab
                 delete(self.data_plot_axes);
                 
                 self.RefreshModel();
-                self.DrawPCA();
+                %self.DrawPCA();
             end
         end
         
@@ -510,7 +595,7 @@ classdef  DataTab < BasicTab
                 self.Redraw();
                 
                 self.RefreshModel();
-                self.DrawPCA();
+                %self.DrawPCA();
             end
         end
         
@@ -602,7 +687,7 @@ classdef  DataTab < BasicTab
             
             self.drawPlot(selected_name);
             
-            self.DrawPCA();
+            %self.DrawPCA();
         end
         
         function SavePlot(self,obj, ~)
@@ -721,7 +806,7 @@ classdef  DataTab < BasicTab
                     end
                 end
                 
-                self.DrawPCA();
+                %self.DrawPCA();
             end
         end
         
@@ -750,13 +835,20 @@ classdef  DataTab < BasicTab
                     end
                 end
                 
-                self.DrawPCA();
+                %self.DrawPCA();
                 
             end
         end
         
         function Input_Training(self,obj, ~)
             val = get(obj,'Value');
+            
+            
+            if val == 1
+                set(self.chkValidation, 'Value', 0);
+            else
+                set(self.chkValidation, 'Value', 1);
+            end
             
             index_selected = get(self.listbox,'Value');
             
@@ -817,9 +909,17 @@ classdef  DataTab < BasicTab
         
         function Input_Validation(self,obj, ~)
             val = get(obj,'Value');
-            if ~isempty(val) && ~isnan(val)
+            index_selected = get(self.listbox,'Value');
+            
+            if val == 1
+                set(self.chkTraining, 'Value', 0);
+            else
+                set(self.chkTraining, 'Value', 1);
+            end
+            
+            if ~isempty(val) && ~isnan(val) && index_selected > 1
                 
-                index_selected = get(self.listbox,'Value');
+                
                 names = get(self.listbox,'String');%fieldnames(ttab.Data);
                 selected_name = names{index_selected};
                 
@@ -960,7 +1060,7 @@ classdef  DataTab < BasicTab
                 self.FillTableView(selected_name);
                 
                 self.FillPCApcDDL(2);
-                self.DrawPCA();
+                %self.DrawPCA();
             end
             
             self.RefreshModel();
@@ -1225,7 +1325,7 @@ classdef  DataTab < BasicTab
                 self.FillTableView(selected_name);
                 self.FillPCApcDDL(2);
                 
-                self.DrawPCA();
+                %self.DrawPCA();
                 
             else
                 self.resetRightPanel();
@@ -1279,6 +1379,10 @@ classdef  DataTab < BasicTab
             set(ttab.ddlPlotType, 'Value', 2);
             set(ttab.ddlPlotVar1, 'enable', 'off');
             set(ttab.ddlPlotVar2, 'enable', 'off');
+%             set(ttab.ddlPlotVar1, 'string', '-');
+%             set(ttab.ddlPlotVar2, 'string', '-');
+%             set(ttab.ddlPlotVar1, 'value', 1);
+%             set(ttab.ddlPlotVar2, 'value', 1);
             set(ttab.chkPlotShowObjectNames, 'enable', 'off');
             set(ttab.chkPlotShowClasses, 'enable', 'off');
             
@@ -1369,15 +1473,21 @@ classdef  DataTab < BasicTab
         
         function enableRightPanel(self, param)
             ttab = self;
-            children = get(ttab.pnlDataSettings,'Children');
-            children1 = get(ttab.pnlPlotSettings,'Children');
-            children2 = get(ttab.pnlDataCategories,'Children');
+            children = get(get(ttab.pnlDataSettings,'Children'),'Children');
+            children1 = get(get(ttab.pnlPlotSettings,'Children'),'Children');
+            children2 = get(get(ttab.pnlDataCategories,'Children'),'Children');
             
             % only set children which are uicontrols:
             set(children(strcmpi ( get (children,'Type'),'UIControl')),'enable',param);
             set(children1(strcmpi ( get (children1,'Type'),'UIControl')),'enable',param);
             set(children2(strcmpi ( get (children2,'Type'),'UIControl')),'enable',param);
-
+            
+            set(self.btnDataSetEdit,'enable',param);
+            set(self.btnDataSetDelete,'enable',param);
+            set(self.ddlPlotType,'enable',param);
+            set(self.btnSavePlotToFile,'enable',param);
+            set(self.btnSavePlotToClipboard,'enable',param);
+            
         end
         
         
