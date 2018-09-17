@@ -55,6 +55,7 @@ classdef  DataTab < BasicTab
         vbox;
         hbox_pca_plot_type;
         hbox_pca_plot_options;
+        vbox_pca;
     end
     
     properties (Access = private)
@@ -154,7 +155,7 @@ classdef  DataTab < BasicTab
             %set( hbox_plot, 'RowSizes', [50 50 50 50], 'ColumnSizes', [100 100]);
             
             %Table view settings
-            ttab.pnlTableSettings = uiextras.Panel( 'Parent', ttab.vbox, 'Title', 'Table view settings', 'TitlePosition', 'LeftTop','visible', 'off');
+            ttab.pnlTableSettings = uiextras.Panel( 'Parent', ttab.vbox, 'Title', 'Table view options', 'TitlePosition', 'LeftTop','visible', 'off');
             vbox_txt = uiextras.VBox( 'Parent', ttab.pnlTableSettings);
             hbox1_txt = uiextras.HButtonBox( 'Parent', vbox_txt, 'ButtonSize', [120 25]);
             
@@ -194,7 +195,7 @@ classdef  DataTab < BasicTab
             
             uicontrol('Parent', grid1_pca, 'Style', 'pushbutton', 'String', 'Build',...
                 'callback', @ttab.DoPCA);
-            set( grid1_pca, 'ColumnSizes', [100 50 60], 'RowSizes', 20);
+            set( grid1_pca, 'ColumnSizes', [100 50 60]);
             
             grid2_pca = uiextras.Grid( 'Parent', vbox_pca, 'Spacing', 10);
             uicontrol('Parent', grid2_pca, 'Style', 'text', 'String', 'PC 1', 'HorizontalAlignment', 'left');
@@ -206,20 +207,19 @@ classdef  DataTab < BasicTab
                 'Value',1, 'BackgroundColor', 'white', 'callback', @ttab.Callback_PCApc);
             set( grid2_pca, 'ColumnSizes', [30 60 30 60]);
             
-            ttab.hbox_pca_plot_type = uiextras.HButtonBox( 'Parent', vbox_pca, 'ButtonSize', [120 20]);
-            uicontrol('Parent', ttab.hbox_pca_plot_type, 'Style', 'text', 'String', 'Plot type', ...
-                'HorizontalAlignment', 'left');
-            ttab.ddlPlotTypePCA = uicontrol('Parent', ttab.hbox_pca_plot_type, 'Style', 'popupmenu', 'String', {'Scatter', 'Line', 'Histogram'},...
-                'Value',2, 'BackgroundColor', 'white', 'callback', @ttab.Callback_PlotType);
-
-            
             ttab.hbox_pca_plot_options = uiextras.HButtonBox( 'Parent', vbox_pca, 'ButtonSize', [120 20]);
             ttab.chkPlotShowClassesPCA = uicontrol('Parent', ttab.hbox_pca_plot_options, 'Style', 'checkbox', 'String', 'Show classes',...
                 'callback', @ttab.Redraw);
             ttab.chkPlotShowObjectNamesPCA = uicontrol('Parent', ttab.hbox_pca_plot_options, 'Style', 'checkbox', 'String', 'Show object names',...
                 'callback', @ttab.Redraw);
             
-
+            ttab.hbox_pca_plot_type = uiextras.HButtonBox( 'Parent', vbox_pca, 'ButtonSize', [120 25],'visible','off');
+            uicontrol('Parent', ttab.hbox_pca_plot_type, 'Style', 'text', 'String', 'Plot type', ...
+                'HorizontalAlignment', 'left');
+            ttab.ddlPlotTypePCA = uicontrol('Parent', ttab.hbox_pca_plot_type, 'Style', 'popupmenu', 'String', {'Scatter', 'Line'},...
+                'Value',1, 'BackgroundColor', 'white', 'callback', @ttab.Callback_PCALoadingsPlotType);
+            
+            ttab.vbox_pca.Heights=[20,20,0,25];
             
             ttab.vbox.Heights=[40,30,40,40,160,0,0];
             

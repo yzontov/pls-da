@@ -93,9 +93,9 @@ classdef  GUIWindow<handle
                 case GUIWindow.ModelTabSelected
                     switch obj.SelectedTab.Title
                         case 'Graphical view'
-                            self.selected_panel = GUIWindow.DataGraph;
+                            self.selected_panel = GUIWindow.ModelGraph;
                         case 'Table view'
-                            self.selected_panel = GUIWindow.DataTable;
+                            self.selected_panel = GUIWindow.ModelTable;
                         case 'Allocation table'
                             self.selected_text_panel = GUIWindow.ModelTableAllocation;
                         case 'Confusion matrix'
@@ -143,6 +143,33 @@ classdef  GUIWindow<handle
                 set(self.dataTab.pnlPCASettings,'visible','on');
                 
                 self.dataTab.vbox.Heights=[40,30,40,40,0,0,150];
+                
+                if self.selected_panel_pca == GUIWindow.DataPCAScores
+                    set(self.dataTab.hbox_pca_plot_type,'visible','off');
+                    set(self.dataTab.hbox_pca_plot_options,'visible','on');
+                    self.dataTab.vbox_pca.Heights=[20,20,0,25];
+                end
+                
+                if self.selected_panel_pca == GUIWindow.DataPCALoadings
+                    set(self.dataTab.hbox_pca_plot_type,'visible','on');
+                    %set(self.dataTab.hbox_pca_plot_options,'visible','off');
+                    self.dataTab.vbox_pca.Heights=[20,20,25,0];
+                end
+            end
+        
+        end
+        
+        if self.selected_tab == GUIWindow.ModelTabSelected
+            if self.selected_panel == GUIWindow.ModelTable
+                set(self.modelTab.pnlPlotSettings,'visible','off');
+                set(self.modelTab.pnlTableSettings,'visible','on');
+                self.modelTab.vbox.Heights=[40,180,0,50];
+            end
+        
+            if self.selected_panel == GUIWindow.ModelGraph
+                set(self.modelTab.pnlPlotSettings,'visible','on');
+                set(self.modelTab.pnlTableSettings,'visible','off');
+                self.modelTab.vbox.Heights=[40,180,120,0];
             end
         
         end

@@ -7,6 +7,7 @@ classdef  ModelTab < BasicTab
         pnlCrossValidationSettings;
         pnlModelSettings
         pnlPlotSettings;
+        pnlTableSettings;
         
         ddlModelType;
         tbNumPCpls;
@@ -37,6 +38,7 @@ classdef  ModelTab < BasicTab
         model_plot_axes;
         %model_plot;
         tab_img;
+        vbox;
     end
     
     properties (Access = private)
@@ -93,6 +95,7 @@ classdef  ModelTab < BasicTab
                 self.chkFinalizeModel.Enable = 'on';
                 self.btnSaveModel.Enable = 'on';
                 self.enablePanel(self.pnlPlotSettings, 'on');
+                self.enablePanel(self.pnlTableSettings, 'on');
                 
                 self.Redraw();
                 
@@ -103,9 +106,18 @@ classdef  ModelTab < BasicTab
         
         function enablePanel(self, panel, param)
             
-            children = get(panel,'Children');
-            set(children(strcmpi ( get (children,'Type'),'UIControl')),'enable',param);
+            children = panel.Children;
+            for i = 1:length(children)
+                c = children(i).Children;
+                set(c(strcmpi ( get (c,'Type'),'UIControl')),'enable',param);
+            end
             
+            children = panel.Children.Children;
+            for i = 1:length(children)
+                c = children(i).Children;
+                set(c(strcmpi ( get (c,'Type'),'UIControl')),'enable',param);
+            end
+
         end
         
         function ttab = ModelTab(tabgroup, parent)
@@ -113,111 +125,123 @@ classdef  ModelTab < BasicTab
             ttab = ttab@BasicTab(tabgroup, 'Model', parent);
             
             
-            ttab.pnlDataSettings = uipanel('Parent', ttab.left_panel, 'Title', 'Data','Units', 'normalized', ...
-                'Position', [0.05   0.85   0.9  0.1]);
+            ttab.vbox = uix.VBox( 'Parent', ttab.left_panel, 'Padding', 10, 'Spacing', 5 );
             
-            ttab.pnlCrossValidationSettings = uipanel('Parent', ttab.left_panel, 'Title', 'CrossValidation','Units', 'normalized', ...
-                'Position', [0.05   0.71   0.9  0.14],'Visible','off');
+            ttab.pnlDataSettings = uiextras.Panel( 'Parent', ttab.vbox, 'Title', 'Data', 'TitlePosition', 'LeftTop');
+    
+%             ttab.pnlCrossValidationSettings = uipanel('Parent', ttab.left_panel, 'Title', 'CrossValidation','Units', 'normalized', ...
+%                 'Position', [0.05   0.71   0.9  0.14],'Visible','off');
             
-            ttab.pnlModelSettings = uipanel('Parent', ttab.left_panel, 'Title', 'Model','Units', 'normalized', ...
-                'Position', [0.05   0.35   0.9  0.42]);
+            ttab.pnlModelSettings = uiextras.Panel( 'Parent', ttab.vbox, 'Title', 'Model settings', 'TitlePosition', 'LeftTop');
             
-            ttab.pnlPlotSettings = uipanel('Parent', ttab.left_panel, 'Title', 'Plot','Units', 'normalized', ...
-                'Position', [0.05   0.01   0.9  0.28]);
+            ttab.pnlPlotSettings = uiextras.Panel( 'Parent', ttab.vbox, 'Title', 'Plot settings', 'TitlePosition', 'LeftTop');
             
-            uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'text', 'String', 'Calibration', ...
-                'Units', 'normalized','Position', [0.05 0.45 0.35 0.4], 'HorizontalAlignment', 'left');
-            ttab.ddlCalibrationSet = uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'popupmenu', 'String', {'-'},...
-                'Units', 'normalized','Value',1, 'Position', [0.4 0.67 0.55 0.2], 'BackgroundColor', 'white', 'callback', @ttab.SelectCalibratinSet);
+            hbox1 = uix.HButtonBox( 'Parent', ttab.pnlDataSettings, 'ButtonSize', [120 25]);
             
-            uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'text', 'String', 'Validation', ...
-                'Units', 'normalized','Position', [0.05 0.25 0.35 0.25], 'HorizontalAlignment', 'left', 'Enable', 'off','Visible','off');
-            ttab.ddlValidationSet = uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'popupmenu', 'String', {'-'},'Visible','off',...
-                'Units', 'normalized','Value',1, 'Position', [0.4 0.27 0.55 0.2], 'BackgroundColor', 'white', 'callback', @ttab.SelectValidationSet, 'Enable', 'off');
+            uicontrol('Parent', hbox1, 'Style', 'text', 'String', 'Calibration');
+            ttab.ddlCalibrationSet = uicontrol('Parent', hbox1, 'Style', 'popupmenu', 'String', {'-'},...
+                'Value',1, 'BackgroundColor', 'white', 'callback', @ttab.SelectCalibratinSet);
             
+%             uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'text', 'String', 'Validation', ...
+%                 'Units', 'normalized','Position', [0.05 0.25 0.35 0.25], 'HorizontalAlignment', 'left', 'Enable', 'off','Visible','off');
+%             ttab.ddlValidationSet = uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'popupmenu', 'String', {'-'},'Visible','off',...
+%                 'Units', 'normalized','Value',1, 'Position', [0.4 0.27 0.55 0.2], 'BackgroundColor', 'white', 'callback', @ttab.SelectValidationSet, 'Enable', 'off');
+
+%             %CrossValidation
+%             ttab.chkCrossValidation = uicontrol('Parent', ttab.pnlCrossValidationSettings, 'Style', 'checkbox', 'String', 'Use cross-validation',...
+%                 'Units', 'normalized','Position', [0.05 0.7 0.85 0.2], 'callback', @ttab.Callback_UseCrossValidation, 'Enable', 'off');
+%             uicontrol('Parent', ttab.pnlCrossValidationSettings, 'Style', 'text', 'String', 'Cross-validation type', ...
+%                 'Units', 'normalized','Position', [0.05 0.3 0.85 0.25], 'HorizontalAlignment', 'left', 'Enable', 'off');
+%             ttab.ddlCrossValidationType = uicontrol('Parent', ttab.pnlCrossValidationSettings, 'Style', 'popupmenu', 'String', {'Leave-one-Out', 'K-fold', 'Holdout', 'Monte Carlo'},...
+%                 'Units', 'normalized','Value',2, 'Position', [0.47 0.325 0.45 0.2], 'BackgroundColor', 'white', 'callback', @ttab.Callback_CrossValidationType, 'Enable', 'off');
             
-            
-            %CrossValidation
-            ttab.chkCrossValidation = uicontrol('Parent', ttab.pnlCrossValidationSettings, 'Style', 'checkbox', 'String', 'Use cross-validation',...
-                'Units', 'normalized','Position', [0.05 0.7 0.85 0.2], 'callback', @ttab.Callback_UseCrossValidation, 'Enable', 'off');
-            uicontrol('Parent', ttab.pnlCrossValidationSettings, 'Style', 'text', 'String', 'Cross-validation type', ...
-                'Units', 'normalized','Position', [0.05 0.3 0.85 0.25], 'HorizontalAlignment', 'left', 'Enable', 'off');
-            ttab.ddlCrossValidationType = uicontrol('Parent', ttab.pnlCrossValidationSettings, 'Style', 'popupmenu', 'String', {'Leave-one-Out', 'K-fold', 'Holdout', 'Monte Carlo'},...
-                'Units', 'normalized','Value',2, 'Position', [0.47 0.325 0.45 0.2], 'BackgroundColor', 'white', 'callback', @ttab.Callback_CrossValidationType, 'Enable', 'off');
-            
+            vbox_mod = uix.VBox( 'Parent', ttab.pnlModelSettings, 'Padding', 10, 'Spacing', 5 );
             %lblModelType
-            uicontrol('Parent', ttab.pnlModelSettings, 'Style', 'text', 'String', 'Type of model', ...
-                'Units', 'normalized','Position', [0.05 0.85 0.85 0.1], 'HorizontalAlignment', 'left');
-            ttab.ddlModelType = uicontrol('Parent', ttab.pnlModelSettings, 'Style', 'popupmenu', 'String', {'Hard PLS-DA','Soft PLS-DA'},...
-                'Units', 'normalized','Value',2, 'Position', [0.45 0.87 0.45 0.1], 'BackgroundColor', 'white', 'callback', @ttab.Input_ModelParameters);
+            hboxm1 = uix.HButtonBox( 'Parent', vbox_mod, 'ButtonSize', [120 25]);
+            uicontrol('Parent', hboxm1, 'Style', 'text', 'String', 'Type of model');
+            ttab.ddlModelType = uicontrol('Parent', hboxm1, 'Style', 'popupmenu', 'String', {'Hard PLS-DA','Soft PLS-DA'},...
+                'value', 2, 'BackgroundColor', 'white', 'callback', @ttab.Input_ModelParameters);
             
+            hboxm2 = uix.HButtonBox( 'Parent', vbox_mod, 'ButtonSize', [120 25]);
             %model params
             %PLS PCs
-            uicontrol('Parent', ttab.pnlModelSettings, 'Style', 'text', 'String', 'Number of PLS PCs', ...
-                'Units', 'normalized','Position', [0.05 0.7 0.85 0.1], 'HorizontalAlignment', 'left');
-            ttab.tbNumPCpls = uicontrol('Parent', ttab.pnlModelSettings, 'Style', 'edit', 'String', '12',...
-                'Units', 'normalized','Value',1, 'Position', [0.65 0.7 0.25 0.1], 'BackgroundColor', 'white', 'callback', @ttab.Input_NumPC_PLS);
+            uicontrol('Parent', hboxm2, 'Style', 'text', 'String', 'Number of PLS PCs');
+            ttab.tbNumPCpls = uicontrol('Parent', hboxm2, 'Style', 'edit', 'String', '12',...
+                 'BackgroundColor', 'white', 'callback', @ttab.Input_NumPC_PLS);
             
             %PCA PCs
-            uicontrol('Parent', ttab.pnlModelSettings, 'Style', 'text', 'String', 'Number of PCA PCs', 'Enable', 'on', ...
-                'Units', 'normalized','Position', [0.05 0.55 0.85 0.1], 'HorizontalAlignment', 'left');
-            ttab.tbNumPCpca = uicontrol('Parent', ttab.pnlModelSettings, 'Style', 'edit', 'String', '2', 'Enable', 'off',...
-                'Units', 'normalized','Value',1, 'Position', [0.65 0.55 0.25 0.1], 'BackgroundColor', 'white', 'callback', @ttab.Input_NumPC_PCA);
+            uicontrol('Parent', hboxm2, 'Style', 'text', 'String', 'Number of PCA PCs', 'Enable', 'on');
+            ttab.tbNumPCpca = uicontrol('Parent', hboxm2, 'Style', 'edit', 'String', '2', 'Enable', 'off',...
+                'BackgroundColor', 'white', 'callback', @ttab.Input_NumPC_PCA);
             
+            hboxm4 = uix.HButtonBox( 'Parent', vbox_mod, 'ButtonSize', [120 25]);
             %lblAlpha
-            uicontrol('Parent', ttab.pnlModelSettings, 'Style', 'text', 'String', 'Type I error (alpha)', ...
-                'Units', 'normalized','Position', [0.05 0.4 0.85 0.1], 'HorizontalAlignment', 'left');
-            ttab.tbAlpha = uicontrol('Parent', ttab.pnlModelSettings, 'Style', 'edit', 'String', '0.05',...
-                'Units', 'normalized','Value',1, 'Position', [0.65 0.4 0.25 0.1], 'BackgroundColor', 'white', 'callback', @ttab.Input_Alpha);
+            uicontrol('Parent', hboxm4, 'Style', 'text', 'String', 'Type I error (alpha)');
+            ttab.tbAlpha = uicontrol('Parent', hboxm4, 'Style', 'edit', 'String', '0.05',...
+                'BackgroundColor', 'white', 'callback', @ttab.Input_Alpha);
             
             %lblGamma
-            uicontrol('Parent', ttab.pnlModelSettings, 'Style', 'text', 'String', 'Outlier significance (gamma)', ...
-                'Units', 'normalized','Position', [0.05 0.25 0.6 0.1], 'HorizontalAlignment', 'left');
-            ttab.tbGamma = uicontrol('Parent', ttab.pnlModelSettings, 'Style', 'edit', 'String', '0.01',...
-                'Units', 'normalized','Value',1, 'Position', [0.65 0.25 0.25 0.1], 'BackgroundColor', 'white', 'callback', @ttab.Input_Gamma);
+            uicontrol('Parent', hboxm4, 'Style', 'text', 'String', 'Outlier significance (gamma)');
+            ttab.tbGamma = uicontrol('Parent', hboxm4, 'Style', 'edit', 'String', '0.01',...
+                'BackgroundColor', 'white', 'callback', @ttab.Input_Gamma);
             
-            ttab.chkFinalizeModel = uicontrol('Parent', ttab.pnlModelSettings, 'Style', 'checkbox', 'String', 'Finalized',...
-                'Units', 'normalized','Position', [0.05 0.17 0.45 0.1], 'callback', @ttab.Finalize, 'Enable', 'off');
+            hboxm6 = uix.HButtonBox( 'Parent', vbox_mod, 'ButtonSize', [120 25]);
+            ttab.chkFinalizeModel = uicontrol('Parent', hboxm6, 'Style', 'checkbox', 'String', 'Finalized',...
+                'callback', @ttab.Finalize, 'Enable', 'off');
             
-            uicontrol('Parent', ttab.pnlModelSettings, 'Style', 'pushbutton', 'String', 'Recalibrate',...
-                'Units', 'Normalized', 'Position', [0.05 0.05 0.4 0.12], ...
+            uicontrol('Parent', hboxm6, 'Style', 'pushbutton', 'String', 'Recalibrate',...
                 'callback', @ttab.Recalibrate);
-            ttab.btnSaveModel = uicontrol('Parent', ttab.pnlModelSettings,'Enable','off', 'Style', 'pushbutton', 'String', 'Save model',...
-                'Units', 'Normalized', 'Position', [0.51 0.05 0.4 0.12], ...
+            ttab.btnSaveModel = uicontrol('Parent',hboxm6,'Enable','off', 'Style', 'pushbutton', 'String', 'Save model',...
                 'callback', @ttab.SaveModel);
             
-            uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'pushbutton', 'String', 'Save',...
-                'Units', 'Normalized', 'Position', [0.05 0.1 0.4 0.18], ...
+            vbox_plot = uix.VBox( 'Parent', ttab.pnlPlotSettings, 'Padding', 10, 'Spacing', 5 );
+            
+            hboxp2 = uix.HButtonBox( 'Parent', vbox_plot, 'ButtonSize', [120 20]);
+            ttab.chkPlotShowClasses = uicontrol('Parent', hboxp2, 'Style', 'checkbox', 'Value', 1, 'String', 'Show classes',...
+                 'Enable', 'off', 'callback', @ttab.RedrawCallback);
+            ttab.chkPlotShowObjectNames = uicontrol('Parent', hboxp2, 'Style', 'checkbox', 'String', 'Show object names',...
+                'Enable', 'off', 'callback', @ttab.RedrawCallback);
+            
+            hboxp3 = uix.HButtonBox( 'Parent', vbox_plot, 'ButtonSize', [120 20], 'Spacing', 5);
+            uicontrol('Parent', hboxp3, 'Style', 'text', 'String', 'PC 1', ...
+                 'Enable', 'off', 'HorizontalAlignment', 'left');
+            ttab.ddlPlotVar1 = uicontrol('Parent', hboxp3, 'Enable', 'off', 'Style', 'popupmenu', 'String', {'-'},...
+                 'BackgroundColor', 'white', 'callback', @ttab.RedrawCallback);
+            
+            uicontrol('Parent', hboxp3, 'Style', 'text', 'String', 'PC 2', 'Enable', 'off', ...
+                 'HorizontalAlignment', 'left');
+            ttab.ddlPlotVar2 = uicontrol('Parent', hboxp3, 'Style', 'popupmenu', 'Enable', 'off', 'String', {'-'},...
+                 'BackgroundColor', 'white', 'callback', @ttab.RedrawCallback);
+             
+            hboxp1 = uix.HButtonBox( 'Parent', vbox_plot, 'ButtonSize', [120 25]);
+            uicontrol('Parent', hboxp1, 'Style', 'pushbutton', 'String', 'Save to file',...
                 'callback', @ttab.SavePlot, 'enable', 'off');
-            uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'pushbutton', 'String', 'Copy to clipboard',...
-                'Units', 'Normalized', 'Position', [0.51 0.1 0.4 0.18], ...
+            uicontrol('Parent', hboxp1, 'Style', 'pushbutton', 'String', 'Copy to clipboard',...
                 'callback', @ttab.CopyPlotToClipboard, 'enable', 'off');
             
-            ttab.chkPlotShowClasses = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'checkbox', 'Value', 1, 'String', 'Show classes',...
-                'Units', 'normalized','Position', [0.05 0.85 0.85 0.1], 'Enable', 'off', 'callback', @ttab.RedrawCallback);
-            ttab.chkPlotShowObjectNames = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'checkbox', 'String', 'Show object names',...
-                'Units', 'normalized','Position', [0.05 0.75 0.85 0.1], 'Enable', 'off', 'callback', @ttab.RedrawCallback);
+            ttab.pnlTableSettings = uiextras.Panel( 'Parent', ttab.vbox, 'Title', 'Table view options', 'TitlePosition', 'LeftTop','visible','off');
+            hboxt1 = uix.HButtonBox( 'Parent', ttab.pnlTableSettings, 'ButtonSize', [120 25]);
+            uicontrol('Parent', hboxt1, 'Style', 'pushbutton', 'String', 'Save to file',...
+                'callback', @ttab.SavePlot, 'enable', 'off');
+            uicontrol('Parent', hboxt1, 'Style', 'pushbutton', 'String', 'Copy to clipboard',...
+                'callback', @ttab.CopyPlotToClipboard, 'enable', 'off');
             
-            uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'PC 1', ...
-                'Units', 'normalized','Position', [0.05 0.58 0.35 0.1], 'Enable', 'off', 'HorizontalAlignment', 'left');
-            ttab.ddlPlotVar1 = uicontrol('Parent', ttab.pnlPlotSettings, 'Enable', 'off', 'Style', 'popupmenu', 'String', {'-'},...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.6 0.35 0.1], 'BackgroundColor', 'white', 'callback', @ttab.RedrawCallback);
-            
-            uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'PC 2', 'Enable', 'off', ...
-                'Units', 'normalized','Position', [0.05 0.38 0.35 0.1], 'HorizontalAlignment', 'left');
-            ttab.ddlPlotVar2 = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu', 'Enable', 'off', 'String', {'-'},...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.4 0.35 0.1], 'BackgroundColor', 'white', 'callback', @ttab.RedrawCallback);
-            
-            
+            ttab.vbox.Heights=[40,180,120,0];
             
             tg = uitabgroup('Parent', ttab.middle_panel);
             ttab.tab_img = uitab('Parent', tg, 'Title', 'Graphical view');
             tab_txt = uitab('Parent', tg, 'Title', 'Table view');
             
+            w = ttab.parent;
+            set(tg, 'SelectionChangedFcn', @w.ActiveTabSelected);
+            
             tg2 = uitabgroup('Parent', tab_txt);
             tab_alloc = uitab('Parent', tg2, 'Title', 'Allocation table');
             tab_confusion = uitab('Parent', tg2, 'Title', 'Confusion matrix');
             tab_fom = uitab('Parent', tg2, 'Title', 'Figures of merit');
+            
+            w = ttab.parent;
+            set(tg2, 'SelectionChangedFcn', @w.ActiveTabSelected);
             
             ttab.tblTextConfusion = uitable(tab_confusion);
             ttab.tblTextConfusion.Units = 'normalized';
@@ -446,6 +470,7 @@ classdef  ModelTab < BasicTab
             
             self.Redraw();
             self.enablePanel(self.pnlPlotSettings, 'on');
+            self.enablePanel(self.pnlTableSettings, 'on');
             
             end
         end
@@ -541,6 +566,7 @@ classdef  ModelTab < BasicTab
             self.chkFinalizeModel.Value = 0;
             self.btnSaveModel.Enable = 'off';
             self.enablePanel(self.pnlPlotSettings, 'off');
+            self.enablePanel(self.pnlTableSettings, 'off');
             
             self.Model = [];
             delete(self.model_plot_axes);
