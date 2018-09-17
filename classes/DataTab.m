@@ -402,7 +402,7 @@ classdef  DataTab < BasicTab
                 
                 d = evalin('base', selected_name);
 
-                vmax = min(size(d.RawData));
+                vmax = min(size(d.ProcessedData));
                 
                 if d.Centering
                     vmax = vmax - 1;

@@ -357,7 +357,7 @@ classdef DataSet < handle
         
         function PCA(self)
             
-            NumPC = min(size(self.RawData));
+            NumPC = min(size(self.ProcessedData));
                 
                 if self.Centering
                     NumPC = NumPC - 1;

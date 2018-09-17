@@ -6,6 +6,7 @@ classdef  PredictTab < BasicTab
         pnlDataSettings;
         
         pnlPlotSettings;
+        pnlTableSettings;
         
         
         ddlNewSet;
@@ -38,8 +39,17 @@ classdef  PredictTab < BasicTab
         
         function enablePanel(self, panel, param)
             
-            children = get(panel,'Children');
-            set(children(strcmpi ( get (children,'Type'),'UIControl')),'enable',param);
+            children = panel.Children;
+            for i = 1:length(children)
+                c = children(i).Children;
+                set(c(strcmpi ( get (c,'Type'),'UIControl')),'enable',param);
+            end
+            
+            children = panel.Children.Children;
+            for i = 1:length(children)
+                c = children(i).Children;
+                set(c(strcmpi ( get (c,'Type'),'UIControl')),'enable',param);
+            end
             
             if isequal(self.parent.modelTab.Model.Mode, 'hard')
                 self.chkPlotShowClasses.Value = 0;
@@ -348,8 +358,8 @@ classdef  PredictTab < BasicTab
         
         function r = filter_test(self, x)
             d = evalin('base', x.name);
-            if isequal(x.class,'DataSet') && size(d, 2) == size(self.parent.modelTab.Model.TrainingDataSet, 2) && ...
-                    (~isempty(d.Classes) && d.NumberOfClasses == self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses || isempty(d.Classes))
+            if isequal(x.class,'DataSet') && size(d, 2) == size(self.parent.modelTab.Model.TrainingDataSet, 2) 
+                %&& (~isempty(d.Classes) && d.NumberOfClasses == self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses || isempty(d.Classes))
                 r = true;
             else
                 r = false;
