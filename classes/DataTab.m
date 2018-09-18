@@ -30,6 +30,8 @@ classdef  DataTab < BasicTab
         
         tblTextResult;
         tab_img;
+        tab_txt;
+        tab_pca;
         
         datasetwin;
         
@@ -229,19 +231,19 @@ classdef  DataTab < BasicTab
             set(tg, 'SelectionChangedFcn', @w.ActiveTabSelected);
             
             ttab.tab_img = uitab('Parent', tg, 'Title', 'Graphical view');
-            tab_txt = uitab('Parent', tg, 'Title', 'Table view');
+            ttab.tab_txt = uitab('Parent', tg, 'Title', 'Table view');
             
-            tab_pca = uitab('Parent', tg, 'Title', 'PCA');
+            ttab.tab_pca = uitab('Parent', tg, 'Title', 'PCA');
             
                         
-            tg2 = uitabgroup('Parent', tab_pca,'Position', [0 0 1 1]);
+            tg2 = uitabgroup('Parent', ttab.tab_pca,'Position', [0 0 1 1]);
             w = ttab.parent;
             set(tg2, 'SelectionChangedFcn', @w.ActiveTabSelected);
             
             ttab.tab_pca_scores = uitab('Parent', tg2, 'Title', 'Scores');
             ttab.tab_pca_loadings = uitab('Parent', tg2, 'Title', 'Loadings');
 
-            ttab.tblTextResult = uitable(tab_txt);
+            ttab.tblTextResult = uitable(ttab.tab_txt);
             ttab.tblTextResult.Units = 'normalized';
             ttab.tblTextResult.Position = [0 0 1 1];
             
@@ -1336,6 +1338,8 @@ classdef  DataTab < BasicTab
                 self.tblTextResult.Data = [];
                 self.tblTextResult.ColumnName = [];
                 
+               
+                
                 self.ClearPCA();
             end
             
@@ -1487,6 +1491,17 @@ classdef  DataTab < BasicTab
             set(self.ddlPlotType,'enable',param);
             set(self.btnSavePlotToFile,'enable',param);
             set(self.btnSavePlotToClipboard,'enable',param);
+            
+            tg = self.tab_txt.Parent;
+            jtabgroup=findjobj(tg);
+            
+            if strcmp(param, 'off')
+                
+                tg.SelectedTab = tg.Children(1);
+                jtabgroup.setEnableAt(0,0,0);
+            else    
+                jtabgroup.setEnableAt(1,1,1);
+            end
             
         end
         
