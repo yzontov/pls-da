@@ -87,11 +87,11 @@ classdef PLSDAModel < handle
             end
             
             if strcmp(self.Mode, 'hard')
-                m = PLSDAModel.allocation_hard(Labels, self.Distances_Hard);
+                m = PLSDAModel.allocation_hard(Labels, self.Distances_Hard, unique(self.TrainingDataSet.Classes));
             end
             
             if strcmp(self.Mode, 'soft')
-                m = PLSDAModel.allocation_soft(Labels, self.Alpha, self.Distances_Soft);
+                m = PLSDAModel.allocation_soft(Labels, self.Alpha, self.Distances_Soft, unique(self.TrainingDataSet.Classes));
             end
         end
         
@@ -280,7 +280,7 @@ classdef PLSDAModel < handle
                 end
                 
                 Result.Distances = Distances_Hard_New;
-                Result.AllocationTable = PLSDAModel.allocation_hard(Labels, Distances_Hard_New);
+                Result.AllocationTable = PLSDAModel.allocation_hard(Labels, Distances_Hard_New, unique(self.self.TrainingDataSet.Classes));
                 Result.AllocationMatrix = self.calculateAllocationMatrix(Distances_Hard_New);
                 
                 if ~isempty(NewDataSet.Classes)
@@ -298,7 +298,7 @@ classdef PLSDAModel < handle
                     end
                 end
                 Result.Distances = Distances_Soft_New;
-                Result.AllocationTable = PLSDAModel.allocation_soft(Labels, self.Alpha, Distances_Soft_New);
+                Result.AllocationTable = PLSDAModel.allocation_soft(Labels, self.Alpha, Distances_Soft_New, unique(self.TrainingDataSet.Classes));
                 Result.AllocationMatrix = self.calculateAllocationMatrix(Distances_Soft_New);
                 
                 if ~isempty(NewDataSet.Classes)
@@ -1198,14 +1198,14 @@ classdef PLSDAModel < handle
             r.TEFF = 100*sqrt(TSNS*TSPS);
         end
         
-        function r = allocation_hard(Labels, Dist)
+        function r = allocation_hard(Labels, Dist, cls)
             m = max(cellfun(@length, Labels));
             format = ['%-' sprintf('%d', m) 's\t'];
             r = '';
             r = [r, 'Decision Hard\n'];
             [I,K] = size(Dist);
             r = [r,sprintf(format, ' ')];
-            r = [r,sprintf('\t%d', 1:K)];
+            r = [r,sprintf('\t%d', cls)];
             r = [r,'\n'];
             for i = 1:I
                 r = [r,sprintf(format, Labels{i})];
@@ -1223,7 +1223,7 @@ classdef PLSDAModel < handle
             r = strrep(r,'\t', char(9));
         end
         
-        function r = allocation_soft(Labels, Alpha, Dist)
+        function r = allocation_soft(Labels, Alpha, Dist, cls)
             m = max(cellfun(@length, Labels));
             format = ['%-' sprintf('%d', m) 's\t'];
             r = '';
@@ -1232,7 +1232,7 @@ classdef PLSDAModel < handle
             Dcrit = PLSDAModel.chi2inv_(1-Alpha, K-1);
             
             r = [r,sprintf(format, ' ')];
-            r = [r,sprintf('\t%d', 1:K)];
+            r = [r,sprintf('\t%d', cls)];
             r = [r,'\n'];
             for i = 1:I
                 r = [r,sprintf(format, Labels{i})];

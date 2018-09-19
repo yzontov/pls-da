@@ -24,6 +24,8 @@ classdef  PredictTab < BasicTab
         tblTextResult;
         tblTextConfusion;
         tblTextFoM;
+        
+        vbox;
     end
     
     properties (Access = private)
@@ -56,51 +58,73 @@ classdef  PredictTab < BasicTab
                 self.chkPlotShowClasses.Enable = 'off';
             end
             
+            tg = self.tab_img.Parent;
+            tg.Visible = param;
+            
+            if(strcmp('off',param))
+                tg.SelectedTab = tg.Children(1);
+            
+                self.parent.selected_tab = GUIWindow.PredictTabSelected;
+                self.parent.selected_panel = GUIWindow.PredictGraph;
+                self.parent.selected_text_panel = GUIWindow.PredictTableAllocation;
+            end
+            
         end
         
         function ttab = PredictTab(tabgroup, parent)
             
             ttab = ttab@BasicTab(tabgroup, 'Prediction', parent);
             
-            ttab.pnlDataSettings = uipanel('Parent', ttab.left_panel, 'Title', 'Prediction','Units', 'normalized', ...
-                'Position', [0.05   0.79   0.9  0.2]);
+            ttab.vbox = uix.VBox( 'Parent', ttab.left_panel, 'Padding', 15, 'Spacing', 5 );
+            ttab.pnlDataSettings = uiextras.Panel( 'Parent', ttab.vbox, 'Title', 'Prediction', 'TitlePosition', 'LeftTop');
             
-            ttab.pnlPlotSettings = uipanel('Parent', ttab.left_panel, 'Title', 'Plot','Units', 'normalized', ...
-                'Position', [0.05   0.5   0.9  0.28]);
+            ttab.pnlPlotSettings = uiextras.Panel( 'Parent', ttab.vbox, 'Title', 'Plot settings', 'TitlePosition', 'LeftTop');
             
-            uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'text', 'String', 'New or Test Data Set', ...
-                'Units', 'normalized','Position', [0.05 0.65 0.35 0.3], 'HorizontalAlignment', 'left');
-            ttab.ddlNewSet = uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'popupmenu', 'String', {'-'},...
-                'Units', 'normalized','Value',1, 'Position', [0.4 0.67 0.55 0.2], 'BackgroundColor', 'white', 'callback', @ttab.SelectNewSet);
+            vbox_dat = uix.VBox( 'Parent', ttab.pnlDataSettings, 'Padding', 10, 'Spacing', 5 );
+           hbox_dat = uix.HButtonBox( 'Parent', vbox_dat, 'ButtonSize', [120 25]);
+            uicontrol('Parent', hbox_dat, 'Style', 'text', 'String', 'New or Test Data Set','HorizontalAlignment', 'left');
+            ttab.ddlNewSet = uicontrol('Parent', hbox_dat, 'Style', 'popupmenu', 'String', {'-'},...
+                'Value',1,'BackgroundColor', 'white', 'callback', @ttab.SelectNewSet);
             
-            
-            uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'pushbutton', 'String', 'Predict',...
-                'Units', 'Normalized', 'Position', [0.3 0.15 0.35 0.25], ...
+            hbox_dat2 = uix.HButtonBox( 'Parent', vbox_dat, 'ButtonSize', [120 25]);
+            uicontrol('Parent', hbox_dat2, 'Style', 'pushbutton', 'String', 'Predict',...
                 'callback', @ttab.btnNew_Callback);%,'FontUnits', 'Normalized'
             
             
-            uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'pushbutton', 'String', 'Save',...
-                'Units', 'Normalized', 'Position', [0.05 0.1 0.4 0.18], 'Enable', 'off', ...
-                'callback', @ttab.SavePlot);
-            uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'pushbutton', 'String', 'Copy to clipboard',...
-                'Units', 'Normalized', 'Position', [0.51 0.1 0.4 0.18], 'Enable', 'off', ...
-                'callback', @ttab.CopyPlotToClipboard);
+           vbox_plot = uix.VBox( 'Parent', ttab.pnlPlotSettings, 'Padding', 10, 'Spacing', 5 );
             
-            ttab.chkPlotShowClasses = uicontrol('Parent', ttab.pnlPlotSettings,'Enable','off', 'Style', 'checkbox', 'Value', 1, 'String', 'Show classes',...
-                'Units', 'normalized','Position', [0.05 0.85 0.85 0.1], 'callback', @ttab.RedrawCallback);%, 'callback', @DataTab.Redraw);
-            ttab.chkPlotShowObjectNames = uicontrol('Parent', ttab.pnlPlotSettings,'Enable','off', 'Style', 'checkbox', 'String', 'Show object names',...
-                'Units', 'normalized','Position', [0.05 0.75 0.85 0.1], 'callback', @ttab.RedrawCallback);%, 'callback', @DataTab.Redraw);
+            hboxp2 = uix.HButtonBox( 'Parent', vbox_plot, 'ButtonSize', [120 20]);
+            ttab.chkPlotShowClasses = uicontrol('Parent', hboxp2, 'Style', 'checkbox', 'Value', 1, 'String', 'Show classes',...
+                 'Enable', 'off', 'callback', @ttab.RedrawCallback);
+            ttab.chkPlotShowObjectNames = uicontrol('Parent', hboxp2, 'Style', 'checkbox', 'String', 'Show object names',...
+                'Enable', 'off', 'callback', @ttab.RedrawCallback);
             
+            hboxp3 = uix.HButtonBox( 'Parent', vbox_plot, 'ButtonSize', [120 20], 'Spacing', 5);
+            uicontrol('Parent', hboxp3, 'Style', 'text', 'String', 'PC 1', ...
+                 'Enable', 'off', 'HorizontalAlignment', 'left');
+            ttab.ddlPlotVar1 = uicontrol('Parent', hboxp3, 'Enable', 'off', 'Style', 'popupmenu', 'String', {'-'},...
+                 'BackgroundColor', 'white', 'callback', @ttab.RedrawCallback);
+            
+            uicontrol('Parent', hboxp3, 'Style', 'text', 'String', 'PC 2', 'Enable', 'off', ...
+                 'HorizontalAlignment', 'left');
+            ttab.ddlPlotVar2 = uicontrol('Parent', hboxp3, 'Style', 'popupmenu', 'Enable', 'off', 'String', {'-'},...
+                 'BackgroundColor', 'white', 'callback', @ttab.RedrawCallback);
+             
+            hboxp1 = uix.HButtonBox( 'Parent', vbox_plot, 'ButtonSize', [120 25]);
+            uicontrol('Parent', hboxp1, 'Style', 'pushbutton', 'String', 'Save to file',...
+                'callback', @ttab.SavePlot, 'enable', 'off');
+            uicontrol('Parent', hboxp1, 'Style', 'pushbutton', 'String', 'Copy to clipboard',...
+                'callback', @ttab.CopyPlotToClipboard, 'enable', 'off');
+            
+            ttab.pnlTableSettings = uiextras.Panel( 'Parent', ttab.vbox, 'Title', 'Table view options', 'TitlePosition', 'LeftTop','visible','off');
+            hboxt1 = uix.HButtonBox( 'Parent', ttab.pnlTableSettings, 'ButtonSize', [120 25]);
+            uicontrol('Parent', hboxt1, 'Style', 'pushbutton', 'String', 'Save to file',...
+                'callback', @ttab.SavePlot, 'enable', 'off');
+            uicontrol('Parent', hboxt1, 'Style', 'pushbutton', 'String', 'Copy to clipboard',...
+                'callback', @ttab.CopyPlotToClipboard, 'enable', 'off');
+            
+            ttab.vbox.Heights=[100,120,0];
 
-            uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'PC 1','Enable','off', ...
-                'Units', 'normalized','Position', [0.05 0.58 0.35 0.1], 'HorizontalAlignment', 'left');
-            ttab.ddlPlotVar1 = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu','Enable','off', 'String', {'1'},...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.6 0.35 0.1], 'BackgroundColor', 'white', 'callback', @ttab.RedrawCallback);%, 'callback', @DataTab.Redraw);
-            
-            uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'text', 'String', 'PC 2','Enable','off', ...
-                'Units', 'normalized','Position', [0.05 0.38 0.35 0.1], 'HorizontalAlignment', 'left');
-            ttab.ddlPlotVar2 = uicontrol('Parent', ttab.pnlPlotSettings, 'Style', 'popupmenu','Enable','off', 'String', {'2'},...
-                'Units', 'normalized','Value',1, 'Position', [0.45 0.4 0.35 0.1], 'BackgroundColor', 'white', 'callback', @ttab.RedrawCallback);%, 'callback', @DataTab.Redraw);
             
             if isequal(ttab.parent.modelTab.Model.Mode, 'hard')
                 ttab.chkPlotShowClasses.Value = 0;
@@ -124,11 +148,16 @@ classdef  PredictTab < BasicTab
             ttab.tab_img = uitab('Parent', tg, 'Title', 'Graphical view');
             tab_txt = uitab('Parent', tg, 'Title', 'Table view');
             
+            w = ttab.parent;
+            set(tg, 'SelectionChangedFcn', @w.ActiveTabSelected);
+            
             %ttab.tbTextEdit = uicontrol('Parent', tab_txt, 'Style', 'edit', 'String', '', ...
             %    'Units', 'normalized','Position', [0 0 1 1], 'HorizontalAlignment', 'left', 'Max', 2);
             
             ttab.tg2 = uitabgroup('Parent', tab_txt);
             tab_alloc = uitab('Parent', ttab.tg2, 'Title', 'Allocation table');
+
+            set(ttab.tg2, 'SelectionChangedFcn', @w.ActiveTabSelected);
 
             ttab.tblTextResult = uitable(tab_alloc);
             ttab.tblTextResult.Units = 'normalized';
@@ -191,12 +220,17 @@ classdef  PredictTab < BasicTab
 
                     
                 else
-                   self.tblTextResult.ColumnName = {'Sample','Class', 1:size(res.AllocationMatrix, 2)};
+                   self.tblTextResult.ColumnName = {'Sample','Class', unique(self.parent.modelTab.Model.TrainingDataSet.Classes)};
                 
                                    
                     
                     for i = 1:length(set.Classes)
                         c = set.Classes(i);
+                        
+%                         c = self.Model.TrainingDataSet.Classes(i);
+%                         u = unique(self.Model.TrainingDataSet.Classes);
+%                         ii = 1:self.Model.TrainingDataSet.NumberOfClasses;
+%                         ci = ii(u == c);
                         
                         if (sum(res.AllocationMatrix(i,:)) == 0)% no classes
                             res.Labels{i} = ['<html><table border=0 width=100% bgcolor=#FFC000><TR><TD>',res.Labels{i},'</TD></TR> </table></html>'];
@@ -252,6 +286,7 @@ classdef  PredictTab < BasicTab
                 end
                 
                 self.enablePanel(self.pnlPlotSettings, 'on');
+                self.enablePanel(self.pnlTableSettings, 'on');
                 
                 if isequal(self.parent.modelTab.Model.Mode, 'hard')
                     self.chkPlotShowClasses.Value = 0;
@@ -262,6 +297,7 @@ classdef  PredictTab < BasicTab
                 
             else
                 self.enablePanel(self.pnlPlotSettings, 'off');
+                self.enablePanel(self.pnlTableSettings, 'off');
             end
         end
         
@@ -349,6 +385,7 @@ classdef  PredictTab < BasicTab
         
         function SelectNewSet(self,obj, ~)
             self.enablePanel(self.pnlPlotSettings, 'off');
+            self.enablePanel(self.pnlTableSettings, 'off');
             
             delete(self.predict_plot_axes);
             self.tblTextResult.Data = [];

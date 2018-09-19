@@ -173,6 +173,21 @@ classdef  GUIWindow<handle
             end
         
         end
+        
+        if self.selected_tab == GUIWindow.PredictTabSelected
+            if self.selected_panel == GUIWindow.PredictTable
+                set(self.predictTab.pnlPlotSettings,'visible','off');
+                set(self.predictTab.pnlTableSettings,'visible','on');
+                self.predictTab.vbox.Heights=[100,0,50];
+            end
+        
+            if self.selected_panel == GUIWindow.PredictGraph
+                set(self.predictTab.pnlPlotSettings,'visible','on');
+                set(self.predictTab.pnlTableSettings,'visible','off');
+                self.predictTab.vbox.Heights=[100,120,0];
+            end
+        
+        end
             
         end
         

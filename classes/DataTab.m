@@ -10,6 +10,8 @@ classdef  DataTab < BasicTab
         %data_plot_axes;
         %data_plot;
         
+        pca_tabgroup;
+        
         pnlDataSettings;
         pnlPlotSettings;
         pnlDataCategories;
@@ -237,6 +239,8 @@ classdef  DataTab < BasicTab
             
                         
             tg2 = uitabgroup('Parent', ttab.tab_pca,'Position', [0 0 1 1]);
+            ttab.pca_tabgroup = tg2;
+            
             w = ttab.parent;
             set(tg2, 'SelectionChangedFcn', @w.ActiveTabSelected);
             
@@ -626,7 +630,7 @@ classdef  DataTab < BasicTab
                     new_d.RawData = d.RawData(logical(d.SelectedSamples),:);
                     new_d.Centering = d.Centering;
                     new_d.Scaling = d.Scaling;
-                    new_d.Classes = d.Classes(logical(d.SelectedSamples),:);
+                    new_d.RawClasses = d.RawClasses(logical(d.SelectedSamples),:);
                     new_d.VariableNames = d.VariableNames;
                     new_d.Variables = d.Variables;
                     new_d.ObjectNames = d.ObjectNames(logical(d.SelectedSamples),:);
@@ -1495,18 +1499,20 @@ classdef  DataTab < BasicTab
             tg = self.tab_img.Parent;
             tg.Visible = param;
             
-            tg.SelectedTab = tg.Children(1);
+            if(strcmp('off',param))
+                tg.SelectedTab = tg.Children(1);
+                self.pca_tabgroup.SelectedTab = self.pca_tabgroup.Children(1);
+                
+                set(self.pnlPlotSettings,'visible','on');
+                set(self.pnlTableSettings,'visible','off');
+                set(self.pnlPCASettings,'visible','off');
+                self.vbox.Heights=[40,30,40,40,160,0,0];
             
-            set(self.pnlPlotSettings,'visible','on');
-            set(self.pnlTableSettings,'visible','off');
-            set(self.pnlPCASettings,'visible','off');
-            self.vbox.Heights=[40,30,40,40,160,0,0];
-            
-            self.parent.selected_tab = GUIWindow.DataTabSelected;
-            self.parent.selected_panel = GUIWindow.DataGraph;
-            self.parent.selected_text_panel = GUIWindow.ModelTableAllocation;
-            self.parent.selected_panel_pca = GUIWindow.DataPCAScores;
-
+                self.parent.selected_tab = GUIWindow.DataTabSelected;
+                self.parent.selected_panel = GUIWindow.DataGraph;
+                self.parent.selected_text_panel = GUIWindow.ModelTableAllocation;
+                self.parent.selected_panel_pca = GUIWindow.DataPCAScores;
+            end
         end
         
         

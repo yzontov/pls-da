@@ -39,6 +39,8 @@ classdef  ModelTab < BasicTab
         %model_plot;
         tab_img;
         vbox;
+        
+        tbl_tabgroup;
     end
     
     properties (Access = private)
@@ -121,15 +123,18 @@ classdef  ModelTab < BasicTab
             tg = self.tab_img.Parent;
             tg.Visible = param;
             
-            tg.SelectedTab = tg.Children(1);
+            if(strcmp('off',param))
+                tg.SelectedTab = tg.Children(1);
+                self.tbl_tabgroup.SelectedTab = self.tbl_tabgroup.Children(1);
+                
+                self.parent.selected_tab = GUIWindow.ModelTabSelected;
+                self.parent.selected_panel = GUIWindow.ModelGraph;
+                self.parent.selected_text_panel = GUIWindow.ModelTableAllocation;
             
-            self.parent.selected_tab = GUIWindow.ModelTabSelected;
-            self.parent.selected_panel = GUIWindow.ModelGraph;
-            self.parent.selected_text_panel = GUIWindow.ModelTableAllocation;
-            
-            set(self.pnlPlotSettings,'visible','on');
-            set(self.pnlTableSettings,'visible','off');
-            self.vbox.Heights=[40,180,120,0];
+                set(self.pnlPlotSettings,'visible','on');
+                set(self.pnlTableSettings,'visible','off');
+                self.vbox.Heights=[40,180,120,0];
+            end
 
         end
         
@@ -252,6 +257,8 @@ classdef  ModelTab < BasicTab
             tab_alloc = uitab('Parent', tg2, 'Title', 'Allocation table');
             tab_confusion = uitab('Parent', tg2, 'Title', 'Confusion matrix');
             tab_fom = uitab('Parent', tg2, 'Title', 'Figures of merit');
+            
+            ttab.tbl_tabgroup = tg2;
             
             w = ttab.parent;
             set(tg2, 'SelectionChangedFcn', @w.ActiveTabSelected);
@@ -420,7 +427,7 @@ classdef  ModelTab < BasicTab
             %[mm_rows, mm_cols] = size(mm);
             %self.tblTextResult.Data = mat2cell(mm, ones(1, mm_rows), ones(1, mm_cols));
             
-            self.tblTextResult.ColumnName = {'Sample', 'Class', 1:self.Model.TrainingDataSet.NumberOfClasses};
+            self.tblTextResult.ColumnName = {'Sample', 'Class', unique(self.Model.TrainingDataSet.Classes)};
             self.tblTextResult.ColumnFormat = ['char' 'char' repmat({'logical'},1,self.Model.TrainingDataSet.NumberOfClasses)];
             waitbar(8/10, h);
             Labels = cell(size(self.Model.TrainingDataSet.ProcessedData, 1),1);
@@ -435,12 +442,15 @@ classdef  ModelTab < BasicTab
             
             for i = 1:length(self.Model.TrainingDataSet.Classes)
                 c = self.Model.TrainingDataSet.Classes(i);
+                u = unique(self.Model.TrainingDataSet.Classes);
+                ii = 1:self.Model.TrainingDataSet.NumberOfClasses;
+                ci = ii(u == c);
 
                 if (sum(self.Model.AllocationMatrix(i,:)) == 0)% no classes
                     Labels{i} = ['<html><table border=0 width=100% bgcolor=#FFC000><TR><TD>',Labels{i},'</TD></TR> </table></html>'];
                 else
                     t = Labels{i};
-                    if (~self.Model.AllocationMatrix(i,c))% wrong class
+                    if (~self.Model.AllocationMatrix(i,ci))% wrong class
                         Labels{i} = ['<html><table border=0 width=100% bgcolor=#FF0000><TR><TD>',t,'</TD></TR> </table></html>'];
                     end
                     
@@ -452,9 +462,11 @@ classdef  ModelTab < BasicTab
             
             self.tblTextResult.Data = [Labels, num2cell(self.Model.TrainingDataSet.Classes), num2cell(logical(self.Model.AllocationMatrix(:,1:self.Model.TrainingDataSet.NumberOfClasses)))];
             
+            self.tblTextConfusion.ColumnName = {unique(self.Model.TrainingDataSet.Classes)};
+            self.tblTextConfusion.RowName = {unique(self.Model.TrainingDataSet.Classes)};
             self.tblTextConfusion.Data = self.Model.ConfusionMatrix;
             
-            self.tblTextFoM.ColumnName = {'Statistics',1:self.Model.TrainingDataSet.NumberOfClasses};
+            self.tblTextFoM.ColumnName = {'Statistics',unique(self.Model.TrainingDataSet.Classes)};
             self.tblTextFoM.ColumnWidth = num2cell([120, 30*ones(1,size(self.Model.AllocationMatrix(:,1:self.Model.TrainingDataSet.NumberOfClasses), 2))]);
             self.tblTextFoM.ColumnFormat = ['char' repmat({'numeric'},1,self.Model.TrainingDataSet.NumberOfClasses)];
             

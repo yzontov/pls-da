@@ -49,13 +49,13 @@ classdef DataSet < handle
         function Y = DummyMatrix(self)
             
             if ~isempty(self.Classes)
-                class_number = max(self.Classes);
+                class_number = self.NumberOfClasses;
                 Y = zeros(length(self.Classes), class_number);
-                for cl = 1:class_number
-                    Y(:,cl) = (self.Classes == cl);
-                end
                 
-                %Y = Y(logical(self.SelectedSamples),:);
+                cls = unique(self.Classes);
+                for cl = 1:class_number
+                    Y(:,cl) = (self.Classes == cls(cl));
+                end
             else
                 Y = [];
             end
@@ -230,8 +230,7 @@ classdef DataSet < handle
         
         function value = get.NumberOfClasses(self)
             
-            %value = size(self.DummyMatrix(), 2);
-            value = max(self.Classes);
+            value = length(unique(self.Classes));
             
         end
         
