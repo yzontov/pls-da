@@ -1493,16 +1493,8 @@ classdef  DataTab < BasicTab
             set(self.btnSavePlotToClipboard,'enable',param);
             
             tg = self.tab_txt.Parent;
-            jtabgroup=findjobj(tg);
-            
-            if strcmp(param, 'off')
-                
-                tg.SelectedTab = tg.Children(1);
-                jtabgroup.setEnableAt(0,0,0);
-            else    
-                jtabgroup.setEnableAt(1,1,1);
-            end
-            
+            tg.Visible = param;
+
         end
         
         
