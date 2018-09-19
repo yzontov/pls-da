@@ -100,6 +100,8 @@ classdef  ModelTab < BasicTab
                 self.enablePanel(self.pnlTableSettings, 'on');
                 
                 self.Redraw();
+                tg = self.tab_img.Parent;
+                tg.Visible = 'on';
                 
                 r = self;
                 
@@ -232,17 +234,17 @@ classdef  ModelTab < BasicTab
                  'BackgroundColor', 'white', 'callback', @ttab.RedrawCallback);
              
             hboxp1 = uix.HButtonBox( 'Parent', vbox_plot, 'ButtonSize', [120 25]);
-            uicontrol('Parent', hboxp1, 'Style', 'pushbutton', 'String', 'Save to file',...
+            uicontrol('Parent', hboxp1, 'Style', 'pushbutton', 'String', 'Save image to file',...
                 'callback', @ttab.SavePlot, 'enable', 'off');
-            uicontrol('Parent', hboxp1, 'Style', 'pushbutton', 'String', 'Copy to clipboard',...
+            uicontrol('Parent', hboxp1, 'Style', 'pushbutton', 'String', 'Copy image to clipboard',...
                 'callback', @ttab.CopyPlotToClipboard, 'enable', 'off');
             
             ttab.pnlTableSettings = uiextras.Panel( 'Parent', ttab.vbox, 'Title', 'Table view options', 'TitlePosition', 'LeftTop','visible','off');
             hboxt1 = uix.HButtonBox( 'Parent', ttab.pnlTableSettings, 'ButtonSize', [120 25]);
-            uicontrol('Parent', hboxt1, 'Style', 'pushbutton', 'String', 'Save to file',...
-                'callback', @ttab.SavePlot, 'enable', 'off');
-            uicontrol('Parent', hboxt1, 'Style', 'pushbutton', 'String', 'Copy to clipboard',...
-                'callback', @ttab.CopyPlotToClipboard, 'enable', 'off');
+            uicontrol('Parent', hboxt1, 'Style', 'pushbutton', 'String', 'Save tables to file',...
+                'callback', @ttab.SaveTable, 'enable', 'off');
+            uicontrol('Parent', hboxt1, 'Style', 'pushbutton', 'String', 'Copy tables to clipboard',...
+                'callback', @ttab.CopyTableToClipboard, 'enable', 'off');
             
             ttab.vbox.Heights=[40,180,120,0];
             
@@ -324,6 +326,9 @@ classdef  ModelTab < BasicTab
                 end
                 
             end
+            
+            tg = ttab.tab_img.Parent;
+            tg.Visible = 'off';
             
         end
         
@@ -497,6 +502,9 @@ classdef  ModelTab < BasicTab
             self.enablePanel(self.pnlPlotSettings, 'on');
             self.enablePanel(self.pnlTableSettings, 'on');
             
+            tg = self.tab_img.Parent;
+                tg.Visible = 'on';
+            
             end
         end
         
@@ -551,6 +559,16 @@ classdef  ModelTab < BasicTab
             else
                 print(fig2,'-clipboard', '-dpng');
             end
+            
+        end
+        
+        function SaveTable(self, obj, ~)
+            
+
+        end
+        
+        function CopyTableToClipboard(self, obj, ~)
+            
             
         end
         

@@ -111,16 +111,16 @@ classdef  PredictTab < BasicTab
                  'BackgroundColor', 'white', 'callback', @ttab.RedrawCallback);
              
             hboxp1 = uix.HButtonBox( 'Parent', vbox_plot, 'ButtonSize', [120 25]);
-            uicontrol('Parent', hboxp1, 'Style', 'pushbutton', 'String', 'Save to file',...
+            uicontrol('Parent', hboxp1, 'Style', 'pushbutton', 'String', 'Save image to file',...
                 'callback', @ttab.SavePlot, 'enable', 'off');
-            uicontrol('Parent', hboxp1, 'Style', 'pushbutton', 'String', 'Copy to clipboard',...
+            uicontrol('Parent', hboxp1, 'Style', 'pushbutton', 'String', 'Copy image to clipboard',...
                 'callback', @ttab.CopyPlotToClipboard, 'enable', 'off');
             
             ttab.pnlTableSettings = uiextras.Panel( 'Parent', ttab.vbox, 'Title', 'Table view options', 'TitlePosition', 'LeftTop','visible','off');
             hboxt1 = uix.HButtonBox( 'Parent', ttab.pnlTableSettings, 'ButtonSize', [120 25]);
-            uicontrol('Parent', hboxt1, 'Style', 'pushbutton', 'String', 'Save to file',...
+            uicontrol('Parent', hboxt1, 'Style', 'pushbutton', 'String', 'Save tables to file',...
                 'callback', @ttab.SavePlot, 'enable', 'off');
-            uicontrol('Parent', hboxt1, 'Style', 'pushbutton', 'String', 'Copy to clipboard',...
+            uicontrol('Parent', hboxt1, 'Style', 'pushbutton', 'String', 'Copy tables to clipboard',...
                 'callback', @ttab.CopyPlotToClipboard, 'enable', 'off');
             
             ttab.vbox.Heights=[100,120,0];
@@ -180,6 +180,9 @@ classdef  PredictTab < BasicTab
                 end
 
             end
+            
+            tg = ttab.tab_img.Parent;
+                tg.Visible = 'off';
 
         end
         
@@ -226,7 +229,7 @@ classdef  PredictTab < BasicTab
                     
                     for i = 1:length(set.Classes)
                         c = set.Classes(i);
-                        
+                        self.parent.modelTab.Model
 %                         c = self.Model.TrainingDataSet.Classes(i);
 %                         u = unique(self.Model.TrainingDataSet.Classes);
 %                         ii = 1:self.Model.TrainingDataSet.NumberOfClasses;
@@ -287,6 +290,9 @@ classdef  PredictTab < BasicTab
                 
                 self.enablePanel(self.pnlPlotSettings, 'on');
                 self.enablePanel(self.pnlTableSettings, 'on');
+                
+                tg = self.tab_img.Parent;
+                tg.Visible = 'on';
                 
                 if isequal(self.parent.modelTab.Model.Mode, 'hard')
                     self.chkPlotShowClasses.Value = 0;
@@ -362,6 +368,16 @@ classdef  PredictTab < BasicTab
             else
                 print(fig2,'-clipboard', '-dpng');
             end
+            
+        end
+        
+        function SaveTable(self, obj, ~)
+            
+
+        end
+        
+        function CopyTableToClipboard(self, obj, ~)
+            
             
         end
         

@@ -48,7 +48,7 @@ ShowStartScreen();
         
                 idx = arrayfun(@(x)filter_model(x), allvars);
                 
-                if(sum(idx) > 1)
+                if(sum(idx) > 0)
                     set(btnSelectModel, 'Enable', 'on');
                 end
                 
