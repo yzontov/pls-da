@@ -1492,8 +1492,20 @@ classdef  DataTab < BasicTab
             set(self.btnSavePlotToFile,'enable',param);
             set(self.btnSavePlotToClipboard,'enable',param);
             
-            tg = self.tab_txt.Parent;
+            tg = self.tab_img.Parent;
             tg.Visible = param;
+            
+            tg.SelectedTab = tg.Children(1);
+            
+            set(self.pnlPlotSettings,'visible','on');
+            set(self.pnlTableSettings,'visible','off');
+            set(self.pnlPCASettings,'visible','off');
+            self.vbox.Heights=[40,30,40,40,160,0,0];
+            
+            self.parent.selected_tab = GUIWindow.DataTabSelected;
+            self.parent.selected_panel = GUIWindow.DataGraph;
+            self.parent.selected_text_panel = GUIWindow.ModelTableAllocation;
+            self.parent.selected_panel_pca = GUIWindow.DataPCAScores;
 
         end
         

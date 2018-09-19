@@ -8,7 +8,7 @@ classdef  GUIWindow<handle
         fig;
         selected_tab = GUIWindow.DataTabSelected;
         selected_panel = GUIWindow.DataGraph;
-        selected_text_panel = GUIWindow.DataGraph;
+        selected_text_panel = GUIWindow.ModelTableAllocation;
         selected_panel_pca = GUIWindow.DataPCAScores;
     end
     

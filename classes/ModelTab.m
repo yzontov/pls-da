@@ -117,6 +117,19 @@ classdef  ModelTab < BasicTab
                 c = children(i).Children;
                 set(c(strcmpi ( get (c,'Type'),'UIControl')),'enable',param);
             end
+            
+            tg = self.tab_img.Parent;
+            tg.Visible = param;
+            
+            tg.SelectedTab = tg.Children(1);
+            
+            self.parent.selected_tab = GUIWindow.ModelTabSelected;
+            self.parent.selected_panel = GUIWindow.ModelGraph;
+            self.parent.selected_text_panel = GUIWindow.ModelTableAllocation;
+            
+            set(self.pnlPlotSettings,'visible','on');
+            set(self.pnlTableSettings,'visible','off');
+            self.vbox.Heights=[40,180,120,0];
 
         end
         
