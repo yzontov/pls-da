@@ -81,6 +81,17 @@ classdef  ModelTab < BasicTab
                 
                 self.tblTextResult.ColumnName = {'Sample',1:size(self.Model.AllocationMatrix, 2)};
                 
+                
+                self.tblTextConfusion.ColumnName = {unique(self.Model.TrainingDataSet.Classes)};
+                self.tblTextConfusion.RowName = {unique(self.Model.TrainingDataSet.Classes)};
+                self.tblTextConfusion.Data = self.Model.ConfusionMatrix;
+            
+                self.tblTextFoM.ColumnName = {'Statistics',unique(self.Model.TrainingDataSet.Classes)};
+                self.tblTextFoM.ColumnWidth = num2cell([120, 30*ones(1,size(self.Model.AllocationMatrix(:,1:self.Model.TrainingDataSet.NumberOfClasses), 2))]);
+                self.tblTextFoM.ColumnFormat = ['char' repmat({'numeric'},1,self.Model.TrainingDataSet.NumberOfClasses)];
+
+                
+                
                 pcs = arrayfun(@(x) sprintf('%d', x), 1:self.Model.TrainingDataSet.NumberOfClasses-1, 'UniformOutput', false);
                 
                 set(self.ddlPlotVar1, 'String', pcs);
@@ -564,7 +575,10 @@ classdef  ModelTab < BasicTab
         
         function SaveTable(self, obj, ~)
             
-
+            fileID = fopen(['model_' self.Model.Name '.txt'],'w');
+            fprintf(fileID,'%s',self.Model.AllocationTable);
+            fclose(fileID);
+            
         end
         
         function CopyTableToClipboard(self, obj, ~)

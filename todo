@@ -2,12 +2,11 @@
 todo
 ------
 
-������ ��� Loadings -������ ���� ����������� ������� �������� ������  ��i(����������)
+line plot for PCA Loadings
 
 bug: legend not saved to file and clipboard
-bug: allocation color, fom and confusion not shown for existing model on open
+bug: allocation color not shown for existing model on open
 
-layout
 hide/disable unaccessible UI elements
 
 
@@ -18,6 +17,8 @@ done
 -pca: statistics
 -predict tab show class color if present
 
+layout
+fom and confusion not shown for existing model on open
 different classes in new set
 check classes numeration
 only number dataset name
