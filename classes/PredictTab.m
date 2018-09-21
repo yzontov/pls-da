@@ -229,17 +229,16 @@ classdef  PredictTab < BasicTab
                     
                     for i = 1:length(set.Classes)
                         c = set.Classes(i);
-                        self.parent.modelTab.Model
-%                         c = self.Model.TrainingDataSet.Classes(i);
-%                         u = unique(self.Model.TrainingDataSet.Classes);
-%                         ii = 1:self.Model.TrainingDataSet.NumberOfClasses;
-%                         ci = ii(u == c);
+
+                         u = unique(self.parent.modelTab.Model.TrainingDataSet.Classes);
+                         ii = 1:self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses;
+                         ci = ii(u == c);
                         
                         if (sum(res.AllocationMatrix(i,:)) == 0)% no classes
                             res.Labels{i} = ['<html><table border=0 width=100% bgcolor=#FFC000><TR><TD>',res.Labels{i},'</TD></TR> </table></html>'];
                         else
                             t = res.Labels{i};
-                            if (~res.AllocationMatrix(i,c))% wrong class
+                            if ~isempty(ci) && (~res.AllocationMatrix(i,ci))% wrong class
                                 res.Labels{i} = ['<html><table border=0 width=100% bgcolor=#FF0000><TR><TD>',t,'</TD></TR> </table></html>'];
                             end
                             
@@ -249,42 +248,41 @@ classdef  PredictTab < BasicTab
                         end
                     end
                    
-                   
                     self.tblTextResult.Data = [res.Labels, num2cell(set.Classes), num2cell(logical(res.AllocationMatrix))];
                     self.tblTextResult.ColumnFormat = ['char' 'char' repmat({'logical'},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses)];
 
                     self.tblTextResult.ColumnWidth = num2cell([150, 60, 30*ones(1,size(res.AllocationMatrix, 2))]); 
                 
-                    
-                    self.tab_confusion = uitab('Parent', self.tg2, 'Title', 'Confusion matrix');
-                    self.tab_fom = uitab('Parent', self.tg2, 'Title', 'Figures of merit');
+                    if ~isempty(intersect(set.Classes, self.parent.modelTab.Model.TrainingDataSet.Classes))
+                        self.tab_confusion = uitab('Parent', self.tg2, 'Title', 'Confusion matrix');
+                        self.tab_fom = uitab('Parent', self.tg2, 'Title', 'Figures of merit');
 
-                    self.tblTextConfusion = uitable(self.tab_confusion);
-                    self.tblTextConfusion.Units = 'normalized';
-                    self.tblTextConfusion.Position = [0 0 1 1];
+                        self.tblTextConfusion = uitable(self.tab_confusion);
+                        self.tblTextConfusion.Units = 'normalized';
+                        self.tblTextConfusion.Position = [0 0 1 1];
             
-                    self.tblTextFoM = uitable(self.tab_fom);
-                    self.tblTextFoM.Units = 'normalized';
-                    self.tblTextFoM.Position = [0 0 1 1];
+                        self.tblTextFoM = uitable(self.tab_fom);
+                        self.tblTextFoM.Units = 'normalized';
+                        self.tblTextFoM.Position = [0 0 1 1];
                     
-                    self.tblTextFoM.ColumnName = {'Statistics',1:self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses};
-                    self.tblTextFoM.ColumnWidth = num2cell([120, 30*ones(1,size(res.AllocationMatrix(:,1:self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses), 2))]);
-                    self.tblTextFoM.ColumnFormat = ['char' repmat({'numeric'},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses)];
+                        self.tblTextFoM.ColumnName = {'Statistics',1:self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses};
+                        self.tblTextFoM.ColumnWidth = num2cell([120, 30*ones(1,size(res.AllocationMatrix(:,1:self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses), 2))]);
+                        self.tblTextFoM.ColumnFormat = ['char' repmat({'numeric'},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses)];
                     
-                    self.tblTextConfusion.Data = res.ConfusionMatrix;
+                        self.tblTextConfusion.Data = res.ConfusionMatrix;
                     
-                    fields = {'True Positive';'False Positive';'';'Class Sensitivity (%)';'Class Specificity (%)';'Class Efficiency (%)';'';'Total Sensitivity (%)';'Total Specificity (%)';'Total Efficiency (%)'};
-                    fom = res.FiguresOfMerit;
+                        fields = {'True Positive';'False Positive';'';'Class Sensitivity (%)';'Class Specificity (%)';'Class Efficiency (%)';'';'Total Sensitivity (%)';'Total Specificity (%)';'Total Efficiency (%)'};
+                        fom = res.FiguresOfMerit;
                     
-                    self.tblTextFoM.Data = [fields,  [num2cell(round([fom.TP; fom.FP])); ...
-                        repmat({''},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses);...
-                        num2cell(round([fom.CSNS; fom.CSPS; fom.CEFF])); ...
-                        repmat({''},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses);...
-                        [round(fom.TSNS) repmat({''},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses-1)];...
-                        [round(fom.TSPS) repmat({''},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses-1)];...
-                        [round(fom.TEFF) repmat({''},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses-1)]...
-                        ]];
-                
+                        self.tblTextFoM.Data = [fields,  [num2cell(round([fom.TP; fom.FP])); ...
+                            repmat({''},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses);...
+                            num2cell(round([fom.CSNS; fom.CSPS; fom.CEFF])); ...
+                            repmat({''},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses);...
+                            [round(fom.TSNS) repmat({''},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses-1)];...
+                            [round(fom.TSPS) repmat({''},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses-1)];...
+                            [round(fom.TEFF) repmat({''},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses-1)]...
+                            ]];
+                    end
                 
                 end
                 

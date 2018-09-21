@@ -30,6 +30,8 @@ classdef PLSDAModel < handle
         NewDataSetObjectNames;
         
         NewDataSetHasClasses;
+        
+        IsFinalized = false;
     end
     
     properties
