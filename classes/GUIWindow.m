@@ -74,7 +74,7 @@ classdef  GUIWindow<handle
         function ActiveTabSelected(self, obj, param)
 
             var = [];
-            str = obj.SelectedTab.Title;
+            PlotType = [];
             
             switch self.selected_tab
                 case GUIWindow.DataTabSelected
@@ -89,6 +89,7 @@ classdef  GUIWindow<handle
                             self.selected_panel_pca = GUIWindow.DataPCAScores;
                         case 'Loadings'
                             self.selected_panel_pca = GUIWindow.DataPCALoadings;
+                            var = get(self.dataTab.chkPlotShowObjectNamesPCA,'value');
                     end
                 case GUIWindow.ModelTabSelected
                     switch obj.SelectedTab.Title
@@ -117,10 +118,6 @@ classdef  GUIWindow<handle
                             self.selected_text_panel = GUIWindow.PredictTableFoM;
                     end
             end
-%             disp(self.selected_tab)
-%             disp(self.selected_panel)
-%             disp(self.selected_text_panel)
-%             disp(self.selected_panel_pca)
         
         if self.selected_tab == GUIWindow.DataTabSelected
             if self.selected_panel == GUIWindow.DataTable
@@ -142,18 +139,39 @@ classdef  GUIWindow<handle
                 set(self.dataTab.pnlTableSettings,'visible','off');
                 set(self.dataTab.pnlPCASettings,'visible','on');
                 
+                index_selected = get(self.dataTab.listbox,'Value');
+                names = get(self.dataTab.listbox,'String');
+                selected_name = names{index_selected};
+            
+                if index_selected > 1
+                    d = evalin('base', selected_name);
+                    if d.HasPCA
+                        param = 'on';
+                        self.dataTab.DrawPCA();
+                    else
+                        param = 'off';
+                    end
+                else
+                    param = 'off';
+                end
+                
+                
+                self.dataTab.enablePCAPanel(param);
+                
                 self.dataTab.vbox.Heights=[40,30,40,40,0,0,150];
                 
                 if self.selected_panel_pca == GUIWindow.DataPCAScores
                     set(self.dataTab.hbox_pca_plot_type,'visible','off');
                     set(self.dataTab.hbox_pca_plot_options,'visible','on');
                     self.dataTab.vbox_pca.Heights=[20,20,0,25];
+                    set(self.dataTab.chkPlotShowClassesPCA,'enable','on');
                 end
                 
                 if self.selected_panel_pca == GUIWindow.DataPCALoadings
                     set(self.dataTab.hbox_pca_plot_type,'visible','on');
-                    %set(self.dataTab.hbox_pca_plot_options,'visible','off');
+                    set(self.dataTab.chkPlotShowClassesPCA,'enable','off');
                     self.dataTab.vbox_pca.Heights=[20,20,25,0];
+
                 end
             end
         
@@ -187,6 +205,26 @@ classdef  GUIWindow<handle
                 self.predictTab.vbox.Heights=[100,120,0];
             end
         
+        end
+        
+        if self.selected_panel_pca == GUIWindow.DataPCALoadings
+            if(~isempty(var))
+                if(var == 1)
+                    pan off
+                    datacursormode on
+                    dcm_obj = datacursormode(self.fig);
+                    set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
+                else
+                    PlotType = self.dataTab.hbox_pca_plot_type.Value;
+                    
+                    datacursormode off
+                    if isempty(PlotType) || PlotType == 2
+                        pan on
+                    else
+                        pan off
+                    end
+                end
+            end
         end
             
         end
