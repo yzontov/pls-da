@@ -238,6 +238,16 @@ classdef DataSet < handle
             
             self.RawClasses = value;
             
+            [~, ai] = sort(self.RawClasses);
+            
+            if ~isempty(self.RawData)
+                self.RawData = self.RawData(ai,:);
+            end
+            
+            if ~isempty(self.ObjectNames)
+                self.ObjectNames = self.ObjectNames(ai);
+            end
+            
         end
         
         function value = get.Classes(self)
@@ -354,9 +364,10 @@ classdef DataSet < handle
             self.HasPCA = false;
         end
         
-        function PCA(self)
+        function PCA(self, NumPC)
             
-            NumPC = min(size(self.ProcessedData));
+            if nargin == 0
+                NumPC = min(size(self.ProcessedData));
                 
                 if self.Centering
                     NumPC = NumPC - 1;
@@ -365,6 +376,7 @@ classdef DataSet < handle
                 if self.Scaling
                     NumPC = NumPC - 1;
                 end
+            end
             
             [V,D,P] = svd(self.ProcessedData);
             T = V*D;

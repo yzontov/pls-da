@@ -26,6 +26,8 @@ classdef  PredictTab < BasicTab
         tblTextFoM;
         
         vbox;
+        
+        result;
     end
     
     properties (Access = private)
@@ -195,6 +197,8 @@ classdef  PredictTab < BasicTab
                 set = evalin('base',list{idx});
                 
                 res = self.parent.modelTab.Model.Apply(set);
+                
+                self.result = res;
                 %
                 %ff = res.AllocationTable;
                 
@@ -212,8 +216,13 @@ classdef  PredictTab < BasicTab
                     
                     self.tab_fom = [];
                 end
-                    
-                if isempty(set.Classes)
+                
+                if ~isempty(set.Classes)
+                    trc = unique(self.parent.modelTab.Model.TrainingDataSet.Classes);
+                    tc = unique(set.Classes);
+                end
+                
+                if isempty(set.Classes) || (length(trc) == length(tc) && sum(trc == tc) == length(tc))
                     self.tblTextResult.ColumnName = {'Sample',1:size(res.AllocationMatrix, 2)};
                     
                     self.tblTextResult.Data = [res.Labels, num2cell(logical(res.AllocationMatrix))];
@@ -221,12 +230,9 @@ classdef  PredictTab < BasicTab
                     self.tblTextResult.ColumnWidth = num2cell([150, 30*ones(1,size(res.AllocationMatrix, 2))]);
                     self.tblTextResult.ColumnFormat = ['char' repmat({'logical'},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses)];
 
-                    
                 else
                    self.tblTextResult.ColumnName = {'Sample','Class', unique(self.parent.modelTab.Model.TrainingDataSet.Classes)};
-                
-                                   
-                    
+
                     for i = 1:length(set.Classes)
                         c = set.Classes(i);
 
@@ -235,10 +241,12 @@ classdef  PredictTab < BasicTab
                          ci = ii(u == c);
                         
                         if (sum(res.AllocationMatrix(i,:)) == 0)% no classes
-                            res.Labels{i} = ['<html><table border=0 width=100% bgcolor=#FFC000><TR><TD>',res.Labels{i},'</TD></TR> </table></html>'];
+                            if ~isempty(ci)
+                                res.Labels{i} = ['<html><table border=0 width=100% bgcolor=#FFC000><TR><TD>',res.Labels{i},'</TD></TR> </table></html>'];
+                            end
                         else
                             t = res.Labels{i};
-                            if ~isempty(ci) && (~res.AllocationMatrix(i,ci))% wrong class
+                            if (~isempty(ci) && (~res.AllocationMatrix(i,ci))) || isempty(ci)% wrong class
                                 res.Labels{i} = ['<html><table border=0 width=100% bgcolor=#FF0000><TR><TD>',t,'</TD></TR> </table></html>'];
                             end
                             
@@ -253,7 +261,13 @@ classdef  PredictTab < BasicTab
 
                     self.tblTextResult.ColumnWidth = num2cell([150, 60, 30*ones(1,size(res.AllocationMatrix, 2))]); 
                 
-                    if ~isempty(intersect(set.Classes, self.parent.modelTab.Model.TrainingDataSet.Classes))
+                    if ~isempty(set.Classes)
+                        trc = unique(self.parent.modelTab.Model.TrainingDataSet.Classes);
+                        tc = unique(set.Classes);
+                    end
+                
+                    if ~isempty(set.Classes) && length(trc) == length(tc) && sum(trc == tc) == length(tc)
+
                         self.tab_confusion = uitab('Parent', self.tg2, 'Title', 'Confusion matrix');
                         self.tab_fom = uitab('Parent', self.tg2, 'Title', 'Figures of merit');
 
@@ -303,6 +317,8 @@ classdef  PredictTab < BasicTab
                 self.enablePanel(self.pnlPlotSettings, 'off');
                 self.enablePanel(self.pnlTableSettings, 'off');
             end
+            
+            
         end
         
         function Redraw(self)
@@ -369,13 +385,55 @@ classdef  PredictTab < BasicTab
             
         end
         
+        function s = tableText(self)
+            s = sprintf('%s\n','Allocation table');
+            s = [s sprintf('%s',self.result.AllocationTable)];
+            
+            if isfield(self.result,'ConfusionMatrix')
+                s = [s sprintf('\n\n%s\n','Confusion matrix')];
+                s = [s sprintf([repmat('%d\t',1, length(self.result.ConfusionMatrix)) '\n'],self.result.ConfusionMatrix)];
+            end
+            
+            if isfield(self.result,'FiguresOfMerit')
+                s = [s sprintf('\n\n%s\n','Figures of merit')];
+                fields = {'True Positive';'False Positive';'';'Class Sensitivity (%)';'Class Specificity (%)';'Class Efficiency (%)';'';'Total Sensitivity (%)';'Total Specificity (%)';'Total Efficiency (%)'};
+                fom = self.result.FiguresOfMerit;
+                fom_txt = [fields,  {num2str(round(fom.TP)); num2str(round(fom.FP)); ...
+                '';...
+                num2str(round(fom.CSNS)); num2str(round(fom.CSPS)); num2str(round(fom.CEFF)); ...
+                '';...
+                num2str(round(fom.TSNS));...
+                num2str(round(fom.TSPS));...
+                num2str(round(fom.TEFF))...
+                }];
+            
+                s = [s sprintf('Statistics\t%s\n', sprintf('%d ',1:self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses))];
+                for i=1:size(fom_txt,1)
+                    s = [s sprintf('%s\t%s\n', fom_txt{i,1}, fom_txt{i,2})];
+                end
+            end
+
+        end
+        
         function SaveTable(self, obj, ~)
             
-
+            idx = get(self.ddlNewSet, 'value');
+                
+            list = get(self.ddlNewSet, 'string');
+                
+            fname = list{idx};
+            
+            fileID = fopen(['result_' fname '.txt'],'w');
+            
+            fprintf(fileID, '%s', self.tableText());
+            
+            fclose(fileID);
+            
         end
         
         function CopyTableToClipboard(self, obj, ~)
             
+            clipboard('copy',self.tableText());
             
         end
         
@@ -403,8 +461,11 @@ classdef  PredictTab < BasicTab
             
             delete(self.predict_plot_axes);
             self.tblTextResult.Data = [];
-            self.tblTextConfusion.Data = [];
-            self.tblTextFoM.Data = [];
+            
+            if (~isempty(self.tblTextConfusion) && ~isempty(self.tblTextFoM))
+                self.tblTextConfusion.Data = [];
+                self.tblTextFoM.Data = [];
+            end
         end
         
         function r = filter_test(self, x)

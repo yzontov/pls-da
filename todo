@@ -2,15 +2,8 @@
 todo
 ------
 
-line plot for PCA Loadings
 
 bug: legend not saved to file and clipboard
-bug: allocation color not shown for existing model on open
-
-save text tables
-fix PCA scores\loadings pan\datacursor modes
-
-hide/disable unaccessible UI elements
 
 
 ------
@@ -20,6 +13,12 @@ done
 -pca: statistics
 -predict tab show class color if present
 
+save text tables
+line plot for PCA Loadings
+fix PCA scores\loadings pan\datacursor modes
+hide/disable unaccessible UI elements
+fix prediction color
+bug: allocation color not shown for existing model on open
 layout
 fom and confusion not shown for existing model on open
 different classes in new set

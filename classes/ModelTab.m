@@ -77,6 +77,26 @@ classdef  ModelTab < BasicTab
                     Labels = self.Model.TrainingDataSet.SelectedObjectNames;
                 end
                 
+                for i = 1:length(self.Model.TrainingDataSet.Classes)
+                    c = self.Model.TrainingDataSet.Classes(i);
+                    u = unique(self.Model.TrainingDataSet.Classes);
+                    ii = 1:self.Model.TrainingDataSet.NumberOfClasses;
+                    ci = ii(u == c);
+                    
+                    if (sum(self.Model.AllocationMatrix(i,:)) == 0)% no classes
+                        Labels{i} = ['<html><table border=0 width=100% bgcolor=#FFC000><TR><TD>',Labels{i},'</TD></TR> </table></html>'];
+                    else
+                        t = Labels{i};
+                        if (~self.Model.AllocationMatrix(i,ci))% wrong class
+                            Labels{i} = ['<html><table border=0 width=100% bgcolor=#FF0000><TR><TD>',t,'</TD></TR> </table></html>'];
+                        end
+                        
+                        if (sum(self.Model.AllocationMatrix(i,:)) > 1)% multiple classes
+                            Labels{i} = ['<html><table border=0 width=100% bgcolor=#FFA0A0><TR><TD>',t,'</TD></TR> </table></html>'];
+                        end
+                    end
+                end
+                
                 self.tblTextResult.Data = [Labels, num2cell(logical(self.Model.AllocationMatrix))];
                 
                 self.tblTextResult.ColumnName = {'Sample',1:size(self.Model.AllocationMatrix, 2)};
@@ -90,7 +110,17 @@ classdef  ModelTab < BasicTab
                 self.tblTextFoM.ColumnWidth = num2cell([120, 30*ones(1,size(self.Model.AllocationMatrix(:,1:self.Model.TrainingDataSet.NumberOfClasses), 2))]);
                 self.tblTextFoM.ColumnFormat = ['char' repmat({'numeric'},1,self.Model.TrainingDataSet.NumberOfClasses)];
 
-                
+                fields = {'True Positive';'False Positive';'';'Class Sensitivity (%)';'Class Specificity (%)';'Class Efficiency (%)';'';'Total Sensitivity (%)';'Total Specificity (%)';'Total Efficiency (%)'};
+                fom = self.Model.FiguresOfMerit;
+            
+                self.tblTextFoM.Data = [fields,  [num2cell(round([fom.TP; fom.FP])); ...
+                repmat({''},1,self.Model.TrainingDataSet.NumberOfClasses);...
+                num2cell(round([fom.CSNS; fom.CSPS; fom.CEFF])); ...
+                repmat({''},1,self.Model.TrainingDataSet.NumberOfClasses);...
+                [round(fom.TSNS) repmat({''},1,self.Model.TrainingDataSet.NumberOfClasses-1)];...
+                [round(fom.TSPS) repmat({''},1,self.Model.TrainingDataSet.NumberOfClasses-1)];...
+                [round(fom.TEFF) repmat({''},1,self.Model.TrainingDataSet.NumberOfClasses-1)]...
+                ]];
                 
                 pcs = arrayfun(@(x) sprintf('%d', x), 1:self.Model.TrainingDataSet.NumberOfClasses-1, 'UniformOutput', false);
                 
@@ -207,12 +237,12 @@ classdef  ModelTab < BasicTab
             
             hboxm4 = uix.HButtonBox( 'Parent', vbox_mod, 'ButtonSize', [120 25]);
             %lblAlpha
-            uicontrol('Parent', hboxm4, 'Style', 'text', 'String', 'Type I error (alpha)');
+            uicontrol('Parent', hboxm4, 'Style', 'text', 'String', 'Type I error');
             ttab.tbAlpha = uicontrol('Parent', hboxm4, 'Style', 'edit', 'String', '0.05',...
                 'BackgroundColor', 'white', 'callback', @ttab.Input_Alpha);
             
             %lblGamma
-            uicontrol('Parent', hboxm4, 'Style', 'text', 'String', 'Outlier significance (gamma)');
+            uicontrol('Parent', hboxm4, 'Style', 'text', 'String', 'Outlier level');
             ttab.tbGamma = uicontrol('Parent', hboxm4, 'Style', 'edit', 'String', '0.01',...
                 'BackgroundColor', 'white', 'callback', @ttab.Input_Gamma);
             
@@ -573,16 +603,45 @@ classdef  ModelTab < BasicTab
             
         end
         
+        function s = tableText(self)
+            s = sprintf('%s\n','Allocation table');
+            s = [s sprintf('%s',self.Model.AllocationTable)];
+            
+            s = [s sprintf('\n\n%s\n','Confusion matrix')];
+            s = [s sprintf([repmat('%d\t',1, length(self.Model.ConfusionMatrix)) '\n'],self.Model.ConfusionMatrix)];
+            
+            s = [s sprintf('\n\n%s\n','Figures of merit')];
+            fields = {'True Positive';'False Positive';'';'Class Sensitivity (%)';'Class Specificity (%)';'Class Efficiency (%)';'';'Total Sensitivity (%)';'Total Specificity (%)';'Total Efficiency (%)'};
+            fom = self.Model.FiguresOfMerit;
+            fom_txt = [fields,  {num2str(round(fom.TP)); num2str(round(fom.FP)); ...
+                '';...
+                num2str(round(fom.CSNS)); num2str(round(fom.CSPS)); num2str(round(fom.CEFF)); ...
+                '';...
+                num2str(round(fom.TSNS));...
+                num2str(round(fom.TSPS));...
+                num2str(round(fom.TEFF))...
+                }];
+            
+            s = [s sprintf('Statistics\t%s\n', sprintf('%d ',1:self.Model.TrainingDataSet.NumberOfClasses))];
+            for i=1:size(fom_txt,1)
+                s = [s sprintf('%s\t%s\n', fom_txt{i,1}, fom_txt{i,2})];
+            end
+
+        end
+        
         function SaveTable(self, obj, ~)
             
             fileID = fopen(['model_' self.Model.Name '.txt'],'w');
-            fprintf(fileID,'%s',self.Model.AllocationTable);
+            
+            fprintf(fileID, '%s', self.tableText());
+            
             fclose(fileID);
             
         end
         
         function CopyTableToClipboard(self, obj, ~)
             
+            clipboard('copy',self.tableText());
             
         end
         
@@ -778,7 +837,7 @@ classdef  ModelTab < BasicTab
         
         function r = filter_training(x)
             d = evalin('base', x.name);
-            if isequal(x.class,'DataSet') && d.Training && ~isempty(d.Classes)
+            if isequal(x.class,'DataSet') && d.Training && ~isempty(d.Classes) && d.NumberOfClasses > 1
                 r = true;
             else
                 r = false;

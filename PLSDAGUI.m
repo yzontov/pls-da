@@ -98,8 +98,8 @@ ShowStartScreen();
             
             assignin('base', Model.TrainingDataSet.Name, Model.TrainingDataSet);
             
-            win = GUIWindow(vect, tvarname{1});
-            win.modelTab.Model = Model;
+            win = GUIWindow(vect, tvarname{1}, Model);
+            
             
         end
         

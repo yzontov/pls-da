@@ -681,6 +681,10 @@ classdef  DataSetWindow<handle
                             s = ['dataset_' s];
                         end
                         
+                        if(~isempty(regexp(s,'^_+$', 'once')))
+                            s = ['dataset_' s];
+                        end
+                        
                         d.Name = s;
                         name = s;
                         

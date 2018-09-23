@@ -304,6 +304,11 @@ classdef PLSDAModel < handle
                 Result.AllocationMatrix = self.calculateAllocationMatrix(Distances_Soft_New);
                 
                 if ~isempty(NewDataSet.Classes)
+                    trc = unique(self.TrainingDataSet.Classes);
+                    tc = unique(NewDataSet.Classes);
+                end
+                
+                if ~isempty(NewDataSet.Classes) && length(trc) == length(tc) && sum(trc == tc) == length(tc)
                     Result.ConfusionMatrix = PLSDAModel.confusionMatrix(NewDataSet.DummyMatrix(),Distances_Soft_New, 1, self.Alpha);
                     Result.FiguresOfMerit = PLSDAModel.FoM(Result.ConfusionMatrix, sum(NewDataSet.DummyMatrix()));
                 end

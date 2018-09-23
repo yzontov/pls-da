@@ -268,16 +268,20 @@ classdef  DataTab < BasicTab
                 selected_name = names{index_selected};
                 
                 d = evalin('base', selected_name);
-                d.PCA();
+                
                 
                 str=get(self.txtPCApcnumber,'String');
                 numPC = str2double(str);
                 
-                self.FillPCApcDDL(numPC);
+                d.PCA(numPC);
                 
-                self.DrawPCA();
+                self.FillPCApcDDL(numPC);
+                self.enablePCAPanel('off');
+                
                 self.enablePCAPanel('on');
                 self.pca_tabgroup.Visible = 'on';
+                
+                self.DrawPCA();
             else
                 self.enablePCAPanel('off');
                 self.pca_tabgroup.Visible = 'off';
@@ -330,7 +334,7 @@ classdef  DataTab < BasicTab
                     plot(self.tab_pca_scores_axes,d.PCAScores(:,pc1), d.PCAScores(:,pc2), 'o');
                 end
                 
-                plot(self.tab_pca_loadings_axes,d.PCALoadings(:,pc1), d.PCALoadings(:,pc2), 'o');
+                
                 
                 xlabel(self.tab_pca_scores_axes,sprintf('PC %d', pc1));
                 ylabel(self.tab_pca_scores_axes,sprintf('PC %d', pc2));
@@ -342,10 +346,18 @@ classdef  DataTab < BasicTab
                     score_labels = strread(num2str(1:size(d.ProcessedData, 1)),'%s');
                 end
                 
+                if get(self.chkPlotShowObjectNamesPCA,'value') == 1
+                            pan off
+                            datacursormode on
+                            dcm_obj = datacursormode(self.parent.fig);
+                            set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
+                else
+                            datacursormode off
+                            pan on
+                end
                 
-                
-                dcm_obj = datacursormode(self.parent.fig);
-                set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
+%                 dcm_obj = datacursormode(self.parent.fig);
+%                 set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
                 
                 if ~isempty(d.Classes)
                     set(self.tab_pca_scores_axes,'UserData', {[d.PCAScores(:,pc1), d.PCAScores(:,pc2)], score_labels, d.Classes, []});
@@ -355,26 +367,63 @@ classdef  DataTab < BasicTab
                 
                             
                 loadings_plot_type = get(self.ddlPlotTypePCA, 'value');
+                
+                
+                if(~isempty(d.VariableNames))
+                    loadings_labels = d.VariableNames;
+                else
+                    if(~isempty(d.Variables))
+                        loadings_labels = strread(num2str(d.Variables),'%s');
+                    else
+                        loadings_labels = strread(num2str(1:size(d.ProcessedData, 2)),'%s');
+                    end
+                end
+                
+                
                 if(loadings_plot_type == 1)%scatter
+                    
+                    plot(self.tab_pca_loadings_axes,d.PCALoadings(:,pc1), d.PCALoadings(:,pc2), 'o');
                     
                     xlabel(self.tab_pca_loadings_axes,sprintf('PC %d', pc1));
                     ylabel(self.tab_pca_loadings_axes,sprintf('PC %d', pc2));
-                    
-                    if(~isempty(d.VariableNames))
-                        loadings_labels = d.VariableNames;
-                    else 
-                        if(~isempty(d.Variables))
-                            loadings_labels = strread(num2str(d.Variables),'%s');
-                        else
-                            loadings_labels = strread(num2str(1:size(d.ProcessedData, 2)),'%s');
-                        end
-                    end
                     
                     set(self.tab_pca_loadings_axes,'UserData', {[d.PCALoadings(:,pc1), d.PCALoadings(:,pc2)], loadings_labels, [], true});
 
                 else %line
                     
+                    %plot(self.tab_pca_loadings_axes,loadings_labels, d.PCALoadings', '-');
+                    pcs = size(d.PCALoadings,2);
+                    vars = size(d.PCALoadings,1);
                     
+                    
+                    
+                    names_ = cell(1,pcs);
+                    hold on;
+                    color_ = PLSDAModel.colors_rgb(pcs);
+                    for i = 1:pcs
+                        
+                        plot(self.tab_pca_loadings_axes,1:vars, d.PCALoadings(:,i), '-','color',color_(i,:));
+
+                        names_{i} = sprintf('PC %d', i);
+
+                    end
+                    
+                    if vars <= 30
+                        xticks(1:vars);
+                        xtickangle(45);
+                        xticklabels(loadings_labels);
+                        
+                    end
+                    
+                    legend(self.tab_pca_loadings_axes, names_);
+                    legend(self.tab_pca_loadings_axes,'location','northeast');
+                    legend(self.tab_pca_loadings_axes,'boxon');
+                    
+                    
+                    xlabel(self.tab_pca_loadings_axes,'Variables');
+                    ylabel(self.tab_pca_loadings_axes,'Loadings');
+                    
+                    hold off;
                 end
             
             end
@@ -552,6 +601,11 @@ classdef  DataTab < BasicTab
                     set(self.chkTraining, 'value', 0);
                 end
                 
+                if ~isempty(d.Classes) && d.NumberOfClasses == 1
+                    set(self.chkTraining, 'enable', 'off');
+                    set(self.chkTraining, 'value', 0);
+                end
+                
                 self.drawPlot(selected_name);
                 self.FillTableView(selected_name);
                 self.FillPCApcDDL(2);
@@ -580,6 +634,8 @@ classdef  DataTab < BasicTab
             self.Redraw();
             
             self.RefreshModel();
+            
+            self.ClearPCA();
         end
         
         function obj = GetObject(self,list, idx)
@@ -966,10 +1022,15 @@ classdef  DataTab < BasicTab
                     win.modelTab = [];
                     
                     if ~isempty(win.predictTab)
-                        ptab = win.tgroup.Children(3);
+                        ptab = win.tgroup.Children(2);
                         delete(ptab);
                         win.predictTab = [];
                     end
+                    win.selected_tab = GUIWindow.DataTabSelected;
+                    win.selected_panel = GUIWindow.DataGraph;
+                    win.selected_text_panel = GUIWindow.ModelTableAllocation;
+                    %win.selected_panel_pca = GUIWindow.DataPCAScores;
+                    
                 end
                 
             end
@@ -1028,10 +1089,15 @@ classdef  DataTab < BasicTab
                     win.modelTab = [];
                     
                     if ~isempty(win.predictTab)
-                        ptab = win.tgroup.Children(3);
+                        ptab = win.tgroup.Children(2);
                         delete(ptab);
                         win.predictTab = [];
                     end
+                    
+                    win.selected_tab = GUIWindow.DataTabSelected;
+                    win.selected_panel = GUIWindow.DataGraph;
+                    win.selected_text_panel = GUIWindow.ModelTableAllocation;
+                    %win.selected_panel_pca = GUIWindow.DataPCAScores;
                     
                 end
                 
@@ -1115,6 +1181,11 @@ classdef  DataTab < BasicTab
                     set(self.chkPlotShowClasses, 'Value', 0);
                 end
                 
+                if ~isempty(d.Classes) && d.NumberOfClasses == 1
+                    set(self.chkTraining, 'enable', 'off');
+                    set(self.chkTraining, 'value', 0);
+                end
+                
                 set(self.ddlPlotVar1, 'String', names);
                 set(self.ddlPlotVar2, 'String', names);
                 
@@ -1128,6 +1199,8 @@ classdef  DataTab < BasicTab
                 self.FillTableView(selected_name);
                 
                 self.FillPCApcDDL(2);
+                
+                self.ClearPCA();
                 %self.DrawPCA();
             end
             
@@ -1172,10 +1245,15 @@ classdef  DataTab < BasicTab
                 win.modelTab = [];
                 
                 if ~isempty(win.predictTab)
-                    ptab = win.tgroup.Children(3);
+                    ptab = win.tgroup.Children(2);
                     delete(ptab);
                     win.predictTab = [];
                 end
+                
+                win.selected_tab = GUIWindow.DataTabSelected;
+                win.selected_panel = GUIWindow.DataGraph;
+                win.selected_text_panel = GUIWindow.ModelTableAllocation;
+                %win.selected_panel_pca = GUIWindow.DataPCAScores;
             end
             
         end
@@ -1272,6 +1350,11 @@ classdef  DataTab < BasicTab
                             set(self.chkPlotShowClasses, 'Value', 0);
                         end
                         
+                        if ~isempty(d.Classes) && d.NumberOfClasses == 1
+                            set(self.chkTraining, 'enable', 'off');
+                            set(self.chkTraining, 'value', 0);
+                        end
+                        
                         set(self.ddlPlotVar1, 'String', names);
                         set(self.ddlPlotVar2, 'String', names);
                         
@@ -1328,10 +1411,15 @@ classdef  DataTab < BasicTab
                         win.modelTab = [];
                         
                         if ~isempty(win.predictTab)
-                            ptab = win.tgroup.Children(3);
+                            ptab = win.tgroup.Children(2);
                             delete(ptab);
                             win.predictTab = [];
                         end
+                        
+                        win.selected_tab = GUIWindow.DataTabSelected;
+                        win.selected_panel = GUIWindow.DataGraph;
+                        win.selected_text_panel = GUIWindow.ModelTableAllocation;
+                        %win.selected_panel_pca = GUIWindow.DataPCAScores;
                     end
                     
                 end
@@ -1358,8 +1446,27 @@ classdef  DataTab < BasicTab
                 set(self.ddlPCApc1,'enable','on');
                 set(self.ddlPCApc2,'enable','on');
         
-                set(self.chkPlotShowClassesPCA,'enable','on');
+                if self.parent.selected_panel_pca == GUIWindow.DataPCAScores
+                    set(self.chkPlotShowClassesPCA,'enable','on');
+                else
+                    set(self.chkPlotShowClassesPCA,'enable','off');
+                end
+                
                 set(self.chkPlotShowObjectNamesPCA,'enable','on');
+                
+                obj_index_selected = get(self.listbox,'Value');
+                names = get(self.listbox,'String');
+                selected_name = names{obj_index_selected};
+            
+                if obj_index_selected > 1
+                    d = evalin('base', selected_name);
+                    if isempty(d.Classes)
+                        set(self.chkPlotShowClassesPCA, 'value', 0);
+                        set(self.chkPlotShowClassesPCA, 'enable', 'off');
+                    %else
+                    %    set(self.chkPlotShowClassesPCA, 'enable', 'on');
+                    end
+                end
             end
             self.DrawPCA();
         end
@@ -1382,7 +1489,10 @@ classdef  DataTab < BasicTab
                     set(self.chkPlotShowClasses, 'Enable', 'off');
                     set(self.chkPlotShowClasses, 'Value', 0);
                 else
-                    set(self.chkTraining, 'Enable', 'on');
+                    if d.NumberOfClasses > 1
+                        set(self.chkTraining, 'Enable', 'on');
+                    end
+                    
                     set(self.chkPlotShowClasses, 'Enable', 'on');
                 end
                 
@@ -1589,7 +1699,21 @@ classdef  DataTab < BasicTab
                 
                 self.pca_tabgroup.SelectedTab = self.pca_tabgroup.Children(1);
                 self.parent.selected_panel_pca = GUIWindow.DataPCAScores;
+                self.vbox_pca.Heights=[20,20,25,0];
+                set(self.hbox_pca_plot_type,'visible','off');
             end
+            
+                index_selected = get(self.listbox,'Value');
+                names = get(self.listbox,'String');
+                selected_name = names{index_selected};
+            
+                if index_selected > 1
+                    d = evalin('base', selected_name);
+                    if isempty(d.Classes)
+                        set(self.chkPlotShowClassesPCA, 'value', 0);
+                        set(self.chkPlotShowClassesPCA, 'enable', 'off');
+                    end
+                end
 
         end
         
@@ -1639,6 +1763,8 @@ classdef  DataTab < BasicTab
                 self.parent.selected_text_panel = GUIWindow.ModelTableAllocation;
                 self.parent.selected_panel_pca = GUIWindow.DataPCAScores;
             end
+            
+            
         end
         
         
