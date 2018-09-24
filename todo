@@ -2,9 +2,12 @@
 todo
 ------
 
-
+bug: PCA settings - hide PC1\2 on tab change if type = line
 bug: legend not saved to file and clipboard
+bug: test classes present but not showing on predict tab
+bug: predict tab save text not working (saves image)
 
+hide/disable ALL unaccessible UI elements
 
 ------
 done
