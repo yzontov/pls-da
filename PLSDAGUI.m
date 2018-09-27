@@ -1,18 +1,12 @@
 function PLSDAGUI(varargin)
 
 addpath('classes');
-addpath('utils');
+addpath(genpath('utils'));
 
 ShowStartScreen();
 
     function ShowStartScreen()
         
-        v = ver;
-        if ~any(strcmp({v.Name},'GUI Layout Toolbox'))
-            warndlg(sprintf('Please install the GUI Layout Toolbox first!\nhttps://www.mathworks.com/matlabcentral/fileexchange/47982-gui-layout-toolbox'));
-            fprintf('Please install the GUI Layout Toolbox first!\nhttps://www.mathworks.com/matlabcentral/fileexchange/47982-gui-layout-toolbox\n');
-        else
-            
             allvars = evalin('base','whos');
             
             if isempty(allvars)
@@ -53,7 +47,7 @@ ShowStartScreen();
                 end
                 
             end
-        end
+        
     end
 
     function btnNewModel_Callback(obj, ~)
