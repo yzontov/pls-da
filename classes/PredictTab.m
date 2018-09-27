@@ -121,9 +121,9 @@ classdef  PredictTab < BasicTab
             ttab.pnlTableSettings = uiextras.Panel( 'Parent', ttab.vbox, 'Title', 'Table view options', 'TitlePosition', 'LeftTop','visible','off');
             hboxt1 = uix.HButtonBox( 'Parent', ttab.pnlTableSettings, 'ButtonSize', [120 25]);
             uicontrol('Parent', hboxt1, 'Style', 'pushbutton', 'String', 'Save tables to file',...
-                'callback', @ttab.SavePlot, 'enable', 'off');
+                'callback', @ttab.SaveTable, 'enable', 'off');
             uicontrol('Parent', hboxt1, 'Style', 'pushbutton', 'String', 'Copy tables to clipboard',...
-                'callback', @ttab.CopyPlotToClipboard, 'enable', 'off');
+                'callback', @ttab.CopyTableToClipboard, 'enable', 'off');
             
             ttab.vbox.Heights=[100,120,0];
 
@@ -222,7 +222,7 @@ classdef  PredictTab < BasicTab
                     tc = unique(set.Classes);
                 end
                 
-                if isempty(set.Classes) || (length(trc) == length(tc) && sum(trc == tc) == length(tc))
+                if isempty(set.Classes) || ~(length(trc) == length(tc) && sum(trc == tc) == length(tc))
                     self.tblTextResult.ColumnName = {'Sample',1:size(res.AllocationMatrix, 2)};
                     
                     self.tblTextResult.Data = [res.Labels, num2cell(logical(res.AllocationMatrix))];
@@ -231,6 +231,8 @@ classdef  PredictTab < BasicTab
                     self.tblTextResult.ColumnFormat = ['char' repmat({'logical'},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses)];
 
                 else
+                    self.tblTextResult.ColumnFormat = ['char' 'char' repmat({'logical'},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses)];
+
                    self.tblTextResult.ColumnName = {'Sample','Class', unique(self.parent.modelTab.Model.TrainingDataSet.Classes)};
 
                     for i = 1:length(set.Classes)
@@ -257,8 +259,7 @@ classdef  PredictTab < BasicTab
                     end
                    
                     self.tblTextResult.Data = [res.Labels, num2cell(set.Classes), num2cell(logical(res.AllocationMatrix))];
-                    self.tblTextResult.ColumnFormat = ['char' 'char' repmat({'logical'},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses)];
-
+                    
                     self.tblTextResult.ColumnWidth = num2cell([150, 60, 30*ones(1,size(res.AllocationMatrix, 2))]); 
                 
                     if ~isempty(set.Classes)
