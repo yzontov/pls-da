@@ -806,8 +806,8 @@ classdef  DataTab < BasicTab
                     case 1 %scatter
                         var1 = get(self.ddlPlotVar1,'Value');
                         var2 = get(self.ddlPlotVar2,'Value');
-                        if ~isempty(d.SelectedObjectNames)
-                            type = sprintf('scatter_%s_%s_%s', selected_name, d.SelectedObjectNames{var1}, d.SelectedObjectNames{var2});
+                        if ~isempty(d.VariableNames)
+                            type = sprintf('scatter_%s_%s_%s', selected_name, d.VariableNames{var1}, d.VariableNames{var2});
                         else
                             type = sprintf('scatter_%s_var%d_var%d', selected_name, var1, var2);
                         end
@@ -816,7 +816,7 @@ classdef  DataTab < BasicTab
                     case 3 %histogram
                         var1 = get(self.ddlPlotVar1,'Value');
                         if ~isempty(d.VariableNames)
-                            type = sprintf('histogram_%s_%s', selected_name, d.SelectedObjectNames{var1});
+                            type = sprintf('histogram_%s_%s', selected_name, d.VariableNames{var1});
                         else
                             type = sprintf('histogram_%s_var%d', selected_name, var1);
                         end
@@ -828,16 +828,15 @@ classdef  DataTab < BasicTab
                 end
                 
                 fig2 = figure('visible','off');
-                copyobj(self.data_plot_axes,fig2);
-                %fig2.Children(1).Legend = self.data_plot_axes.Legend; !!!
+                copyobj([self.data_plot_axes.Legend, self.data_plot_axes],fig2);
                 saveas(fig2, filename);
-                %print(ttab.data_plot, filename, '-dpng');
+
             end
         end
         
         function CopyPlotToClipboard(self,obj, ~)
             fig2 = figure('visible','off');
-            copyobj(self.data_plot_axes,fig2);
+            copyobj([self.data_plot_axes.Legend, self.data_plot_axes],fig2);
             print(fig2,'-clipboard', '-dmeta'); %print(fig2,'-clipboard', '-dbitmap');
         end
         

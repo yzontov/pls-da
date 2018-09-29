@@ -586,14 +586,14 @@ classdef  ModelTab < BasicTab
                 end
                 
                 fig2 = figure('visible','off');
-                copyobj(self.model_plot_axes,fig2);
+                copyobj([self.model_plot_axes.Legend, self.model_plot_axes],fig2);
                 saveas(fig2, filename);
             end
         end
         
         function CopyPlotToClipboard(self, obj, ~)
             fig2 = figure('visible','off');
-            copyobj(self.model_plot_axes,fig2);
+            copyobj([self.model_plot_axes.Legend, self.model_plot_axes],fig2);
             
             if ispc
                 print(fig2,'-clipboard', '-dmeta');

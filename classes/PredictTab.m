@@ -368,7 +368,7 @@ classdef  PredictTab < BasicTab
                 end
                 
                 fig2 = figure('visible','off');
-                copyobj(self.predict_plot_axes,fig2);
+                copyobj([self.predict_plot_axes.Legend, self.predict_plot_axes],fig2);
                 saveas(fig2, filename);
             end
         end
@@ -376,7 +376,7 @@ classdef  PredictTab < BasicTab
         function CopyPlotToClipboard(self, obj, ~)
             
             fig2 = figure('visible','off');
-            copyobj(self.predict_plot_axes,fig2);
+            copyobj([self.predict_plot_axes.Legend, self.predict_plot_axes],fig2);
             
             if ispc
                 print(fig2,'-clipboard', '-dmeta');

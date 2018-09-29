@@ -193,12 +193,18 @@ classdef  GUIWindow<handle
                             end
                         end
                         
+                        
                     end
                     
                     if self.selected_panel_pca == GUIWindow.DataPCALoadings
                         set(self.dataTab.hbox_pca_plot_type,'visible','on');
                         set(self.dataTab.chkPlotShowClassesPCA,'enable','off');
                         self.dataTab.vbox_pca.Heights=[20,20,25,0];
+                        
+                        if(self.dataTab.ddlPlotTypePCA.Value == 2)%line
+                            self.dataTab.ddlPCApc1.Enable = 'off';
+                            self.dataTab.ddlPCApc2.Enable = 'off';
+                        end
                         
                     end
                 end

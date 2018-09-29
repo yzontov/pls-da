@@ -2,11 +2,6 @@
 todo
 ------
 
-bug: PCA settings - hide PC1\2 on tab change if type = line
-bug: legend not saved to file and clipboard
-
-hide/disable ALL unaccessible UI elements
-
 ------
 done
 ------
@@ -14,6 +9,10 @@ done
 -pca: statistics
 -predict tab show class color if present
 
+bug: PCA settings - hide PC1\2 on tab change if type = line
+hide/disable ALL unaccessible UI elements
+bug: save scatter data plot
+bug: legend not saved to file and clipboard
 bug: predict tab save text not working (saves image)
 bug: test classes present but not showing on predict tab
 save text tables
