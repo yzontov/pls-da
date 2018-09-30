@@ -7,20 +7,20 @@ addpath('classes');
 clc
 clear
 close all
-load juices
+load demo_data
 
 %Create dataset
 d = DataSet();
-d.RawData = Data;
+d.RawData = data_train;
 d.Centering = true;
 d.Scaling = true;
-d.Classes = Classes;% 3 classes
-d.ObjectNames = ObjectNames;
+d.Classes = classes_train;
+d.ObjectNames = names_train;
 
 %for test purpose
 d1 = DataSet();
-d1.RawData = Data(1:10,:);%(Classes == 1,:);
-d1.ObjectNames = ObjectNames(1:10);%(Classes == 1,:);
+d1.RawData = data_test;
+d1.ObjectNames = names_test;
 
 %setup model
 plsPC = 12;
