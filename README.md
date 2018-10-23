@@ -1,7 +1,7 @@
 Implementation of the Hard and Soft PLS-DA for MATLAB (Release Candidate 2)
 ===========================================
 
-We present the software implementation of hard and soft approaches to Partial Least Squares Discriminant Analysis (PLS-DA). 
+We present the software implementation of [Hard and Soft approaches to Partial Least Squares Discriminant Analysis (PLS-DA)](https://onlinelibrary.wiley.com/doi/abs/10.1002/cem.3030). 
 The toolbox provides instruments for data pre-processing as well as for interpretation and visualization of classification models. 
 The main class, PLSDAModel, is responsible for the logic and contains implementation of both methods as well as auxiliary algorithms. 
 The instance of this class represents the actual model, and methods for data visualization and statistics. 

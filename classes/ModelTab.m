@@ -225,17 +225,20 @@ classdef  ModelTab < BasicTab
             ttab.ddlModelType = uicontrol('Parent', hboxm1, 'Style', 'popupmenu', 'String', {'Hard PLS-DA','Soft PLS-DA'},...
                 'value', 2, 'BackgroundColor', 'white', 'callback', @ttab.Input_ModelParameters);
             
-            hboxm2 = uix.HButtonBox( 'Parent', vbox_mod, 'ButtonSize', [120 25]);
+            hboxm2 = uix.Grid( 'Parent', vbox_mod);
             %model params
             %PLS PCs
-            uicontrol('Parent', hboxm2, 'Style', 'text', 'String', 'Number of PLS PCs');
+            uicontrol('Parent', hboxm2, 'Style', 'text', 'String', 'Number of PLS components');
             ttab.tbNumPCpls = uicontrol('Parent', hboxm2, 'Style', 'edit', 'String', '12',...
                  'BackgroundColor', 'white', 'callback', @ttab.Input_NumPC_PLS);
+            hboxm2.Widths  = [-2, -1];
             
+            hboxm3 = uix.Grid( 'Parent', vbox_mod);
             %PCA PCs
-            uicontrol('Parent', hboxm2, 'Style', 'text', 'String', 'Number of PCA PCs', 'Enable', 'on');
-            ttab.tbNumPCpca = uicontrol('Parent', hboxm2, 'Style', 'edit', 'String', '2', 'Enable', 'off',...
+            uicontrol('Parent', hboxm3, 'Style', 'text', 'String', 'Number of PCA components', 'Enable', 'on');
+            ttab.tbNumPCpca = uicontrol('Parent', hboxm3, 'Style', 'edit', 'String', '2', 'Enable', 'off',...
                 'BackgroundColor', 'white', 'callback', @ttab.Input_NumPC_PCA);
+            hboxm3.Widths  = [-2, -1];
             
             hboxm4 = uix.HButtonBox( 'Parent', vbox_mod, 'ButtonSize', [120 25]);
             %lblAlpha

@@ -226,7 +226,7 @@ classdef  DataTab < BasicTab
             
             ttab.vbox_pca.Heights=[20,20,0,25];
             
-            ttab.vbox.Heights=[40,30,40,40,160,0,0];
+            ttab.vbox.Heights=[40,30,40,40,170,0,0];
             
             tg = uitabgroup('Parent', ttab.middle_panel);
             
