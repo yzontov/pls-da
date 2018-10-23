@@ -47,6 +47,9 @@ classdef  DataSetWindow<handle
             end
             
             input_win = figure;
+            
+            set(input_win, 'WindowStyle', 'Modal');
+            
             set(input_win,'Visible','on');
             set(input_win, 'MenuBar', 'none');
             set(input_win, 'ToolBar', 'none');

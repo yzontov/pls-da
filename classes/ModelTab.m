@@ -33,6 +33,7 @@ classdef  ModelTab < BasicTab
         chkPlotShowClasses;
         chkPlotShowObjectNames;
         
+        btnRecalibrate;
         btnSaveModel;
         
         model_plot_axes;
@@ -67,6 +68,7 @@ classdef  ModelTab < BasicTab
                 set(self.tbAlpha,'string',sprintf('%.2f',self.Model.Alpha));
                 set(self.tbGamma,'string',sprintf('%.2f',self.Model.Gamma));
                 
+                set(self.btnRecalibrate,'string','Recalibrate');             
                 
                 Labels = cell(size(self.Model.TrainingDataSet.ProcessedData, 1),1);
                 for i = 1:size(self.Model.TrainingDataSet.ProcessedData, 1)
@@ -250,7 +252,7 @@ classdef  ModelTab < BasicTab
             ttab.chkFinalizeModel = uicontrol('Parent', hboxm6, 'Style', 'checkbox', 'String', 'Finalized',...
                 'callback', @ttab.Finalize, 'Enable', 'off');
             
-            uicontrol('Parent', hboxm6, 'Style', 'pushbutton', 'String', 'Recalibrate',...
+            ttab.btnRecalibrate = uicontrol('Parent', hboxm6, 'Style', 'pushbutton', 'String', 'Calibrate',...
                 'callback', @ttab.Recalibrate);
             ttab.btnSaveModel = uicontrol('Parent',hboxm6,'Enable','off', 'Style', 'pushbutton', 'String', 'Save model',...
                 'callback', @ttab.SaveModel);
@@ -290,8 +292,8 @@ classdef  ModelTab < BasicTab
             ttab.vbox.Heights=[40,180,120,0];
             
             tg = uitabgroup('Parent', ttab.middle_panel);
-            ttab.tab_img = uitab('Parent', tg, 'Title', 'Graphical view');
-            tab_txt = uitab('Parent', tg, 'Title', 'Table view');
+            ttab.tab_img = uitab('Parent', tg, 'Title', 'Classification plot');
+            tab_txt = uitab('Parent', tg, 'Title', 'Classification table');
             
             w = ttab.parent;
             set(tg, 'SelectionChangedFcn', @w.ActiveTabSelected);
@@ -587,7 +589,11 @@ classdef  ModelTab < BasicTab
                 
                 fig2 = figure('visible','off');
                 copyobj([self.model_plot_axes.Legend, self.model_plot_axes],fig2);
-                saveas(fig2, filename);
+                [file,path] = uiputfile(filename,'Save classification plot');
+                
+                if ~(isnumeric(file) && (file == 0) && isnumeric(path) && (path == 0))
+                    saveas(fig2, [path file]);
+                end
             end
         end
         
@@ -598,7 +604,7 @@ classdef  ModelTab < BasicTab
             if ispc
                 print(fig2,'-clipboard', '-dmeta');
             else
-                print(fig2,'-clipboard', '-dpng');
+                print(fig2,'-clipboard', '-dbitmap');
             end
             
         end
@@ -631,11 +637,19 @@ classdef  ModelTab < BasicTab
         
         function SaveTable(self, obj, ~)
             
-            fileID = fopen(['model_' self.Model.Name '.txt'],'w');
+            [file,path] = uiputfile(['model_' self.Model.Name '.txt'],'Save the classification table'); 
             
-            fprintf(fileID, '%s', self.tableText());
+            fileID = -1;
+            if ~(isnumeric(file) && (file == 0) && isnumeric(path) && (path == 0))
+                fileID = fopen([path file],'w');
+            end
             
-            fclose(fileID);
+            if fileID ~= -1
+            
+                fprintf(fileID, '%s', self.tableText());
+            
+                fclose(fileID);
+            end
             
         end
         

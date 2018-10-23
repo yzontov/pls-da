@@ -369,7 +369,12 @@ classdef  PredictTab < BasicTab
                 
                 fig2 = figure('visible','off');
                 copyobj([self.predict_plot_axes.Legend, self.predict_plot_axes],fig2);
-                saveas(fig2, filename);
+                
+                [file,path] = uiputfile(filename,'Save prdiction plot');
+                
+                if ~(isnumeric(file) && (file == 0) && isnumeric(path) && (path == 0))
+                    saveas(fig2, [path file]);
+                end
             end
         end
         
@@ -381,7 +386,7 @@ classdef  PredictTab < BasicTab
             if ispc
                 print(fig2,'-clipboard', '-dmeta');
             else
-                print(fig2,'-clipboard', '-dpng');
+                print(fig2,'-clipboard', '-dbitmap');
             end
             
         end
@@ -424,11 +429,18 @@ classdef  PredictTab < BasicTab
                 
             fname = list{idx};
             
-            fileID = fopen(['result_' fname '.txt'],'w');
+            [file,path] = uiputfile(['result_' fname '.txt'],'Save the prediction table'); 
             
-            fprintf(fileID, '%s', self.tableText());
+            fileID = -1;
             
-            fclose(fileID);
+            if ~(isnumeric(file) && (file == 0) && isnumeric(path) && (path == 0))
+                fileID = fopen([path file],'w');
+            end
+            
+            if fileID ~= -1
+                fprintf(fileID, '%s', self.tableText());
+                fclose(fileID);
+            end
             
         end
         

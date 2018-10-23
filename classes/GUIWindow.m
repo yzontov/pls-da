@@ -107,9 +107,9 @@ classdef  GUIWindow<handle
                     end
                 case GUIWindow.ModelTabSelected
                     switch obj.SelectedTab.Title
-                        case 'Graphical view'
+                        case 'Classification plot'
                             self.selected_panel = GUIWindow.ModelGraph;
-                        case 'Table view'
+                        case 'Classification table'
                             self.selected_panel = GUIWindow.ModelTable;
                         case 'Allocation table'
                             self.selected_text_panel = GUIWindow.ModelTableAllocation;

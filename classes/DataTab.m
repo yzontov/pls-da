@@ -829,7 +829,12 @@ classdef  DataTab < BasicTab
                 
                 fig2 = figure('visible','off');
                 copyobj([self.data_plot_axes.Legend, self.data_plot_axes],fig2);
-                saveas(fig2, filename);
+                
+                [file,path] = uiputfile(filename,'Save image file');
+                
+                if ~(isnumeric(file) && (file == 0) && isnumeric(path) && (path == 0))
+                    saveas(fig2, [path file]);
+                end
 
             end
         end
@@ -837,7 +842,12 @@ classdef  DataTab < BasicTab
         function CopyPlotToClipboard(self,obj, ~)
             fig2 = figure('visible','off');
             copyobj([self.data_plot_axes.Legend, self.data_plot_axes],fig2);
-            print(fig2,'-clipboard', '-dmeta'); %print(fig2,'-clipboard', '-dbitmap');
+            
+            if ispc
+                print(fig2,'-clipboard', '-dmeta');
+            else
+                print(fig2,'-clipboard', '-dbitmap');
+            end
         end
         
         function Callback_PlotType(self,obj, ~)
