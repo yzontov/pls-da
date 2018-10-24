@@ -145,7 +145,11 @@ classdef  GUIWindow<handle
                     set(self.dataTab.pnlPlotSettings,'visible','on');
                     set(self.dataTab.pnlTableSettings,'visible','off');
                     set(self.dataTab.pnlPCASettings,'visible','off');
-                    self.dataTab.vbox.Heights=[40,30,40,40,160,0,0];
+                    if ispc
+                        self.dataTab.vbox.Heights=[40,30,40,40,170,0,0];
+                    else
+                        self.dataTab.vbox.Heights=[40,30,40,40,160,0,0];
+                    end
                 end
                 
                 if self.selected_panel == GUIWindow.DataPCA
@@ -221,7 +225,12 @@ classdef  GUIWindow<handle
                 if self.selected_panel == GUIWindow.ModelGraph
                     set(self.modelTab.pnlPlotSettings,'visible','on');
                     set(self.modelTab.pnlTableSettings,'visible','off');
-                    self.modelTab.vbox.Heights=[40,180,120,0];
+                    
+                    if ispc
+                        self.modelTab.vbox.Heights=[40,180,120,0];
+                    else
+                        self.modelTab.vbox.Heights=[40,180,110,0];
+                    end
                 end
                 
             end

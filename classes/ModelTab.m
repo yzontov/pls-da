@@ -178,7 +178,12 @@ classdef  ModelTab < BasicTab
             
                 set(self.pnlPlotSettings,'visible','on');
                 set(self.pnlTableSettings,'visible','off');
-                self.vbox.Heights=[40,180,120,0];
+                
+                if ispc
+                    self.vbox.Heights=[40,180,120,0];
+                else
+                    self.vbox.Heights=[40,180,110,0];
+                end
             end
 
         end
@@ -292,7 +297,11 @@ classdef  ModelTab < BasicTab
             uicontrol('Parent', hboxt1, 'Style', 'pushbutton', 'String', 'Copy tables to clipboard',...
                 'callback', @ttab.CopyTableToClipboard, 'enable', 'off');
             
-            ttab.vbox.Heights=[40,180,120,0];
+            if ispc
+                ttab.vbox.Heights=[40,180,120,0];
+            else
+                ttab.vbox.Heights=[40,180,110,0];
+            end
             
             tg = uitabgroup('Parent', ttab.middle_panel);
             ttab.tab_img = uitab('Parent', tg, 'Title', 'Classification plot');

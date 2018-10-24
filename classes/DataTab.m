@@ -226,7 +226,11 @@ classdef  DataTab < BasicTab
             
             ttab.vbox_pca.Heights=[20,20,0,25];
             
-            ttab.vbox.Heights=[40,30,40,40,170,0,0];
+            if ispc
+                ttab.vbox.Heights=[40,30,40,40,170,0,0];
+            else
+               ttab.vbox.Heights=[40,30,40,40,160,0,0];
+            end
             
             tg = uitabgroup('Parent', ttab.middle_panel);
             
@@ -1765,8 +1769,12 @@ classdef  DataTab < BasicTab
                 set(self.pnlPlotSettings,'visible','on');
                 set(self.pnlTableSettings,'visible','off');
                 set(self.pnlPCASettings,'visible','off');
-                self.vbox.Heights=[40,30,40,40,160,0,0];
-            
+                
+                if ispc
+                    self.vbox.Heights=[40,30,40,40,170,0,0];
+                else
+                    self.vbox.Heights=[40,30,40,40,160,0,0];
+                end
                 self.parent.selected_tab = GUIWindow.DataTabSelected;
                 self.parent.selected_panel = GUIWindow.DataGraph;
                 self.parent.selected_text_panel = GUIWindow.ModelTableAllocation;

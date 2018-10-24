@@ -40,7 +40,11 @@ classdef  BasicTab < handle
             ttab.layout = uiextras.HBox( 'Parent', ttab.tab );
             
             ttab.left_panel = uipanel('Parent', ttab.layout, 'Title', '');
+            ttab.left_panel.BorderType = 'none';
+            
             ttab.middle_panel = uipanel('Parent', ttab.layout, 'Title', '');
+            ttab.middle_panel.BorderType = 'none';
+             
             %ttab.right_panel = uipanel('Parent', ttab.layout, 'Title', '');
             %ttab.statusbar_panel = uipanel('Parent', layout, 'Title', '', 'Units','normalized', 'Position', [0.0   0.0   1  0.05]);
             ttab.layout.Sizes = [300 -1];
