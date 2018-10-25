@@ -2,6 +2,12 @@
 todo
 ------
 fix datatab axis scatter plot names
+datatab view: add plot title (dataset name)
+datatab view: add axis title
+datatab view: add x-axis variable names if present
+datatab pca: add plot title
+datatab pca: change button to title "rebuild" if IsPCA = true
+
 update help based on new GUI
 
 ------
