@@ -1,0 +1,10 @@
+<productinfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="optional">
+<?xml-stylesheet type="text/xsl"href="optional"?>
+<!-- Copyright 2018 Yury Zontov-->
+
+<matlabrelease>14</matlabrelease>
+<name>PLS-DA Tooldox</name>
+<type>toolbox</type>
+<help_location>../doc</help_location>
+
+</productinfo>
