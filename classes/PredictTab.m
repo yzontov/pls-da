@@ -328,7 +328,7 @@ classdef  PredictTab < BasicTab
             delete(self.predict_plot_axes);
             %ax = get(gcf,'CurrentAxes');
             %cla(ax);
-            ha2d = axes('Parent', self.tab_img,'Units', 'normalized');%,'Position', [0 0 1 1]);
+            ha2d = axes('Parent', self.tab_img);%,'Position', [0 0 1 1]);
             %set(gcf,'CurrentAxes',ha2d);
             self.predict_plot_axes = ha2d;
             

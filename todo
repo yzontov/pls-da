@@ -1,13 +1,6 @@
 ------
 todo
 ------
-fix datatab axis scatter plot names
-datatab view: add plot title (dataset name)
-datatab view: add axis title
-datatab view: add x-axis variable names if present
-datatab pca: add plot title
-datatab pca: change button to title "rebuild" if IsPCA = true
-
 update help based on new GUI
 
 ------
@@ -17,6 +10,14 @@ done
 -pca: statistics
 -predict tab show class color if present
 
+fix datatab axis scatter plot names
+datatab view: add plot title (dataset name)
+datatab view: add axis title
+datatab view: add x-axis variable names if present
+datatab pca: add plot title
+datatab pca: change button to title "rebuild" if IsPCA = true
+datatab model: add plot title (model name)
+datatab preview: add plot title (dataset name)
 bug: PCA settings - hide PC1\2 on tab change if type = line
 hide/disable ALL unaccessible UI elements
 bug: save scatter data plot

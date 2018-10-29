@@ -8,9 +8,9 @@ ShowStartScreen();
     function ShowStartScreen()
         
             allvars = evalin('base','whos');
-            
+            opts = struct('WindowStyle','modal','Interpreter','none');
             if isempty(allvars)
-                warndlg('You should load all neccessary data as variables into the current Matlab workspace first!');
+                warndlg('You should load all neccessary data as variables into the current Matlab workspace first!','Warning',opts);
             else
                 warning('off','all');
                 

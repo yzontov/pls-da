@@ -147,7 +147,8 @@ classdef  ModelTab < BasicTab
                 tg.Visible = 'on';
                 
                 r = self;
-                
+            else
+                set(self.btnRecalibrate,'string','Calibrate'); 
             end
         end
         
@@ -411,7 +412,7 @@ classdef  ModelTab < BasicTab
             delete(self.model_plot_axes);
             %             ax = get(gcf,'CurrentAxes');
             %             cla(ax);
-            ha2d = axes('Parent', self.tab_img,'Units', 'normalized');
+            ha2d = axes('Parent', self.tab_img);
             %set(gcf,'CurrentAxes',ha2d);
             self.model_plot_axes = ha2d;
             
@@ -440,6 +441,7 @@ classdef  ModelTab < BasicTab
             
             if index_selected > 1
             self.ClearModel();
+            
             
             index_selected = get(self.ddlCalibrationSet,'Value');
             names = get(self.ddlCalibrationSet,'String');%fieldnames(ttab.Data);
@@ -571,17 +573,28 @@ classdef  ModelTab < BasicTab
                 dlg_title = 'Save model';
                 num_lines = 1;
                 def = {'PLS_DA'};
-                answer = inputdlg(prompt,dlg_title,num_lines,def);
+                opts = struct('WindowStyle','modal','Interpreter','none');
+                answer = inputdlg(prompt,dlg_title,num_lines,def,opts);
                 
                 if ~isempty(answer)
                     try
                         self.Model.Name = answer{1};
                         assignin('base', answer{1}, self.Model)
+                        self.Redraw();
+                        
+                        extra_title = [' - Model: ' self.Model.Name];
+                        set(self.parent.fig ,'name',['PLS-DA Tool' extra_title],'numbertitle','off');
+                        
                     catch
-                        errordlg('The invalid characters have been replaced. Please use only latin characters, numbers and underscore!');
+                        opts = struct('WindowStyle','modal','Interpreter','none');
+                        errordlg('The invalid characters have been replaced. Please use only latin characters, numbers and underscore!','Error',opts);
                         tmp = regexprep(answer{1}, '[^a-zA-Z0-9_]', '_');
                         self.Model.Name = tmp;
                         assignin('base',tmp, self.Model);
+                        self.Redraw();
+                        
+                        extra_title = [' - Model: ' self.Model.Name];
+                        set(self.parent.fig ,'name',['PLS-DA Tool' extra_title],'numbertitle','off');
                     end
                 end
                 
@@ -698,8 +711,17 @@ classdef  ModelTab < BasicTab
                 names = get(src,'String');
                 selected_name = names{index_selected};
                 d = evalin('base', selected_name);
+                self.btnRecalibrate.Enable = 'on';
+                self.tbNumPCpls.Enable = 'on';
+                self.tbAlpha.Enable = 'on';
+                self.tbGamma.Enable = 'on';
                 
                 set(self.tbNumPCpca, 'String', sprintf('%d', max(1,d.NumberOfClasses-1)));
+            else
+                self.btnRecalibrate.Enable = 'off';
+                self.tbNumPCpls.Enable = 'off';
+                self.tbAlpha.Enable = 'off';
+                self.tbGamma.Enable = 'off';
             end
         end
         
@@ -709,6 +731,8 @@ classdef  ModelTab < BasicTab
             self.btnSaveModel.Enable = 'off';
             self.enablePanel(self.pnlPlotSettings, 'off');
             self.enablePanel(self.pnlTableSettings, 'off');
+            
+            set(self.parent.fig ,'name','PLS-DA Tool','numbertitle','off');
             
             self.Model = [];
             delete(self.model_plot_axes);
@@ -735,7 +759,7 @@ classdef  ModelTab < BasicTab
         
         function Input_NumPC_PLS(self, src, ~)
             str=get(src,'String');
-            
+            opts = struct('WindowStyle','modal','Interpreter','none');
             index_selected = get(self.ddlCalibrationSet,'Value');
             names = get(self.ddlCalibrationSet,'String');
             selected_name = names{index_selected};
@@ -754,11 +778,11 @@ classdef  ModelTab < BasicTab
             
             if isempty(numPC) || isnan(numPC)
                 set(src,'string', sprintf('%d', vmin));
-                warndlg('Input must be numerical');
+                warndlg('Input must be numerical','Warning',opts);
             else
                 if numPC < vmin || numPC > vmax
                     set(src,'string',sprintf('%d',vmin));
-                    warndlg(sprintf('Number of PLS Components should be not less than %d and not more than %d!', vmin, vmax));
+                    warndlg(sprintf('Number of PLS Components should be not less than %d and not more than %d!', vmin, vmax),'Warning',opts);
                 else
                     self.ClearModel();
                 end
@@ -775,10 +799,10 @@ classdef  ModelTab < BasicTab
             
             data = evalin('base', selected_name);
             numPC = str2double(str);
-            
+            opts = struct('WindowStyle','modal','Interpreter','none');
             if isempty(numPC) || isnan(numPC)
                 set(src,'string',sprintf('%d',max(1, self.Model.TrainingDataSet.NumberOfClasses-1)));
-                warndlg('Input must be numerical');
+                warndlg('Input must be numerical','Warning',opts);
             else
                 if (numPC >= 1 && numPC <= self.Model.TrainingDataSet.NumberOfClasses-1)
                     pcs = arrayfun(@(x) sprintf('%d', x), 1:numPC, 'UniformOutput', false);
@@ -795,7 +819,7 @@ classdef  ModelTab < BasicTab
                     end
                     
                 else
-                    warndlg(sprintf('Number of Principal Components should be not less than %d and not more than %d!', 1, data.NumberOfClasses-1));
+                    warndlg(sprintf('Number of Principal Components should be not less than %d and not more than %d!', 1, data.NumberOfClasses-1),'Warning',opts);
                     
                     set(src,'string',sprintf('%d',max(1, self.Model.TrainingDataSet.NumberOfClasses-1)));
                     self.ClearModel();
@@ -829,13 +853,14 @@ classdef  ModelTab < BasicTab
         function Input_Alpha(self, src, ~)
             str=get(src,'String');
             val = str2double(str);
+            opts = struct('WindowStyle','modal','Interpreter','none');
             if isempty(val) || isnan(val)
                 set(src,'string','0.01');
-                warndlg('Input must be numerical');
+                warndlg('Input must be numerical','Warning',opts);
             else
                 if val <= 0 || val >= 1
                     set(src,'string','0.01');
-                    warndlg('Type I error (Alpha) should be greater than 0 and less than 1!');
+                    warndlg('Type I error (Alpha) should be greater than 0 and less than 1!','Warning',opts);
                 else
                     self.ClearModel();
                 end
@@ -845,13 +870,14 @@ classdef  ModelTab < BasicTab
         function Input_Gamma(self, src, ~)
             str=get(src,'String');
             val = str2double(str);
+            opts = struct('WindowStyle','modal','Interpreter','none');
             if isempty(val) || isnan(val)
                 set(src,'string','0.01');
-                warndlg('Input must be numerical');
+                warndlg('Input must be numerical','Warning',opts);
             else
                 if val <= 0 || val >= 1
                     set(src,'string','0.01');
-                    warndlg('Outlier significance (Gamma) should be greater than 0 and less than 1!');
+                    warndlg('Outlier significance (Gamma) should be greater than 0 and less than 1!','Warning',opts);
                 else
                     self.ClearModel();
                 end

@@ -91,7 +91,6 @@ classdef DataSet < handle
                     legend('boxon');
                 end
 
-                
             else
                 fig = scatter(axes, self.ProcessedData(:,var1),self.ProcessedData(:,var2));
             end
@@ -104,33 +103,12 @@ classdef DataSet < handle
                     xlabel(sprintf('%.2f', self.Variables(var1))); % x-axis label
                     ylabel(sprintf('%.2f', self.Variables(var2)));% y-axis label
                 else
-                    xlabel(sprintf('Variable %.2f', var1)); % x-axis label
-                    ylabel(sprintf('Variable %.2f', var2));% y-axis label
+                    xlabel(sprintf('Variable %d', var1)); % x-axis label
+                    ylabel(sprintf('Variable %d', var2));% y-axis label
                 end
             end
             
-            %             if(showObjectNames)
-            %                 labels = strread(num2str(1:size(self.ProcessedData, 1)),'%s');
-            %                 if(~isempty(self.SelectedObjectNames))
-            %                     labels = self.SelectedObjectNames;
-            %                 end
-            %
-            %                 dx = 0.01; dy = 0.01; % displacement so the text does not overlay the data points
-            %                 text(axes, self.ProcessedData(:,var1)+dx, self.ProcessedData(:,var2)+dy, labels, 'Interpreter', 'none');
-            %
-            %
-            %             end
-            
-            %             if(showClasses && ~isempty(self.Classes))
-            %                 labels = arrayfun(@(x) sprintf('%d',x),self.Classes(logical(self.SelectedSamples),:),'UniformOutput', false);
-            %                 if(~isempty(self.ClassLabels) && ~isempty(self.ClassLabels(logical(self.SelectedSamples),:)))
-            %                     labels = self.ClassLabels(logical(self.SelectedSamples),:);
-            %                 end
-            %
-            %                 dx = 0.03; dy = -0.03; % displacement so the text does not overlay the data points
-            %                 text(axes, self.ProcessedData(:,var1)+dx, self.ProcessedData(:,var2)+dy, labels, 'Interpreter', 'none');
-            %             end
-            
+            title(axes, ['Dataset: ' self.Name ' - Scatter plot']);
         end
         
         function fig = line(self, axes)
@@ -140,16 +118,56 @@ classdef DataSet < handle
             else
                 x = self.Variables;
             end
+            
             y = self.ProcessedData;
             
             fig = plot(axes, x,y);
+            
+            if isempty(self.Variables)
+                xlabel(axes,'Variables');
+            else
+                xlabel(axes,'Wavelengths');
+            end
+            
+            if(~isempty(self.VariableNames))
+                loadings_labels = self.VariableNames;
+                vars = length(self.VariableNames);
+            else
+                if(~isempty(self.Variables))
+                    vars = length(self.Variables);
+                    loadings_labels = strread(num2str(self.Variables),'%s');
+                else
+                    vars = size(self.ProcessedData, 2);
+                    loadings_labels = strread(num2str(1:size(self.ProcessedData, 2)),'%s');
+                end
+            end
+            
+            if vars <= 30
+                xticks(axes,1:vars);
+                if ~isempty(self.VariableNames)
+                    xtickangle(axes,45);
+                end
+                xticklabels(axes,loadings_labels);
+            end
+            
+            title(axes, ['Dataset: ' self.Name ' - Line plot']);
+            ylabel(axes,'Values');
             
         end
         
         function fig = histogram(self, axes, var1)
             
-            fig = histogram(axes, self.ProcessedData(:, var1));
+            fig = histogram(axes, self.ProcessedData(:, var1),'Normalization','count' );
             
+            varname = sprintf('Variable: %d', var1);
+            if ~isempty(self.VariableNames)
+                varname = sprintf('Variable: %s', self.VariableNames{var1});
+            end
+            
+            title(axes, ['Dataset: ' self.Name ' - Histogram plot - ' varname]);
+            
+            xlabel(axes,'Values');
+            ylabel(axes,'Occurrences');
         end
         
         function value = Description(self)

@@ -588,6 +588,7 @@ classdef  DataSetWindow<handle
         function btnAdd_Callback(self,obj, ~)
             
             name = get(self.tbName, 'String');
+            opts = struct('WindowStyle','modal','Interpreter','none');
             
             if ~isempty(name)
                 
@@ -693,7 +694,7 @@ classdef  DataSetWindow<handle
                         
                         assignin('base', name, d)
                     catch
-                        waitfor(errordlg('The name contains invalid characters. Please use only latin characters, numbers and underscore for the name of DataSet!'));
+                        waitfor(errordlg('The name contains invalid characters. Please use only latin characters, numbers and underscore for the name of DataSet!','Error', opts));
                     end
                     
                     if isempty(self.dataset_name)
@@ -706,11 +707,11 @@ classdef  DataSetWindow<handle
                     end 
                     
                 else
-                    waitfor(errordlg('You should indicate at least Data matrix!'));
+                    waitfor(errordlg('You should indicate at least Data matrix!','Error', opts));
                 end
                 
             else
-                waitfor(errordlg('You should indicate a name of the DataSet!'));
+                waitfor(errordlg('You should indicate a name of the DataSet!','Error', opts));
                 %return;
             end
             

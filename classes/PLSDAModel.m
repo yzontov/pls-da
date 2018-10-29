@@ -25,6 +25,8 @@ classdef PLSDAModel < handle
         
         YpredTnew;
         
+        NewDataSetName;
+        
         NewDataSetClassLabels;
         NewDataSetClasses;
         NewDataSetObjectNames;
@@ -235,6 +237,8 @@ classdef PLSDAModel < handle
         function Result = Apply(self, NewDataSet)
             Xnew_p = PLSDAModel.preprocess_newset(self.rX, NewDataSet.RawData(logical(NewDataSet.SelectedSamples),:));
             
+            self.NewDataSetName = NewDataSet.Name;
+            
             if ~isempty(NewDataSet.ClassLabels)
                 self.NewDataSetClassLabels = NewDataSet.ClassLabels;
             else
@@ -426,6 +430,12 @@ classdef PLSDAModel < handle
             xlabel(sprintf('PC %d', pc1)); % x-axis label
             ylabel(sprintf('PC %d', pc2));% y-axis label
             
+            if ~isempty(self.Name)
+                title(['Classification plot. Model: ' self.Name], 'Interpreter', 'none')
+            else
+                title('Classification plot');
+            end
+                
             hold off
             
         end
@@ -564,6 +574,12 @@ classdef PLSDAModel < handle
             
             xlabel(sprintf('PC %d', pc1)); % x-axis label
             ylabel(sprintf('PC %d', pc2));% y-axis label
+            
+            if ~isempty(self.NewDataSetName)
+                title(['Prediction plot. Dataset: ' self.NewDataSetName], 'Interpreter', 'none')
+            else
+                title('Prediction plot');
+            end
             
             hold off
             

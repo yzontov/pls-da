@@ -286,6 +286,7 @@ classdef  DataTab < BasicTab
                 self.pca_tabgroup.Visible = 'on';
                 
                 self.DrawPCA();
+                self.btnPCABuild.String = 'Rebuild';
             else
                 self.enablePCAPanel('off');
                 self.pca_tabgroup.Visible = 'off';
@@ -307,8 +308,8 @@ classdef  DataTab < BasicTab
                 delete(self.tab_pca_scores_axes);
                 delete(self.tab_pca_loadings_axes);
 
-                ha2d_s = axes('Parent', self.tab_pca_scores,'Units', 'normalized');
-                ha2d_l = axes('Parent', self.tab_pca_loadings,'Units', 'normalized');
+                ha2d_s = axes('Parent', self.tab_pca_scores);
+                ha2d_l = axes('Parent', self.tab_pca_loadings);
 
                 self.tab_pca_scores_axes = ha2d_s;
                 self.tab_pca_loadings_axes = ha2d_l;
@@ -337,12 +338,11 @@ classdef  DataTab < BasicTab
                 else
                     plot(self.tab_pca_scores_axes,d.PCAScores(:,pc1), d.PCAScores(:,pc2), 'o');
                 end
-                
-                
-                
+
                 xlabel(self.tab_pca_scores_axes,sprintf('PC %d', pc1));
                 ylabel(self.tab_pca_scores_axes,sprintf('PC %d', pc2));
                 
+                title(self.tab_pca_scores_axes,'PCA Scores');
                
                 if(~isempty(d.SelectedObjectNames))
                     score_labels= d.SelectedObjectNames;
@@ -384,6 +384,7 @@ classdef  DataTab < BasicTab
                 end
                 
                 
+                
                 if(loadings_plot_type == 1)%scatter
                     
                     plot(self.tab_pca_loadings_axes,d.PCALoadings(:,pc1), d.PCALoadings(:,pc2), 'o');
@@ -399,8 +400,6 @@ classdef  DataTab < BasicTab
                     pcs = size(d.PCALoadings,2);
                     vars = size(d.PCALoadings,1);
                     
-                    
-                    
                     names_ = cell(1,pcs);
                     hold on;
                     color_ = PLSDAModel.colors_rgb(pcs);
@@ -412,9 +411,12 @@ classdef  DataTab < BasicTab
 
                     end
                     
-                    if vars <= 30
+                    if vars <= 30 
                         xticks(1:vars);
-                        xtickangle(45);
+                        
+                        if ~isempty(d.VariableNames)
+                            xtickangle(45);
+                        end
                         xticklabels(loadings_labels);
                         
                     end
@@ -423,13 +425,15 @@ classdef  DataTab < BasicTab
                     legend(self.tab_pca_loadings_axes,'location','northeast');
                     legend(self.tab_pca_loadings_axes,'boxon');
                     
-                    
                     xlabel(self.tab_pca_loadings_axes,'Variables');
                     ylabel(self.tab_pca_loadings_axes,'Loadings');
                     
-                    hold off;
+                    
                 end
-            
+                
+                title(self.tab_pca_scores_axes,['Dataset: ' d.Name ' - PCA Scores']);
+                title(self.tab_pca_loadings_axes,['Dataset: ' d.Name ' - PCA Loadings']);
+                hold off;
             end
         end
         
@@ -481,6 +485,8 @@ classdef  DataTab < BasicTab
         function Callback_PCApcnumber(self,src,~)
             str=get(src,'String');
             
+            opts = struct('WindowStyle','modal','Interpreter','none');
+            
             index_selected = get(self.listbox,'Value');
             
             if(index_selected > 1)
@@ -503,11 +509,11 @@ classdef  DataTab < BasicTab
                 val = str2double(str);
                 if isempty(val) || isnan(val)
                     set(src,'string','2');
-                    warndlg('Input must be numerical');
+                    warndlg('Input must be numerical','Warning', opts);
                 else
                     if val < 2 || val > vmax
                         set(src,'string','2');
-                        warndlg(sprintf('Number of Principal Components should not less than 2 and not greater than %d!', vmax));
+                        warndlg(sprintf('Number of Principal Components should not less than 2 and not greater than %d!', vmax),'Warning', opts);
                     end
                 end
                 
@@ -522,7 +528,7 @@ classdef  DataTab < BasicTab
                 
             else
                 set(src,'string','2');
-                warndlg('You should select the Data Set first!');
+                warndlg('You should select the Data Set first!','Warning', opts);
             end
         end
         
@@ -575,10 +581,15 @@ classdef  DataTab < BasicTab
                 
                 if (d.HasPCA)
                     self.pca_tabgroup.Visible = 'on';
+                    self.btnPCABuild.String = 'Rebuild';
                 else
                     self.pca_tabgroup.Visible = 'off';
+                    self.btnPCABuild.String = 'Build';
                 end
 
+                self.resetRightPanel();
+                self.fillRightPanel();
+                
                 if(isempty(d.VariableNames))
                     if(isempty(d.Variables))
                         names = arrayfun(@(x) sprintf('%d', x), 1:size(d.ProcessedData, 2), 'UniformOutput', false);
@@ -595,8 +606,7 @@ classdef  DataTab < BasicTab
                 set(self.ddlPlotVar1, 'Value', 1);
                 set(self.ddlPlotVar2, 'Value', 2);
                 
-                self.resetRightPanel();
-                self.fillRightPanel();
+                
                 
                 if isempty(d.Classes)
                     set(self.chkPlotShowClasses, 'enable', 'off');
@@ -717,8 +727,8 @@ classdef  DataTab < BasicTab
                 if(sum(d.SelectedSamples) == size(d.RawData,1))
                     def = {[d.Name '_copy']};
                 end
-                
-                answer = inputdlg(prompt,dlg_title,num_lines,def);
+                opts = struct('WindowStyle','modal','Interpreter','none');
+                answer = inputdlg(prompt,dlg_title,num_lines,def, opts);
                 
                 if ~isempty(answer)
                     
@@ -736,7 +746,8 @@ classdef  DataTab < BasicTab
                         new_d.Name = answer{1};
                         assignin('base', answer{1}, new_d)
                     catch
-                        errordlg('The invalid characters have been replaced. Please use only latin characters, numbers and underscore!');
+                        opts = struct('WindowStyle','modal','Interpreter','none');
+                        errordlg('The invalid characters have been replaced. Please use only latin characters, numbers and underscore!','Error',opts);
                         tmp = regexprep(answer{1}, '[^a-zA-Z0-9_]', '_');
                         new_d.Name = tmp;
                         assignin('base',tmp, new_d);
@@ -758,9 +769,10 @@ classdef  DataTab < BasicTab
                 selected_name = names{index_selected};
                 d = evalin('base', selected_name);
                 
+                opts = struct('WindowStyle','modal','Interpreter','none','Default', 'No');
                 answer = questdlg('Do you want to delete selected rows from the dataset?', ...
                     'Delete selected rows', ...
-                    'Yes','No','No');
+                    'Yes','No',opts);
                 
                 if isequal(answer, 'Yes')
                     
@@ -774,7 +786,8 @@ classdef  DataTab < BasicTab
                         self.FillTableView(selected_name);
                         self.Redraw();
                     else
-                        warndlg('The resulting dataset will be empty!');
+                        opts = struct('WindowStyle','modal','Interpreter','none');
+                        warndlg('The resulting dataset will be empty!','Warning',opts);
                     end
                 end
             end
@@ -1295,9 +1308,10 @@ classdef  DataTab < BasicTab
                 selected_name = names{index_selected};
                 d = evalin('base', selected_name);
                 
+                opts = struct('WindowStyle','modal','Interpreter','none','Default', 'No');
                 answer = questdlg('Do you want to delete selected dataset?', ...
                     'Delete dataset', ...
-                    'Yes','No','No');
+                    'Yes','No',opts);
                 
                 if isequal(answer, 'Yes')
                     
@@ -1509,6 +1523,9 @@ classdef  DataTab < BasicTab
                     set(self.chkPlotShowClasses, 'Enable', 'on');
                 end
                 
+                self.resetRightPanel();
+                self.fillRightPanel();
+                
                 if(isempty(d.VariableNames))
                     if(isempty(d.Variables))
                         names = arrayfun(@(x) sprintf('%d', x), 1:size(d.ProcessedData, 2), 'UniformOutput', false);
@@ -1525,8 +1542,7 @@ classdef  DataTab < BasicTab
                 set(self.ddlPlotVar1, 'Value', 1);
                 set(self.ddlPlotVar2, 'Value', 2);
                 
-                self.resetRightPanel();
-                self.fillRightPanel();
+                
                 
                 self.drawPlot(selected_name);
                 
@@ -1597,10 +1613,12 @@ classdef  DataTab < BasicTab
             set(ttab.ddlPlotType, 'Value', 2);
             set(ttab.ddlPlotVar1, 'enable', 'off');
             set(ttab.ddlPlotVar2, 'enable', 'off');
-%             set(ttab.ddlPlotVar1, 'string', '-');
-%             set(ttab.ddlPlotVar2, 'string', '-');
-%             set(ttab.ddlPlotVar1, 'value', 1);
-%             set(ttab.ddlPlotVar2, 'value', 1);
+            
+             set(ttab.ddlPlotVar1, 'string', '-');
+             set(ttab.ddlPlotVar2, 'string', '-');
+            set(ttab.ddlPlotVar1, 'value', 1);
+             set(ttab.ddlPlotVar2, 'value', 1);
+
             set(ttab.chkPlotShowObjectNames, 'enable', 'off');
             set(ttab.chkPlotShowClasses, 'enable', 'off');
             
@@ -1616,7 +1634,7 @@ classdef  DataTab < BasicTab
             %ax = get(gcf,'CurrentAxes');
             %cla(ax);
             %subplot
-            ha2d = axes('Parent', self.tab_img,'Units', 'normalized','Position', [0.1 0.2 .8 .7]);
+            ha2d = axes('Parent', self.tab_img);
             %set(gcf,'CurrentAxes',ha2d);
             self.data_plot_axes = ha2d;
             
@@ -1709,6 +1727,7 @@ classdef  DataTab < BasicTab
             if(strcmp('off',param))
                 self.txtPCApcnumber.Enable = 'on';
                 self.btnPCABuild.Enable = 'on';
+                self.btnPCABuild.String = 'Build';
                 
                 self.pca_tabgroup.SelectedTab = self.pca_tabgroup.Children(1);
                 self.parent.selected_panel_pca = GUIWindow.DataPCAScores;
