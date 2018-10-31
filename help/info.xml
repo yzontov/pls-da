@@ -3,8 +3,8 @@
 <!-- Copyright 2018 Yury Zontov-->
 
 <matlabrelease>14</matlabrelease>
-<name>PLS-DA Tooldox</name>
+<name>PLS-DA</name>
 <type>toolbox</type>
-<help_location>../doc</help_location>
-
+<help_location>../help</help_location>
+<icon>$toolbox/matlab/icons/bookicon.gif</icon>
 </productinfo>

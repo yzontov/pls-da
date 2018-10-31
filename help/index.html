@@ -23,17 +23,17 @@ The PLSDAGUI module provides graphical user interface, which allows user to crea
 datasets, calibrate, test and explore models interactively. This class encapsulates all the
 necessary data such as training or test sets and labels of the samples and variables. The PLS-DA Tool has its own
 implementation of all necessary statistical functions and does not require the MATLAB Statistics
-Toolbox.
+Toolbox. The PLS-DA Tool relies on several external functions, as well as GUI Layout Toolbox, which are uncluded in the package (in the <i>utils</i> sub-folder).
 
 <h2>PLSDAGUI</h2>
 <p>The PLSDAGUI module provides the graphical user interface for classes DataSet and PLSDAModel. The <i>classes</i> subfolder contains auxiliary classes used by the GUI.</p>
 <h3>Installation and first steps</h3>
-To get the latest release plase use <a href="https://github.com/yzontov/pls-da/">GitHub sources</a>. 
-One can clone the git repository or <a  href="https://github.com/yzontov/pls-da/releases">download</a> the source as a zip-file and install it in your Matlab environment. 
+The latest release is available as MLTBX installation package or zip-archive in the <a  href="https://github.com/yzontov/pls-da/releases">Releases</a> section. 
+For manual installation one can clone the <a href="https://github.com/yzontov/pls-da/">git repository</a> or the source as a zip-file and install it in the Matlab environment. 
 <ul>
-	<li>To use the Tool you should set the Matlab current directory to the folder, which contains the Tool's main classes ("PLSDAGUI.m", "PLSDAModel.m", "DataSet.m") as well as all auxiliary files, or add this folder to the Matlab Path.</li>
 	<li>By default it is assumed that none of the built-in Matlab functions on the user's machine has been overloaded due to the use of a third-party toolbox.</li>
-	<li>Before you start working with the GUI you should load the data for analysis into the MATLAB workspace.</li>
+    <li>Execute the <b>PLSDAGUI</b> command in the Matlab command window to launch the GUI.</li>
+    <li>Before you start working with the GUI you should load the data for analysis into the MATLAB workspace.</li>
 	<li>The data set and model objects can be saved from the GUI to the MATLAB workspace.</li>
 </ul>
 
@@ -49,12 +49,13 @@ One can clone the git repository or <a  href="https://github.com/yzontov/pls-da/
 <p>
     <ol>
         <li>Load all neccessary data as variables into the current Matlab workspace.</li>
+        <li>Execute the <b>PLSDAGUI</b> command in the Matlab command window.</li>
         <li>To create a new PLS-DA model, click the <b>New model</b> button. </li>
         <li>To work with an existing model load it into the Matlab workspace and click the <b>Existing model</b> button.</li>
         <li>The Tool's main window will appear with one or more tabs available.</li>
     </ol>
     <figure style="text-align:center;">
-        <img src="start.png" alt="Start window" style="width:400px;">
+        <img src="Images/start.png" alt="Start window" style="width:400px;">
         <figcaption>Start window</figcaption>
     </figure>
 </p>
@@ -73,7 +74,7 @@ One can clone the git repository or <a  href="https://github.com/yzontov/pls-da/
 <li>The newly created object is now available in the Matlab workspace as a variable and in the Data Set drop-down list under the specified name.</li>
 </ol>
     <figure style="text-align:center;">
-        <img src="create_dataset.png" alt="New DataSet"  style="width:600px;">
+        <img src="Images/create_dataset.png" alt="New DataSet"  style="width:600px;">
         <figcaption>Create New Data Set window</figcaption>
     </figure>
     </p>
@@ -88,7 +89,7 @@ One can clone the git repository or <a  href="https://github.com/yzontov/pls-da/
 <li>The modified object is now available in the Matlab workspace as a variable and in the Data Set drop-down list under the specified name.</li>
 </ol>
     <figure style="text-align:center;">
-        <img src="edit.png" alt="Data tab" style="width:600px;">
+        <img src="Images/edit.png" alt="Data tab" style="width:600px;">
         <figcaption>Edit Data Set window</figcaption>
     </figure>
     
@@ -110,12 +111,12 @@ One can clone the git repository or <a  href="https://github.com/yzontov/pls-da/
 <li>One can use <b>Save</b> and <b>Copy to clipboard</b> to store the image in the <i>Graphical view</i> tab to disk or clipboard.</li>
 </ol>
     <figure style="text-align:center;">
-        <img src="datatab_settings.png" alt="New DataSet" style="width:300px;">
-        <img src="datatab_settings2.png" alt="New DataSet" style="width:300px;" >
+        <img src="Images/datatab_settings.png" alt="New DataSet" style="width:300px;">
+        <img src="Images/datatab_settings2.png" alt="New DataSet" style="width:300px;" >
         <figcaption>Data Tab. Preprocessing.</figcaption>
     </figure>
      <figure style="text-align:center;">
-        <img src="datatab_view.png" alt="New DataSet" style="width:600px;" >
+        <img src="Images/datatab_view.png" alt="New DataSet" style="width:600px;" >
         <figcaption>Data Tab. Graphical view.</figcaption>
     </figure>
 </p>
@@ -131,7 +132,7 @@ One can clone the git repository or <a  href="https://github.com/yzontov/pls-da/
     <li>To remove selected items completely the dataset click the <b>Remove selected</b> button.</li>
 </ol>
     <figure style="text-align:center;">
-        <img src="datatab_table.png" alt="New DataSet"  style="width:600px;" >
+        <img src="Images/datatab_table.png" alt="New DataSet"  style="width:600px;" >
         <figcaption>Data Tab. Table view.</figcaption>
     </figure>
 </p>
@@ -143,9 +144,9 @@ One can clone the git repository or <a  href="https://github.com/yzontov/pls-da/
     <li>On the <i>PCA</i> sub-tab on can choose the number of PCs and select PCs for the PCA Scores and Loadings plots.</li>
 </ol>
     <figure style="text-align:center;">
-        <img src="datatab_pca_scores.png" alt="New DataSet" style="width:600px;">
+        <img src="Images/datatab_pca_scores.png" alt="New DataSet" style="width:600px;">
             <br/>
-        <img src="datatab_pca_loadings.png" alt="New DataSet" style="width:600px;">
+        <img src="Images/datatab_pca_loadings.png" alt="New DataSet" style="width:600px;">
         <figcaption>Data Tab. PCA.</figcaption>
     </figure>
 </p>
@@ -155,35 +156,36 @@ One can clone the git repository or <a  href="https://github.com/yzontov/pls-da/
 <p>
 <ol>
 <li>On the <b>Model</b> tab select a training set from the Calibration drop-down list.</li>
-<li>Adjust the parameters of the model. It is possible to indicate the type of the model (Soft or Hard), number of PCs in PLS decomposition, value of the type I error and Outlier significance level.</li>
-<li>Click the <b>Recalibrate</b> button to create the model.</li>
-<li>The results are now available on the <i>Graphical view</i> and <i>Table view</i> sub-tabs.</li>
-<li>One can analyze the results visually on the <i>Graphical view</i> sub-tab.</li>
-<li>The Allocation matrix, Confusion matrix and Figures of merit are available on the <i>Table view</i> sub-tab.</li>
+<li>Adjust the parameters of the model. It is possible to indicate the type of the model (Soft or Hard), number of PLS components value of the type I error and Outlier significance level.</li>
+<li>Click the <b>Calibrate</b> button to create the model.</li>
+<li>The results are now available on the <i>Classification plot</i> and <i>Clasification table</i> sub-tabs.</li>
+<li>Onse the model is ready, check the <b>Finalized</b> checkbox. The <b>Prediction</b> tab will become available.
+<li>The Allocation matrix, Confusion matrix and Figures of merit are available on the <i>Clasification table</i> sub-tab.</li>
+<li>One can use <b>Save tables to file</b> and <b>Copy tables to clipboard</b> to store the Allocation matrix, Confusion matrix and Figures of merit to disk or clipboard.</li>
 <li>To get complete modelling results collected in a PLSDAModel object click the <b>Save model</b> button and select a name of the new model. It will be added to the Matlab workspace as a variable.</li>
 <li>One can save the current workspace to a <b>.mat</b> file to preserve the results. Later on one can load the <b>.mat</b> file into the Matlab workspace and resume working with the model.</li>
-<li>One can use <b>Save</b> and <b>Copy to clipboard</b> to store the image in the <i>Graphical view</i> tab to disk or clipboard.</li>
+<li>One can use <b>Save image to file</b> and <b>Copy image to clipboard</b> to store the image in the <i>Classification plot</i> tab to disk or clipboard.</li>
 
 </ol>
 
 <figure style="text-align:center;">
-  <img src="model_tab.png" alt="Model tab." style="width:300px;">
+  <img src="Images/model_tab.png" alt="Model tab." style="width:300px;">
   <figcaption>Model tab</figcaption>
 </figure>
 <figure style="text-align:center;">
-  <img src="modeltab_view.png" alt="Model tab. Graphical view." style="width:600px;">
+  <img src="Images/modeltab_view.png" alt="Model tab. Graphical view." style="width:600px;">
   <figcaption>Model tab. Graphical view.</figcaption>
 </figure>
 <figure style="text-align:center;">
-  <img src="modeltab_table.png" alt="Model tab. Allocation table." style="width:600px;">
+  <img src="Images/modeltab_table.png" alt="Model tab. Allocation table." style="width:600px;">
   <figcaption>Model tab. Allocation table.</figcaption>
 </figure>
 <figure style="text-align:center;">
-  <img src="confusion.png" alt="Model tab. Confusion matrix." style="width:600px;">
+  <img src="Images/confusion.png" alt="Model tab. Confusion matrix." style="width:600px;">
   <figcaption>Model tab. Confusion matrix.</figcaption>
 </figure>
 <figure style="text-align:center;">
-  <img src="fom.png" alt="Model tab. Figures of merit." style="width:600px;">
+  <img src="Images/fom.png" alt="Model tab. Figures of merit." style="width:600px;">
   <figcaption>Model tab. Figures of merit.</figcaption>
 </figure>
  <ul>
@@ -208,7 +210,7 @@ To apply a PLS-DA model to the new data:
     <li>One can use <b>Save</b> and <b>Copy to clipboard</b> to store the image in the <i>Graphical view</i> tab to disk or clipboard.</li>
 </ol>
 <figure style="text-align:center;">
-  <img src="predict.png" alt="Prediction tab" style="width:300px;">
+  <img src="Images/predict.png" alt="Prediction tab" style="width:300px;">
   <figcaption>Prediction tab</figcaption>
 </figure>
 
