@@ -1,7 +1,6 @@
 ------
 todo
 ------
-update help based on new GUI
 
 ------
 done
@@ -10,6 +9,7 @@ done
 -pca: statistics
 -predict tab show class color if present
 
+update help based on new GUI
 fix datatab axis scatter plot names
 datatab view: add plot title (dataset name)
 datatab view: add axis title

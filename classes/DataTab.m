@@ -1212,14 +1212,14 @@ classdef  DataTab < BasicTab
                     set(self.chkTraining, 'value', 0);
                 end
                 
+                self.resetRightPanel();
+                self.fillRightPanel();
+                
                 set(self.ddlPlotVar1, 'String', names);
                 set(self.ddlPlotVar2, 'String', names);
                 
                 set(self.ddlPlotVar1, 'Value', 1);
                 set(self.ddlPlotVar2, 'Value', 2);
-                
-                self.resetRightPanel();
-                self.fillRightPanel();
                 
                 self.Redraw();
                 self.FillTableView(selected_name);

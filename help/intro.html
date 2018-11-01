@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <title>Hard and Soft Partial Least Squares Discriminant Analys (PLS-DA) Tool GUI help</title>
+</head>
+<body>
+
+<h2 id="intro">Introdiction</h2>
+The software implementation of hard and soft approaches to Partial Least Squares
+Discriminant Analysis (PLS-DA) <a href="#ref1">[1]</a> can be used for both multi-class and two-class
+classification. <br/>The Soft PLS-DA is based on Quadratic Discriminant Analysis
+applied to the super-score matrix T. It can simultaneously attribute a sample to several classes. It also
+allows to detect samples, which are not members of any training classes, and, therefore, reduce a
+number of false positives (e.g. in the presence of outliers). <br/>The Hard PLS-DA represents the
+conventional PLS-DA classification. 
+<br/><br/>
+The toolbox provides instruments for data pre-processing as well as for interpretation and visualization of classification models. 
+The main class, PLSDAModel, is responsible for the logic and contains implementation of both methods and auxiliary algorithms. 
+The instance of this class has fields, which represent the actual model, and methods for data visualization and statistics.
+The PLSDAGUI module provides graphical user interface, which allows user to create and manipulate
+datasets, calibrate, test and explore models interactively. This class encapsulates all the
+necessary data such as training or test sets and labels of the samples and variables. The PLS-DA Tool has its own
+implementation of all necessary statistical functions and does not require the MATLAB Statistics
+Toolbox. The PLS-DA Tool relies on several external functions, as well as GUI Layout Toolbox, which are uncluded in the package (in the <i>utils</i> sub-folder).
+
+</body>
+</html>

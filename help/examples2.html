@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <title>Hard and Soft Partial Least Squares Discriminant Analys (PLS-DA) Tool GUI help</title>
+</head>
+<body>
+<h4 id="ex_data">Working with the Data tab</h4>
+
+<p>
+    To create a DataSet object:
+<ol>
+<li>Load all neccessary data as variables into the current Matlab workspace.</li>
+<li>On the <b>Data</b> tab click the <b>New dataset</b> button.</li>
+<li>In the modal window input the <b>Name</b> of the new Data Set and select the <b>Data</b> matrix.</li>
+<li>Optionally one can select variables for Classes, Object names, Variable names (or Wavelegths) and Class labels.
+<br/><b>Warning:</b> A DataSet object without Classes can not be used for Calibration!</li>
+<li>Click the <b>Add data set</b> button to create the DataSet object.</li>
+<li>The newly created object is now available in the Matlab workspace as a variable and in the Data Set drop-down list under the specified name.</li>
+</ol>
+    <figure style="text-align:center;">
+        <img src="Images/create_dataset.png" alt="New DataSet"  style="width:400px;"/>
+        <figcaption>Create New Data Set window</figcaption>
+    </figure>
+    </p>
+ <p>   To edit or delete a DataSet object:
+    
+<ol>
+<li>To edit a DataSet object select it in the Data Set drop-down list and click the <b>Edit</b> button.</li>
+<li>In the modal window select the new variables for Data matrix, Classes, Object names, Variable names (or Wavelegths) or Class labels.
+<br/>Data fields of the selected DataSet object are shown in the drop-down list as variables with a prefix (equal to DataSet's name).
+<br/><b>Warning:</b> A DataSet object without Classes can not be used for Calibration!</li>
+<li>Click the <b>Save</b> button to apply changes to the DataSet object.</li>
+<li>The modified object is now available in the Matlab workspace as a variable and in the Data Set drop-down list under the specified name.</li>
+</ol>
+    <figure style="text-align:center;">
+        <img src="Images/edit.png" alt="Edit DataSet" style="width:400px;"/>
+        <figcaption>Edit Data Set window</figcaption>
+    </figure>
+    
+<ul>
+<li>To delete a DataSet object select it in the Data Set drop-down list and click the <b>Delete</b> button.</li>
+
+</ul>
+
+    
+</p>
+
+<p>
+    To apply preprocessing and analyze a DataSet object:
+<ol>
+<li>Select the object of interest in the Data Set drop-down list.</li>
+<li>Check one or both checkboxes in the Preprocessing section to apply mean-centering and scaling to the dataset.</li>
+<li>One can indicate whether the dataset will be used for Training or as New/Test dataset.</li>
+<li>3 types of plots are available in the Plot section - Scatter plot (for 2 selected variables), Line plot (for all samples) and histogram (for 1 selected variable).</li>
+<li>One can use <b>Save</b> and <b>Copy to clipboard</b> to store the image in the <i>Graphical view</i> tab to disk or clipboard.</li>
+</ol>
+    <figure style="text-align:center;">
+        <img src="Images/dataset_settings.png" alt="DataSet" style="width:300px;"/>
+        <figcaption>Data Tab. Preprocessing and Plot settings.</figcaption>
+    </figure>
+     <figure style="text-align:center;">
+        <img src="Images/dataset_line.png" alt="DataSet Plots" style="width:400px;"/>
+        <br/>
+        <img src="Images/dataset_scatter.png" alt="DataSet Plots" style="width:400px;"/>
+        <br/>
+        <img src="Images/dataset_hist.png" alt="DataSet Plots" style="width:400px;"/>
+        <figcaption>Data Tab. Graphical view.</figcaption>
+    </figure>
+</p>
+
+<p>
+    To manipulate the samples in a DataSet object:
+<ol>
+    <li>Select the object of interest in the Data Set drop-down list.</li>
+    <li>On the <i>Table view</i> sub-tab one can exclude or remove samples from the dataset.</li>
+    <li>Click on the checkbox near the sample's name to include\exclude individual samples.</li>
+    <li>Use the <b>Select all</b>, <b>Select none</b> and <b>Inverse selection</b> buttons to mass include\exclude the samples.</li>
+    <li>To create a new DataSet object based on the selection click the <b>Copy selected to new DataSet</b> button.</li>
+    <li>To remove selected items completely the dataset click the <b>Remove selected</b> button.</li>
+</ol>
+    <figure style="text-align:center;">
+        <img src="Images/dataset_table_settings.png" alt="DataSet Table Settings"  style="width:400px;" />
+        <br/>
+        <img src="Images/dataset_table.png" alt="DataSet Table View"  style="width:400px;" />
+        <figcaption>Data Tab. Table view.</figcaption>
+    </figure>
+</p>
+
+<p>
+    To apply Principal Component Analysis to a DataSet object:
+<ol>
+    <li>Select the object of interest in the Data Set drop-down list on the <b>Data</b> tab.</li>
+    <li>On the <i>PCA</i> sub-tab on can choose the number of PCs and select PCs for the PCA Scores and Loadings plots.</li>
+</ol>
+    <figure style="text-align:center;">
+        <img src="Images/pca_settings.png" alt="PCA Scores" style="width:400px;"/>
+            <br/>
+        <img src="Images/pca_scores.png" alt="PCA Scores" style="width:400px;"/>
+            <br/>
+        <img src="Images/pca_loadings_scatter.png" alt="PCA Loadings" style="width:400px;"/>
+          <br/>
+        <img src="Images/pca_loadings_line.png" alt="PCA Loadings" style="width:400px;"/>
+        <figcaption>Data Tab. PCA.</figcaption>
+    </figure>
+</p>
+
+</body>
+</html>

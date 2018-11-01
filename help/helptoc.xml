@@ -2,5 +2,18 @@
 
 <!-- Copyright 2018 Yury Zontov-->
 <toc version="1.0">
-  <tocitem target="index.html">PLSDAGUI</tocitem>
+  <tocitem target="index.html">PLS-DA Toolbox
+    <tocitem target="intro.html">Introduction</tocitem>
+    <tocitem target="install.html">Installation and first steps</tocitem>
+    <tocitem target="plsdagui.html">PLSDAGUI
+        <tocitem target="plsdagui.html">Description</tocitem>
+        <tocitem target="examples1.html">Examples
+            <tocitem target="examples1.html">Launching the Tool</tocitem>
+            <tocitem target="examples2.html">Working with the Data tab</tocitem>
+            <tocitem target="examples3.html">Working with the Model tab</tocitem>
+            <tocitem target="examples4.html">Working with the Prediction tab</tocitem>
+        </tocitem>
+    </tocitem>
+    <tocitem target="references.html">References</tocitem>
+  </tocitem>
 </toc>

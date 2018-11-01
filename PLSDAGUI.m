@@ -1,5 +1,19 @@
 function PLSDAGUI(varargin)
+%PLS-DA Tool GUI
+%------------------
+%The software implementation of hard and soft approaches to 
+%Partial Least Squares Discriminant Analysis (PLS-DA) 
+%can be used for both multi-class and two-class classification.
+%<a href="matlab:web('help/index.html')">read more</a>
+%
+%Reference:
+%A.L. Pomerantsev, O.Ye. Rodionova, 
+%"Multiclass partial least squares discriminant analysis: 
+%Taking the right way - A critical tutorial", 
+%J. Chemometrics, 32(8): e3030 (2018). 
+%<a href="matlab:web('https://onlinelibrary.wiley.com/doi/abs/10.1002/cem.3030')">DOI: 10.1002/cem.3030</a>
 
+addpath(genpath('help'));
 addpath('classes');
 addpath(genpath('utils'));
 

@@ -349,6 +349,8 @@ classdef  ModelTab < BasicTab
                     
                     m = evalin('base',vardisplay{2});
                     set(ttab.tbNumPCpca, 'String', sprintf('%d', m.NumberOfClasses-1));
+                    
+                    set(ttab.tbNumPCpls, 'String', sprintf('%d', min(max(m.NumberOfClasses, 12), size(m.ProcessedData, 2))));
                 end
             end
             
