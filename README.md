@@ -1,4 +1,4 @@
-Implementation of the Hard and Soft PLS-DA for MATLAB (Release Candidate 2)
+Implementation of the Hard and Soft PLS-DA for MATLAB (Release Candidate 3)
 ===========================================
 
 We present the software implementation of [Hard and Soft approaches to Partial Least Squares Discriminant Analysis (PLS-DA)](https://onlinelibrary.wiley.com/doi/abs/10.1002/cem.3030). 
@@ -9,7 +9,8 @@ The PLSDAGUI class provides graphical user interface, where user can create and 
 
 How to install
 --------------
-To get the latest release please use [GitHub sources](https://github.com/yzontov/pls-da/). 
+The latest release is available as .mltbx installation package or zip-archive in the [Releases section](https://github.com/yzontov/pls-da/releases). 
+To get the latest sourcr code please use [GitHub sources](https://github.com/yzontov/pls-da/). 
 You can clone the git repository or download the source as a zip-file and install it into Matlab environment.
 To use the Tool you should set the Matlab current directory to the folder, which contains the Tool classes, or add this folder to the Matlab Path.
 You should load the analyzed data into the MATLAB workspace for working with GUI.
