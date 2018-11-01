@@ -13,9 +13,9 @@ function PLSDAGUI(varargin)
 %J. Chemometrics, 32(8): e3030 (2018). 
 %<a href="matlab:web('https://onlinelibrary.wiley.com/doi/abs/10.1002/cem.3030')">DOI: 10.1002/cem.3030</a>
 
-addpath(genpath('help'));
-addpath('classes');
-addpath(genpath('utils'));
+% addpath(genpath('help'));
+% addpath('classes');
+% addpath(genpath('utils'));
 
 ShowStartScreen();
 

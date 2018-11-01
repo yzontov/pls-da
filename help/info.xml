@@ -6,5 +6,5 @@
 <name>PLS-DA</name>
 <type>toolbox</type>
 <icon>$toolbox/matlab/icons/bookicon.gif</icon>
-<help_location>help</help_location>
+<help_location>../help</help_location>
 </productinfo>
