@@ -10,7 +10,7 @@ The PLSDAGUI class provides graphical user interface, where user can create and 
 How to install
 --------------
 The latest release is available as .mltbx installation package or zip-archive in the [Releases section](https://github.com/yzontov/pls-da/releases). 
-To get the latest sourcr code please use [GitHub sources](https://github.com/yzontov/pls-da/). 
+To get the latest source code please use [GitHub sources](https://github.com/yzontov/pls-da/). 
 You can clone the git repository or download the source as a zip-file and install it into Matlab environment.
 To use the Tool you should set the Matlab current directory to the folder, which contains the Tool classes, or add this folder to the Matlab Path.
 You should load the analyzed data into the MATLAB workspace for working with GUI.
