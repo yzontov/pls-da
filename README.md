@@ -12,5 +12,6 @@ How to install
 The latest release is available as .mltbx installation package or zip-archive in the [Releases section](https://github.com/yzontov/pls-da/releases). 
 To get the latest source code please use [GitHub sources](https://github.com/yzontov/pls-da/). 
 You can clone the git repository or download the source as a zip-file and install it into Matlab environment.
-To use the Tool you should set the Matlab current directory to the folder, which contains the Tool classes, or add this folder to the Matlab Path.
+To use the Tool you should set the Matlab current directory to the folder, which contains the Tool classes, or add this folder and sub-folders to the Matlab Path.
+The package contains installation script which automates this process.
 You should load the analyzed data into the MATLAB workspace for working with GUI.
