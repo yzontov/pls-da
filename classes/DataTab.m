@@ -124,7 +124,7 @@ classdef  DataTab < BasicTab
             %lblPlotType
             ttab.pnlPlotSettings = uiextras.Panel( 'Parent', ttab.vbox, 'Title', 'Plot settings', 'TitlePosition', 'LeftTop');
             %uipanel('Parent', vbox, 'Title', 'Plot', ...
-                %'Position', [0.05   0.01   0.9  0.5]);
+            %'Position', [0.05   0.01   0.9  0.5]);
             vbox_plot = uiextras.VBox( 'Parent', ttab.pnlPlotSettings);
             hbox1_plot = uiextras.HButtonBox( 'Parent', vbox_plot, 'ButtonSize', [120 25]);
             uicontrol('Parent', hbox1_plot, 'Style', 'text', 'String', 'Plot type', ...
@@ -146,7 +146,7 @@ classdef  DataTab < BasicTab
             
             hbox4_plot = uiextras.HButtonBox( 'Parent', vbox_plot, 'ButtonSize', [120 25]);
             uicontrol('Parent', hbox4_plot, 'Style', 'text', 'String', 'Y-axis', ...
-                 'HorizontalAlignment', 'left');
+                'HorizontalAlignment', 'left');
             ttab.ddlPlotVar2 = uicontrol('Parent', hbox4_plot, 'Style', 'popupmenu', 'String', {'-'},...
                 'Value',1,'BackgroundColor', 'white', 'callback', @ttab.Redraw);
             
@@ -165,26 +165,26 @@ classdef  DataTab < BasicTab
             hbox1_txt = uiextras.HButtonBox( 'Parent', vbox_txt, 'ButtonSize', [120 25]);
             
             uicontrol('Parent', hbox1_txt, 'Style', 'pushbutton', 'String', 'Select all',...
-                 'Position', [0.01 0.91 0.1 0.05], ...
+                'Position', [0.01 0.91 0.1 0.05], ...
                 'callback', @ttab.SamplesSelectAll);
             
             uicontrol('Parent', hbox1_txt, 'Style', 'pushbutton', 'String', 'Select none',...
-                 'Position', [0.15 0.91 0.1 0.05], ...
+                'Position', [0.15 0.91 0.1 0.05], ...
                 'callback', @ttab.SamplesSelectNone);
             
             hbox2_txt = uiextras.HButtonBox( 'Parent', vbox_txt, 'ButtonSize', [120 25]);
             uicontrol('Parent', hbox2_txt, 'Style', 'pushbutton', 'String', 'Inverse selection',...
-                 'Position', [0.3 0.91 0.15 0.05], ...
+                'Position', [0.3 0.91 0.15 0.05], ...
                 'callback', @ttab.SamplesInverseSelection);
             
             uicontrol('Parent', hbox2_txt, 'Style', 'pushbutton', 'String', 'Remove selected',...
-                 'Position', [0.8 0.91 0.15 0.05], ...
+                'Position', [0.8 0.91 0.15 0.05], ...
                 'callback', @ttab.SamplesRemoveSelection);
             
             
             hbox3_txt = uiextras.HButtonBox( 'Parent', vbox_txt, 'ButtonSize', [200 25]);
             uicontrol('Parent', hbox3_txt, 'Style', 'pushbutton', 'String', 'Copy selected to new DataSet',...
-                 'Position', [0.5 0.91 0.25 0.05], ...
+                'Position', [0.5 0.91 0.25 0.05], ...
                 'callback', @ttab.SamplesCopyToNewDataSet);
             
             
@@ -206,7 +206,7 @@ classdef  DataTab < BasicTab
             uicontrol('Parent', grid2_pca, 'Style', 'text', 'String', 'PC 1', 'HorizontalAlignment', 'left');
             ttab.ddlPCApc1 = uicontrol('Parent', grid2_pca, 'Style', 'popupmenu', 'String', {'-'},...
                 'Value',1, 'BackgroundColor', 'white', 'callback', @ttab.Callback_PCApc);
-
+            
             uicontrol('Parent', grid2_pca, 'Style', 'text', 'String', 'PC 2', 'HorizontalAlignment', 'left');
             ttab.ddlPCApc2 = uicontrol('Parent', grid2_pca, 'Style', 'popupmenu', 'String', {'-'},...
                 'Value',1, 'BackgroundColor', 'white', 'callback', @ttab.Callback_PCApc);
@@ -229,7 +229,7 @@ classdef  DataTab < BasicTab
             if ispc
                 ttab.vbox.Heights=[40,30,40,40,170,0,0];
             else
-               ttab.vbox.Heights=[40,30,40,40,160,0,0];
+                ttab.vbox.Heights=[40,30,40,40,160,0,0];
             end
             
             tg = uitabgroup('Parent', ttab.middle_panel);
@@ -242,7 +242,7 @@ classdef  DataTab < BasicTab
             
             ttab.tab_pca = uitab('Parent', tg, 'Title', 'PCA');
             
-                        
+            
             tg2 = uitabgroup('Parent', ttab.tab_pca,'Position', [0 0 1 1]);
             ttab.pca_tabgroup = tg2;
             
@@ -251,19 +251,19 @@ classdef  DataTab < BasicTab
             
             ttab.tab_pca_scores = uitab('Parent', tg2, 'Title', 'Scores');
             ttab.tab_pca_loadings = uitab('Parent', tg2, 'Title', 'Loadings');
-
+            
             ttab.tblTextResult = uitable(ttab.tab_txt);
             ttab.tblTextResult.Units = 'normalized';
             ttab.tblTextResult.Position = [0 0 1 1];
             
-
+            
             ttab.FillDataSetList();
- 
+            
             
         end
         
         function DoPCA(self,~,~)
-                                  
+            
             index_selected = get(self.listbox,'Value');
             
             if(index_selected > 1)
@@ -290,12 +290,12 @@ classdef  DataTab < BasicTab
             else
                 self.enablePCAPanel('off');
                 self.pca_tabgroup.Visible = 'off';
-            end   
-
+            end
+            
         end
         
         function DrawPCA(self)
-                                  
+            
             index_selected = get(self.listbox,'Value');
             
             if(index_selected > 1)
@@ -307,13 +307,13 @@ classdef  DataTab < BasicTab
                 
                 delete(self.tab_pca_scores_axes);
                 delete(self.tab_pca_loadings_axes);
-
+                
                 ha2d_s = axes('Parent', self.tab_pca_scores);
                 ha2d_l = axes('Parent', self.tab_pca_loadings);
-
+                
                 self.tab_pca_scores_axes = ha2d_s;
                 self.tab_pca_loadings_axes = ha2d_l;
-            
+                
                 pc1 = self.pc_x;
                 pc2 = self.pc_y;
                 hold(self.tab_pca_scores_axes, 'on');
@@ -324,7 +324,7 @@ classdef  DataTab < BasicTab
                     for i = 1:d.NumberOfClasses
                         
                         plot(self.tab_pca_scores_axes,d.PCAScores(d.Classes == i,pc1), d.PCAScores(d.Classes == i,pc2), 'o','color',color_(i,:));
-
+                        
                         if isempty(d.ClassLabels)
                             names_{i} = sprintf('class %d', i);
                         else
@@ -338,12 +338,12 @@ classdef  DataTab < BasicTab
                 else
                     plot(self.tab_pca_scores_axes,d.PCAScores(:,pc1), d.PCAScores(:,pc2), 'o');
                 end
-
+                
                 xlabel(self.tab_pca_scores_axes,sprintf('PC %d', pc1));
                 ylabel(self.tab_pca_scores_axes,sprintf('PC %d', pc2));
                 
                 title(self.tab_pca_scores_axes,'PCA Scores');
-               
+                
                 if(~isempty(d.SelectedObjectNames))
                     score_labels= d.SelectedObjectNames;
                 else
@@ -351,17 +351,17 @@ classdef  DataTab < BasicTab
                 end
                 
                 if get(self.chkPlotShowObjectNamesPCA,'value') == 1
-                            pan off
-                            datacursormode on
-                            dcm_obj = datacursormode(self.parent.fig);
-                            set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
+                    pan off
+                    datacursormode on
+                    dcm_obj = datacursormode(self.parent.fig);
+                    set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
                 else
-                            datacursormode off
-                            pan on
+                    datacursormode off
+                    pan on
                 end
                 
-%                 dcm_obj = datacursormode(self.parent.fig);
-%                 set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
+                %                 dcm_obj = datacursormode(self.parent.fig);
+                %                 set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
                 
                 if ~isempty(d.Classes)
                     set(self.tab_pca_scores_axes,'UserData', {[d.PCAScores(:,pc1), d.PCAScores(:,pc2)], score_labels, d.Classes, []});
@@ -369,7 +369,7 @@ classdef  DataTab < BasicTab
                     set(self.tab_pca_scores_axes,'UserData', {[d.PCAScores(:,pc1), d.PCAScores(:,pc2)], score_labels, [], []});
                 end
                 
-                            
+                
                 loadings_plot_type = get(self.ddlPlotTypePCA, 'value');
                 
                 
@@ -393,7 +393,7 @@ classdef  DataTab < BasicTab
                     ylabel(self.tab_pca_loadings_axes,sprintf('PC %d', pc2));
                     
                     set(self.tab_pca_loadings_axes,'UserData', {[d.PCALoadings(:,pc1), d.PCALoadings(:,pc2)], loadings_labels, [], true});
-
+                    
                 else %line
                     
                     %plot(self.tab_pca_loadings_axes,loadings_labels, d.PCALoadings', '-');
@@ -406,12 +406,12 @@ classdef  DataTab < BasicTab
                     for i = 1:pcs
                         
                         plot(self.tab_pca_loadings_axes,1:vars, d.PCALoadings(:,i), '-','color',color_(i,:));
-
+                        
                         names_{i} = sprintf('PC %d', i);
-
+                        
                     end
                     
-                    if vars <= 30 
+                    if vars <= 30
                         xticks(1:vars);
                         
                         if ~isempty(d.VariableNames)
@@ -446,7 +446,7 @@ classdef  DataTab < BasicTab
                 selected_name = names{index_selected};
                 
                 d = evalin('base', selected_name);
-
+                
             end
         end
         
@@ -495,7 +495,7 @@ classdef  DataTab < BasicTab
                 selected_name = names{index_selected};
                 
                 d = evalin('base', selected_name);
-
+                
                 vmax = min(size(d.ProcessedData));
                 
                 if d.Centering
@@ -586,7 +586,7 @@ classdef  DataTab < BasicTab
                     self.pca_tabgroup.Visible = 'off';
                     self.btnPCABuild.String = 'Build';
                 end
-
+                
                 self.resetRightPanel();
                 self.fillRightPanel();
                 
@@ -852,7 +852,7 @@ classdef  DataTab < BasicTab
                 if ~(isnumeric(file) && (file == 0) && isnumeric(path) && (path == 0))
                     saveas(fig2, [path file]);
                 end
-
+                
             end
         end
         
@@ -935,7 +935,7 @@ classdef  DataTab < BasicTab
                 if ~isempty(self.parent.modelTab)
                     names = get(self.parent.modelTab.ddlCalibrationSet, 'String');
                     sel = get(self.parent.modelTab.ddlCalibrationSet, 'Value');
-                
+                    
                     if (isequal(names{sel}, selected_name))
                         self.parent.modelTab.ClearModel();
                     end
@@ -974,7 +974,7 @@ classdef  DataTab < BasicTab
                 if ~isempty(self.parent.modelTab)
                     names = get(self.parent.modelTab.ddlCalibrationSet, 'String');
                     sel = get(self.parent.modelTab.ddlCalibrationSet, 'Value');
-                
+                    
                     if (isequal(names{sel}, selected_name))
                         self.parent.modelTab.ClearModel();
                     end
@@ -1023,23 +1023,23 @@ classdef  DataTab < BasicTab
                 
                 if sum(idx) > 0 && ~isempty(win.modelTab)
                     
-                    idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
+                    %idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
                     vardisplay={};
-                    if sum(idx) > 0
-                        l = allvars(idx);
-                        vardisplay{1} = '-';
-                        for i = 1:length(l)
-                            vardisplay{i+1} = l(i).name;
-                        end
-                        set(win.modelTab.ddlCalibrationSet, 'String', vardisplay);
-                        
-                        if length(get(win.modelTab.ddlCalibrationSet, 'String')) > 1
-                            set(win.modelTab.ddlCalibrationSet, 'Value', 2)
-                            
-                            m = evalin('base',vardisplay{2});
-                            set(win.modelTab.tbNumPCpca, 'String', sprintf('%d', m.NumberOfClasses-1));
-                        end
+                    %if sum(idx) > 0
+                    l = allvars(idx);
+                    vardisplay{1} = '-';
+                    for i = 1:length(l)
+                        vardisplay{i+1} = l(i).name;
                     end
+                    set(win.modelTab.ddlCalibrationSet, 'String', vardisplay);
+                    
+                    if length(get(win.modelTab.ddlCalibrationSet, 'String')) > 1
+                        set(win.modelTab.ddlCalibrationSet, 'Value', 2)
+                        
+                        m = evalin('base',vardisplay{2});
+                        set(win.modelTab.tbNumPCpca, 'String', sprintf('%d', m.NumberOfClasses-1));
+                    end
+                    %end
                 end
                 
                 if sum(idx) == 0 && ~isempty(win.modelTab)
@@ -1169,7 +1169,7 @@ classdef  DataTab < BasicTab
                 if (~isempty(self.parent.predictTab))
                     
                     allvarsp = evalin('base','whos');
-                                        
+                    
                     idx = arrayfun(@(x)self.parent.predictTab.filter_test(x), allvarsp);
                     
                     if sum(idx) > 0
@@ -1458,7 +1458,7 @@ classdef  DataTab < BasicTab
         function btnNew_Callback(self,obj, ~)
             
             self.datasetwin = DataSetWindow(self);
-
+            
         end
         
         function Callback_PCALoadingsPlotType(self,obj, ~)
@@ -1466,13 +1466,13 @@ classdef  DataTab < BasicTab
             if(index_selected > 1)
                 set(self.ddlPCApc1,'enable','off');
                 set(self.ddlPCApc2,'enable','off');
-        
+                
                 set(self.chkPlotShowClassesPCA,'enable','off');
                 set(self.chkPlotShowObjectNamesPCA,'enable','off');
             else
                 set(self.ddlPCApc1,'enable','on');
                 set(self.ddlPCApc2,'enable','on');
-        
+                
                 if self.parent.selected_panel_pca == GUIWindow.DataPCAScores
                     set(self.chkPlotShowClassesPCA,'enable','on');
                 else
@@ -1484,14 +1484,14 @@ classdef  DataTab < BasicTab
                 obj_index_selected = get(self.listbox,'Value');
                 names = get(self.listbox,'String');
                 selected_name = names{obj_index_selected};
-            
+                
                 if obj_index_selected > 1
                     d = evalin('base', selected_name);
                     if isempty(d.Classes)
                         set(self.chkPlotShowClassesPCA, 'value', 0);
                         set(self.chkPlotShowClassesPCA, 'enable', 'off');
-                    %else
-                    %    set(self.chkPlotShowClassesPCA, 'enable', 'on');
+                        %else
+                        %    set(self.chkPlotShowClassesPCA, 'enable', 'on');
                     end
                 end
             end
@@ -1567,8 +1567,8 @@ classdef  DataTab < BasicTab
                 self.tblTextResult.Data = [];
                 self.tblTextResult.ColumnName = [];
                 
-
-               
+                
+                
                 
                 self.ClearPCA();
             end
@@ -1614,11 +1614,11 @@ classdef  DataTab < BasicTab
             set(ttab.ddlPlotVar1, 'enable', 'off');
             set(ttab.ddlPlotVar2, 'enable', 'off');
             
-             set(ttab.ddlPlotVar1, 'string', '-');
-             set(ttab.ddlPlotVar2, 'string', '-');
+            set(ttab.ddlPlotVar1, 'string', '-');
+            set(ttab.ddlPlotVar2, 'string', '-');
             set(ttab.ddlPlotVar1, 'value', 1);
-             set(ttab.ddlPlotVar2, 'value', 1);
-
+            set(ttab.ddlPlotVar2, 'value', 1);
+            
             set(ttab.chkPlotShowObjectNames, 'enable', 'off');
             set(ttab.chkPlotShowClasses, 'enable', 'off');
             
@@ -1705,7 +1705,7 @@ classdef  DataTab < BasicTab
                 set(ttab.chkTraining, 'Value', d.Training);
                 set(ttab.chkValidation, 'Value', d.Validation);
             end
-
+            
         end
         
         function enablePCAPanel(self, param)
@@ -1735,18 +1735,18 @@ classdef  DataTab < BasicTab
                 set(self.hbox_pca_plot_type,'visible','off');
             end
             
-                index_selected = get(self.listbox,'Value');
-                names = get(self.listbox,'String');
-                selected_name = names{index_selected};
+            index_selected = get(self.listbox,'Value');
+            names = get(self.listbox,'String');
+            selected_name = names{index_selected};
             
-                if index_selected > 1
-                    d = evalin('base', selected_name);
-                    if isempty(d.Classes)
-                        set(self.chkPlotShowClassesPCA, 'value', 0);
-                        set(self.chkPlotShowClassesPCA, 'enable', 'off');
-                    end
+            if index_selected > 1
+                d = evalin('base', selected_name);
+                if isempty(d.Classes)
+                    set(self.chkPlotShowClassesPCA, 'value', 0);
+                    set(self.chkPlotShowClassesPCA, 'enable', 'off');
                 end
-
+            end
+            
         end
         
         function enableRightPanel(self, param)
@@ -1775,9 +1775,9 @@ classdef  DataTab < BasicTab
             if(strcmp('off',param))
                 
                 allvars = evalin('base','whos');
-            
+                
                 idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}), 1);
-            
+                
                 if ~isempty(idx)
                     set(self.listbox,'enable','on');
                 end
