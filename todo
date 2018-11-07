@@ -1,6 +1,9 @@
 ------
 todo
 ------
+bug: no classes in hard pls-da?
+bug: prediction plot legend and table - use unique class numbers
+bug: data tab - scatter plot - show classes - wrong on dataset with excluded samples
 
 ------
 done
@@ -9,6 +12,7 @@ done
 -pca: statistics
 -predict tab show class color if present
 
+bug: classification plot legend - use unique class numbers
 update help based on new GUI
 fix datatab axis scatter plot names
 datatab view: add plot title (dataset name)

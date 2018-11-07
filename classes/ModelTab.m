@@ -99,10 +99,12 @@ classdef  ModelTab < BasicTab
                     end
                 end
                 
-                self.tblTextResult.Data = [Labels, num2cell(logical(self.Model.AllocationMatrix))];
-                
-                self.tblTextResult.ColumnName = {'Sample',1:size(self.Model.AllocationMatrix, 2)};
-                
+                self.tblTextResult.ColumnName = {'Sample', 'Class', unique(self.Model.TrainingDataSet.Classes)};
+                self.tblTextResult.ColumnFormat = ['char' 'char' repmat({'char'},1,self.Model.TrainingDataSet.NumberOfClasses)];
+                self.tblTextResult.ColumnWidth = num2cell([150, 60, 30*ones(1,size(self.Model.AllocationMatrix(:,1:self.Model.TrainingDataSet.NumberOfClasses), 2))]);
+
+                v = num2cell(arrayfun(@self.bool2v ,logical(self.Model.AllocationMatrix)));
+                self.tblTextResult.Data = [Labels, num2cell(self.Model.TrainingDataSet.Classes), v];
                 
                 self.tblTextConfusion.ColumnName = {unique(self.Model.TrainingDataSet.Classes)};
                 self.tblTextConfusion.RowName = {unique(self.Model.TrainingDataSet.Classes)};
@@ -354,23 +356,6 @@ classdef  ModelTab < BasicTab
                 end
             end
             
-%             idx = arrayfun(@(x)ModelTab.filter_validation(x), allvars);
-%             vardisplay={};
-%             if sum(idx) > 0
-%                 l = allvars(idx);
-%                 vardisplay{1} = '-';
-%                 for i = 1:length(l)
-%                     vardisplay{i+1} = l(i).name;
-%                 end
-%                 set(ttab.ddlValidationSet, 'String', vardisplay);
-%                 if length(get(ttab.ddlValidationSet, 'String')) > 1
-%                     set(ttab.ddlValidationSet, 'Value', 2)
-%                     set(ttab.ddlValidationSet, 'enable', 'on');
-%                 else
-%                     set(ttab.ddlValidationSet, 'enable', 'off');
-%                 end
-%             end
-            
             if isempty(ttab.Model)
                 pcs = arrayfun(@(x) sprintf('%d', x), 1:str2double(get(ttab.tbNumPCpca,'string')), 'UniformOutput', false);
                 
@@ -462,19 +447,9 @@ classdef  ModelTab < BasicTab
             alpha = str2double(get(self.tbAlpha,'string'));
             gamma = str2double(get(self.tbGamma,'string'));
             
-            %             if ~isempty(self.Model)
-            %
-            %                 self.Model.TrainingDataSet = d;
-            %                 self.Model.Mode = mode;
-            %                 self.Model.Alpha = alpha;
-            %                 self.Model.Gamma = gamma;
-            %                 self.Model.NumPC = numPC;
-            %
-            %                 self.Model.Rebuild();
-            %             else
-            
             h = waitbar(0, 'Please wait...');
             
+            waitbar(5/10, h);
             self.Model = PLSDAModel(d, numPC, alpha, gamma);
             
             if strcmp(mode, 'hard')
@@ -482,77 +457,10 @@ classdef  ModelTab < BasicTab
                 self.Model.Rebuild();
             end
             
-            %             end
-            waitbar(5/10, h);
+            
             set(self.chkFinalizeModel,'enable','on');
             set(self.btnSaveModel,'enable','on');
-            %set(self.tbTextResult, 'String', self.Model.AllocationTable);
-            %mm = self.Model.AllocationMatrix;
-            %[mm_rows, mm_cols] = size(mm);
-            %self.tblTextResult.Data = mat2cell(mm, ones(1, mm_rows), ones(1, mm_cols));
-            
-            self.tblTextResult.ColumnName = {'Sample', 'Class', unique(self.Model.TrainingDataSet.Classes)};
-            self.tblTextResult.ColumnFormat = ['char' 'char' repmat({'logical'},1,self.Model.TrainingDataSet.NumberOfClasses)];
-            waitbar(8/10, h);
-            Labels = cell(size(self.Model.TrainingDataSet.ProcessedData, 1),1);
-            for i = 1:size(self.Model.TrainingDataSet.ProcessedData, 1)
-                Labels{i} = sprintf('Object No.%d', i);
-            end
-            
-            if(~isempty(self.Model.TrainingDataSet.SelectedObjectNames))
-                Labels = self.Model.TrainingDataSet.SelectedObjectNames;
-            end
-            
-            
-            for i = 1:length(self.Model.TrainingDataSet.Classes)
-                c = self.Model.TrainingDataSet.Classes(i);
-                u = unique(self.Model.TrainingDataSet.Classes);
-                ii = 1:self.Model.TrainingDataSet.NumberOfClasses;
-                ci = ii(u == c);
 
-                if (sum(self.Model.AllocationMatrix(i,:)) == 0)% no classes
-                    Labels{i} = ['<html><table border=0 width=100% bgcolor=#FFC000><TR><TD>',Labels{i},'</TD></TR> </table></html>'];
-                else
-                    t = Labels{i};
-                    if (~self.Model.AllocationMatrix(i,ci))% wrong class
-                        Labels{i} = ['<html><table border=0 width=100% bgcolor=#FF0000><TR><TD>',t,'</TD></TR> </table></html>'];
-                    end
-                    
-                    if (sum(self.Model.AllocationMatrix(i,:)) > 1)% multiple classes
-                        Labels{i} = ['<html><table border=0 width=100% bgcolor=#FFA0A0><TR><TD>',t,'</TD></TR> </table></html>'];
-                    end
-                end
-            end
-            
-            self.tblTextResult.Data = [Labels, num2cell(self.Model.TrainingDataSet.Classes), num2cell(logical(self.Model.AllocationMatrix(:,1:self.Model.TrainingDataSet.NumberOfClasses)))];
-            
-            self.tblTextConfusion.ColumnName = {unique(self.Model.TrainingDataSet.Classes)};
-            self.tblTextConfusion.RowName = {unique(self.Model.TrainingDataSet.Classes)};
-            self.tblTextConfusion.Data = self.Model.ConfusionMatrix;
-            
-            self.tblTextFoM.ColumnName = {'Statistics',unique(self.Model.TrainingDataSet.Classes)};
-            self.tblTextFoM.ColumnWidth = num2cell([120, 30*ones(1,size(self.Model.AllocationMatrix(:,1:self.Model.TrainingDataSet.NumberOfClasses), 2))]);
-            self.tblTextFoM.ColumnFormat = ['char' repmat({'numeric'},1,self.Model.TrainingDataSet.NumberOfClasses)];
-            
-            waitbar(9/10, h);
-            fields = {'True Positive';'False Positive';'';'Class Sensitivity (%)';'Class Specificity (%)';'Class Efficiency (%)';'';'Total Sensitivity (%)';'Total Specificity (%)';'Total Efficiency (%)'};
-            fom = self.Model.FiguresOfMerit;
-            
-            self.tblTextFoM.Data = [fields,  [num2cell(round([fom.TP; fom.FP])); ...
-                repmat({''},1,self.Model.TrainingDataSet.NumberOfClasses);...
-                num2cell(round([fom.CSNS; fom.CSPS; fom.CEFF])); ...
-                repmat({''},1,self.Model.TrainingDataSet.NumberOfClasses);...
-                [round(fom.TSNS) repmat({''},1,self.Model.TrainingDataSet.NumberOfClasses-1)];...
-                [round(fom.TSPS) repmat({''},1,self.Model.TrainingDataSet.NumberOfClasses-1)];...
-                [round(fom.TEFF) repmat({''},1,self.Model.TrainingDataSet.NumberOfClasses-1)]...
-                ]];
-            
-            self.tblTextResult.ColumnWidth = num2cell([150, 60, 30*ones(1,size(self.Model.AllocationMatrix(:,1:self.Model.TrainingDataSet.NumberOfClasses), 2))]);
-            
-            %d = {'Male',52,true;'Male',40,true;'Female',25,false};
-            %self.tblTextResult.Data = d;
-            %self.tblTextResult.Position = [20 20 258 78];
-            
             waitbar(10/10, h);
             %pause(.5);
             delete(h);

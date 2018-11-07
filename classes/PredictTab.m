@@ -223,7 +223,7 @@ classdef  PredictTab < BasicTab
                 end
                 
                 if isempty(set.Classes) || ~(length(trc) == length(tc) && sum(trc == tc) == length(tc))
-                    self.tblTextResult.ColumnName = {'Sample',1:size(res.AllocationMatrix, 2)};
+                    self.tblTextResult.ColumnName = {'Sample',unique(self.parent.modelTab.Model.TrainingDataSet.Classes)};
                     
                     self.tblTextResult.Data = [res.Labels, num2cell(logical(res.AllocationMatrix))];
                 
@@ -231,7 +231,7 @@ classdef  PredictTab < BasicTab
                     self.tblTextResult.ColumnFormat = ['char' repmat({'logical'},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses)];
 
                 else
-                    self.tblTextResult.ColumnFormat = ['char' 'char' repmat({'logical'},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses)];
+                    self.tblTextResult.ColumnFormat = ['char' 'char' repmat({'char'},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses)];
 
                    self.tblTextResult.ColumnName = {'Sample','Class', unique(self.parent.modelTab.Model.TrainingDataSet.Classes)};
 

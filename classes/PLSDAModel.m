@@ -286,7 +286,7 @@ classdef PLSDAModel < handle
                 end
                 
                 Result.Distances = Distances_Hard_New;
-                Result.AllocationTable = PLSDAModel.allocation_hard(Labels, Distances_Hard_New, unique(self.self.TrainingDataSet.Classes));
+                Result.AllocationTable = PLSDAModel.allocation_hard(Labels, Distances_Hard_New, unique(self.TrainingDataSet.Classes));
                 Result.AllocationMatrix = self.calculateAllocationMatrix(Distances_Hard_New);
                 
                 if ~isempty(NewDataSet.Classes)
@@ -350,10 +350,11 @@ classdef PLSDAModel < handle
             Y = self.TrainingDataSet.DummyMatrix();
             %samples
             names = cell(1,self.K);
+            trc = unique(self.TrainingDataSet.Classes);
             for class = 1:self.K
                 temp = self.YpredT(Y(:,class) == 1,:);
                 if isempty(self.TrainingDataSet.ClassLabels)
-                    names{class} = sprintf('class %d', class);
+                    names{class} = sprintf('class %d', trc(class));
                 else
                     names{class} = self.TrainingDataSet.ClassLabels{class};
                 end
@@ -544,11 +545,12 @@ classdef PLSDAModel < handle
             if show_legend
                 
                 names = {};
+                trc = unique(self.TrainingDataSet.Classes);
                 for i=1:self.K
-                    if isempty(self.NewDataSetClassLabels)
-                        names{i} = sprintf('class %d', i);
+                    if isempty(self.TrainingDataSet.ClassLabels)
+                        names{i} = sprintf('class %d', trc(i));
                     else
-                        names{i} = self.NewDataSetClassLabels{i};
+                        names{i} = self.TrainingDataSet.ClassLabels{i};
                     end
                 end
                 

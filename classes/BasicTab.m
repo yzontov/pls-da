@@ -17,7 +17,14 @@ classdef  BasicTab < handle
     end
     methods
         
-                
+       function v = bool2v(self, x)
+            if (x)
+                v = 'V';
+            else
+                v = ' ';
+            end
+            
+        end        
         
         
         function ttab = BasicTab(tabgroup, title, parent)

@@ -589,6 +589,7 @@ classdef  DataSetWindow<handle
             
             name = get(self.tbName, 'String');
             opts = struct('WindowStyle','modal','Interpreter','none');
+            ok = true;
             
             if ~isempty(name)
                 
@@ -632,8 +633,7 @@ classdef  DataSetWindow<handle
                             end
                             
                         end
-                        
-                        
+
                     end
                     
                     if get(self.ddlVariables, 'Value') > 1
@@ -695,8 +695,10 @@ classdef  DataSetWindow<handle
                         assignin('base', name, d)
                     catch
                         waitfor(errordlg('The name contains invalid characters. Please use only latin characters, numbers and underscore for the name of DataSet!','Error', opts));
+                        ok = false;
                     end
                     
+                    if ok
                     if isempty(self.dataset_name)
                         evtdata = DatasetCreatedEventData(name, false);
                         notify(self, 'DataUpdated',evtdata);
@@ -705,17 +707,22 @@ classdef  DataSetWindow<handle
                         evtdata = DatasetCreatedEventData(name, true);
                         self.parent.DataSetWindowCloseCallback(self,evtdata);
                     end 
+                    end
                     
                 else
                     waitfor(errordlg('You should indicate at least Data matrix!','Error', opts));
+                    ok = false;
                 end
                 
             else
                 waitfor(errordlg('You should indicate a name of the DataSet!','Error', opts));
+                ok = false;
                 %return;
             end
             
-            close;
+            if ok
+                close;
+            end
         end
         
     end
