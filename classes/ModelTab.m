@@ -449,15 +449,16 @@ classdef  ModelTab < BasicTab
             
             h = waitbar(0, 'Please wait...');
             
-            waitbar(5/10, h);
-            self.Model = PLSDAModel(d, numPC, alpha, gamma);
+            waitbar(2.5/10, h);
+            m = PLSDAModel(d, numPC, alpha, gamma);
             
             if strcmp(mode, 'hard')
-                self.Model.Mode = mode;
-                self.Model.Rebuild();
+                m.Mode = mode;
+                m.Rebuild();
             end
-            
-            
+            waitbar(5/10, h);
+            self.Model = m;
+            waitbar(7.5/10, h);
             set(self.chkFinalizeModel,'enable','on');
             set(self.btnSaveModel,'enable','on');
 

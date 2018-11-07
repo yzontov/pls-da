@@ -225,7 +225,10 @@ classdef  PredictTab < BasicTab
                 if isempty(set.Classes) || ~(length(trc) == length(tc) && sum(trc == tc) == length(tc))
                     self.tblTextResult.ColumnName = {'Sample',unique(self.parent.modelTab.Model.TrainingDataSet.Classes)};
                     
-                    self.tblTextResult.Data = [res.Labels, num2cell(logical(res.AllocationMatrix))];
+                    v = num2cell(arrayfun(@self.bool2v ,logical(res.AllocationMatrix)));
+                    self.tblTextResult.Data = [res.Labels,  v];
+
+                    %self.tblTextResult.Data = [res.Labels, num2cell(logical(res.AllocationMatrix))];
                 
                     self.tblTextResult.ColumnWidth = num2cell([150, 30*ones(1,size(res.AllocationMatrix, 2))]);
                     self.tblTextResult.ColumnFormat = ['char' repmat({'logical'},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses)];
@@ -258,7 +261,9 @@ classdef  PredictTab < BasicTab
                         end
                     end
                    
-                    self.tblTextResult.Data = [res.Labels, num2cell(set.Classes), num2cell(logical(res.AllocationMatrix))];
+                    v = num2cell(arrayfun(@self.bool2v ,logical(res.AllocationMatrix)));
+                    self.tblTextResult.Data = [res.Labels, num2cell(set.Classes),  v];
+                    %self.tblTextResult.Data = [res.Labels, num2cell(set.Classes), num2cell(logical(res.AllocationMatrix))];
                     
                     self.tblTextResult.ColumnWidth = num2cell([150, 60, 30*ones(1,size(res.AllocationMatrix, 2))]); 
                 
