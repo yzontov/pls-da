@@ -268,7 +268,7 @@ classdef  ModelTab < BasicTab
             ttab.btnSaveModel = uicontrol('Parent',hboxm6,'Enable','off', 'Style', 'pushbutton', 'String', 'Save model',...
                 'callback', @ttab.SaveModel);
             
-            vbox_plot = uix.VBox( 'Parent', ttab.pnlPlotSettings, 'Padding', 10, 'Spacing', 5 );
+            vbox_plot = uix.VBox( 'Parent', ttab.pnlPlotSettings, 'Padding', 5, 'Spacing', 5 );
             
             hboxp2 = uix.HButtonBox( 'Parent', vbox_plot, 'ButtonSize', [120 20]);
             ttab.chkPlotShowClasses = uicontrol('Parent', hboxp2, 'Style', 'checkbox', 'Value', 1, 'String', 'Show classes',...
@@ -294,17 +294,13 @@ classdef  ModelTab < BasicTab
                 'callback', @ttab.CopyPlotToClipboard, 'enable', 'off');
             
             ttab.pnlTableSettings = uiextras.Panel( 'Parent', ttab.vbox, 'Title', 'Table view options', 'TitlePosition', 'LeftTop','visible','off');
-            hboxt1 = uix.HButtonBox( 'Parent', ttab.pnlTableSettings, 'ButtonSize', [120 25]);
+            hboxt1 = uix.HButtonBox( 'Parent', ttab.pnlTableSettings, 'ButtonSize', [120 30]);
             uicontrol('Parent', hboxt1, 'Style', 'pushbutton', 'String', 'Save tables to file',...
                 'callback', @ttab.SaveTable, 'enable', 'off');
             uicontrol('Parent', hboxt1, 'Style', 'pushbutton', 'String', 'Copy tables to clipboard',...
                 'callback', @ttab.CopyTableToClipboard, 'enable', 'off');
             
-            if ispc
-                ttab.vbox.Heights=[40,180,120,0];
-            else
-                ttab.vbox.Heights=[40,180,110,0];
-            end
+            ttab.vbox.Heights=[40,180,120,0];
             
             tg = uitabgroup('Parent', ttab.middle_panel);
             ttab.tab_img = uitab('Parent', tg, 'Title', 'Classification plot');
