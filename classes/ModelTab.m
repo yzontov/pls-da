@@ -294,7 +294,7 @@ classdef  ModelTab < BasicTab
                 'callback', @ttab.CopyPlotToClipboard, 'enable', 'off');
             
             ttab.pnlTableSettings = uiextras.Panel( 'Parent', ttab.vbox, 'Title', 'Table view options', 'TitlePosition', 'LeftTop','visible','off');
-            hboxt1 = uix.HButtonBox( 'Parent', ttab.pnlTableSettings, 'ButtonSize', [120 30]);
+            hboxt1 = uix.HButtonBox( 'Parent', ttab.pnlTableSettings, 'ButtonSize', [120 25]);
             uicontrol('Parent', hboxt1, 'Style', 'pushbutton', 'String', 'Save tables to file',...
                 'callback', @ttab.SaveTable, 'enable', 'off');
             uicontrol('Parent', hboxt1, 'Style', 'pushbutton', 'String', 'Copy tables to clipboard',...

@@ -81,22 +81,20 @@ classdef  DataTab < BasicTab
                 'callback', @ttab.btnNew_Callback);%,'FontUnits', 'Normalized'
             
             %hbox_input = uix.HBox( 'Parent', vbox);
-            hbox_input_g = uiextras.Grid( 'Parent', ttab.vbox );
+            hbox_input_g = uiextras.HButtonBox( 'Parent', ttab.vbox, 'ButtonSize', [120 25] );
             uicontrol('Parent', hbox_input_g, 'Style', 'text', 'String', 'Data Set', ...
-                'Position', [20 320 100 20], 'HorizontalAlignment', 'left');
+                 'HorizontalAlignment', 'left');
             ttab.listbox = uicontrol('Parent', hbox_input_g, 'Style', 'popupmenu',...
                 'String', {'-'}, 'enable', 'off', ...
-                'Value',1, 'Position', [63 322 135 20], 'BackgroundColor', 'white', 'callback',@ttab.listClick);
+                'Value',1, 'BackgroundColor', 'white', 'callback',@ttab.listClick);
             
             ttab.btnDataSetEdit = uicontrol('Parent', hbox_input_g, 'Style', 'pushbutton', 'String', 'Edit',...
-                'Position', [0.67 0.815 0.14 0.04], ...
                 'callback', @ttab.btnSetEdit_Callback);%,'FontUnits', 'Normalized'
             
             ttab.btnDataSetDelete = uicontrol('Parent', hbox_input_g, 'Style', 'pushbutton', 'String', 'Delete',...
-                'Position', [0.82 0.815 0.14 0.04], ...
                 'callback', @ttab.btnSetDelete_Callback);%,'FontUnits', 'Normalized'
             
-            set( hbox_input_g, 'ColumnSizes', [50 100 50 50]);
+            %set( hbox_input_g, 'ColumnSizes', [50 100 50 50]);
             
             %categories
             ttab.pnlDataCategories = uibuttongroup('Parent', ttab.vbox, 'Title', 'Categories');
@@ -191,8 +189,8 @@ classdef  DataTab < BasicTab
             %PCA settings
             ttab.pnlPCASettings = uiextras.Panel( 'Parent', ttab.vbox, 'Title', 'PCA settings', 'TitlePosition', 'LeftTop','visible', 'off');
             
-            vbox_pca = uiextras.VBox( 'Parent', ttab.pnlPCASettings, 'Padding', 15, 'Spacing', 5);
-            grid1_pca = uiextras.Grid( 'Parent', vbox_pca, 'Spacing', 10);
+            vbox_pca = uiextras.VBox( 'Parent', ttab.pnlPCASettings, 'Padding', 10, 'Spacing', 5);
+            grid1_pca = uiextras.HButtonBox( 'Parent', vbox_pca, 'ButtonSize', [120 25]);
             uicontrol('Parent', grid1_pca, 'Style', 'text', 'String', 'Number of PCs', ...
                 'HorizontalAlignment', 'left');
             ttab.txtPCApcnumber = uicontrol('Parent', grid1_pca, 'Style', 'edit', 'String', '2',...
@@ -200,7 +198,7 @@ classdef  DataTab < BasicTab
             
             ttab.btnPCABuild = uicontrol('Parent', grid1_pca, 'Style', 'pushbutton', 'String', 'Build',...
                 'callback', @ttab.DoPCA);
-            set( grid1_pca, 'ColumnSizes', [100 50 60]);
+            %set( grid1_pca, 'ColumnSizes', [100 50 60], 'RowSizes', [23]);
             
             grid2_pca = uiextras.Grid( 'Parent', vbox_pca, 'Spacing', 10);
             uicontrol('Parent', grid2_pca, 'Style', 'text', 'String', 'PC 1', 'HorizontalAlignment', 'left');
