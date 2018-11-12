@@ -65,19 +65,19 @@ classdef DataSet < handle
             
             if showClasses
 
+                trc = unique(self.Classes);
                 names = cell(1,self.NumberOfClasses);
                 color = PLSDAModel.colors_rgb(self.NumberOfClasses);
                 for i = 1:self.NumberOfClasses
                     %colors = [colors; repmat(color(i,:), sum(self.Classes == i), 1)];
                     %colors = repmat(color(i,:), sum(self.Classes == i), 1);
                     hold on;
-                    fig = plot(axes, self.ProcessedData(self.Classes == i,var1),self.ProcessedData(self.Classes == i,var2),'o','color',color(i,:));
-                    names{i} = sprintf('class %d', i);
-                    
+                    fig = plot(axes, self.ProcessedData(self.Classes == trc(i),var1),self.ProcessedData(self.Classes == trc(i),var2),'o','color',color(i,:));
+
                     if isempty(self.ClassLabels)
-                        names{i} = sprintf('class %d', i);
+                        names{i} = sprintf('class %d', trc(i));
                     else
-                        names{i} = self.ClassLabels{i};
+                        names{i} = self.ClassLabels{trc(i)};
                     end
                 end
                 

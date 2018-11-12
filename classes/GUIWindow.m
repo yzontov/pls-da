@@ -64,6 +64,7 @@ classdef  GUIWindow<handle
                     pan off
                     datacursormode on
                     dcm_obj = datacursormode(self.fig);
+                    dcm_obj.Interpreter = 'none';
                     set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
                 else
                     datacursormode off
@@ -255,6 +256,7 @@ classdef  GUIWindow<handle
                     pan off
                     datacursormode on
                     dcm_obj = datacursormode(self.fig);
+                    dcm_obj.Interpreter = 'none';
                     set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
                 else
                     datacursormode off
@@ -351,7 +353,9 @@ classdef  GUIWindow<handle
     end
     
     methods (Static)
-        function output_txt = DataCursorFunc(~,event_obj)
+        
+       
+        function output_txt = DataCursorFunc(obj,event_obj)
             % ~            Currently not used (empty)
             % event_obj    Object containing event data structure
             % output_txt   Data cursor text
@@ -402,6 +406,8 @@ classdef  GUIWindow<handle
             else
                 output_txt = 'not an object';
             end
+            
+ 
         end
         
     end

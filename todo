@@ -1,10 +1,6 @@
 ------
 todo
 ------
-bug: prediction plot legend and table - use unique class numbers
-bug: data tab - scatter plot - show classes - wrong on dataset with excluded samples
-bug: data tab - pca scores plot - show classes - wrong on dataset with excluded samples
-
 no samples selected - copy to new dataset? - training?
 
 ------
@@ -14,6 +10,10 @@ done
 -pca: statistics
 -predict tab show class color if present
 
+bug: data tab - pca scores plot - show classes - wrong on dataset with excluded samples
+bug: data tab - scatter plot - show classes - wrong on dataset with excluded samples
+bug: win7 matlab 2018b - datacursor text 'Interpreter' is latex by default
+bug: prediction plot legend and table - use unique class numbers
 bug: no classes in hard pls-da?
 bug: classification plot legend - use unique class numbers
 update help based on new GUI

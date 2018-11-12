@@ -315,18 +315,19 @@ classdef  DataTab < BasicTab
                 pc1 = self.pc_x;
                 pc2 = self.pc_y;
                 hold(self.tab_pca_scores_axes, 'on');
-                if get(self.chkPlotShowClassesPCA,'Value') == 1 && ~isempty(d.Classes)
+                trc = unique(d.Classes);
+                if get(self.chkPlotShowClassesPCA,'Value') == 1 && ~isempty(trc)
                     
                     names_ = cell(1,d.NumberOfClasses);
                     color_ = PLSDAModel.colors_rgb(d.NumberOfClasses);
                     for i = 1:d.NumberOfClasses
                         
-                        plot(self.tab_pca_scores_axes,d.PCAScores(d.Classes == i,pc1), d.PCAScores(d.Classes == i,pc2), 'o','color',color_(i,:));
+                        plot(self.tab_pca_scores_axes,d.PCAScores(d.Classes == trc(i),pc1), d.PCAScores(d.Classes == trc(i),pc2), 'o','color',color_(i,:));
                         
                         if isempty(d.ClassLabels)
-                            names_{i} = sprintf('class %d', i);
+                            names_{i} = sprintf('class %d', trc(i));
                         else
-                            names_{i} = d.ClassLabels{i};
+                            names_{i} = d.ClassLabels{trc(i)};
                         end
                     end
                     
@@ -352,6 +353,7 @@ classdef  DataTab < BasicTab
                     pan off
                     datacursormode on
                     dcm_obj = datacursormode(self.parent.fig);
+                    dcm_obj.Interpreter = 'none';
                     set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
                 else
                     datacursormode off
@@ -1665,6 +1667,7 @@ classdef  DataTab < BasicTab
                             pan off
                             datacursormode on
                             dcm_obj = datacursormode(self.parent.fig);
+                            dcm_obj.Interpreter = 'none';
                             set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
                         else
                             datacursormode off
