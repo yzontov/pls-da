@@ -347,7 +347,9 @@ classdef  PredictTab < BasicTab
                     pan off
                     datacursormode on
                     dcm_obj = datacursormode(self.parent.fig);
-                    dcm_obj.Interpreter = 'none';
+                    if isfield(dcm_obj, 'Interpreter')
+                    	dcm_obj.Interpreter = 'none';
+                    end
                     set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
                 else
                     datacursormode off
