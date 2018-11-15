@@ -716,50 +716,53 @@ classdef  DataTab < BasicTab
         function SamplesCopyToNewDataSet(self,obj, ~)
             index_selected = get(self.listbox,'Value');
             
-            if(index_selected > 1)
+            if(index_selected > 1 )
+                
                 names = get(self.listbox,'String');
                 selected_name = names{index_selected};
                 d = evalin('base', selected_name);
-                
-                prompt = {'Enter new data set name:'};
-                dlg_title = 'Save';
-                num_lines = 1;
-                def = {'new_dataset'};
-                
-                if(sum(d.SelectedSamples) == size(d.RawData,1))
-                    def = {[d.Name '_copy']};
-                end
-                opts = struct('WindowStyle','modal','Interpreter','none');
-                answer = inputdlg(prompt,dlg_title,num_lines,def, opts);
-                
-                if ~isempty(answer)
+                if(sum(d.SelectedSamples) > 0)
+                    prompt = {'Enter new data set name:'};
+                    dlg_title = 'Save';
+                    num_lines = 1;
+                    def = {'new_dataset'};
                     
-                    new_d = DataSet();
-                    new_d.RawData = d.RawData(logical(d.SelectedSamples),:);
-                    new_d.Centering = d.Centering;
-                    new_d.Scaling = d.Scaling;
-                    new_d.RawClasses = d.RawClasses(logical(d.SelectedSamples),:);
-                    new_d.VariableNames = d.VariableNames;
-                    new_d.Variables = d.Variables;
-                    new_d.ObjectNames = d.ObjectNames(logical(d.SelectedSamples),:);
-                    new_d.ClassLabels = d.ClassLabels;
+                    if(sum(d.SelectedSamples) == size(d.RawData,1))
+                        def = {[d.Name '_copy']};
+                    end
+                    opts = struct('WindowStyle','modal','Interpreter','none');
+                    answer = inputdlg(prompt,dlg_title,num_lines,def, opts);
                     
-                    try
-                        new_d.Name = answer{1};
-                        assignin('base', answer{1}, new_d)
-                    catch
-                        opts = struct('WindowStyle','modal','Interpreter','none');
-                        errordlg('The invalid characters have been replaced. Please use only latin characters, numbers and underscore!','Error',opts);
-                        tmp = regexprep(answer{1}, '[^a-zA-Z0-9_]', '_');
-                        new_d.Name = tmp;
-                        assignin('base',tmp, new_d);
+                    if ~isempty(answer)
+                        
+                        new_d = DataSet();
+                        new_d.RawData = d.RawData(logical(d.SelectedSamples),:);
+                        new_d.Centering = d.Centering;
+                        new_d.Scaling = d.Scaling;
+                        new_d.RawClasses = d.RawClasses(logical(d.SelectedSamples),:);
+                        new_d.VariableNames = d.VariableNames;
+                        new_d.Variables = d.Variables;
+                        new_d.ObjectNames = d.ObjectNames(logical(d.SelectedSamples),:);
+                        new_d.ClassLabels = d.ClassLabels;
+                        
+                        try
+                            new_d.Name = answer{1};
+                            assignin('base', answer{1}, new_d)
+                        catch
+                            opts = struct('WindowStyle','modal','Interpreter','none');
+                            errordlg('The invalid characters have been replaced. Please use only latin characters, numbers and underscore!','Error',opts);
+                            tmp = regexprep(answer{1}, '[^a-zA-Z0-9_]', '_');
+                            new_d.Name = tmp;
+                            assignin('base',tmp, new_d);
+                        end
+                        
+                        self.FillDataSetList();
                     end
                     
-                    self.FillDataSetList();
+                else
+                    opts = struct('WindowStyle','modal','Interpreter','none');
+                    errordlg('It is not possible to create an empty DataSet!','Error',opts);
                 end
-                
-                %self.FillTableView(selected_name);
-                %self.Redraw();
             end
         end
         
