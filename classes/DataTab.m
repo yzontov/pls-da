@@ -1241,6 +1241,36 @@ classdef  DataTab < BasicTab
         
         function RefreshModel(self)
             
+            index_selected = get(self.listbox,'Value');
+            
+            if(index_selected > 1)
+                names = get(self.listbox,'String');
+                selected_name = names{index_selected};
+                d = evalin('base', selected_name);
+                
+                if(sum(d.SelectedSamples) == 0 || length(unique(d.Classes)) <= 1)
+                    d.Training = false;
+                    d.Validation = true;
+                    set(self.chkTraining,'Value', 0);
+                    set(self.chkValidation,'Value', 1);
+                    set(self.chkTraining,'Enable', 'off');
+                else
+                    set(self.chkTraining,'Enable', 'on');
+                end
+                
+                if isempty(d.Classes)
+                    %set(self.chkTraining, 'Enable', 'off');
+                    set(self.chkPlotShowClasses, 'Enable', 'off');
+                    set(self.chkPlotShowClasses, 'Value', 0);
+                else
+%                     if d.NumberOfClasses > 1
+%                         set(self.chkTraining, 'Enable', 'on');
+%                     end
+                    
+                    set(self.chkPlotShowClasses, 'Enable', 'on');
+                end
+            end
+            
             allvars = evalin('base','whos');
             win = self.parent;
             idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
@@ -1251,7 +1281,7 @@ classdef  DataTab < BasicTab
             
             if sum(idx) > 0 && ~isempty(win.modelTab)
                 
-                idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
+                %idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
                 vardisplay={};
                 if sum(idx) > 0
                     l = allvars(idx);
@@ -1516,14 +1546,24 @@ classdef  DataTab < BasicTab
                 
                 d = evalin('base', selected_name);
                 
+                if(sum(d.SelectedSamples) == 0 || length(unique(d.Classes)) <= 1)
+                    d.Training = false;
+                    d.Validation = true;
+                    set(self.chkTraining,'Value', 0);
+                    set(self.chkValidation,'Value', 1);
+                    set(self.chkTraining,'Enable', 'off');
+                else
+                    set(self.chkTraining,'Enable', 'on');
+                end
+                
                 if isempty(d.Classes)
-                    set(self.chkTraining, 'Enable', 'off');
+                    %set(self.chkTraining, 'Enable', 'off');
                     set(self.chkPlotShowClasses, 'Enable', 'off');
                     set(self.chkPlotShowClasses, 'Value', 0);
                 else
-                    if d.NumberOfClasses > 1
-                        set(self.chkTraining, 'Enable', 'on');
-                    end
+%                     if d.NumberOfClasses > 1
+%                         set(self.chkTraining, 'Enable', 'on');
+%                     end
                     
                     set(self.chkPlotShowClasses, 'Enable', 'on');
                 end
