@@ -86,20 +86,22 @@ classdef  DataTab < BasicTab
                 'callback', @ttab.btnNew_Callback);%,'FontUnits', 'Normalized'
             
             %hbox_input = uix.HBox( 'Parent', vbox);
-            hbox_input_g = uiextras.HButtonBox( 'Parent', ttab.vbox, 'ButtonSize', [120 25] );
+            hbox_input_g = uiextras.Grid( 'Parent', ttab.vbox);%, 'ButtonSize', [120 25] );
             uicontrol('Parent', hbox_input_g, 'Style', 'text', 'String', 'Data Set', ...
                  'HorizontalAlignment', 'left');
             ttab.listbox = uicontrol('Parent', hbox_input_g, 'Style', 'popupmenu',...
                 'String', {'-'}, 'enable', 'off', ...
                 'Value',1, 'BackgroundColor', 'white', 'callback',@ttab.listClick);
-            
+            %hbox_input_g_sub = uiextras.HBox( 'Parent', hbox_input_g);%, 'ButtonSize', [50 25] );
             ttab.btnDataSetEdit = uicontrol('Parent', hbox_input_g, 'Style', 'pushbutton', 'String', 'Edit',...
                 'callback', @ttab.btnSetEdit_Callback);%,'FontUnits', 'Normalized'
             
             ttab.btnDataSetDelete = uicontrol('Parent', hbox_input_g, 'Style', 'pushbutton', 'String', 'Delete',...
                 'callback', @ttab.btnSetDelete_Callback);%,'FontUnits', 'Normalized'
             
-            %set( hbox_input_g, 'ColumnSizes', [50 100 50 50]);
+            set( hbox_input_g, 'Widths', [40 120 40 40]);
+            %set( hbox_input_g, 'Heights', [25]);
+            set( hbox_input_g, 'Padding', 2 );
             
             %categories
             ttab.pnlDataCategories = uibuttongroup('Parent', ttab.vbox, 'Title', 'Categories');
@@ -184,13 +186,21 @@ classdef  DataTab < BasicTab
             
             uicontrol('Parent', hbox3_txt, 'Style', 'pushbutton', 'String', 'Inverse by range',...
                 'callback', @ttab.SamplesInverseByRange);
-            hbox3_txt_sub = uiextras.HButtonBox( 'Parent', hbox3_txt, 'ButtonSize', [100 25]);
+            if ispc
+                hbox3_txt_sub = uiextras.HButtonBox( 'Parent', hbox3_txt, 'ButtonSize', [100 25]);
+            else
+                hbox3_txt_sub = uiextras.HButtonBox( 'Parent', hbox3_txt, 'ButtonSize', [120 25]);
+            end
             hbox3_txt_sub2 = uiextras.Grid( 'Parent', hbox3_txt_sub);
             ttab.ddlSamplesRange1 = uicontrol('Parent', hbox3_txt_sub2, 'Style', 'popupmenu', 'String', {'-'});
-            uicontrol('Parent', hbox3_txt_sub2, 'Style', 'text', 'String', ' - ', 'HorizontalAlignment', 'center');
+            uicontrol('Parent', hbox3_txt_sub2, 'Style', 'text', 'String', '-', 'HorizontalAlignment', 'center');
             ttab.ddlSamplesRange2 = uicontrol('Parent', hbox3_txt_sub2, 'Style', 'popupmenu', 'String', {'-'});
-            hbox3_txt_sub2.Widths = [40 20 40];
             
+            if ispc
+                hbox3_txt_sub2.Widths = [50 10 50];
+            else
+                hbox3_txt_sub2.Widths = [60 5 60];
+            end
             hbox4_txt = uiextras.HButtonBox( 'Parent', vbox_txt, 'ButtonSize', [120 25]);
             ttab.btnSamplesClasses = uicontrol('Parent', hbox4_txt, 'Style', 'pushbutton', 'String', 'Inverse by class',...
                 'callback', @ttab.SamplesInverseByClass);
