@@ -43,6 +43,11 @@ classdef  DataTab < BasicTab
         tab_pca_scores_axes;
         tab_pca_loadings_axes;
         
+        ddlSamplesRange1
+        ddlSamplesRange2
+        ddlSamplesClasses;
+        btnSamplesClasses;
+        
         txtPCApcnumber;
         btnPCABuild;
         ddlPCApc1;
@@ -163,26 +168,38 @@ classdef  DataTab < BasicTab
             hbox1_txt = uiextras.HButtonBox( 'Parent', vbox_txt, 'ButtonSize', [120 25]);
             
             uicontrol('Parent', hbox1_txt, 'Style', 'pushbutton', 'String', 'Select all',...
-                'Position', [0.01 0.91 0.1 0.05], ...
                 'callback', @ttab.SamplesSelectAll);
             
             uicontrol('Parent', hbox1_txt, 'Style', 'pushbutton', 'String', 'Select none',...
-                'Position', [0.15 0.91 0.1 0.05], ...
                 'callback', @ttab.SamplesSelectNone);
             
             hbox2_txt = uiextras.HButtonBox( 'Parent', vbox_txt, 'ButtonSize', [120 25]);
             uicontrol('Parent', hbox2_txt, 'Style', 'pushbutton', 'String', 'Inverse selection',...
-                'Position', [0.3 0.91 0.15 0.05], ...
                 'callback', @ttab.SamplesInverseSelection);
             
             uicontrol('Parent', hbox2_txt, 'Style', 'pushbutton', 'String', 'Remove selected',...
-                'Position', [0.8 0.91 0.15 0.05], ...
                 'callback', @ttab.SamplesRemoveSelection);
             
+            hbox3_txt = uiextras.HButtonBox( 'Parent', vbox_txt, 'ButtonSize', [120 25]);
             
-            hbox3_txt = uiextras.HButtonBox( 'Parent', vbox_txt, 'ButtonSize', [200 25]);
-            uicontrol('Parent', hbox3_txt, 'Style', 'pushbutton', 'String', 'Copy selected to new DataSet',...
-                'Position', [0.5 0.91 0.25 0.05], ...
+            uicontrol('Parent', hbox3_txt, 'Style', 'pushbutton', 'String', 'Inverse by range',...
+                'callback', @ttab.SamplesInverseByRange);
+            hbox3_txt_sub = uiextras.HButtonBox( 'Parent', hbox3_txt, 'ButtonSize', [100 25]);
+            hbox3_txt_sub2 = uiextras.Grid( 'Parent', hbox3_txt_sub);
+            ttab.ddlSamplesRange1 = uicontrol('Parent', hbox3_txt_sub2, 'Style', 'popupmenu', 'String', {'-'});
+            uicontrol('Parent', hbox3_txt_sub2, 'Style', 'text', 'String', ' - ', 'HorizontalAlignment', 'center');
+            ttab.ddlSamplesRange2 = uicontrol('Parent', hbox3_txt_sub2, 'Style', 'popupmenu', 'String', {'-'});
+            hbox3_txt_sub2.Widths = [40 20 40];
+            
+            hbox4_txt = uiextras.HButtonBox( 'Parent', vbox_txt, 'ButtonSize', [120 25]);
+            ttab.btnSamplesClasses = uicontrol('Parent', hbox4_txt, 'Style', 'pushbutton', 'String', 'Inverse by class',...
+                'callback', @ttab.SamplesInverseByClass);
+            
+            hbox4_txt_sub = uiextras.HButtonBox( 'Parent', hbox4_txt, 'ButtonSize', [80 25]);
+            ttab.ddlSamplesClasses = uicontrol('Parent', hbox4_txt_sub, 'Style', 'popupmenu', 'String', {'-'});
+            
+            hbox5_txt = uiextras.HButtonBox( 'Parent', vbox_txt, 'ButtonSize', [200 25]);
+            uicontrol('Parent', hbox5_txt, 'Style', 'pushbutton', 'String', 'Copy selected to new DataSet',...
                 'callback', @ttab.SamplesCopyToNewDataSet);
             
             
@@ -704,6 +721,53 @@ classdef  DataTab < BasicTab
                 d = evalin('base', selected_name);
                 
                 d.SelectedSamples = double(not(d.SelectedSamples));
+                
+                self.FillTableView(selected_name);
+                self.Redraw();
+                
+                self.RefreshModel();
+                %self.DrawPCA();
+            end
+        end
+        
+        function SamplesInverseByClass(self,obj, ~)
+            index_selected = get(self.listbox,'Value');
+            
+            if(index_selected > 1)
+                names = get(self.listbox,'String');
+                selected_name = names{index_selected};
+                d = evalin('base', selected_name);
+                
+                if (~isempty(d.RawClasses))
+                    class_selected = get(self.ddlSamplesClasses,'Value');
+
+                    class_names = unique(d.RawClasses);
+                    selected_class = class_names(class_selected);
+
+                    d.SelectedSamples(d.RawClasses == selected_class) = double(not(d.SelectedSamples(d.RawClasses == selected_class)));
+                
+                    self.FillTableView(selected_name);
+                    self.Redraw();
+                
+                    self.RefreshModel();
+                end
+                
+                %self.DrawPCA();
+            end
+        end
+        
+        function SamplesInverseByRange(self,obj, ~)
+            index_selected = get(self.listbox,'Value');
+            
+            if(index_selected > 1)
+                names = get(self.listbox,'String');
+                selected_name = names{index_selected};
+                d = evalin('base', selected_name);
+                
+                r1 = min([self.ddlSamplesRange1.Value, self.ddlSamplesRange2.Value]);
+                r2 = max([self.ddlSamplesRange1.Value, self.ddlSamplesRange2.Value]);
+                
+                d.SelectedSamples(r1:r2) = double(not(d.SelectedSamples(r1:r2)));
                 
                 self.FillTableView(selected_name);
                 self.Redraw();
@@ -1762,6 +1826,29 @@ classdef  DataTab < BasicTab
                 
                 set(ttab.chkTraining, 'Value', d.Training);
                 set(ttab.chkValidation, 'Value', d.Validation);
+                
+                if (~isempty(d.RawData))
+                    set(ttab.ddlSamplesRange1, 'String',cellstr(string(1:size(d.RawData,1))));
+                    set(ttab.ddlSamplesRange2, 'String',cellstr(string(1:size(d.RawData,1))));
+                else
+                    %something is very very wrong
+                end
+                
+                
+                if (isempty(d.RawClasses))
+                    set(ttab.btnSamplesClasses, 'Enable', 'off');
+                    set(ttab.ddlSamplesClasses, 'Enable', 'off');
+                    set(ttab.ddlSamplesClasses, 'String', {'-'});
+                else
+                    set(ttab.btnSamplesClasses, 'Enable', 'on');
+                    set(ttab.ddlSamplesClasses, 'Enable', 'on');
+                    if(isempty(d.ClassLabels))
+                        set(ttab.ddlSamplesClasses, 'String',cellstr(string(unique(d.RawClasses))));
+                    else
+                        set(ttab.ddlSamplesClasses, 'String',d.ClassLabels(unique(d.RawClasses)));
+                    end
+                end
+                
             end
             
         end

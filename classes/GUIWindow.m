@@ -141,7 +141,7 @@ classdef  GUIWindow<handle
                     set(self.dataTab.pnlPlotSettings,'visible','off');
                     set(self.dataTab.pnlTableSettings,'visible','on');
                     set(self.dataTab.pnlPCASettings,'visible','off');
-                    self.dataTab.vbox.Heights=[40,30,40,40,0,150,0];
+                    self.dataTab.vbox.Heights=[40,30,40,40,0,160,0];
                 end
                 
                 if self.selected_panel == GUIWindow.DataGraph
