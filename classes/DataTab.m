@@ -353,7 +353,7 @@ classdef  DataTab < BasicTab
                     pan off
                     datacursormode on
                     dcm_obj = datacursormode(self.parent.fig);
-                    if isfield(dcm_obj, 'Interpreter')
+                    if isa(dcm_obj, 'matlab.graphics.shape.internal.DataCursorManager')
                     	dcm_obj.Interpreter = 'none';
                     end
                     set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
@@ -852,6 +852,11 @@ classdef  DataTab < BasicTab
                 fig2 = figure('visible','off');
                 copyobj([self.data_plot_axes.Legend, self.data_plot_axes],fig2);
                 
+                dcm_obj = datacursormode(fig2);
+                if isa(dcm_obj, 'matlab.graphics.shape.internal.DataCursorManager')
+                    dcm_obj.Interpreter = 'none';
+                end
+                
                 [file,path] = uiputfile(filename,'Save image file');
                 
                 if ~(isnumeric(file) && (file == 0) && isnumeric(path) && (path == 0))
@@ -864,6 +869,11 @@ classdef  DataTab < BasicTab
         function CopyPlotToClipboard(self,obj, ~)
             fig2 = figure('visible','off');
             copyobj([self.data_plot_axes.Legend, self.data_plot_axes],fig2);
+            
+            dcm_obj = datacursormode(fig2);
+            if isa(dcm_obj, 'matlab.graphics.shape.internal.DataCursorManager')
+                dcm_obj.Interpreter = 'none';
+            end
             
             if ispc
                 print(fig2,'-clipboard', '-dmeta');
@@ -1712,7 +1722,7 @@ classdef  DataTab < BasicTab
                             pan off
                             datacursormode on
                             dcm_obj = datacursormode(self.parent.fig);
-                            if isfield(dcm_obj, 'Interpreter')
+                            if isa(dcm_obj, 'matlab.graphics.shape.internal.DataCursorManager')
                                 dcm_obj.Interpreter = 'none';
                             end
                             set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
