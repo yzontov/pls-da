@@ -332,15 +332,7 @@ classdef  DataSetWindow<handle
             obj = evalin('base',mm(1:strfind(mm, ' ')-1));
         end
         
-    end
-    
-    events
-        DataUpdated
-        DataEdited
-    end
-    
-    methods
-        
+       
         function r = type_size_filter(self, x, k, n, k2, n2, t)
             s = x.size;
             if isequal(x.class,t) && ((~isempty(k) && ~isempty(n) && s(n) == k || isempty(k) && isempty(n))) && ...
@@ -701,7 +693,6 @@ classdef  DataSetWindow<handle
                     if ok
                     if isempty(self.dataset_name)
                         evtdata = DatasetCreatedEventData(name, false);
-                        notify(self, 'DataUpdated',evtdata);
                         self.parent.DataSetWindowCloseCallback(self,evtdata);
                     else
                         evtdata = DatasetCreatedEventData(name, true);
