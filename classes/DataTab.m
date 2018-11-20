@@ -86,7 +86,7 @@ classdef  DataTab < BasicTab
                 'callback', @ttab.btnNew_Callback);%,'FontUnits', 'Normalized'
             
             %hbox_input = uix.HBox( 'Parent', vbox);
-            hbox_input_g = uiextras.Grid( 'Parent', ttab.vbox);%, 'ButtonSize', [120 25] );
+            hbox_input_g = uix.Grid( 'Parent', ttab.vbox);%, 'ButtonSize', [120 25] );
             uicontrol('Parent', hbox_input_g, 'Style', 'text', 'String', 'Data Set', ...
                  'HorizontalAlignment', 'left');
             ttab.listbox = uicontrol('Parent', hbox_input_g, 'Style', 'popupmenu',...
