@@ -99,9 +99,10 @@ classdef  DataTab < BasicTab
             ttab.btnDataSetDelete = uicontrol('Parent', hbox_input_g, 'Style', 'pushbutton', 'String', 'Delete',...
                 'callback', @ttab.btnSetDelete_Callback);%,'FontUnits', 'Normalized'
             
-            set( hbox_input_g, 'Widths', [40 120 40 40]);
+            set( hbox_input_g, 'Widths', [45 110 40 40]);
             %set( hbox_input_g, 'Heights', [25]);
-            set( hbox_input_g, 'Padding', 2 );
+            set( hbox_input_g, 'Padding', 2.5 );
+            set( hbox_input_g, 'Spacing', 5 );
             
             %categories
             ttab.pnlDataCategories = uibuttongroup('Parent', ttab.vbox, 'Title', 'Categories');
