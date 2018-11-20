@@ -198,7 +198,7 @@ classdef  DataTab < BasicTab
             ttab.ddlSamplesRange2 = uicontrol('Parent', hbox3_txt_sub2, 'Style', 'popupmenu', 'String', {'-'});
             
             if ispc
-                hbox3_txt_sub2.Widths = [50 10 50];
+                hbox3_txt_sub2.Widths = [45 10 45];
             else
                 hbox3_txt_sub2.Widths = [60 5 60];
             end
