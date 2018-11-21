@@ -66,9 +66,10 @@ classdef  PredictTab < BasicTab
             if(strcmp('off',param))
                 tg.SelectedTab = tg.Children(1);
             
-                self.parent.selected_tab = GUIWindow.PredictTabSelected;
-                self.parent.selected_panel = GUIWindow.PredictGraph;
-                self.parent.selected_text_panel = GUIWindow.PredictTableAllocation;
+                if self.parent.selected_tab == GUIWindow.PredictTabSelected
+                    self.parent.selected_panel = GUIWindow.PredictGraph;
+                    self.parent.selected_text_panel = GUIWindow.PredictTableAllocation;
+                end
             end
             
         end
