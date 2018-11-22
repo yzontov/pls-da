@@ -64,7 +64,7 @@ classdef  GUIWindow<handle
                     pan off
                     datacursormode on
                     dcm_obj = datacursormode(self.fig);
-                    if isa(dcm_obj, 'matlab.graphics.shape.internal.DataCursorManager')
+                    if isprop(dcm_obj, 'Interpreter')
                     	dcm_obj.Interpreter = 'none';
                     end
                     set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
@@ -258,7 +258,7 @@ classdef  GUIWindow<handle
                     pan off
                     datacursormode on
                     dcm_obj = datacursormode(self.fig);
-                    if isa(dcm_obj, 'matlab.graphics.shape.internal.DataCursorManager')
+                    if isprop(dcm_obj, 'Interpreter')
                     	dcm_obj.Interpreter = 'none';
                     end
                     set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);

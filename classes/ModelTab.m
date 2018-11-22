@@ -411,7 +411,7 @@ classdef  ModelTab < BasicTab
                     pan off
                     datacursormode on
                     dcm_obj = datacursormode(self.parent.fig);
-                    if isa(dcm_obj, 'matlab.graphics.shape.internal.DataCursorManager')
+                    if isprop(dcm_obj, 'Interpreter')
                     	dcm_obj.Interpreter = 'none';
                     end
                     set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
@@ -528,7 +528,7 @@ classdef  ModelTab < BasicTab
                 copyobj([self.model_plot_axes.Legend, self.model_plot_axes],fig2);
                 
                 dcm_obj = datacursormode(fig2);
-                if isa(dcm_obj, 'matlab.graphics.shape.internal.DataCursorManager')
+                if isprop(dcm_obj, 'Interpreter')
                     dcm_obj.Interpreter = 'none';
                 end
                 
@@ -545,7 +545,7 @@ classdef  ModelTab < BasicTab
             copyobj([self.model_plot_axes.Legend, self.model_plot_axes],fig2);
             
             dcm_obj = datacursormode(fig2);
-            if isa(dcm_obj, 'matlab.graphics.shape.internal.DataCursorManager')
+            if isprop(dcm_obj, 'Interpreter')
                 dcm_obj.Interpreter = 'none';
             end
             

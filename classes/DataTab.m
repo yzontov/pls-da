@@ -381,7 +381,7 @@ classdef  DataTab < BasicTab
                     pan off
                     datacursormode on
                     dcm_obj = datacursormode(self.parent.fig);
-                    if isa(dcm_obj, 'matlab.graphics.shape.internal.DataCursorManager')
+                    if isprop(dcm_obj, 'Interpreter')
                     	dcm_obj.Interpreter = 'none';
                     end
                     set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
@@ -928,7 +928,7 @@ classdef  DataTab < BasicTab
                 copyobj([self.data_plot_axes.Legend, self.data_plot_axes],fig2);
                 
                 dcm_obj = datacursormode(fig2);
-                if isa(dcm_obj, 'matlab.graphics.shape.internal.DataCursorManager')
+                if isprop(dcm_obj, 'Interpreter')
                     dcm_obj.Interpreter = 'none';
                 end
                 
@@ -946,7 +946,7 @@ classdef  DataTab < BasicTab
             copyobj([self.data_plot_axes.Legend, self.data_plot_axes],fig2);
             
             dcm_obj = datacursormode(fig2);
-            if isa(dcm_obj, 'matlab.graphics.shape.internal.DataCursorManager')
+            if isprop(dcm_obj, 'Interpreter')
                 dcm_obj.Interpreter = 'none';
             end
             
@@ -1351,8 +1351,9 @@ classdef  DataTab < BasicTab
 %                     if d.NumberOfClasses > 1
 %                         set(self.chkTraining, 'Enable', 'on');
 %                     end
-                    
-                    set(self.chkPlotShowClasses, 'Enable', 'on');
+                    if get(self.ddlPlotType, 'Value') == 1
+                        set(self.chkPlotShowClasses, 'Enable', 'on');
+                    end
                 end
             end
             
@@ -1797,7 +1798,7 @@ classdef  DataTab < BasicTab
                             pan off
                             datacursormode on
                             dcm_obj = datacursormode(self.parent.fig);
-                            if isa(dcm_obj, 'matlab.graphics.shape.internal.DataCursorManager')
+                            if isprop(dcm_obj,'Interpreter')
                                 dcm_obj.Interpreter = 'none';
                             end
                             set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
