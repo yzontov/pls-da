@@ -1,4 +1,4 @@
-Implementation of the Hard and Soft PLS-DA for MATLAB (Release Candidate 3)
+Implementation of the Hard and Soft PLS-DA for MATLAB (v.0.8)
 ===========================================
 
 We present the software implementation of [Hard and Soft approaches to Partial Least Squares Discriminant Analysis (PLS-DA)](https://onlinelibrary.wiley.com/doi/abs/10.1002/cem.3030). 
