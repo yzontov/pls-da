@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <title>Hard and Soft Partial Least Squares Discriminant Analys (PLS-DA) Tool GUI help</title>
+</head>
+<body>
+    
+<h4 id="ex_model">Working with the Model tab</h4>
+<i>The Model tab becomes available if at least one DataSet object with Calibration property set to True is present in the Matlab Workspace.</i>
+<p>
+<ol>
+<li>On the <b>Model</b> tab select a training set from the Calibration drop-down list.</li>
+<li>Adjust the parameters of the model. It is possible to indicate the type of the model (Soft or Hard), number of PLS components value of the type I error and Outlier significance level.</li>
+<li>Click the <b>Calibrate</b> button to create the model.</li>
+<li>The results are now available on the <i>Classification plot</i> and <i>Clasification table</i> sub-tabs.</li>
+<li>Onse the model is ready, check the <b>Finalized</b> checkbox. The <b>Prediction</b> tab will become available.
+<li>The Allocation matrix, Confusion matrix and Figures of merit are available on the <i>Clasification table</i> sub-tab.</li>
+<li>One can use <b>Save tables to file</b> and <b>Copy tables to clipboard</b> buttons to store the Allocation matrix, Confusion matrix and Figures of merit to disk or clipboard.</li>
+<li>To get complete modelling results collected in a PLSDAModel object click the <b>Save model</b> button and select a name of the new model. It will be added to the Matlab workspace as a variable.</li>
+<li>One can save the current workspace to a <b>.mat</b> file to preserve the results. Later on one can load the <b>.mat</b> file into the Matlab workspace and resume working with the model.</li>
+<li>One can use <b>Save image to file</b> and <b>Copy image to clipboard</b> to store the image in the <i>Classification plot</i> tab to disk or clipboard.</li>
+
+</ol>
+
+<figure style="text-align:center;">
+   <img src="Images/model_calibration_settings.png" alt="Model tab. Settings." style="width:300px;"/>
+   <br/>
+  <img src="Images/model_plot_settings.png" alt="Model tab. Settings." style="width:300px;"/>
+  <figcaption>Model tab. Settings.</figcaption>
+</figure>
+<figure style="text-align:center;">
+  <img src="Images/model_classification_plot.png" alt="Model tab. Classification plot." style="width:400px;"/>
+  <figcaption>Model tab. Classification plot.</figcaption>
+</figure>
+<figure style="text-align:center;">
+  <img src="Images/model_allocation.png" alt="Model tab. Allocation table." style="width:400px;"/>
+  <figcaption>Model tab. Allocation table.</figcaption>
+</figure>
+ <ul>
+    <li>The samples marked with <b style="color:#FFC000">yellow</b> has not been assigned to any class by the model.</li>
+    <li>The samples marked with <b style="color:red">red</b> has been assigned to a wrong class by the model.</li>
+    <li>The samples marked with <b style="color:#FFA0A0">pink</b> has not been assigned to several classes by the model.</li>
+</ul>  
+<figure style="text-align:center;">
+  <img src="Images/model_confusion.png" alt="Model tab. Confusion matrix." style="width:400px;"/>
+  <figcaption>Model tab. Confusion matrix.</figcaption>
+</figure>
+<figure style="text-align:center;">
+  <img src="Images/model_fom.png" alt="Model tab. Figures of merit." style="width:400px;"/>
+  <figcaption>Model tab. Figures of merit.</figcaption>
+</figure>
+<figure style="text-align:center;">
+  <img src="Images/table_settings.png" alt="Model tab. Classification table options." style="width:300px;"/>
+  <figcaption>Model tab. Classification table options.</figcaption>
+</figure>
+ 
+</p>
+
+</body>
+</html>

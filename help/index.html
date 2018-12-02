@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <title>Hard and Soft Partial Least Squares Discriminant Analys (PLS-DA) Tool GUI help</title>
+</head>
+<body>
+    <h1>Hard and Soft Partial Least Squares Discriminant Analys (PLS-DA) Tool GUI help</h1>
+<h2 id="intro">Introdiction</h2>
+The software implementation of hard and soft approaches to Partial Least Squares
+Discriminant Analysis (PLS-DA) <a href="#ref1">[1]</a> can be used for both multi-class and two-class
+classification. <br/>The Soft PLS-DA is based on Quadratic Discriminant Analysis
+applied to the super-score matrix T. It can simultaneously attribute a sample to several classes. It also
+allows to detect samples, which are not members of any training classes, and, therefore, reduce a
+number of false positives (e.g. in the presence of outliers). <br/>The Hard PLS-DA represents the
+conventional PLS-DA classification. 
+<br/><br/>
+The toolbox provides instruments for data pre-processing as well as for interpretation and visualization of classification models. 
+The main class, PLSDAModel, is responsible for the logic and contains implementation of both methods and auxiliary algorithms. 
+The instance of this class has fields, which represent the actual model, and methods for data visualization and statistics.
+The PLSDAGUI module provides graphical user interface, which allows user to create and manipulate
+datasets, calibrate, test and explore models interactively. This class encapsulates all the
+necessary data such as training or test sets and labels of the samples and variables. The PLS-DA Tool has its own
+implementation of all necessary statistical functions and does not require the MATLAB Statistics
+Toolbox. The PLS-DA Tool relies on several external functions, as well as GUI Layout Toolbox, which are uncluded in the package (in the <i>utils</i> sub-folder).
+
+<h3>Installation and first steps</h3>
+The latest release is available as <b>.mltbx</b> installation package or zip-archive in the <a  href="https://github.com/yzontov/pls-da/releases">Releases</a> section. 
+For manual installation one can clone the <a href="https://github.com/yzontov/pls-da/">git repository</a> or the source as a zip-file and install it in the Matlab environment. 
+<br/><br/>
+Package contents
+<ul>
+    <li><b>PLSDAGUI.m</b> - main executable script, starts the GUI.</li>
+    <li><b>install.m</b> - package installation script, adds current folder and sub-folders to Matlab Path.</li>
+    <li><b>plsda_tool_scripting_example.m</b> - script, demonstrates the usage of classes <b>DataSet</b> and <b>PLSDAModel</b> without the GUI.</li>
+    <li><b>PLSDAGUI.m</b> - main executable script, starts the GUI.</li>
+    <li><b>plsda_tool_demo.mat</b> - .mat file containing a sample training and test data sets.</li>
+    <li><b>LICENSE</b> - user license agreement.</li>
+    <li><b>/help</b> - folder, contains custom documentation.</li>
+    <li><b>/classes</b> - folder, contains main and auxiliary classes.</li>
+    <li><b>/utils</b> - folder, contains utility functions and <a href="https://www.mathworks.com/matlabcentral/fileexchange/47982-gui-layout-toolbox">GUI Layout Toolbox</a>.</li>
+</ul>
+
+Working with the GUI
+<ul>
+	<li>By default it is assumed that none of the built-in Matlab functions on the user's machine has been overloaded due to the use of a third-party toolbox.</li>
+    <li>Execute the <b>PLSDAGUI</b> command in the Matlab command window to launch the GUI.</li>
+    <li>Before you start working with the GUI you should load the data for analysis into the MATLAB workspace.</li>
+	<li>The data set and model objects can be saved from the GUI to the MATLAB workspace.</li>
+</ul>
+
+<h4 id="ex_data">Demo dataset</h4>
+<p>
+Execute the <b>load plsda_demo_data</b> command to load the sample data included in the package.
+The dataset contains NIR spectra of tablets consisting of a mixture of  active substance and a set of
+excipients. There are 5 classes of tablets (from 5 manufacturers). 
+<br/>
+In total for 5 classes the dataset contains 258 samples and 315 wavelengths: 
+    <ol>
+        <li>data_train - matrix containing spectral data for the training samples</li>
+        <li>classes_train - numeric vector of corresponding classes</li>
+        <li>names_train - cell array of training samples names</li>
+    </ol>
+    <ol>
+        <li>data_test - matrix containing spectral data for the test samples</li>
+        <li>classes_test - numeric vector of corresponding classes</li>
+        <li>names_test - cell array of test samples names</li>
+    </ol>
+    <ol> 
+        <li>wavelengths - numeric vector of wavelengths</li>
+        <li>class_labels - cell array of classes generic names</li>
+    </ol>
+
+  <figure style="text-align:center;">
+    <img src="Images/demo_data.png" alt="Demo dataset" style="width:300px;">
+    <figcaption>Contents of the <b>plsda_tool_demo.mat</b> file</figcaption>
+  </figure>
+</p>
+
+
+<h2 id="plsdagui">PLSDAGUI</h2>
+<p>The PLSDAGUI module provides the graphical user interface for classes DataSet and PLSDAModel. 
+
+<h3 id="desc">Description</h3>
+<p>The GUI main window is separated into 3 tabs: Data, Model and Prediction. Their availability depends on the user's actions.
+<br/>On the Data tab user can create and modify the DataSet objects, which can be used for model building, validation and prediction. 
+The functionality provided by the Data tab also includes visual means of Principal Component Analysis.
+<br/>On the Model tab user can employ one of the previously created DataSet objects to build a Soft or Hard PLS-DA model.
+<br/>On the Prediction tab user can apply the model to a new or test DataSet.
+</p>
+
+<h3 id="examples">Examples</h3>
+
+<h4 id="ex_launch">Launching the Tool</h4>
+<p>
+    <ol>
+        <li>Load all neccessary data as variables into the current Matlab workspace.</li>
+        <li>Execute the <b>PLSDAGUI</b> command in the Matlab command window.</li>
+        <li>To create a new PLS-DA model, click the <b>New model</b> button. </li>
+        <li>To work with an existing model load it into the Matlab workspace and click the <b>Existing model</b> button.</li>
+        <li>The Tool's main window will appear with one or more tabs available.</li>
+    </ol>
+    <figure style="text-align:center;">
+        <img src="Images/start.png" alt="Start window" style="width:400px;"/>
+        <figcaption>Start window</figcaption>
+    </figure>
+</p>
+
+<h4 id="ex_data">Working with the Data tab</h4>
+
+<p>
+    To create a DataSet object:
+<ol>
+<li>Load all neccessary data as variables into the current Matlab workspace.</li>
+<li>On the <b>Data</b> tab click the <b>New dataset</b> button.</li>
+<li>In the modal window input the <b>Name</b> of the new Data Set and select the <b>Data</b> matrix.</li>
+<li>Optionally one can select variables for Classes, Object names, Variable names (or Wavelegths) and Class labels.
+<br/><b>Warning:</b> A DataSet object without Classes can not be used for Calibration!</li>
+<li>Click the <b>Add data set</b> button to create the DataSet object.</li>
+<li>The newly created object is now available in the Matlab workspace as a variable and in the Data Set drop-down list under the specified name.</li>
+</ol>
+    <figure style="text-align:center;">
+        <img src="Images/create_dataset.png" alt="New DataSet"  style="width:400px;"/>
+        <figcaption>Create New Data Set window</figcaption>
+    </figure>
+    </p>
+ <p>   To edit or delete a DataSet object:
+    
+<ol>
+<li>To edit a DataSet object select it in the Data Set drop-down list and click the <b>Edit</b> button.</li>
+<li>In the modal window select the new variables for Data matrix, Classes, Object names, Variable names (or Wavelegths) or Class labels.
+<br/>Data fields of the selected DataSet object are shown in the drop-down list as variables with a prefix (equal to DataSet's name).
+<br/><b>Warning:</b> A DataSet object without Classes can not be used for Calibration!</li>
+<li>Click the <b>Save</b> button to apply changes to the DataSet object.</li>
+<li>The modified object is now available in the Matlab workspace as a variable and in the Data Set drop-down list under the specified name.</li>
+</ol>
+    <figure style="text-align:center;">
+        <img src="Images/edit.png" alt="Edit DataSet" style="width:400px;"/>
+        <figcaption>Edit Data Set window</figcaption>
+    </figure>
+    
+<ul>
+<li>To delete a DataSet object select it in the Data Set drop-down list and click the <b>Delete</b> button.</li>
+
+</ul>
+
+    
+</p>
+
+<p>
+    To apply preprocessing and analyze a DataSet object:
+<ol>
+<li>Select the object of interest in the Data Set drop-down list.</li>
+<li>Check one or both checkboxes in the Preprocessing section to apply mean-centering and scaling to the dataset.</li>
+<li>One can indicate whether the dataset will be used for Training or as New/Test dataset.</li>
+<li>3 types of plots are available in the Plot section - Scatter plot (for 2 selected variables), 
+Line plot (for all samples) and histogram (for 1 selected variable).</li>
+<li>One can use <b>Save</b> and <b>Copy to clipboard</b> to store the image in the 
+<i>Graphical view</i> tab to disk or clipboard.</li>
+</ol>
+    <figure style="text-align:center;">
+        <img src="Images/dataset_settings.png" alt="DataSet" style="width:300px;"/>
+        <figcaption>Data Tab. Preprocessing and Plot settings.</figcaption>
+    </figure>
+     <figure style="text-align:center;">
+        <img src="Images/dataset_line.png" alt="DataSet Plots" style="width:400px;"/>
+        <br/>
+        <img src="Images/dataset_scatter.png" alt="DataSet Plots" style="width:400px;"/>
+        <br/>
+        <img src="Images/dataset_hist.png" alt="DataSet Plots" style="width:400px;"/>
+        <figcaption>Data Tab. Graphical view.</figcaption>
+    </figure>
+</p>
+
+<p>
+    To manipulate the samples in a DataSet object:
+<ol>
+    <li>Select the object of interest in the Data Set drop-down list.</li>
+    <li>On the <i>Table view</i> sub-tab one can exclude or remove samples from the dataset.</li>
+    <li>Click on the checkbox near the sample's name to include\exclude individual samples.</li>
+    <li>Use the <b>Select all</b>, <b>Select none</b> and <b>Inverse selection</b> buttons to mass include\exclude the samples.</li>
+    <li>Use the <b>Inverse by range</b> and <b>Inverse by class</b> buttons to include\exclude the samples based on selected parameters.</li>
+    <li>To create a new DataSet object based on the selection click the <b>Copy selected to new DataSet</b> button.</li>
+    <li>To remove selected items completely the dataset click the <b>Remove selected</b> button.</li>
+</ol>
+    <figure style="text-align:center;">
+        <img src="Images/dataset_table_settings.png" alt="DataSet Table Settings"  style="width:400px;" />
+        <br/>
+        <img src="Images/dataset_table.png" alt="DataSet Table View"  style="width:400px;" />
+        <figcaption>Data Tab. Table view.</figcaption>
+    </figure>
+</p>
+
+<p>
+    To apply Principal Component Analysis to a DataSet object:
+<ol>
+    <li>Select the object of interest in the Data Set drop-down list on the <b>Data</b> tab.</li>
+    <li>On the <i>PCA</i> sub-tab on can choose the number of PCs and select PCs for the PCA Scores and Loadings plots.</li>
+</ol>
+    <figure style="text-align:center;">
+        <img src="Images/pca_settings.png" alt="PCA Scores" style="width:400px;"/>
+            <br/>
+        <img src="Images/pca_scores.png" alt="PCA Scores" style="width:400px;"/>
+            <br/>
+        <img src="Images/pca_loadings_scatter.png" alt="PCA Loadings" style="width:400px;"/>
+          <br/>
+        <img src="Images/pca_loadings_line.png" alt="PCA Loadings" style="width:400px;"/>
+        <figcaption>Data Tab. PCA.</figcaption>
+    </figure>
+</p>
+
+<h4 id="ex_model">Working with the Model tab</h4>
+<i>The Model tab becomes available if at least one DataSet object with Calibration property set to True is present in the Matlab Workspace.</i>
+<p>
+<ol>
+<li>On the <b>Model</b> tab select a training set from the Calibration drop-down list.</li>
+<li>Adjust the parameters of the model. It is possible to indicate the type of the model (Soft or Hard), number of PLS components value of the type I error and Outlier significance level.</li>
+<li>Click the <b>Calibrate</b> button to create the model.</li>
+<li>The results are now available on the <i>Classification plot</i> and <i>Clasification table</i> sub-tabs.</li>
+<li>Onse the model is ready, check the <b>Finalized</b> checkbox. The <b>Prediction</b> tab will become available.
+<li>The Allocation matrix, Confusion matrix and Figures of merit are available on the <i>Clasification table</i> sub-tab.</li>
+<li>One can use <b>Save tables to file</b> and <b>Copy tables to clipboard</b> buttons to store the Allocation matrix, Confusion matrix and Figures of merit to disk or clipboard.</li>
+<li>To get complete modelling results collected in a PLSDAModel object click the <b>Save model</b> button and select a name of the new model. 
+It will be added to the Matlab workspace as a variable.</li>
+<li>One can save the current workspace to a <b>.mat</b> file to preserve the results. Later on one can load the <b>.mat</b> 
+file into the Matlab workspace and resume working with the model.</li>
+<li>One can use <b>Save image to file</b> and <b>Copy image to clipboard</b> to store the image in the <i>Classification plot</i> tab to disk or clipboard.</li>
+
+</ol>
+
+<figure style="text-align:center;">
+   <img src="Images/model_calibration_settings.png" alt="Model tab. Settings." style="width:300px;"/>
+   <br/>
+  <img src="Images/model_plot_settings.png" alt="Model tab. Settings." style="width:300px;"/>
+  <figcaption>Model tab. Settings.</figcaption>
+</figure>
+<figure style="text-align:center;">
+  <img src="Images/model_classification_plot.png" alt="Model tab. Classification plot." style="width:400px;"/>
+  <figcaption>Model tab. Classification plot.</figcaption>
+</figure>
+<figure style="text-align:center;">
+  <img src="Images/model_allocation.png" alt="Model tab. Allocation table." style="width:400px;"/>
+  <figcaption>Model tab. Allocation table.</figcaption>
+</figure>
+ <ul>
+    <li>The samples marked with <b style="color:#FFC000">yellow</b> has not been assigned to any class by the model.</li>
+    <li>The samples marked with <b style="color:red">red</b> has been assigned to a wrong class by the model.</li>
+    <li>The samples marked with <b style="color:#FFA0A0">pink</b> has not been assigned to several classes by the model.</li>
+</ul>  
+<figure style="text-align:center;">
+  <img src="Images/model_confusion.png" alt="Model tab. Confusion matrix." style="width:400px;"/>
+  <figcaption>Model tab. Confusion matrix.</figcaption>
+</figure>
+<figure style="text-align:center;">
+  <img src="Images/model_fom.png" alt="Model tab. Figures of merit." style="width:400px;"/>
+  <figcaption>Model tab. Figures of merit.</figcaption>
+</figure>
+<figure style="text-align:center;">
+  <img src="Images/table_settings.png" alt="Model tab. Classification table options." style="width:300px;"/>
+  <figcaption>Model tab. Classification table options.</figcaption>
+</figure>
+ 
+</p>
+
+<h4 id="ex_predict">Working with the Prediction tab</h4>
+<i>The Prediction tab becomes available if the current model is finalized (on the Model tab).</i>
+<p>
+To apply a PLS-DA model to the new data:
+<br/>
+<i>Here we assume that a model was previously loaded into the GUI or created on the Model tab.</i>
+<ol>
+    <li>On the <b>Prediction</b> tab select a test or new dataset from the <b>New or Test Data Set</b> drop-down list.</li>
+    <li>Click the <b>Predict</b> button.</li>
+    <li>One can analyze the results visually on the <i>Graphical view</i> sub-tab.</li>
+    <li>The Allocation matrix is available on the <i>Table view</i> sub-tab.</li>
+    <li>In case of a Test dataset (when Classes are known) the Confusion matrix and Figures of merit are also available on the <i>Table view</i> sub-tab.</li>
+    <li>One can use <b>Save image to file</b> and <b>Copy image to clipboard</b> to store the image in the <i>Graphical view</i> tab to disk or clipboard.</li>
+    <li>One can use <b>Save tables to file</b> and <b>Copy tables to clipboard</b> buttons to store the Allocation matrix, Confusion matrix and Figures of merit to disk or clipboard.</li>
+</ol>
+<figure style="text-align:center;">
+  <img src="Images/prediction_settings.png" alt="Prediction tab" style="width:300px;">
+  <figcaption>Prediction tab. Settings.</figcaption>
+</figure>
+<figure style="text-align:center;">
+  <img src="Images/table_settings.png" alt="Prediction tab. Table view options." style="width:300px;"/>
+  <figcaption>Prediction tab. Table view options.</figcaption>
+</figure>
+
+</p>
+
+<h3 id="ex_data">Scripting example</h3>
+<p>
+    The function <b>plsda_tool_scripting_example</b> included in the package demonstrates 
+    how to use the DataSet and PLSDAModel classes without the GUI (i.e. for scripting).<br/>
+<code style="padding-left:20px;font-weight:bold;">
+<br/>
+<i>function plsda_tool_scripting_example()</i>
+<br/><br/>
+<span style="color:green;">%add path to classes subfolder</span>
+<br/>
+addpath('classes');
+<br/><br/>
+<span style="color:green;">%load data</span>
+<br/>clc
+<br/>clear
+<br/>close all
+<br/>load plsda_tool_demo
+<br/>
+<br/><span style="color:green;">%Create dataset for training</span>
+<br/>d = DataSet();
+<br/>d.RawData = data_train;
+<br/>d.Centering = true;
+<br/>d.Scaling = true;
+<br/>d.Classes = classes_train;
+<br/>d.ObjectNames = names_train;
+<br/>
+<br/><span style="color:green;">%and for test purpose</span>
+<br/>d1 = DataSet();
+<br/>d1.RawData = data_test;
+<br/>d1.ObjectNames = names_test;
+<br/>
+<br/><span style="color:green;">%setup the model</span>
+<br/>plsPC = 12;
+<br/>Alpha = 0.05;
+<br/>Gamma = 0.01;
+<br/>
+<br/>m = PLSDAModel(d,plsPC,Alpha,Gamma);<span style="color:green;">% Soft PLS-DA by default</span>
+<br/>
+<br/><span style="color:green;">%Uncomment the following 2 lines to use the Hard PLS-DA mode:</span>
+<br/><span style="color:green;">%m.Mode = 'hard';</span>
+<br/><span style="color:green;">%m.Rebuild();</span>
+<br/>
+<br/><span style="color:green;">%show results</span>
+<br/>m.ConfusionMatrix
+<br/>m.FiguresOfMerit
+<br/>m.AllocationTable
+<br/>m.AllocationMatrix
+<br/>m.Distances
+<br/>
+<br/>m.Plot();
+<br/>
+<br/>Res = m.Apply(d1);
+<br/>Res.Distances
+<br/>Res.AllocationTable
+<br/>Res.AllocationMatrix
+<br/>
+<br/>m.PlotNewSet()
+<br/>
+<br/>end
+
+    </code>
+</p>
+
+<h3 id="ref">References</h3>
+    <a name="ref1">1.</a> A.L. Pomerantsev, O.Ye. Rodionova, 
+    "Multiclass partial least squares discriminant analysis: Taking the right way - A critical tutorial", J. Chemometrics, 32(8): e3030 (2018) 
+    <a href="https://onlinelibrary.wiley.com/doi/abs/10.1002/cem.3030">DOI: 10.1002/cem.3030</a>
+</body>
+</html>
