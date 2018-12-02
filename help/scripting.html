@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <title>Hard and Soft Partial Least Squares Discriminant Analys (PLS-DA) Tool GUI help</title>
+</head>
+<body>
+
+<h3 id="ex_data">Scripting example</h3>
+<p>
+    The function <b>plsda_tool_scripting_example</b> included in the package demonstrates 
+    how to use the DataSet and PLSDAModel classes without the GUI (i.e. for scripting).<br/>
+<code style="padding-left:20px;font-weight:bold;">
+<br/>
+<i>function plsda_tool_scripting_example()</i>
+<br/><br/>
+<span style="color:green;">%add path to classes subfolder</span>
+<br/>
+addpath('classes');
+<br/><br/>
+<span style="color:green;">%load data</span>
+<br/>clc
+<br/>clear
+<br/>close all
+<br/>load plsda_tool_demo
+<br/>
+<br/><span style="color:green;">%Create dataset for training</span>
+<br/>d = DataSet();
+<br/>d.RawData = data_train;
+<br/>d.Centering = true;
+<br/>d.Scaling = true;
+<br/>d.Classes = classes_train;
+<br/>d.ObjectNames = names_train;
+<br/>
+<br/><span style="color:green;">%and for test purpose</span>
+<br/>d1 = DataSet();
+<br/>d1.RawData = data_test;
+<br/>d1.ObjectNames = names_test;
+<br/>
+<br/><span style="color:green;">%setup the model</span>
+<br/>plsPC = 12;
+<br/>Alpha = 0.05;
+<br/>Gamma = 0.01;
+<br/>
+<br/>m = PLSDAModel(d,plsPC,Alpha,Gamma);<span style="color:green;">% Soft PLS-DA by default</span>
+<br/>
+<br/><span style="color:green;">%Uncomment the following 2 lines to use the Hard PLS-DA mode:</span>
+<br/><span style="color:green;">%m.Mode = 'hard';</span>
+<br/><span style="color:green;">%m.Rebuild();</span>
+<br/>
+<br/><span style="color:green;">%show results</span>
+<br/>m.ConfusionMatrix
+<br/>m.FiguresOfMerit
+<br/>m.AllocationTable
+<br/>m.AllocationMatrix
+<br/>m.Distances
+<br/>
+<br/>m.Plot();
+<br/>
+<br/>Res = m.Apply(d1);
+<br/>Res.Distances
+<br/>Res.AllocationTable
+<br/>Res.AllocationMatrix
+<br/>
+<br/>m.PlotNewSet()
+<br/>
+<br/>end
+
+    </code>
+</p>
+
+
+</body>
+</html>

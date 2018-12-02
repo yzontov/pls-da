@@ -7,9 +7,9 @@ addpath('classes');
 clc
 clear
 close all
-load demo_data
+load plsda_tool_demo
 
-%Create dataset
+%Create dataset for training
 d = DataSet();
 d.RawData = data_train;
 d.Centering = true;
@@ -17,17 +17,19 @@ d.Scaling = true;
 d.Classes = classes_train;
 d.ObjectNames = names_train;
 
-%for test purpose
+%and for test purpose
 d1 = DataSet();
 d1.RawData = data_test;
 d1.ObjectNames = names_test;
 
-%setup model
+%setup the model
 plsPC = 12;
 Alpha = 0.05;
 Gamma = 0.01;
 
 m = PLSDAModel(d,plsPC,Alpha,Gamma);% Soft PLS-DA by default
+
+%Uncomment the following 2 lines to use the Hard PLS-DA mode:
 %m.Mode = 'hard';
 %m.Rebuild();
 

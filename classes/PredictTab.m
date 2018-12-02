@@ -232,7 +232,7 @@ classdef  PredictTab < BasicTab
                     %self.tblTextResult.Data = [res.Labels, num2cell(logical(res.AllocationMatrix))];
                 
                     self.tblTextResult.ColumnWidth = num2cell([150, 30*ones(1,size(res.AllocationMatrix, 2))]);
-                    self.tblTextResult.ColumnFormat = ['char' repmat({'logical'},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses)];
+                    self.tblTextResult.ColumnFormat = ['char' repmat({'char'},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses)];
 
                 else
                     self.tblTextResult.ColumnFormat = ['char' 'char' repmat({'char'},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses)];
