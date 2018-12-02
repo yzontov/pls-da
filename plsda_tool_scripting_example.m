@@ -1,4 +1,4 @@
-function scripting_example()
+function plsda_tool_scripting_example()
 
 %add path to classes subfolder
 addpath('classes');
