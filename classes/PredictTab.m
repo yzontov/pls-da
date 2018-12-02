@@ -223,10 +223,10 @@ classdef  PredictTab < BasicTab
                     tc = unique(set.Classes);
                 end
                 
-                if isempty(set.Classes) || ~(length(trc) == length(tc) && sum(trc == tc) == length(tc))
+                if isempty(set.Classes) %|| ~(length(trc) == length(tc) && sum(trc == tc) == length(tc))
                     self.tblTextResult.ColumnName = {'Sample',unique(self.parent.modelTab.Model.TrainingDataSet.Classes)};
                     
-                    v = num2cell(arrayfun(@self.bool2v ,logical(res.AllocationMatrix)));
+                    v = arrayfun(@self.bool2v ,logical(res.AllocationMatrix), 'UniformOutput', false);
                     self.tblTextResult.Data = [res.Labels,  v];
 
                     %self.tblTextResult.Data = [res.Labels, num2cell(logical(res.AllocationMatrix))];
@@ -237,8 +237,8 @@ classdef  PredictTab < BasicTab
                 else
                     self.tblTextResult.ColumnFormat = ['char' 'char' repmat({'char'},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses)];
 
-                   self.tblTextResult.ColumnName = {'Sample','Class', unique(self.parent.modelTab.Model.TrainingDataSet.Classes)};
-
+                   
+                   uc = unique(set.Classes);
                     for i = 1:length(set.Classes)
                         c = set.Classes(i);
 
@@ -262,12 +262,23 @@ classdef  PredictTab < BasicTab
                         end
                     end
                    
-                    v = num2cell(arrayfun(@self.bool2v ,logical(res.AllocationMatrix)));
+                    padding = 1;
+                    max_class_label_length = 1;
+                    
+                    self.tblTextResult.ColumnWidth = num2cell([150, max(60,max_class_label_length*7), max(30, max_class_label_length*7)*ones(1,size(res.AllocationMatrix, 2))]); 
+
+                    if ~isempty(self.parent.modelTab.Model.TrainingDataSet.ClassLabels)
+                        max_class_label_length = max(strlength(self.parent.modelTab.Model.TrainingDataSet.ClassLabels));
+                        padding = round(max_class_label_length);
+                    end
+                    
+                    v = arrayfun(@self.bool2v ,logical(res.AllocationMatrix), 'UniformOutput', false);
                     self.tblTextResult.Data = [res.Labels, num2cell(set.Classes),  v];
                     %self.tblTextResult.Data = [res.Labels, num2cell(set.Classes), num2cell(logical(res.AllocationMatrix))];
                     
-                    self.tblTextResult.ColumnWidth = num2cell([150, 60, 30*ones(1,size(res.AllocationMatrix, 2))]); 
-                
+                    self.tblTextResult.ColumnName = {'Sample','Class', unique(self.parent.modelTab.Model.TrainingDataSet.Classes)};
+
+                                    
                     if ~isempty(set.Classes)
                         trc = unique(self.parent.modelTab.Model.TrainingDataSet.Classes);
                         tc = unique(set.Classes);
@@ -275,6 +286,10 @@ classdef  PredictTab < BasicTab
                 
                     if ~isempty(set.Classes) && length(trc) == length(tc) && sum(trc == tc) == length(tc)
 
+                        v = arrayfun(@(x) self.bool2v(x, padding) ,logical(res.AllocationMatrix), 'UniformOutput', false);
+                        self.tblTextResult.Data = [res.Labels, num2cell(set.Classes),  v];
+  
+                        
                         self.tab_confusion = uitab('Parent', self.tg2, 'Title', 'Confusion matrix');
                         self.tab_fom = uitab('Parent', self.tg2, 'Title', 'Figures of merit');
 
@@ -286,8 +301,24 @@ classdef  PredictTab < BasicTab
                         self.tblTextFoM.Units = 'normalized';
                         self.tblTextFoM.Position = [0 0 1 1];
                     
-                        self.tblTextFoM.ColumnName = {'Statistics',1:self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses};
-                        self.tblTextFoM.ColumnWidth = num2cell([120, 30*ones(1,size(res.AllocationMatrix(:,1:self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses), 2))]);
+                        if ~isempty(self.parent.modelTab.Model.TrainingDataSet.ClassLabels)
+                            names_ = cell(1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses);
+                            for i = 1:self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses
+                                names_{i} = self.parent.modelTab.Model.TrainingDataSet.ClassLabels{trc(i)};
+                            end
+                            self.tblTextResult.ColumnWidth = num2cell([150, max(60,max_class_label_length*7), max(30, max_class_label_length*7)*ones(1,size(res.AllocationMatrix, 2))]); 
+
+                            self.tblTextFoM.ColumnName = [{'Statistics'}, names_];
+                            self.tblTextConfusion.ColumnName = names_;
+                            self.tblTextConfusion.RowName = names_;
+                            self.tblTextResult.ColumnName = [{'Sample','Class'}, names_];
+                        else
+                            padding = 1;
+                            max_class_label_length = 1;
+                            self.tblTextFoM.ColumnName = {'Statistics',unique(self.parent.modelTab.Model.TrainingDataSet.Classes)};
+                        end
+                        
+                        self.tblTextFoM.ColumnWidth = num2cell([120, max(30, max_class_label_length*7)*ones(1,size(res.AllocationMatrix(:,1:self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses), 2))]);
                         self.tblTextFoM.ColumnFormat = ['char' repmat({'numeric'},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses)];
                     
                         self.tblTextConfusion.Data = res.ConfusionMatrix;
@@ -494,10 +525,13 @@ classdef  PredictTab < BasicTab
             delete(self.predict_plot_axes);
             self.tblTextResult.Data = [];
             
-            if (~isempty(self.tblTextConfusion) && ~isempty(self.tblTextFoM))
-                self.tblTextConfusion.Data = [];
-                self.tblTextFoM.Data = [];
-            end
+%             if isvalid(self.tblTextConfusion)
+%                 self.tblTextConfusion.Data = [];
+%             end
+%             
+%             if isvalid(self.tblTextFoM)
+%                 self.tblTextFoM.Data = [];
+%             end
         end
         
         function r = filter_test(self, x)

@@ -390,9 +390,14 @@ classdef  GUIWindow<handle
                 
                 if ~isempty(classes)
                     cls = classes(index);
-                    
+                    class_labels = event_obj.Target.Parent.UserData{5};
+
                     if isempty(flag)
-                        output_txt = sprintf('Object: %s\nClass: %d', str{1}, cls);
+                        if isempty(class_labels)
+                            output_txt = sprintf('Object: %s\nClass: %d', str{1}, cls);
+                        else
+                            output_txt = sprintf('Object: %s\nClass: %s', str{1}, class_labels{cls});
+                        end
                     else
                         output_txt = sprintf('Variable: %s', str{1});
                     end

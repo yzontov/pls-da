@@ -17,9 +17,12 @@ classdef  BasicTab < handle
     end
     methods
         
-       function v = bool2v(self, x)
+       function v = bool2v(self, x, padding)
+           if nargin == 2
+               padding = 4;
+           end
             if (x)
-                v = 'V';
+                v = [ repmat(' ', 1, padding ) 'V'];
             else
                 v = ' ';
             end

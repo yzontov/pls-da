@@ -393,11 +393,11 @@ classdef  DataTab < BasicTab
                 %                 dcm_obj = datacursormode(self.parent.fig);
                 %                 set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
                 
-                if ~isempty(d.Classes)
-                    set(self.tab_pca_scores_axes,'UserData', {[d.PCAScores(:,pc1), d.PCAScores(:,pc2)], score_labels, d.Classes, []});
-                else
-                    set(self.tab_pca_scores_axes,'UserData', {[d.PCAScores(:,pc1), d.PCAScores(:,pc2)], score_labels, [], []});
-                end
+%                 if ~isempty(d.Classes)
+                    set(self.tab_pca_scores_axes,'UserData', {[d.PCAScores(:,pc1), d.PCAScores(:,pc2)], score_labels, d.Classes, [], d.ClassLabels});
+%                 else
+%                     set(self.tab_pca_scores_axes,'UserData', {[d.PCAScores(:,pc1), d.PCAScores(:,pc2)], score_labels, [], [], []});
+%                 end
                 
                 
                 loadings_plot_type = get(self.ddlPlotTypePCA, 'value');
@@ -422,7 +422,7 @@ classdef  DataTab < BasicTab
                     xlabel(self.tab_pca_loadings_axes,sprintf('PC %d', pc1));
                     ylabel(self.tab_pca_loadings_axes,sprintf('PC %d', pc2));
                     
-                    set(self.tab_pca_loadings_axes,'UserData', {[d.PCALoadings(:,pc1), d.PCALoadings(:,pc2)], loadings_labels, [], true});
+                    set(self.tab_pca_loadings_axes,'UserData', {[d.PCALoadings(:,pc1), d.PCALoadings(:,pc2)], loadings_labels, [], true, []});
                     
                 else %line
                     
@@ -1382,6 +1382,7 @@ classdef  DataTab < BasicTab
                         
                         m = evalin('base',vardisplay{2});
                         set(win.modelTab.tbNumPCpca, 'String', sprintf('%d', m.NumberOfClasses-1));
+                        set(win.modelTab.tbNumPCpls, 'String', sprintf('%d', min(max(m.NumberOfClasses, 12), size(m.ProcessedData, 2))));
                     end
                 end
             end
@@ -1720,9 +1721,16 @@ classdef  DataTab < BasicTab
             end
             
             if ~isempty(d.RawClasses)
-                self.tblTextResult.Data = [Labels, num2cell(d.RawClasses), num2cell(logical(d.SelectedSamples))];
                 self.tblTextResult.ColumnName = {'Sample', 'Class', 'Included'};
-                self.tblTextResult.ColumnWidth = num2cell([150 60 60]);
+                
+                if ~isempty(d.ClassLabels)
+                    self.tblTextResult.Data = [Labels, {d.ClassLabels{d.RawClasses}}', num2cell(logical(d.SelectedSamples))];
+                    self.tblTextResult.ColumnWidth = num2cell([150 max(60, max(strlength(d.ClassLabels))*7) 60]);
+                else
+                    self.tblTextResult.Data = [Labels, num2cell(d.RawClasses), num2cell(logical(d.SelectedSamples))];
+                    self.tblTextResult.ColumnWidth = num2cell([150 60 60]);
+                end
+                
                 self.tblTextResult.ColumnEditable = [false false true];
             else
                 self.tblTextResult.Data = [Labels, num2cell(logical(d.SelectedSamples))];
@@ -1788,11 +1796,11 @@ classdef  DataTab < BasicTab
                             labels = d.ObjectNames;
                         end
                         %set(axes,'UserData', {YpredT_, labels, self.TrainingDataSet.Classes});
-                        if ~isempty(d.Classes)
-                            set(self.data_plot_axes,'UserData', {[d.ProcessedData(:,var1), d.ProcessedData(:,var2)], labels, d.Classes, []});
-                        else
-                            set(self.data_plot_axes,'UserData', {[d.ProcessedData(:,var1), d.ProcessedData(:,var2)], labels, [], []});
-                        end
+%                         if ~isempty(d.Classes)
+                            set(self.data_plot_axes,'UserData', {[d.ProcessedData(:,var1), d.ProcessedData(:,var2)], labels, d.Classes, [], d.ClassLabels});
+%                         else
+%                             set(self.data_plot_axes,'UserData', {[d.ProcessedData(:,var1), d.ProcessedData(:,var2)], labels, [], [], []});
+%                         end
                         
                         if showObjectNames
                             pan off

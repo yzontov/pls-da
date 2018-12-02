@@ -356,7 +356,7 @@ classdef PLSDAModel < handle
                 if isempty(self.TrainingDataSet.ClassLabels)
                     names{class} = sprintf('class %d', trc(class));
                 else
-                    names{class} = self.TrainingDataSet.ClassLabels{class};
+                    names{class} = self.TrainingDataSet.ClassLabels{trc(class)};
                 end
                 
                 if pc1 ~= pc2
@@ -408,7 +408,12 @@ classdef PLSDAModel < handle
                 end
                 
                 PLSDAModel.hard_plot(axes,w_,v_,t0_,self.K,Centers_,self.TrainingDataSet.NumberOfClasses - 1, false);
-                set(axes,'UserData', {YpredT_, labels, self.TrainingDataSet.Classes,[]});
+                
+                if isempty(self.TrainingDataSet.ClassLabels)
+                    set(axes,'UserData', {YpredT_, labels, self.TrainingDataSet.Classes,[], []});
+                else
+                    set(axes,'UserData', {YpredT_, labels, self.TrainingDataSet.Classes,[], []});
+                end
                 
             end
             
@@ -421,7 +426,8 @@ classdef PLSDAModel < handle
                 end
                 
                 PLSDAModel.soft_plot(axes, YpredT_, Y,Centers_,color, self.Alpha, self.numPC_pca, self.Gamma, self.K, false);
-                set(axes,'UserData', {YpredT_, labels, self.TrainingDataSet.Classes,[]});
+                
+                set(axes,'UserData', {YpredT_, labels, self.TrainingDataSet.Classes,[], self.TrainingDataSet.ClassLabels});
                 
             end
             
@@ -515,9 +521,9 @@ classdef PLSDAModel < handle
                 end
                 
                 if ~self.NewDataSetHasClasses
-                    set(axes,'UserData', {YpredTnew_, labels, [],[]});
+                    set(axes,'UserData', {YpredTnew_, labels, [],[],[]});
                 else
-                    set(axes,'UserData', {YpredTnew_, labels, self.NewDataSetClasses,[]});
+                    set(axes,'UserData', {YpredTnew_, labels, self.NewDataSetClasses,[], self.TrainingDataSet.ClassLabels});
                 end
             end
             
@@ -535,9 +541,9 @@ classdef PLSDAModel < handle
                 PLSDAModel.soft_plot(axes, YpredT_, Y,Centers_,color, self.Alpha, self.numPC_pca, self.Gamma, self.K, show_legend);
                 
                 if ~self.NewDataSetHasClasses
-                    set(axes,'UserData', {YpredTnew_, labels, [],[]});
+                    set(axes,'UserData', {YpredTnew_, labels, [],[], []});
                 else
-                    set(axes,'UserData', {YpredTnew_, labels, self.NewDataSetClasses,[]});
+                    set(axes,'UserData', {YpredTnew_, labels, self.NewDataSetClasses,[], []});
                 end
                 
             end
@@ -550,7 +556,7 @@ classdef PLSDAModel < handle
                     if isempty(self.TrainingDataSet.ClassLabels)
                         names{i} = sprintf('class %d', trc(i));
                     else
-                        names{i} = self.TrainingDataSet.ClassLabels{i};
+                        names{i} = self.TrainingDataSet.ClassLabels{trc(i)};
                     end
                 end
                 

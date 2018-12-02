@@ -99,19 +99,44 @@ classdef  ModelTab < BasicTab
                     end
                 end
                 
-                self.tblTextResult.ColumnName = {'Sample', 'Class', unique(self.Model.TrainingDataSet.Classes)};
                 self.tblTextResult.ColumnFormat = ['char' 'char' repmat({'char'},1,self.Model.TrainingDataSet.NumberOfClasses)];
-                self.tblTextResult.ColumnWidth = num2cell([150, 60, 30*ones(1,size(self.Model.AllocationMatrix(:,1:self.Model.TrainingDataSet.NumberOfClasses), 2))]);
-
-                v = num2cell(arrayfun(@self.bool2v ,logical(self.Model.AllocationMatrix)));
-                self.tblTextResult.Data = [Labels, num2cell(self.Model.TrainingDataSet.Classes), v];
+                             
+                if ~isempty(self.Model.TrainingDataSet.ClassLabels)
+                    
+                    max_class_label_length = max(strlength(self.Model.TrainingDataSet.ClassLabels));
+                    padding = round(max_class_label_length);
+                    
+                    v = arrayfun(@(x) self.bool2v(x, padding) ,logical(self.Model.AllocationMatrix),'UniformOutput', false);
+                    uc = unique(self.Model.TrainingDataSet.Classes);
+                    names_ = cell(1,self.Model.TrainingDataSet.NumberOfClasses);
+                    for i = 1:self.Model.TrainingDataSet.NumberOfClasses
+                        names_{i} = self.Model.TrainingDataSet.ClassLabels{uc(i)};
+                    end
+                    self.tblTextResult.ColumnName = [{'Sample', 'Class'}, names_];
+                    self.tblTextResult.Data = [Labels, {self.Model.TrainingDataSet.ClassLabels{self.Model.TrainingDataSet.Classes}}', v];
+                    self.tblTextResult.ColumnWidth = num2cell([150 max(60,max_class_label_length*7) max(30,max_class_label_length*7)*ones(1,size(self.Model.AllocationMatrix(:,1:self.Model.TrainingDataSet.NumberOfClasses), 2))]);
                 
-                self.tblTextConfusion.ColumnName = {unique(self.Model.TrainingDataSet.Classes)};
-                self.tblTextConfusion.RowName = {unique(self.Model.TrainingDataSet.Classes)};
+                    self.tblTextConfusion.ColumnName = names_;
+                    self.tblTextConfusion.RowName = names_;
+                    
+                    self.tblTextFoM.ColumnName = [{'Statistics'},names_];
+                    self.tblTextFoM.ColumnWidth = num2cell([120, max(30,max_class_label_length*7)*ones(1,size(self.Model.AllocationMatrix(:,1:self.Model.TrainingDataSet.NumberOfClasses), 2))]);
+                else
+                    v = arrayfun(@self.bool2v,logical(self.Model.AllocationMatrix),'UniformOutput', false);
+                    
+                    self.tblTextResult.ColumnName = {'Sample', 'Class', unique(self.Model.TrainingDataSet.Classes)};
+                    self.tblTextResult.Data = [Labels, num2cell(self.Model.TrainingDataSet.Classes), v];
+                    self.tblTextResult.ColumnWidth = num2cell([150, 60, 30*ones(1,size(self.Model.AllocationMatrix(:,1:self.Model.TrainingDataSet.NumberOfClasses), 2))]);
+                
+                    self.tblTextConfusion.ColumnName = {unique(self.Model.TrainingDataSet.Classes)};
+                    self.tblTextConfusion.RowName = {unique(self.Model.TrainingDataSet.Classes)};
+                    
+                    self.tblTextFoM.ColumnName = {'Statistics',unique(self.Model.TrainingDataSet.Classes)};
+                    self.tblTextFoM.ColumnWidth = num2cell([120, 30*ones(1,size(self.Model.AllocationMatrix(:,1:self.Model.TrainingDataSet.NumberOfClasses), 2))]);
+                end
+                
                 self.tblTextConfusion.Data = self.Model.ConfusionMatrix;
             
-                self.tblTextFoM.ColumnName = {'Statistics',unique(self.Model.TrainingDataSet.Classes)};
-                self.tblTextFoM.ColumnWidth = num2cell([120, 30*ones(1,size(self.Model.AllocationMatrix(:,1:self.Model.TrainingDataSet.NumberOfClasses), 2))]);
                 self.tblTextFoM.ColumnFormat = ['char' repmat({'numeric'},1,self.Model.TrainingDataSet.NumberOfClasses)];
 
                 fields = {'True Positive';'False Positive';'';'Class Sensitivity (%)';'Class Specificity (%)';'Class Efficiency (%)';'';'Total Sensitivity (%)';'Total Specificity (%)';'Total Efficiency (%)'};
@@ -640,6 +665,7 @@ classdef  ModelTab < BasicTab
                 self.tbGamma.Enable = 'on';
                 
                 set(self.tbNumPCpca, 'String', sprintf('%d', max(1,d.NumberOfClasses-1)));
+                set(self.tbNumPCpls, 'String', sprintf('%d', min(max(d.NumberOfClasses, 12), size(d.ProcessedData, 2))));
             else
                 self.btnRecalibrate.Enable = 'off';
                 self.tbNumPCpls.Enable = 'off';

@@ -565,14 +565,14 @@ classdef  DataSetWindow<handle
                         ss = l(i).size;
                         vardisplay{i+offset} = sprintf('%s (%dx%d)',l(i).name,ss(1),ss(2));
                     end
+                else
+                    set(self.ddlClassLabels, 'Value', 1);
                 end
                 set(self.ddlClassLabels, 'String', vardisplay);
                 
             else
                 set(self.ddlClassLabels, 'String', {'-'});
-                if length(get(self.ddlClassLabels, 'String')) > 1
-                    set(self.ddlClassLabels, 'Value', 2)
-                end
+                set(self.ddlClassLabels, 'Value', 1);
             end
             
         end
