@@ -40,6 +40,11 @@ classdef  GUIWindow<handle
     
     methods
         
+        function WindowButtonDownFcn(self, obj, param)
+            
+            disp clicked  
+        end
+        
         function TabSelected(self, obj, param)
             
             var = [];
@@ -355,6 +360,8 @@ classdef  GUIWindow<handle
             
             
             set(win.tgroup, 'SelectionChangedFcn', @win.TabSelected);
+            
+            set(f, 'WindowButtonDownFcn', @win.WindowButtonDownFcn);
             
         end
         
