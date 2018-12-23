@@ -817,7 +817,11 @@ classdef  DataTab < BasicTab
                         new_d.RawClasses = d.RawClasses(logical(d.SelectedSamples),:);
                         new_d.VariableNames = d.VariableNames;
                         new_d.Variables = d.Variables;
-                        new_d.ObjectNames = d.ObjectNames(logical(d.SelectedSamples),:);
+                        
+                        if(~isempty(d.ObjectNames))
+                            new_d.ObjectNames = d.ObjectNames(logical(d.SelectedSamples),:);
+                        end
+                        
                         new_d.ClassLabels = d.ClassLabels;
                         
                         try
@@ -830,6 +834,13 @@ classdef  DataTab < BasicTab
                             new_d.Name = tmp;
                             assignin('base',tmp, new_d);
                         end
+                        
+                        d.SelectedSamples = ones(size(d.SelectedSamples));
+                
+                        self.FillTableView(selected_name);
+                        self.Redraw();
+                
+                        self.RefreshModel();
                         
                         self.FillDataSetList();
                     end
