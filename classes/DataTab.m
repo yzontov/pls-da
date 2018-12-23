@@ -835,6 +835,13 @@ classdef  DataTab < BasicTab
                             assignin('base',tmp, new_d);
                         end
                         
+                        d.SelectedSamples = ones(size(d.SelectedSamples));
+                
+                        self.FillTableView(selected_name);
+                        self.Redraw();
+                
+                        self.RefreshModel();
+                        
                         self.FillDataSetList();
                     end
                     
