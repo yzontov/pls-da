@@ -439,7 +439,7 @@ classdef PLSDAModel < handle
             
             %center
             %plot(t0(pc1),t0(pc2), '*');
-
+            
             xlabel(sprintf('PC %d', pc1)); % x-axis label
             ylabel(sprintf('PC %d', pc2));% y-axis label
             
@@ -448,7 +448,7 @@ classdef PLSDAModel < handle
             else
                 title('Classification plot');
             end
-                
+            
             hold off
             
         end
@@ -492,6 +492,39 @@ classdef PLSDAModel < handle
                         plot(axes,temp, zeros(size(temp)),mark{class},'color', color(class,:),'HandleVisibility','off');
                     end
                 end
+                
+                
+                if show_legend
+                    
+                    names = {};
+                    trc = unique(self.TrainingDataSet.Classes);
+                    for i=1:self.K
+                        if isempty(self.TrainingDataSet.ClassLabels)
+                            names{i} = sprintf('class %d', trc(i));
+                        else
+                            names{i} = self.TrainingDataSet.ClassLabels{trc(i)};
+                        end
+                    end
+                    
+                    if ~isempty(axes)
+                        legend(axes, names);
+                        legend(axes,'location','northeast');
+                        legend(axes,'boxon');
+                    else
+                        legend(names);
+                        legend('location','northeast');
+                        legend('boxon');
+                    end
+                else
+                    if ~isempty(axes)
+                        legend(axes,'off');
+                    else
+                        legend('off');
+                    end
+                end
+                
+                
+                
             else
                 if pc1 ~= pc2
                     plot(axes,self.YpredTnew(:,pc1), self.YpredTnew(:,pc2),'ok','HandleVisibility','off');
@@ -557,35 +590,37 @@ classdef PLSDAModel < handle
                     set(axes,'UserData', {YpredTnew_, labels, self.NewDataSetClasses,[], []});
                 end
                 
-            end
-            
-            if show_legend
                 
-                names = {};
-                trc = unique(self.TrainingDataSet.Classes);
-                for i=1:self.K
-                    if isempty(self.TrainingDataSet.ClassLabels)
-                        names{i} = sprintf('class %d', trc(i));
+                
+                if show_legend
+                    
+                    names = {};
+                    trc = unique(self.TrainingDataSet.Classes);
+                    for i=1:self.K
+                        if isempty(self.TrainingDataSet.ClassLabels)
+                            names{i} = sprintf('class %d', trc(i));
+                        else
+                            names{i} = self.TrainingDataSet.ClassLabels{trc(i)};
+                        end
+                    end
+                    
+                    if ~isempty(axes)
+                        legend(axes, names);
+                        legend(axes,'location','northeast');
+                        legend(axes,'boxon');
                     else
-                        names{i} = self.TrainingDataSet.ClassLabels{trc(i)};
+                        legend(names);
+                        legend('location','northeast');
+                        legend('boxon');
+                    end
+                else
+                    if ~isempty(axes)
+                        legend(axes,'off');
+                    else
+                        legend('off');
                     end
                 end
                 
-                if ~isempty(axes)
-                    legend(axes, names);
-                    legend(axes,'location','northeast');
-                    legend(axes,'boxon');
-                else
-                    legend(names);
-                    legend('location','northeast');
-                    legend('boxon');
-                end
-            else
-                if ~isempty(axes)
-                    legend(axes,'off');
-                else
-                    legend('off');
-                end
             end
             
             %center
@@ -989,15 +1024,15 @@ classdef PLSDAModel < handle
                     if K == 3
                         r = 1;
                         if cl(1) == 1 && cl(2) == 2
-                         r = 3;
+                            r = 3;
                         end
                         
                         if cl(1) == 1 && cl(2) == 3
-                         r = 2;
+                            r = 2;
                         end
                         
                         if cl(1) == 2 && cl(2) == 3
-                         r = 1;
+                            r = 1;
                         end
                         
                         crit = (x_min - t0(1))*(Centers(r,1) - t0(1)) + (y_min - t0(2))*(Centers(r,2) - t0(2)) < 0;

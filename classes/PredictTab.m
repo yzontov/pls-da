@@ -55,10 +55,10 @@ classdef  PredictTab < BasicTab
                 set(c(strcmpi ( get (c,'Type'),'UIControl')),'enable',param);
             end
             
-            if isequal(self.parent.modelTab.Model.Mode, 'hard')
-                self.chkPlotShowClasses.Value = 0;
-                self.chkPlotShowClasses.Enable = 'off';
-            end
+%             if isequal(self.parent.modelTab.Model.Mode, 'hard')
+%                 self.chkPlotShowClasses.Value = 1;
+%                 self.chkPlotShowClasses.Enable = 'off';
+%             end
             
             tg = self.tab_img.Parent;
             tg.Visible = param;
@@ -129,10 +129,10 @@ classdef  PredictTab < BasicTab
             ttab.vbox.Heights=[100,120,0];
 
             
-            if isequal(ttab.parent.modelTab.Model.Mode, 'hard')
-                ttab.chkPlotShowClasses.Value = 0;
-                ttab.chkPlotShowClasses.Enable = 'off';
-            end
+%             if isequal(ttab.parent.modelTab.Model.Mode, 'hard')
+%                 ttab.chkPlotShowClasses.Value = 1;
+%                 ttab.chkPlotShowClasses.Enable = 'off';
+%             end
             
             allvars = evalin('base','whos');
             
@@ -265,7 +265,7 @@ classdef  PredictTab < BasicTab
                     padding = 1;
                     max_class_label_length = 1;
                     
-                    self.tblTextResult.ColumnWidth = num2cell([150, max(60,max_class_label_length*7), max(30, max_class_label_length*7)*ones(1,size(res.AllocationMatrix, 2))]); 
+                    self.tblTextResult.ColumnWidth = num2cell([150, max(90,max_class_label_length*7), max(30, max_class_label_length*7)*ones(1,size(res.AllocationMatrix, 2))]); 
 
                     if ~isempty(self.parent.modelTab.Model.TrainingDataSet.ClassLabels)
                         max_class_label_length = max(strlength(self.parent.modelTab.Model.TrainingDataSet.ClassLabels));
@@ -276,7 +276,7 @@ classdef  PredictTab < BasicTab
                     self.tblTextResult.Data = [res.Labels, num2cell(set.Classes),  v];
                     %self.tblTextResult.Data = [res.Labels, num2cell(set.Classes), num2cell(logical(res.AllocationMatrix))];
                     
-                    self.tblTextResult.ColumnName = {'Sample','Class', unique(self.parent.modelTab.Model.TrainingDataSet.Classes)};
+                    self.tblTextResult.ColumnName = {'Sample','Known class', unique(self.parent.modelTab.Model.TrainingDataSet.Classes)};
 
                                     
                     if ~isempty(set.Classes)
@@ -306,7 +306,7 @@ classdef  PredictTab < BasicTab
                             for i = 1:self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses
                                 names_{i} = self.parent.modelTab.Model.TrainingDataSet.ClassLabels{trc(i)};
                             end
-                            self.tblTextResult.ColumnWidth = num2cell([150, max(60,max_class_label_length*7), max(30, max_class_label_length*7)*ones(1,size(res.AllocationMatrix, 2))]); 
+                            self.tblTextResult.ColumnWidth = num2cell([150, max(90,max_class_label_length*7), max(30, max_class_label_length*7)*ones(1,size(res.AllocationMatrix, 2))]); 
 
                             self.tblTextFoM.ColumnName = [{'Statistics'}, names_];
                             self.tblTextConfusion.ColumnName = names_;
@@ -344,12 +344,12 @@ classdef  PredictTab < BasicTab
                 tg = self.tab_img.Parent;
                 tg.Visible = 'on';
                 
-                if isequal(self.parent.modelTab.Model.Mode, 'hard')
-                    self.chkPlotShowClasses.Value = 0;
-                    self.chkPlotShowClasses.Enable = 'off';
-                else
+%                 if isequal(self.parent.modelTab.Model.Mode, 'hard')
+%                     self.chkPlotShowClasses.Value = 1;
+%                     self.chkPlotShowClasses.Enable = 'off';
+%                 else
                     self.chkPlotShowClasses.Enable = 'on';
-                end
+%                 end
                 
             else
                 self.enablePanel(self.pnlPlotSettings, 'off');
