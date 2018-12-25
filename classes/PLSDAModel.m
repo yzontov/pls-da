@@ -482,16 +482,24 @@ classdef PLSDAModel < handle
             
             Y = self.AllocationMatrixNew;
             %samples
-            for class = 1:self.K
-                temp = self.YpredTnew(Y(:,class) == 1,:);
-                
+            if strcmp(self.Mode, 'hard')
+                for class = 1:self.K
+                    temp = self.YpredTnew(Y(:,class) == 1,:);
+                    
+                    if pc1 ~= pc2
+                        plot(axes,temp(:,pc1), temp(:,pc2),mark{class},'color', color(class,:),'HandleVisibility','off');
+                    else
+                        plot(axes,temp, zeros(size(temp)),mark{class},'color', color(class,:),'HandleVisibility','off');
+                    end
+                end
+            else
                 if pc1 ~= pc2
-                    plot(axes,temp(:,pc1), temp(:,pc2),mark{class},'color', color(class,:),'HandleVisibility','off');
+                    plot(axes,self.YpredTnew(:,pc1), self.YpredTnew(:,pc2),'ok','HandleVisibility','off');
                 else
-                    plot(axes,temp, zeros(size(temp)),mark{class},'color', color(class,:),'HandleVisibility','off');
+                    plot(axes,self.YpredTnew, zeros(size(self.YpredTnew)),'ok','HandleVisibility','off');
                 end
             end
-
+            
             Centers_ = [self.Centers(:,pc1) self.Centers(:,pc2)];
             
             if (pc1 == 1 && pc2 == 1)

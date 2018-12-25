@@ -108,7 +108,7 @@ classdef DataSet < handle
                 end
             end
             
-            title(axes, ['Dataset: ' self.Name ' - Scatter plot']);
+            title(axes, ['Dataset: ' self.Name ' - Scatter plot'], 'interpreter', 'none');
         end
         
         function fig = line(self, axes)
@@ -150,7 +150,7 @@ classdef DataSet < handle
                 xticklabels(axes,loadings_labels);
             end
             
-            title(axes, ['Dataset: ' self.Name ' - Line plot']);
+            title(axes, ['Dataset: ' self.Name ' - Line plot'], 'interpreter', 'none');
             ylabel(axes,'Values');
             
         end
@@ -164,7 +164,7 @@ classdef DataSet < handle
                 varname = sprintf('Variable: %s', self.VariableNames{var1});
             end
             
-            title(axes, ['Dataset: ' self.Name ' - Histogram plot - ' varname]);
+            title(axes, ['Dataset: ' self.Name ' - Histogram plot - ' varname], 'interpreter', 'none');
             
             xlabel(axes,'Values');
             ylabel(axes,'Occurrences');
