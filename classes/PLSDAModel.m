@@ -25,6 +25,8 @@ classdef PLSDAModel < handle
         
         YpredTnew;
         
+        AllocationMatrixNew;
+        
         NewDataSetName;
         
         NewDataSetClassLabels;
@@ -289,6 +291,8 @@ classdef PLSDAModel < handle
                 Result.AllocationTable = PLSDAModel.allocation_hard(Labels, Distances_Hard_New, unique(self.TrainingDataSet.Classes));
                 Result.AllocationMatrix = self.calculateAllocationMatrix(Distances_Hard_New);
                 
+                self.AllocationMatrixNew = Result.AllocationMatrix;
+                
                 if ~isempty(NewDataSet.Classes)
                     Result.ConfusionMatrix = PLSDAModel.confusionMatrix(NewDataSet.DummyMatrix(),Distances_Hard_New,0);
                     Result.FiguresOfMerit = PLSDAModel.FoM(Result.ConfusionMatrix, sum(NewDataSet.DummyMatrix()));
@@ -306,6 +310,8 @@ classdef PLSDAModel < handle
                 Result.Distances = Distances_Soft_New;
                 Result.AllocationTable = PLSDAModel.allocation_soft(Labels, self.Alpha, Distances_Soft_New, unique(self.TrainingDataSet.Classes));
                 Result.AllocationMatrix = self.calculateAllocationMatrix(Distances_Soft_New);
+                
+                self.AllocationMatrixNew = Result.AllocationMatrix;
                 
                 if ~isempty(NewDataSet.Classes)
                     trc = unique(self.TrainingDataSet.Classes);
@@ -474,21 +480,18 @@ classdef PLSDAModel < handle
             axis(axes,[-1 1 -1 1]);
             hold on
             
-            %Y = self.NewDataSet.DummyMatrix();
+            Y = self.AllocationMatrixNew;
             %samples
-            %for class = 1:self.K
-            %    temp = self.YpredTnew(Y(:,class) == 1,:);
-            
-            if pc1 ~= pc2
-                plot(axes,self.YpredTnew(:,pc1), self.YpredTnew(:,pc2),'ok','HandleVisibility','off');%,'MarkerFaceColor', color{class});
-            else
-                plot(axes,self.YpredTnew, zeros(size(self.YpredTnew)),'ok','HandleVisibility','off');
+            for class = 1:self.K
+                temp = self.YpredTnew(Y(:,class) == 1,:);
+                
+                if pc1 ~= pc2
+                    plot(axes,temp(:,pc1), temp(:,pc2),mark{class},'color', color(class,:),'HandleVisibility','off');
+                else
+                    plot(axes,temp, zeros(size(temp)),mark{class},'color', color(class,:),'HandleVisibility','off');
+                end
             end
-            
-            %[mark{class} color{class}]);%,'MarkerFaceColor', color{class});
-            
-            %end
-            
+
             Centers_ = [self.Centers(:,pc1) self.Centers(:,pc2)];
             
             if (pc1 == 1 && pc2 == 1)
