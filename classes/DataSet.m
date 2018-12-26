@@ -46,6 +46,11 @@ classdef DataSet < handle
     
     methods
         
+        function delete(obj)
+            % obj is always scalar
+            %disp([obj.Name ' deleted']);
+        end
+        
         function Y = DummyMatrix(self)
             
             if ~isempty(self.Classes)
