@@ -128,7 +128,6 @@ classdef  PredictTab < BasicTab
             
             ttab.vbox.Heights=[100,120,0];
 
-            
 %             if isequal(ttab.parent.modelTab.Model.Mode, 'hard')
 %                 ttab.chkPlotShowClasses.Value = 1;
 %                 ttab.chkPlotShowClasses.Enable = 'off';
@@ -311,7 +310,7 @@ classdef  PredictTab < BasicTab
                             self.tblTextFoM.ColumnName = [{'Statistics'}, names_];
                             self.tblTextConfusion.ColumnName = names_;
                             self.tblTextConfusion.RowName = names_;
-                            self.tblTextResult.ColumnName = [{'Sample','Class'}, names_];
+                            self.tblTextResult.ColumnName = [{'Sample','Known class'}, names_];
                         else
                             padding = 1;
                             max_class_label_length = 1;

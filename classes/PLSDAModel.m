@@ -487,9 +487,9 @@ classdef PLSDAModel < handle
                     temp = self.YpredTnew(Y(:,class) == 1,:);
                     
                     if pc1 ~= pc2
-                        plot(axes,temp(:,pc1), temp(:,pc2),mark{class},'color', color(class,:),'HandleVisibility','off');
+                        plot(axes,temp(:,pc1), temp(:,pc2),mark{class},'color', color(class,:));
                     else
-                        plot(axes,temp, zeros(size(temp)),mark{class},'color', color(class,:),'HandleVisibility','off');
+                        plot(axes,temp, zeros(size(temp)),mark{class},'color', color(class,:));
                     end
                 end
                 
