@@ -673,7 +673,7 @@ classdef  DataSetWindow<handle
                     try
                         s = regexprep(name, '[^a-zA-Z0-9_]', '_');
 
-                        if(~isempty(regexp(s,'^\d+$', 'once')))
+                        if(~isempty(regexp(s,'^\d+', 'once')))
                             s = ['dataset_' s];
                         end
                         

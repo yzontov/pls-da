@@ -1703,9 +1703,11 @@ classdef  DataTab < BasicTab
                 if (d.HasPCA)
                     self.pca_tabgroup.Visible = 'on';
                     param = 'on';
+                    set(self.btnPCABuild, 'String', 'Rebuild');
                     self.DrawPCA();
                 else
                     self.pca_tabgroup.Visible = 'off';
+                    set(self.btnPCABuild, 'String', 'Build');
                     param = 'off';
                 end
 
