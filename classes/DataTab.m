@@ -461,8 +461,8 @@ classdef  DataTab < BasicTab
                     
                 end
                 
-                title(self.tab_pca_scores_axes,['Dataset: ' d.Name ' - PCA Scores']);
-                title(self.tab_pca_loadings_axes,['Dataset: ' d.Name ' - PCA Loadings']);
+                title(self.tab_pca_scores_axes,['Dataset: ' d.Name ' - PCA Scores'], 'interpreter', 'none');
+                title(self.tab_pca_loadings_axes,['Dataset: ' d.Name ' - PCA Loadings'], 'interpreter', 'none');
                 hold off;
             end
         end
@@ -702,6 +702,7 @@ classdef  DataTab < BasicTab
                 
                 self.RefreshModel();
                 %self.DrawPCA();
+                self.ClearPCA();
             end
         end
         
@@ -720,6 +721,7 @@ classdef  DataTab < BasicTab
                 
                 self.RefreshModel();
                 %self.DrawPCA();
+                self.ClearPCA();
             end
         end
         
@@ -738,6 +740,7 @@ classdef  DataTab < BasicTab
                 
                 self.RefreshModel();
                 %self.DrawPCA();
+                self.ClearPCA();
             end
         end
         
@@ -761,8 +764,8 @@ classdef  DataTab < BasicTab
                     self.Redraw();
                 
                     self.RefreshModel();
+                    self.ClearPCA();
                 end
-                
                 %self.DrawPCA();
             end
         end
@@ -784,6 +787,7 @@ classdef  DataTab < BasicTab
                 self.Redraw();
                 
                 self.RefreshModel();
+                self.ClearPCA();
                 %self.DrawPCA();
             end
         end
@@ -1391,9 +1395,15 @@ classdef  DataTab < BasicTab
                     if length(get(win.modelTab.ddlCalibrationSet, 'String')) > 1
                         set(win.modelTab.ddlCalibrationSet, 'Value', 2)
                         
-                        m = evalin('base',vardisplay{2});
-                        set(win.modelTab.tbNumPCpca, 'String', sprintf('%d', m.NumberOfClasses-1));
-                        set(win.modelTab.tbNumPCpls, 'String', sprintf('%d', min(max(m.NumberOfClasses, 12), size(m.ProcessedData, 2))));
+                        if strcmp(vardisplay{2}, selected_name)
+                            
+                            m = evalin('base',vardisplay{2});
+                            set(win.modelTab.tbNumPCpca, 'String', sprintf('%d', m.NumberOfClasses-1));
+                            set(win.modelTab.tbNumPCpls, 'String', sprintf('%d', min(max(m.NumberOfClasses, 12), size(m.ProcessedData, 2))));
+                            win.modelTab.ClearModel();
+                            
+                        end
+                        
                     end
                 end
             end
@@ -1685,21 +1695,21 @@ classdef  DataTab < BasicTab
                 set(self.ddlPlotVar1, 'Value', 1);
                 set(self.ddlPlotVar2, 'Value', 2);
                 
-                
-                
                 self.drawPlot(selected_name);
-                
                 
                 self.FillTableView(selected_name);
                 self.FillPCApcDDL(2);
                 
                 if (d.HasPCA)
                     self.pca_tabgroup.Visible = 'on';
+                    param = 'on';
+                    self.DrawPCA();
                 else
                     self.pca_tabgroup.Visible = 'off';
+                    param = 'off';
                 end
-                
-                %self.DrawPCA();
+
+                self.enablePCAPanel(param);
                 
             else
                 self.resetRightPanel();
@@ -1709,9 +1719,6 @@ classdef  DataTab < BasicTab
                 
                 self.tblTextResult.Data = [];
                 self.tblTextResult.ColumnName = [];
-                
-                
-                
                 
                 self.ClearPCA();
             end

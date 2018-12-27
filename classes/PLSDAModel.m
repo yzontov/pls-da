@@ -278,6 +278,11 @@ classdef PLSDAModel < handle
             
             Result.Labels = Labels;
             
+            if ~isempty(NewDataSet.Classes)
+                trc = unique(self.TrainingDataSet.Classes);
+                tc = unique(NewDataSet.Classes);
+            end
+            
             if strcmp(self.Mode, 'hard')
                 
                 Distances_Hard_New = zeros(size(Ypred_new));
@@ -293,7 +298,7 @@ classdef PLSDAModel < handle
                 
                 self.AllocationMatrixNew = Result.AllocationMatrix;
                 
-                if ~isempty(NewDataSet.Classes)
+                if ~isempty(NewDataSet.Classes) && length(trc) == length(tc) && sum(trc == tc) == length(tc)
                     Result.ConfusionMatrix = PLSDAModel.confusionMatrix(NewDataSet.DummyMatrix(),Distances_Hard_New,0);
                     Result.FiguresOfMerit = PLSDAModel.FoM(Result.ConfusionMatrix, sum(NewDataSet.DummyMatrix()));
                 end
@@ -312,12 +317,7 @@ classdef PLSDAModel < handle
                 Result.AllocationMatrix = self.calculateAllocationMatrix(Distances_Soft_New);
                 
                 self.AllocationMatrixNew = Result.AllocationMatrix;
-                
-                if ~isempty(NewDataSet.Classes)
-                    trc = unique(self.TrainingDataSet.Classes);
-                    tc = unique(NewDataSet.Classes);
-                end
-                
+                               
                 if ~isempty(NewDataSet.Classes) && length(trc) == length(tc) && sum(trc == tc) == length(tc)
                     Result.ConfusionMatrix = PLSDAModel.confusionMatrix(NewDataSet.DummyMatrix(),Distances_Soft_New, 1, self.Alpha);
                     Result.FiguresOfMerit = PLSDAModel.FoM(Result.ConfusionMatrix, sum(NewDataSet.DummyMatrix()));
