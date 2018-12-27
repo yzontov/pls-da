@@ -691,13 +691,15 @@ classdef  DataSetWindow<handle
                     end
                     
                     if ok
-                    if isempty(self.dataset_name)
-                        evtdata = DatasetCreatedEventData(name, false);
-                        self.parent.DataSetWindowCloseCallback(self,evtdata);
-                    else
-                        evtdata = DatasetCreatedEventData(name, true);
-                        self.parent.DataSetWindowCloseCallback(self,evtdata);
-                    end 
+                        addlistener(d,'Deleting',@self.parent.parent.handleDatasetDelete);
+                        
+                        if isempty(self.dataset_name)
+                            evtdata = DatasetCreatedEventData(name, false);
+                            self.parent.DataSetWindowCloseCallback(self,evtdata);
+                        else
+                            evtdata = DatasetCreatedEventData(name, true);
+                            self.parent.DataSetWindowCloseCallback(self,evtdata);
+                        end
                     end
                     
                 else

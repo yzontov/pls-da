@@ -36,6 +36,18 @@ classdef  GUIWindow<handle
     
     methods
         
+        function handleDatasetDelete(obj,src,eventData)
+            %disp([src.Name ' deleted']);
+            obj.dataTab.FillDataSetList();
+            obj.dataTab.RefreshModel();
+        end
+        
+        function WindowButtonDownFcn(obj,src,eventData)
+            %disp('got focus');
+            obj.dataTab.FillDataSetList();
+            obj.dataTab.RefreshModel();
+        end
+        
         function TabSelected(self, obj, param)
             
             var = [];
@@ -347,10 +359,23 @@ classdef  GUIWindow<handle
             if tabs(3)
                 win.predictTab = PredictTab(win.tgroup, win);
             end
-            
-            
-            
+
             set(win.tgroup, 'SelectionChangedFcn', @win.TabSelected);
+            set(win.fig, 'WindowButtonDownFcn', @win.WindowButtonDownFcn);
+            
+            allvars = evalin('base','whos');
+            varnames = {allvars.name};
+            
+            idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
+            
+            if ~isempty(idx)
+            	names = varnames(idx);
+                for i = 1:length(names)
+                   d = evalin('base', names{i});
+                   addlistener(d,'Deleting',@win.handleDatasetDelete);  
+                end
+            
+            end
             
         end
         

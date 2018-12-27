@@ -657,7 +657,9 @@ classdef  DataTab < BasicTab
             else
                 self.resetRightPanel();
                 self.enableRightPanel('off');
-                
+
+                set(self.listbox, 'String', '-');
+                set(self.listbox, 'Value', 1);
             end
             
         end
@@ -828,13 +830,24 @@ classdef  DataTab < BasicTab
                         
                         new_d.ClassLabels = d.ClassLabels;
                         
+                        addlistener(new_d,'Deleting',@self.parent.handleDatasetDelete);
+                        
                         try
                             new_d.Name = answer{1};
                             assignin('base', answer{1}, new_d)
                         catch
-                            opts = struct('WindowStyle','modal','Interpreter','none');
-                            errordlg('The invalid characters have been replaced. Please use only latin characters, numbers and underscore!','Error',opts);
+                            %opts = struct('WindowStyle','modal','Interpreter','none');
+                            %errordlg('The invalid characters have been replaced. Please use only latin characters, numbers and underscore!','Error',opts);
                             tmp = regexprep(answer{1}, '[^a-zA-Z0-9_]', '_');
+                            
+                            if(~isempty(regexp(tmp,'^\d+', 'once')))
+                                tmp = ['dataset_' tmp];
+                            end
+                            
+                            if(~isempty(regexp(tmp,'^_+', 'once')))
+                                tmp = ['dataset_' tmp];
+                            end
+                            
                             new_d.Name = tmp;
                             assignin('base',tmp, new_d);
                         end

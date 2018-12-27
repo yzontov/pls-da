@@ -44,11 +44,16 @@ classdef DataSet < handle
         
     end
     
+    events
+       Deleting; 
+    end
+    
     methods
         
         function delete(obj)
             % obj is always scalar
             %disp([obj.Name ' deleted']);
+            notify(obj,'Deleting');
         end
         
         function Y = DummyMatrix(self)
