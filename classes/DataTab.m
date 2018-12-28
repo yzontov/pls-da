@@ -10,6 +10,8 @@ classdef  DataTab < BasicTab
         %data_plot_axes;
         %data_plot;
         
+        btnRefreshDatasetList;
+        
         pca_tabgroup;
         
         pnlDataSettings;
@@ -74,6 +76,26 @@ classdef  DataTab < BasicTab
     end
     
     methods
+                
+        function RefreshDatasetList(obj, src, param)
+            obj.FillDataSetList();
+            obj.RefreshModel();
+            
+            allvars = evalin('base','whos');
+            varnames = {allvars.name};
+            
+            idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
+            
+            if ~isempty(idx)
+            	names = varnames(idx);
+                for i = 1:length(names)
+                   d = evalin('base', names{i});
+                   addlistener(d,'Deleting',@win.handleDatasetDelete);  
+                end
+            
+            end
+            
+        end
         
         function ttab = DataTab(tabgroup, parent)
             ttab = ttab@BasicTab(tabgroup, 'Data', parent);
@@ -84,10 +106,13 @@ classdef  DataTab < BasicTab
             uicontrol('Parent', btn_box, 'Style', 'pushbutton', 'String', 'New dataset',...
                 'Position', [90 360 100 20], ...
                 'callback', @ttab.btnNew_Callback);%,'FontUnits', 'Normalized'
+            uicontrol('Parent', btn_box, 'Style', 'pushbutton', 'String', 'Refresh dataset list',...
+                'Position', [90 360 100 20], ...
+                'callback', @ttab.RefreshDatasetList);
             
             %hbox_input = uix.HBox( 'Parent', vbox);
             hbox_input_g = uix.Grid( 'Parent', ttab.vbox);%, 'ButtonSize', [120 25] );
-            uicontrol('Parent', hbox_input_g, 'Style', 'text', 'String', 'Data Set', ...
+            uicontrol('Parent', hbox_input_g, 'Style', 'text', 'String', 'Dataset', ...
                  'HorizontalAlignment', 'left');
             ttab.listbox = uicontrol('Parent', hbox_input_g, 'Style', 'popupmenu',...
                 'String', {'-'}, 'enable', 'off', ...

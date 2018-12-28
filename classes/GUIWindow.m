@@ -39,13 +39,15 @@ classdef  GUIWindow<handle
         function handleDatasetDelete(obj,src,eventData)
             %disp([src.Name ' deleted']);
             obj.dataTab.FillDataSetList();
-            obj.dataTab.RefreshModel();
-        end
-        
-        function WindowButtonDownFcn(obj,src,eventData)
-            %disp('got focus');
-            obj.dataTab.FillDataSetList();
-            obj.dataTab.RefreshModel();
+            
+            if (~isempty(obj.modelTab))
+                tmp = obj.modelTab.ddlCalibrationSet.String;
+                selected_name = tmp{obj.modelTab.ddlCalibrationSet.Value};
+                
+                if(strcmp(src.Name, selected_name))
+                    obj.dataTab.RefreshModel();
+                end
+            end
         end
         
         function TabSelected(self, obj, param)
@@ -361,7 +363,7 @@ classdef  GUIWindow<handle
             end
 
             set(win.tgroup, 'SelectionChangedFcn', @win.TabSelected);
-            set(win.fig, 'WindowButtonDownFcn', @win.WindowButtonDownFcn);
+%             set(win.fig, 'WindowButtonDownFcn', @win.WindowButtonDownFcn);
             
             allvars = evalin('base','whos');
             varnames = {allvars.name};

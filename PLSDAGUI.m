@@ -82,7 +82,7 @@ ShowStartScreen();
     end
 
     function r = filter_model(x)
-            d = evalin('base', x.name);
+            %d = evalin('base', x.name);
             if isequal(x.class,'PLSDAModel')
                 r = true;
             else
