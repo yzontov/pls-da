@@ -3,6 +3,7 @@ classdef  GUIWindow<handle
         dataTab;
         modelTab;
         predictTab;
+        cvTab;
         tgroup;
         
         fig;
@@ -16,6 +17,7 @@ classdef  GUIWindow<handle
         DataTabSelected = -1;
         ModelTabSelected = -2;
         PredictTabSelected = -3;
+        CVTabSelected = -4;
         DataGraph = 1;
         DataTable = 2;
         DataPCA = 13;
@@ -31,6 +33,8 @@ classdef  GUIWindow<handle
         PredictTableAllocation = 10;
         PredictTableConfusion = 11;
         PredictTableFoM = 12;
+        CVGraph = 16;
+        CVTable = 17;
     end
     
     
