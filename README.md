@@ -1,4 +1,4 @@
-Implementation of the Hard and Soft PLS-DA for MATLAB (v.0.8)
+Implementation of the Hard and Soft PLS-DA for MATLAB (v.0.8.1)
 ===========================================
 
 We present the software implementation of [Hard and Soft approaches to Partial Least Squares Discriminant Analysis (PLS-DA)](https://onlinelibrary.wiley.com/doi/abs/10.1002/cem.3030). 
@@ -6,6 +6,18 @@ The toolbox provides instruments for data pre-processing as well as for interpre
 The main class, PLSDAModel, is responsible for the logic and contains implementation of both methods as well as auxiliary algorithms. 
 The instance of this class represents the actual model, and methods for data visualization and statistics. 
 The PLSDAGUI class provides graphical user interface, where user can create and manipulate datasets, calibrate and explore models interactively.  
+
+What is new
+-----------
+
+In the latest release (0.8.1):
+* Visualization of new samples in PLSDAModel class has been improved
+* A destructor and "Deleting" event have been added to DataSet class
+* Minor GUI issues have been fixed
+* New Toolbox logo
+
+A history of changes is available [here](NEWS.md)
+
 
 How to install
 --------------
