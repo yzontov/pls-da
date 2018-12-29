@@ -1185,22 +1185,22 @@ classdef  DataTab < BasicTab
                     %end
                 end
                 
-                if sum(idx) == 0 && ~isempty(win.modelTab)
-                    mtab = win.tgroup.Children(2);
-                    delete(mtab);
-                    win.modelTab = [];
-                    
-                    if ~isempty(win.predictTab)
-                        ptab = win.tgroup.Children(2);
-                        delete(ptab);
-                        win.predictTab = [];
-                    end
-                    win.selected_tab = GUIWindow.DataTabSelected;
-                    win.selected_panel = GUIWindow.DataGraph;
-                    win.selected_text_panel = GUIWindow.ModelTableAllocation;
-                    %win.selected_panel_pca = GUIWindow.DataPCAScores;
-                    
-                end
+%                 if sum(idx) == 0 && ~isempty(win.modelTab)
+%                     mtab = win.tgroup.Children(2);
+%                     delete(mtab);
+%                     win.modelTab = [];
+%                     
+%                     if ~isempty(win.predictTab)
+%                         ptab = win.tgroup.Children(2);
+%                         delete(ptab);
+%                         win.predictTab = [];
+%                     end
+%                     win.selected_tab = GUIWindow.DataTabSelected;
+%                     win.selected_panel = GUIWindow.DataGraph;
+%                     win.selected_text_panel = GUIWindow.ModelTableAllocation;
+%                     %win.selected_panel_pca = GUIWindow.DataPCAScores;
+%                     
+%                 end
                 
             end
         end
@@ -1253,13 +1253,17 @@ classdef  DataTab < BasicTab
                 end
                 
                 if sum(idx) == 0 && ~isempty(win.modelTab)
-                    mtab = win.tgroup.Children(2);
+                    ind = arrayfun(@(x)isequal(x.Title ,'Model'),win.tgroup.Children);
+                    mtab = win.tgroup.Children(ind);
                     delete(mtab);
+                    delete(win.modelTab);
                     win.modelTab = [];
                     
                     if ~isempty(win.predictTab)
-                        ptab = win.tgroup.Children(2);
+                        ind = arrayfun(@(x)isequal(x.Title ,'Prediction'),win.tgroup.Children);
+                        ptab = win.tgroup.Children(ind);
                         delete(ptab);
+                        delete(win.predictTab);
                         win.predictTab = [];
                     end
                     
@@ -1371,6 +1375,10 @@ classdef  DataTab < BasicTab
                 
                 self.ClearPCA();
                 %self.DrawPCA();
+                
+                if(isempty(self.parent.cvTab))
+                    self.parent.cvTab = CVTab(self.parent.tgroup, self.parent);
+                end
             end
             
             self.RefreshModel();
@@ -1447,13 +1455,17 @@ classdef  DataTab < BasicTab
             end
             
             if sum(idx) == 0 && ~isempty(win.modelTab)
-                mtab = win.tgroup.Children(2);
+                ind = arrayfun(@(x)isequal(x.Title ,'Model'),win.tgroup.Children);
+                mtab = win.tgroup.Children(ind);
                 delete(mtab);
+                delete(win.modelTab);
                 win.modelTab = [];
                 
                 if ~isempty(win.predictTab)
-                    ptab = win.tgroup.Children(2);
+                    ind = arrayfun(@(x)isequal(x.Title ,'Prediction'),win.tgroup.Children);
+                    ptab = win.tgroup.Children(ind);
                     delete(ptab);
+                    delete(win.predictTab);
                     win.predictTab = [];
                 end
                 
@@ -1614,12 +1626,14 @@ classdef  DataTab < BasicTab
                     end
                     
                     if sum(idx) == 0 && ~isempty(win.modelTab)
-                        mtab = win.tgroup.Children(2);
+                        ind = arrayfun(@(x)isequal(x.Title ,'Model'),win.tgroup.Children);
+                        mtab = win.tgroup.Children(ind);
                         delete(mtab);
                         win.modelTab = [];
                         
                         if ~isempty(win.predictTab)
-                            ptab = win.tgroup.Children(2);
+                            ind = arrayfun(@(x)isequal(x.Title ,'Prediction'),win.tgroup.Children);
+                            ptab = win.tgroup.Children(ind);
                             delete(ptab);
                             win.predictTab = [];
                         end

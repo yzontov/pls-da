@@ -398,7 +398,7 @@ classdef  ModelTab < BasicTab
             
         end
         
-        function RedrawCallback(self, obj, param)
+        function RedrawCallback(self, obj, ~)
             
             if self.pc_x ~= self.pc_y
                 prev_x = self.pc_x;
@@ -643,8 +643,10 @@ classdef  ModelTab < BasicTab
             end
             
             if ~val && ~isempty(win.predictTab)
-                mtab = win.tgroup.Children(3);
+                ind = arrayfun(@(x)isequal(x.Title ,'Prediction'),win.tgroup.Children);
+                mtab = win.tgroup.Children(ind);
                 delete(mtab);
+                delete(win.predictTab);
                 win.predictTab = [];
                 
             end
@@ -684,16 +686,19 @@ classdef  ModelTab < BasicTab
             set(self.parent.fig ,'name','PLS-DA Tool','numbertitle','off');
             
             self.Model = [];
+            delete(self.Model);
+            
             delete(self.model_plot_axes);
             self.tblTextResult.Data = [];
             self.tblTextConfusion.Data = [];
             self.tblTextFoM.Data = [];
             
             if ~isempty(self.parent.predictTab)
-                mtab = self.parent.tgroup.Children(3);
-                delete(mtab);
+                ind = arrayfun(@(x)isequal(x.Title ,'Prediction'),self.parent.tgroup.Children);
+                ptab = self.parent.tgroup.Children(ind);
+                delete(ptab);
+                delete(self.parent.predictTab);
                 self.parent.predictTab = [];
-                
             end
             
             self.pc_x = 1;

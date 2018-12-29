@@ -72,9 +72,15 @@ ShowStartScreen();
         
         idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
         
-        vect = [1 0 0];
+        vect = [1 0 0 0];
+        
+        idx_d = arrayfun(@(x)filter_data(x), allvars);
+        if sum(idx_d) > 0
+            vect = [1 0 0 1];
+        end
+        
         if sum(idx) > 0
-            vect = [1 1 0];
+            vect = [1 1 0 1];
         end
         
         win = GUIWindow(vect);
@@ -82,8 +88,15 @@ ShowStartScreen();
     end
 
     function r = filter_model(x)
-            %d = evalin('base', x.name);
             if isequal(x.class,'PLSDAModel')
+                r = true;
+            else
+                r = false;
+            end
+    end
+
+    function r = filter_data(x)
+            if isequal(x.class,'DataSet')
                 r = true;
             else
                 r = false;
@@ -99,15 +112,14 @@ ShowStartScreen();
             
             Model = tvar{1};
             
-            vect = [1 1 0];
+            vect = [1 1 0 1];
             if Model.Finalized
-                vect = [1 1 1];
+                vect = [1 1 1 1];
             end
             
             assignin('base', Model.TrainingDataSet.Name, Model.TrainingDataSet);
             
             win = GUIWindow(vect, tvarname{1}, Model);
-            
             
         end
         

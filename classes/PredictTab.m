@@ -207,12 +207,12 @@ classdef  PredictTab < BasicTab
                 %set(ttab.tbTextEdit, 'max', 2);
                 %self.tbTextEdit.String = ff;
                 if ~isempty(self.tab_confusion) && ~isempty(self.tab_fom)
-                    mtab = self.tg2.Children(2);
-                    delete(mtab);
+                    %mtab = self.tg2.Children(2);
+                    delete(self.tab_confusion);
                     self.tab_confusion = [];
                     
-                    mtab = self.tg2.Children(2);
-                    delete(mtab);
+                    %mtab = self.tg2.Children(2);
+                    delete(self.tab_fom);
                     
                     self.tab_fom = [];
                 end

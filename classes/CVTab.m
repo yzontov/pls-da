@@ -7,7 +7,7 @@ classdef CVTab < BasicTab
     methods
         function obj = CVTab(tabgroup, parent)
            
-            obj = obj@BasicTab(tabgroup, 'Data', parent);
+            obj = obj@BasicTab(tabgroup, 'Cross-validation', parent);
             
             
             

@@ -52,6 +52,20 @@ classdef  GUIWindow<handle
                     obj.dataTab.RefreshModel();
                 end
             end
+            
+            if(~isempty(obj.cvTab))
+                
+                allvars = evalin('base','whos');
+                idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
+                    
+                if (sum(idx) == 0)
+                    ind = arrayfun(@(x)isequal(x.Title ,'Cross-validation'),obj.tgroup.Children);
+                    cvtab = obj.tgroup.Children(ind);
+                    delete(cvtab);
+                    delete(obj.cvTab);
+                    obj.cvTab = [];
+                end
+             end
         end
         
         function TabSelected(self, obj, param)
@@ -365,9 +379,12 @@ classdef  GUIWindow<handle
             if tabs(3)
                 win.predictTab = PredictTab(win.tgroup, win);
             end
+            
+            if tabs(4)
+                win.cvTab = CVTab(win.tgroup, win);
+            end
 
             set(win.tgroup, 'SelectionChangedFcn', @win.TabSelected);
-%             set(win.fig, 'WindowButtonDownFcn', @win.WindowButtonDownFcn);
             
             allvars = evalin('base','whos');
             varnames = {allvars.name};
