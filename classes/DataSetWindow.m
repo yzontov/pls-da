@@ -684,15 +684,20 @@ classdef  DataSetWindow<handle
                         d.Name = s;
                         name = s;
                         
-                        addlistener(d,'Deleting',@self.parent.parent.handleDatasetDelete);
                         
-                        assignin('base', name, d)
+                        
+                        assignin('base', name, d);
+                        
+                        dd = evalin('base', d.Name);
+                        addlistener(dd,'Deleting',@self.parent.parent.handleDatasetDelete);
+                        
                     catch
                         waitfor(errordlg('The name contains invalid characters. Please use only latin characters, numbers and underscore for the name of DataSet!','Error', opts));
                         ok = false;
                     end
                     
                     if ok
+
                         if isempty(self.dataset_name)
                             evtdata = DatasetCreatedEventData(name, false);
                             self.parent.DataSetWindowCloseCallback(self,evtdata);

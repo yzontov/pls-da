@@ -1,5 +1,6 @@
 classdef  GUIWindow<handle
     properties
+        
         dataTab;
         modelTab;
         predictTab;
@@ -7,10 +8,14 @@ classdef  GUIWindow<handle
         tgroup;
         
         fig;
+        
         selected_tab = GUIWindow.DataTabSelected;
         selected_panel = GUIWindow.DataGraph;
         selected_text_panel = GUIWindow.ModelTableAllocation;
         selected_panel_pca = GUIWindow.DataPCAScores;
+        
+        dataset_list = {};
+        
     end
     
     properties (Constant)
@@ -41,7 +46,8 @@ classdef  GUIWindow<handle
     methods
         
         function handleDatasetDelete(obj,src,eventData)
-            %disp([src.Name ' deleted']);
+            disp([src.Name ' deleted']);
+            
             obj.dataTab.FillDataSetList();
             
             if (~isempty(obj.modelTab))
@@ -393,8 +399,10 @@ classdef  GUIWindow<handle
             
             if ~isempty(idx)
             	names = varnames(idx);
+                dataset_list = cell(1, length(names));
                 for i = 1:length(names)
                    d = evalin('base', names{i});
+                   dataset_list{i} = d;
                    addlistener(d,'Deleting',@win.handleDatasetDelete);  
                 end
             

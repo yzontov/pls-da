@@ -88,19 +88,11 @@ ShowStartScreen();
     end
 
     function r = filter_model(x)
-            if isequal(x.class,'PLSDAModel')
-                r = true;
-            else
-                r = false;
-            end
+            r = isequal(x.class,'PLSDAModel');
     end
 
     function r = filter_data(x)
-            if isequal(x.class,'DataSet')
-                r = true;
-            else
-                r = false;
-            end
+            r = isequal(x.class,'DataSet');
     end
 
     function btnExistingModel_Callback(obj, ~)

@@ -1509,6 +1509,7 @@ classdef  DataTab < BasicTab
                 if isequal(answer, 'Yes')
                     
                     evalin( 'base', ['clear ' selected_name] );
+                    delete(d);
                     
                     allvars = evalin('base','whos');
                     varnames = {allvars.name};
