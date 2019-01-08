@@ -4,7 +4,6 @@ classdef  ModelTab < BasicTab
         Model;
         
         pnlDataSettings;
-        pnlCrossValidationSettings;
         pnlModelSettings
         pnlPlotSettings;
         pnlTableSettings;
@@ -239,20 +238,7 @@ classdef  ModelTab < BasicTab
             uicontrol('Parent', hbox1, 'Style', 'text', 'String', 'Calibration');
             ttab.ddlCalibrationSet = uicontrol('Parent', hbox1, 'Style', 'popupmenu', 'String', {'-'},...
                 'Value',1, 'BackgroundColor', 'white', 'callback', @ttab.SelectCalibratinSet);
-            
-%             uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'text', 'String', 'Validation', ...
-%                 'Units', 'normalized','Position', [0.05 0.25 0.35 0.25], 'HorizontalAlignment', 'left', 'Enable', 'off','Visible','off');
-%             ttab.ddlValidationSet = uicontrol('Parent', ttab.pnlDataSettings, 'Style', 'popupmenu', 'String', {'-'},'Visible','off',...
-%                 'Units', 'normalized','Value',1, 'Position', [0.4 0.27 0.55 0.2], 'BackgroundColor', 'white', 'callback', @ttab.SelectValidationSet, 'Enable', 'off');
-
-%             %CrossValidation
-%             ttab.chkCrossValidation = uicontrol('Parent', ttab.pnlCrossValidationSettings, 'Style', 'checkbox', 'String', 'Use cross-validation',...
-%                 'Units', 'normalized','Position', [0.05 0.7 0.85 0.2], 'callback', @ttab.Callback_UseCrossValidation, 'Enable', 'off');
-%             uicontrol('Parent', ttab.pnlCrossValidationSettings, 'Style', 'text', 'String', 'Cross-validation type', ...
-%                 'Units', 'normalized','Position', [0.05 0.3 0.85 0.25], 'HorizontalAlignment', 'left', 'Enable', 'off');
-%             ttab.ddlCrossValidationType = uicontrol('Parent', ttab.pnlCrossValidationSettings, 'Style', 'popupmenu', 'String', {'Leave-one-Out', 'K-fold', 'Holdout', 'Monte Carlo'},...
-%                 'Units', 'normalized','Value',2, 'Position', [0.47 0.325 0.45 0.2], 'BackgroundColor', 'white', 'callback', @ttab.Callback_CrossValidationType, 'Enable', 'off');
-            
+                      
             vbox_mod = uix.VBox( 'Parent', ttab.pnlModelSettings, 'Padding', 10, 'Spacing', 5 );
             %lblModelType
             hboxm1 = uix.HButtonBox( 'Parent', vbox_mod, 'ButtonSize', [120 25]);
@@ -327,7 +313,7 @@ classdef  ModelTab < BasicTab
             uicontrol('Parent', hboxt1, 'Style', 'pushbutton', 'String', 'Copy tables to clipboard',...
                 'callback', @ttab.CopyTableToClipboard, 'enable', 'off');
             
-            ttab.vbox.Heights=[40,180,120,0];
+            ttab.vbox.Heights=[40,180,110,0];
             
             tg = uitabgroup('Parent', ttab.middle_panel);
             ttab.tab_img = uitab('Parent', tg, 'Title', 'Classification plot');
@@ -361,13 +347,14 @@ classdef  ModelTab < BasicTab
             allvars = evalin('base','whos');
             
             idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
-            vardisplay={};
+            %vardisplay={};
             if sum(idx) > 0
                 l = allvars(idx);
-                vardisplay{1} = '-';
-                for i = 1:length(l)
-                    vardisplay{i+1} = l(i).name;
-                end
+%                 vardisplay{1} = '-';
+%                 for i = 1:length(l)
+%                     vardisplay{i+1} = l(i).name;
+%                 end
+                vardisplay  = [{'-'}, {l.name}];
                 set(ttab.ddlCalibrationSet, 'String', vardisplay);
                 if length(get(ttab.ddlCalibrationSet, 'String')) > 1
                     set(ttab.ddlCalibrationSet, 'Value', 2)

@@ -77,9 +77,9 @@ classdef  DataTab < BasicTab
     
     methods
                 
-        function RefreshDatasetList(obj, src, param)
-            obj.FillDataSetList();
-            obj.RefreshModel();
+        function RefreshDatasetList(self)
+            self.FillDataSetList();
+            self.RefreshModel();
             
             allvars = evalin('base','whos');
             varnames = {allvars.name};
@@ -95,6 +95,27 @@ classdef  DataTab < BasicTab
             
             end
             
+            idx_data = arrayfun(@(x)GUIWindow.filter_data(x), allvars);
+            if(isempty(self.parent.cvTab) && sum(idx_data) > 0)
+                self.parent.cvTab = CVTab(self.parent.tgroup, self.parent);
+            end
+            
+            if(~isempty(self.parent.cvTab) && sum(idx_data) == 0)
+                ind = arrayfun(@(x)isequal(x.Title ,'Cross-validation'),self.parent.tgroup.Children);
+                cvtab = self.parent.tgroup.Children(ind);
+                delete(cvtab);
+                delete(self.parent.cvTab);
+                self.parent.cvTab = [];
+            end
+            
+            if (~isempty(self.parent.cvTab) && sum(idx_data) > 0)
+                self.parent.cvTab.FillDataSetList();
+            end
+            
+        end
+        
+        function RefreshDatasetListCallback(self, src, param)
+            self.RefreshDatasetList();
         end
         
         function ttab = DataTab(tabgroup, parent)
@@ -108,7 +129,7 @@ classdef  DataTab < BasicTab
                 'callback', @ttab.btnNew_Callback);%,'FontUnits', 'Normalized'
             uicontrol('Parent', btn_box, 'Style', 'pushbutton', 'String', 'Refresh dataset list',...
                 'Position', [90 360 100 20], ...
-                'callback', @ttab.RefreshDatasetList);
+                'callback', @ttab.RefreshDatasetListCallback);
             
             %hbox_input = uix.HBox( 'Parent', vbox);
             hbox_input_g = uix.Grid( 'Parent', ttab.vbox);%, 'ButtonSize', [120 25] );
@@ -617,11 +638,13 @@ classdef  DataTab < BasicTab
             idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
             
             if ~isempty(idx)
-                vardisplay = cell(length(idx)+1,1);
-                vardisplay{1} = '-';
-                for i = 1:length(idx)
-                    vardisplay{i+1} = varnames{idx(i)};
-                end
+                %vardisplay = cell(length(idx)+1,1);
+                %vardisplay{1} = '-';
+%                 for i = 1:length(idx)
+%                     vardisplay{i+1} = varnames{idx(i)};
+%                 end
+                vardisplay = [{'-'}, varnames(idx)];
+                
                 set(self.listbox, 'String', vardisplay);
                 
                 % extract all children
@@ -1167,13 +1190,14 @@ classdef  DataTab < BasicTab
                 if sum(idx) > 0 && ~isempty(win.modelTab)
                     
                     %idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
-                    vardisplay={};
+                    %vardisplay={};
                     %if sum(idx) > 0
                     l = allvars(idx);
-                    vardisplay{1} = '-';
-                    for i = 1:length(l)
-                        vardisplay{i+1} = l(i).name;
-                    end
+%                     vardisplay{1} = '-';
+%                     for i = 1:length(l)
+%                         vardisplay{i+1} = l(i).name;
+%                     end
+                    vardisplay = [{'-'}, {l.name}];
                     set(win.modelTab.ddlCalibrationSet, 'String', vardisplay);
                     
                     if length(get(win.modelTab.ddlCalibrationSet, 'String')) > 1
@@ -1235,13 +1259,14 @@ classdef  DataTab < BasicTab
                 
                 if sum(idx) > 0 && ~isempty(win.modelTab)
                     idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
-                    vardisplay={};
+                    %vardisplay={};
                     if sum(idx) > 0
                         l = allvars(idx);
-                        vardisplay{1} = '-';
-                        for i = 1:length(l)
-                            vardisplay{i+1} = l(i).name;
-                        end
+%                         vardisplay{1} = '-';
+%                         for i = 1:length(l)
+%                             vardisplay{i+1} = l(i).name;
+%                         end
+                        vardisplay = [{'-'}, {l.name}];
                         set(win.modelTab.ddlCalibrationSet, 'String', vardisplay);
                         if length(get(win.modelTab.ddlCalibrationSet, 'String')) > 1
                             set(win.modelTab.ddlCalibrationSet, 'Value', 2)
@@ -1300,16 +1325,23 @@ classdef  DataTab < BasicTab
             
             if ~isempty(idx)
                 selected_name = callbackdata.VariableName;
-                selected_index = 2;
+%                 selected_index = 2;
+%                 
+%                 vardisplay = cell(length(idx)+1,1);
+%                 vardisplay{1} = '-';
+%                 for i = 1:length(idx)
+%                     vardisplay{i+1} = varnames{idx(i)};
+%                     if(isequal(selected_name, varnames{idx(i)}))
+%                         selected_index = i+1;
+%                     end
+%                 end
+                vardisplay = [{'-'}, varnames(idx)];
+                selected_index = find(strcmp(vardisplay, selected_name ));
                 
-                vardisplay = cell(length(idx)+1,1);
-                vardisplay{1} = '-';
-                for i = 1:length(idx)
-                    vardisplay{i+1} = varnames{idx(i)};
-                    if(isequal(selected_name, varnames{idx(i)}))
-                        selected_index = i+1;
-                    end
+                if(isempty(selected_index))
+                   selected_index = 2; 
                 end
+                
                 set(self.listbox, 'String', vardisplay);
                 set(self.listbox, 'Value', selected_index);
                 
@@ -1320,11 +1352,12 @@ classdef  DataTab < BasicTab
                     idx = arrayfun(@(x)self.parent.predictTab.filter_test(x), allvarsp);
                     
                     if sum(idx) > 0
-                        vardisplay = {};
+%                         vardisplay = {};
                         l = allvars(idx);
-                        for i = 1:length(l)
-                            vardisplay{i} = l(i).name;
-                        end
+%                         for i = 1:length(l)
+%                             vardisplay{i} = l(i).name;
+%                         end
+                        vardisplay = {l.name};
                         set(self.parent.predictTab.ddlNewSet, 'String', vardisplay);
                     end
                     
@@ -1376,12 +1409,27 @@ classdef  DataTab < BasicTab
                 self.ClearPCA();
                 %self.DrawPCA();
                 
-                if(isempty(self.parent.cvTab))
+                if(isempty(self.parent.cvTab) && d.NumberOfClasses > 1)
                     self.parent.cvTab = CVTab(self.parent.tgroup, self.parent);
                 end
             end
             
             self.RefreshModel();
+            
+
+            idx_data = arrayfun(@(x)GUIWindow.filter_data(x), allvars);
+
+            if (~isempty(self.parent.cvTab) && sum(idx_data) > 0)
+                self.parent.cvTab.FillDataSetList();
+            end
+            
+            if(~isempty(self.parent.cvTab) && sum(idx_data) == 0)
+                ind = arrayfun(@(x)isequal(x.Title ,'Cross-validation'),self.parent.tgroup.Children);
+                cvtab = self.parent.tgroup.Children(ind);
+                delete(cvtab);
+                delete(self.parent.cvTab);
+                self.parent.cvTab = [];
+            end
             
         end
         
@@ -1429,13 +1477,15 @@ classdef  DataTab < BasicTab
             if sum(idx) > 0 && ~isempty(win.modelTab)
                 
                 %idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
-                vardisplay={};
+                %vardisplay={};
                 if sum(idx) > 0
                     l = allvars(idx);
-                    vardisplay{1} = '-';
-                    for i = 1:length(l)
-                        vardisplay{i+1} = l(i).name;
-                    end
+%                     vardisplay{1} = '-';
+%                     for i = 1:length(l)
+%                         vardisplay{i+1} = l(i).name;
+%                     end
+                    
+                    vardisplay = [{'-'}, {l.name}];
                     set(win.modelTab.ddlCalibrationSet, 'String', vardisplay);
                     
                     if length(get(win.modelTab.ddlCalibrationSet, 'String')) > 1
@@ -1508,8 +1558,11 @@ classdef  DataTab < BasicTab
                 
                 if isequal(answer, 'Yes')
                     
-                    evalin( 'base', ['clear ' selected_name] );
+                    ff = @self.parent.handleDatasetDelete;
+                    addlistener(d,'Deleting',ff);
                     delete(d);
+                    evalin( 'base', ['clear ' selected_name] );
+                    %
                     
                     allvars = evalin('base','whos');
                     varnames = {allvars.name};
@@ -1517,16 +1570,23 @@ classdef  DataTab < BasicTab
                     idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
                     
                     if ~isempty(idx)
-                        selected_index = 2;
+%                         selected_index = 2;
+%                         
+%                         vardisplay = cell(length(idx)+1,1);
+%                         vardisplay{1} = '-';
+%                         for i = 1:length(idx)
+%                             vardisplay{i+1} = varnames{idx(i)};
+%                             if(isequal(selected_name, varnames{idx(i)}))
+%                                 selected_index = i+1;
+%                             end
+%                         end
+                        vardisplay  = [{'-'}, varnames(idx)];
+                        selected_index = find(strcmp(vardisplay, selected_name));
                         
-                        vardisplay = cell(length(idx)+1,1);
-                        vardisplay{1} = '-';
-                        for i = 1:length(idx)
-                            vardisplay{i+1} = varnames{idx(i)};
-                            if(isequal(selected_name, varnames{idx(i)}))
-                                selected_index = i+1;
-                            end
+                        if isempty(selected_index)
+                           selected_index = 2; 
                         end
+                        
                         set(self.listbox, 'String', vardisplay);
                         set(self.listbox, 'Value', selected_index);
                         
@@ -1538,11 +1598,12 @@ classdef  DataTab < BasicTab
                             idx = arrayfun(@(x)self.parent.predictTab.filter_test(x), allvarsp);
                             
                             if sum(idx) > 0
-                                vardisplay = {};
+                                %vardisplay = {};
                                 l = allvars(idx);
-                                for i = 1:length(l)
-                                    vardisplay{i} = l(i).name;
-                                end
+%                                 for i = 1:length(l)
+%                                     vardisplay{i} = l(i).name;
+%                                 end
+                                vardisplay = {l.name};
                                 set(self.parent.predictTab.ddlNewSet, 'String', vardisplay);
                             end
                         end
@@ -1587,6 +1648,18 @@ classdef  DataTab < BasicTab
                         
                         self.Redraw();
                         self.FillTableView(selected_name);
+                        
+                        if(~isempty(self.parent.cvTab))
+                            idx_data = arrayfun(@(x)GUIWindow.filter_data(x), allvars);
+                            
+                            if (sum(idx_data) == 0)
+                                ind = arrayfun(@(x)isequal(x.Title ,'Cross-validation'),self.parent.tgroup.Children);
+                                cvtab = self.parent.tgroup.Children(ind);
+                                delete(cvtab);
+                                delete(self.parent.cvTab);
+                                self.parent.cvTab = [];
+                            end
+                        end
                     else
                         
                         set(self.listbox, 'String', {'-'});
@@ -1600,6 +1673,15 @@ classdef  DataTab < BasicTab
                         self.tblTextResult.Data = [];
                         self.tblTextResult.ColumnName = [];
                         
+                        idx_data = arrayfun(@(x)GUIWindow.filter_data(x), allvars);
+                        
+                        if (sum(idx_data) == 0)
+                            ind = arrayfun(@(x)isequal(x.Title ,'Cross-validation'),self.parent.tgroup.Children);
+                            cvtab = self.parent.tgroup.Children(ind);
+                            delete(cvtab);
+                            delete(self.parent.cvTab);
+                            self.parent.cvTab = [];
+                        end
                         
                     end
                     
@@ -1608,13 +1690,15 @@ classdef  DataTab < BasicTab
                     if sum(idx) > 0 && ~isempty(win.modelTab)
                         
                         idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
-                        vardisplay={};
+%                         vardisplay={};
                         if sum(idx) > 0
                             l = allvars(idx);
-                            vardisplay{1} = '-';
-                            for i = 1:length(l)
-                                vardisplay{i+1} = l(i).name;
-                            end
+%                             vardisplay{1} = '-';
+%                             for i = 1:length(l)
+%                                 vardisplay{i+1} = l(i).name;
+%                             end
+                            vardisplay  = [{'-'}, {l.name}];
+
                             set(win.modelTab.ddlCalibrationSet, 'String', vardisplay);
                             
                             if length(get(win.modelTab.ddlCalibrationSet, 'String')) > 1

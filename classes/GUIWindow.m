@@ -14,8 +14,6 @@ classdef  GUIWindow<handle
         selected_text_panel = GUIWindow.ModelTableAllocation;
         selected_panel_pca = GUIWindow.DataPCAScores;
         
-        dataset_list = {};
-        
     end
     
     properties (Constant)
@@ -46,7 +44,7 @@ classdef  GUIWindow<handle
     methods
         
         function handleDatasetDelete(obj,src,eventData)
-            disp([src.Name ' deleted']);
+            %disp([src.Name ' deleted']);
             
             obj.dataTab.FillDataSetList();
             
@@ -62,8 +60,8 @@ classdef  GUIWindow<handle
             if(~isempty(obj.cvTab))
                 
                 allvars = evalin('base','whos');
-                idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
-                    
+                idx = arrayfun(@(x)GUIWindow.filter_data(x), allvars);
+                
                 if (sum(idx) == 0)
                     ind = arrayfun(@(x)isequal(x.Title ,'Cross-validation'),obj.tgroup.Children);
                     cvtab = obj.tgroup.Children(ind);
@@ -95,6 +93,9 @@ classdef  GUIWindow<handle
                 case 'Prediction'
                     var = self.predictTab.chkPlotShowObjectNames.Value;
                     self.selected_tab = GUIWindow.PredictTabSelected;
+                case 'Cross-validation'
+                    %var = self.predictTab.chkPlotShowObjectNames.Value;
+                    self.selected_tab = GUIWindow.CVTabSelected;
             end
             
             if(~isempty(var))
@@ -399,10 +400,10 @@ classdef  GUIWindow<handle
             
             if ~isempty(idx)
             	names = varnames(idx);
-                dataset_list = cell(1, length(names));
+                %dataset_list = cell(1, length(names));
                 for i = 1:length(names)
                    d = evalin('base', names{i});
-                   dataset_list{i} = d;
+                   %dataset_list{i} = d;
                    addlistener(d,'Deleting',@win.handleDatasetDelete);  
                 end
             
@@ -414,7 +415,11 @@ classdef  GUIWindow<handle
     
     methods (Static)
         
-       
+        function r = filter_data(x)
+            d = evalin('base', x.name);
+            r = isequal(x.class,'DataSet') && d.NumberOfClasses > 1;
+        end
+        
         function output_txt = DataCursorFunc(obj,event_obj)
             % ~            Currently not used (empty)
             % event_obj    Object containing event data structure

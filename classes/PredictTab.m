@@ -138,11 +138,12 @@ classdef  PredictTab < BasicTab
             idx = arrayfun(@(x)ttab.filter_test(x), allvars);
             
             if sum(idx) > 0
-                vardisplay = {};
+                %vardisplay = {};
                 l = allvars(idx);
-                for i = 1:length(l)
-                    vardisplay{i} = l(i).name;
-                end
+%                 for i = 1:length(l)
+%                     vardisplay{i} = l(i).name;
+%                 end
+                vardisplay  = {l.name};
                 set(ttab.ddlNewSet, 'String', vardisplay);
             end
             

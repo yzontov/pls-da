@@ -9,6 +9,10 @@ classdef CVTask < handle
     end
     
     methods (Access = private)
+        
+    end
+    
+    methods (Static)
         function v=shuffle(v)
             v=v(randperm(length(v)));
         end
@@ -44,7 +48,6 @@ classdef CVTask < handle
             
         end
     end
-    
     
     methods
         function obj = CVTask(ds, type)

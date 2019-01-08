@@ -92,7 +92,8 @@ ShowStartScreen();
     end
 
     function r = filter_data(x)
-            r = isequal(x.class,'DataSet');
+            d = evalin('base', x.name);
+            r = isequal(x.class,'DataSet') && d.NumberOfClasses > 1;
     end
 
     function btnExistingModel_Callback(obj, ~)
