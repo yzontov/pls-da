@@ -724,10 +724,10 @@ classdef  ModelTab < BasicTab
                 if numPC < vmin || numPC > vmax
                     set(src,'string',sprintf('%d',vmin));
                     warndlg(sprintf('Number of PLS Components should be not less than %d and not more than %d!', vmin, vmax),'Warning',opts);
-                else
-                    self.ClearModel();
                 end
             end
+            
+            self.ClearModel();
             
         end
         
@@ -802,10 +802,10 @@ classdef  ModelTab < BasicTab
                 if val <= 0 || val >= 1
                     set(src,'string','0.01');
                     warndlg('Type I error (Alpha) should be greater than 0 and less than 1!','Warning',opts);
-                else
-                    self.ClearModel();
                 end
             end
+            
+            self.ClearModel();
         end
         
         function Input_Gamma(self, src, ~)

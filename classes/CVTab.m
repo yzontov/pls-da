@@ -383,6 +383,44 @@ classdef CVTab < BasicTab
         end
         
         function Input_NumPC_PLS(self, src, param)
+            str=get(src,'String');
+            opts = struct('WindowStyle','modal','Interpreter','none');
+            index_selected = get(self.ddlDataSet,'Value');
+            names = get(self.ddlDataSet,'String');
+            selected_name = names{index_selected};
+            
+            data = evalin('base', selected_name);
+            
+            vmax = min(size(data.ProcessedData));
+            
+            vmin = data.NumberOfClasses;
+            
+            if(data.Centering)
+                vmax = vmax - 1;
+            end
+            
+            numPC = str2double(str);
+            
+            if isempty(numPC) || isnan(numPC)
+                set(src,'string', sprintf('%d', vmin));
+                warndlg('Input must be numerical','Warning',opts);
+            else
+                if numPC < vmin || numPC > vmax
+                    set(src,'string',sprintf('%d',vmin));
+                    warndlg(sprintf('Number of PLS Components should be not less than %d and not more than %d!', vmin, vmax),'Warning',opts);
+                end
+            end
+            
+            self.FillTableView(selected_name);
+            
+            numPCmin = str2double(get(self.tbNumPCplsMin,'String'));
+            
+            numPCmax = str2double(get(self.tbNumPCplsMax,'String'));
+            
+            if(numPCmin > numPCmax)
+               set(self.tbNumPCplsMin,'String', sprintf('%d',numPCmax));
+               set(self.tbNumPCplsMax,'String', sprintf('%d',numPCmin));
+            end
             
         end
         
@@ -391,6 +429,34 @@ classdef CVTab < BasicTab
         end
         
         function Input_Alpha(self, src, param)
+            str=get(src,'String');
+            val = str2double(str);
+            opts = struct('WindowStyle','modal','Interpreter','none');
+            if isempty(val) || isnan(val)
+                set(src,'string','0.01');
+                warndlg('Input must be numerical','Warning',opts);
+            else
+                if val <= 0 || val >= 1
+                    set(src,'string','0.01');
+                    warndlg('Type I error (Alpha) should be greater than 0 and less than 1!','Warning',opts);
+                end
+            end
+            
+%             index_selected = get(self.ddlDataSet,'Value');
+%             names = get(self.ddlDataSet,'String');
+%             selected_name = names{index_selected};
+%             
+%             self.FillTableView(selected_name);
+            
+            alphaMin = str2double(get(self.tbAlphaMin,'String'));
+            
+            alphaMax = str2double(get(self.tbAlphaMax,'String'));
+            
+            if(alphaMin > alphaMax)
+               set(self.tbAlphaMin,'String', sprintf('%d',alphaMax));
+               set(self.tbAlphaMax,'String', sprintf('%d',alphaMin));
+            end
+            
             
         end
         
