@@ -417,6 +417,13 @@ classdef CVTab < BasicTab
             
             numPCmax = str2double(get(self.tbNumPCplsMax,'String'));
             
+            if(numPCmin ~= numPCmax)
+               self.tbNumPCplsStep.Enable = 'on';
+            else
+                self.tbNumPCplsStep.Enable = 'off';
+                self.tbNumPCplsStep.String = '1';
+            end
+            
             if(numPCmin > numPCmax)
                set(self.tbNumPCplsMin,'String', sprintf('%d',numPCmax));
                set(self.tbNumPCplsMax,'String', sprintf('%d',numPCmin));
@@ -451,6 +458,13 @@ classdef CVTab < BasicTab
             alphaMin = str2double(get(self.tbAlphaMin,'String'));
             
             alphaMax = str2double(get(self.tbAlphaMax,'String'));
+            
+            if(alphaMin ~= alphaMax)
+               self.tbAlphaStep.Enable = 'on';
+            else
+                self.tbAlphaStep.Enable = 'off';
+                self.tbAlphaStep.String = sprintf('%f','0.01');
+            end
             
             if(alphaMin > alphaMax)
                set(self.tbAlphaMin,'String', sprintf('%d',alphaMax));
