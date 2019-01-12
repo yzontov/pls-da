@@ -362,7 +362,13 @@ classdef  ModelTab < BasicTab
                     m = evalin('base',vardisplay{2});
                     set(ttab.tbNumPCpca, 'String', sprintf('%d', m.NumberOfClasses-1));
                     
-                    set(ttab.tbNumPCpls, 'String', sprintf('%d', min(max(m.NumberOfClasses, 12), size(m.ProcessedData, 2))));
+                    vmax = min(size(m.ProcessedData));
+                    vmin = m.NumberOfClasses;
+                    
+                    if(m.Centering)
+                        vmax = vmax - 1;
+                    end
+                    set(ttab.tbNumPCpls, 'String', sprintf('%d', min(max(vmin, 12), vmax)));
                 end
             end
             
@@ -654,7 +660,14 @@ classdef  ModelTab < BasicTab
                 self.tbGamma.Enable = 'on';
                 
                 set(self.tbNumPCpca, 'String', sprintf('%d', max(1,d.NumberOfClasses-1)));
-                set(self.tbNumPCpls, 'String', sprintf('%d', min(max(d.NumberOfClasses, 12), size(d.ProcessedData, 2))));
+                
+                vmax = min(size(d.ProcessedData));
+                vmin = d.NumberOfClasses;
+                
+                if(d.Centering)
+                    vmax = vmax - 1;
+                end
+                set(self.tbNumPCpls, 'String', sprintf('%d', min(max(vmin, 12), vmax)));
             else
                 self.btnRecalibrate.Enable = 'off';
                 self.tbNumPCpls.Enable = 'off';

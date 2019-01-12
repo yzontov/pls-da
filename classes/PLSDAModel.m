@@ -1001,10 +1001,12 @@ classdef PLSDAModel < handle
         end
         
         function hard_plot(axes,w,v,t0,K,Centers, numPCpca, show_legend)
-            delta = 1.5;
+            delta = 100;
             
             x_min = t0(1) - delta;
             x_max = t0(1) + delta;
+            
+            %plot(t0(1),t0(2), '*');
             
             class_borders_ind = sortrows(PLSDAModel.combnk2(K));
             if K > 2
@@ -1035,7 +1037,7 @@ classdef PLSDAModel < handle
                             r = 1;
                         end
                         
-                        crit = (x_min - t0(1))*(Centers(r,1) - t0(1)) + (y_min - t0(2))*(Centers(r,2) - t0(2)) < 0;
+                        crit = (x_min - t0(1))*(Centers(r,1) - t0(1)) + (y_min - t0(2))*(Centers(r,2) - t0(2)) < 0 || (x_min - t0(1))*(Centers(r,1) - t0(1)) * (y_min - t0(2))*(Centers(r,2) - t0(2)) < 0;
                     end
                     
                     if crit
