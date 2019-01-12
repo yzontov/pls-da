@@ -76,7 +76,7 @@ classdef  DataTab < BasicTab
     end
     
     methods
-                
+        
         function RefreshDatasetList(self)
             self.FillDataSetList();
             self.RefreshModel();
@@ -87,12 +87,12 @@ classdef  DataTab < BasicTab
             idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
             
             if ~isempty(idx)
-            	names = varnames(idx);
+                names = varnames(idx);
                 for i = 1:length(names)
-                   d = evalin('base', names{i});
-                   addlistener(d,'Deleting',@win.handleDatasetDelete);  
+                    d = evalin('base', names{i});
+                    addlistener(d,'Deleting',@win.handleDatasetDelete);
                 end
-            
+                
             end
             
             idx_data = arrayfun(@(x)GUIWindow.filter_data(x), allvars);
@@ -134,7 +134,7 @@ classdef  DataTab < BasicTab
             %hbox_input = uix.HBox( 'Parent', vbox);
             hbox_input_g = uix.Grid( 'Parent', ttab.vbox);%, 'ButtonSize', [120 25] );
             uicontrol('Parent', hbox_input_g, 'Style', 'text', 'String', 'Dataset', ...
-                 'HorizontalAlignment', 'left');
+                'HorizontalAlignment', 'left');
             ttab.listbox = uicontrol('Parent', hbox_input_g, 'Style', 'popupmenu',...
                 'String', {'-'}, 'enable', 'off', ...
                 'Value',1, 'BackgroundColor', 'white', 'callback',@ttab.listClick);
@@ -256,8 +256,10 @@ classdef  DataTab < BasicTab
             ttab.ddlSamplesClasses = uicontrol('Parent', hbox4_txt_sub, 'Style', 'popupmenu', 'String', {'-'});
             
             hbox5_txt = uiextras.HButtonBox( 'Parent', vbox_txt, 'ButtonSize', [200 25]);
-            uicontrol('Parent', hbox5_txt, 'Style', 'pushbutton', 'String', 'Copy selected to new DataSet',...
+            uicontrol('Parent', hbox5_txt, 'Style', 'pushbutton', 'String', 'Copy to new DataSet',...
                 'callback', @ttab.SamplesCopyToNewDataSet);
+            uicontrol('Parent', hbox5_txt, 'Style', 'pushbutton', 'String', 'Move to new DataSet',...
+                'callback', @ttab.SamplesMoveToNewDataSet);
             
             
             %PCA settings
@@ -428,7 +430,7 @@ classdef  DataTab < BasicTab
                     datacursormode on
                     dcm_obj = datacursormode(self.parent.fig);
                     if isprop(dcm_obj, 'Interpreter')
-                    	dcm_obj.Interpreter = 'none';
+                        dcm_obj.Interpreter = 'none';
                     end
                     set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
                 else
@@ -439,11 +441,11 @@ classdef  DataTab < BasicTab
                 %                 dcm_obj = datacursormode(self.parent.fig);
                 %                 set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
                 
-%                 if ~isempty(d.Classes)
-                    set(self.tab_pca_scores_axes,'UserData', {[d.PCAScores(:,pc1), d.PCAScores(:,pc2)], score_labels, d.Classes, [], d.ClassLabels});
-%                 else
-%                     set(self.tab_pca_scores_axes,'UserData', {[d.PCAScores(:,pc1), d.PCAScores(:,pc2)], score_labels, [], [], []});
-%                 end
+                %                 if ~isempty(d.Classes)
+                set(self.tab_pca_scores_axes,'UserData', {[d.PCAScores(:,pc1), d.PCAScores(:,pc2)], score_labels, d.Classes, [], d.ClassLabels});
+                %                 else
+                %                     set(self.tab_pca_scores_axes,'UserData', {[d.PCAScores(:,pc1), d.PCAScores(:,pc2)], score_labels, [], [], []});
+                %                 end
                 
                 
                 loadings_plot_type = get(self.ddlPlotTypePCA, 'value');
@@ -640,9 +642,9 @@ classdef  DataTab < BasicTab
             if ~isempty(idx)
                 %vardisplay = cell(length(idx)+1,1);
                 %vardisplay{1} = '-';
-%                 for i = 1:length(idx)
-%                     vardisplay{i+1} = varnames{idx(i)};
-%                 end
+                %                 for i = 1:length(idx)
+                %                     vardisplay{i+1} = varnames{idx(i)};
+                %                 end
                 vardisplay = [{'-'}, varnames(idx)];
                 
                 set(self.listbox, 'String', vardisplay);
@@ -705,7 +707,7 @@ classdef  DataTab < BasicTab
             else
                 self.resetRightPanel();
                 self.enableRightPanel('off');
-
+                
                 set(self.listbox, 'String', '-');
                 set(self.listbox, 'Value', 1);
             end
@@ -804,15 +806,15 @@ classdef  DataTab < BasicTab
                 
                 if (~isempty(d.RawClasses))
                     class_selected = get(self.ddlSamplesClasses,'Value');
-
+                    
                     class_names = unique(d.RawClasses);
                     selected_class = class_names(class_selected);
-
+                    
                     d.SelectedSamples(d.RawClasses == selected_class) = double(not(d.SelectedSamples(d.RawClasses == selected_class)));
-                
+                    
                     self.FillTableView(selected_name);
                     self.Redraw();
-                
+                    
                     self.RefreshModel();
                     self.ClearPCA();
                 end
@@ -901,14 +903,103 @@ classdef  DataTab < BasicTab
                         end
                         
                         d.SelectedSamples = ones(size(d.SelectedSamples));
-                
+                        
                         self.FillTableView(selected_name);
                         self.Redraw();
-                
+                        
                         self.RefreshModel();
                         
                         self.FillDataSetList();
                     end
+                    
+                else
+                    opts = struct('WindowStyle','modal','Interpreter','none');
+                    errordlg('It is not possible to create an empty DataSet!','Error',opts);
+                end
+            end
+        end
+        
+        function SamplesMoveToNewDataSet(self,obj, ~)
+            index_selected = get(self.listbox,'Value');
+            
+            if(index_selected > 1 )
+                
+                names = get(self.listbox,'String');
+                selected_name = names{index_selected};
+                d = evalin('base', selected_name);
+                t = d.SelectedSamples;
+                if(sum(t) > 0)
+                    
+                    if sum(t) < size(d.RawData, 1)
+                        prompt = {'Enter new data set name:'};
+                        dlg_title = 'Save';
+                        num_lines = 1;
+                        def = {'new_dataset'};
+                        
+                        if(sum(d.SelectedSamples) == size(d.RawData,1))
+                            def = {[d.Name '_copy']};
+                        end
+                        opts = struct('WindowStyle','modal','Interpreter','none');
+                        answer = inputdlg(prompt,dlg_title,num_lines,def, opts);
+                        
+                        if ~isempty(answer)
+                            
+                            new_d = DataSet();
+                            new_d.RawData = d.RawData(logical(d.SelectedSamples),:);
+                            new_d.Centering = d.Centering;
+                            new_d.Scaling = d.Scaling;
+                            new_d.RawClasses = d.RawClasses(logical(d.SelectedSamples),:);
+                            new_d.VariableNames = d.VariableNames;
+                            new_d.Variables = d.Variables;
+                            
+                            if(~isempty(d.ObjectNames))
+                                new_d.ObjectNames = d.ObjectNames(logical(d.SelectedSamples),:);
+                            end
+                            
+                            new_d.ClassLabels = d.ClassLabels;
+                            
+                            addlistener(new_d,'Deleting',@self.parent.handleDatasetDelete);
+                            
+                            try
+                                new_d.Name = answer{1};
+                                assignin('base', answer{1}, new_d)
+                            catch
+                                %opts = struct('WindowStyle','modal','Interpreter','none');
+                                %errordlg('The invalid characters have been replaced. Please use only latin characters, numbers and underscore!','Error',opts);
+                                tmp = regexprep(answer{1}, '[^a-zA-Z0-9_]', '_');
+                                
+                                if(~isempty(regexp(tmp,'^\d+', 'once')))
+                                    tmp = ['dataset_' tmp];
+                                end
+                                
+                                if(~isempty(regexp(tmp,'^_+', 'once')))
+                                    tmp = ['dataset_' tmp];
+                                end
+                                
+                                new_d.Name = tmp;
+                                assignin('base',tmp, new_d);
+                            end
+                            
+                            
+                            d.RawData = d.RawData(not(t),:);
+                            d.RawClasses = d.RawClasses(not(t),:);
+                            if ~isempty(d.ObjectNames)
+                                d.ObjectNames = d.ObjectNames(not(t),:);
+                            end
+                            self.FillTableView(selected_name);
+                            self.Redraw();
+                            
+                            self.RefreshModel();
+                            
+                            self.FillDataSetList();
+                            
+                            
+                        end
+                    else
+                        opts = struct('WindowStyle','modal','Interpreter','none');
+                        warndlg('The current dataset will be empty!','Warning',opts);
+                    end
+                    
                     
                 else
                     opts = struct('WindowStyle','modal','Interpreter','none');
@@ -1193,10 +1284,10 @@ classdef  DataTab < BasicTab
                     %vardisplay={};
                     %if sum(idx) > 0
                     l = allvars(idx);
-%                     vardisplay{1} = '-';
-%                     for i = 1:length(l)
-%                         vardisplay{i+1} = l(i).name;
-%                     end
+                    %                     vardisplay{1} = '-';
+                    %                     for i = 1:length(l)
+                    %                         vardisplay{i+1} = l(i).name;
+                    %                     end
                     vardisplay = [{'-'}, {l.name}];
                     set(win.modelTab.ddlCalibrationSet, 'String', vardisplay);
                     
@@ -1209,22 +1300,22 @@ classdef  DataTab < BasicTab
                     %end
                 end
                 
-%                 if sum(idx) == 0 && ~isempty(win.modelTab)
-%                     mtab = win.tgroup.Children(2);
-%                     delete(mtab);
-%                     win.modelTab = [];
-%                     
-%                     if ~isempty(win.predictTab)
-%                         ptab = win.tgroup.Children(2);
-%                         delete(ptab);
-%                         win.predictTab = [];
-%                     end
-%                     win.selected_tab = GUIWindow.DataTabSelected;
-%                     win.selected_panel = GUIWindow.DataGraph;
-%                     win.selected_text_panel = GUIWindow.ModelTableAllocation;
-%                     %win.selected_panel_pca = GUIWindow.DataPCAScores;
-%                     
-%                 end
+                %                 if sum(idx) == 0 && ~isempty(win.modelTab)
+                %                     mtab = win.tgroup.Children(2);
+                %                     delete(mtab);
+                %                     win.modelTab = [];
+                %
+                %                     if ~isempty(win.predictTab)
+                %                         ptab = win.tgroup.Children(2);
+                %                         delete(ptab);
+                %                         win.predictTab = [];
+                %                     end
+                %                     win.selected_tab = GUIWindow.DataTabSelected;
+                %                     win.selected_panel = GUIWindow.DataGraph;
+                %                     win.selected_text_panel = GUIWindow.ModelTableAllocation;
+                %                     %win.selected_panel_pca = GUIWindow.DataPCAScores;
+                %
+                %                 end
                 
             end
         end
@@ -1262,10 +1353,10 @@ classdef  DataTab < BasicTab
                     %vardisplay={};
                     if sum(idx) > 0
                         l = allvars(idx);
-%                         vardisplay{1} = '-';
-%                         for i = 1:length(l)
-%                             vardisplay{i+1} = l(i).name;
-%                         end
+                        %                         vardisplay{1} = '-';
+                        %                         for i = 1:length(l)
+                        %                             vardisplay{i+1} = l(i).name;
+                        %                         end
                         vardisplay = [{'-'}, {l.name}];
                         set(win.modelTab.ddlCalibrationSet, 'String', vardisplay);
                         if length(get(win.modelTab.ddlCalibrationSet, 'String')) > 1
@@ -1325,21 +1416,21 @@ classdef  DataTab < BasicTab
             
             if ~isempty(idx)
                 selected_name = callbackdata.VariableName;
-%                 selected_index = 2;
-%                 
-%                 vardisplay = cell(length(idx)+1,1);
-%                 vardisplay{1} = '-';
-%                 for i = 1:length(idx)
-%                     vardisplay{i+1} = varnames{idx(i)};
-%                     if(isequal(selected_name, varnames{idx(i)}))
-%                         selected_index = i+1;
-%                     end
-%                 end
+                %                 selected_index = 2;
+                %
+                %                 vardisplay = cell(length(idx)+1,1);
+                %                 vardisplay{1} = '-';
+                %                 for i = 1:length(idx)
+                %                     vardisplay{i+1} = varnames{idx(i)};
+                %                     if(isequal(selected_name, varnames{idx(i)}))
+                %                         selected_index = i+1;
+                %                     end
+                %                 end
                 vardisplay = [{'-'}, varnames(idx)];
                 selected_index = find(strcmp(vardisplay, selected_name ));
                 
                 if(isempty(selected_index))
-                   selected_index = 2; 
+                    selected_index = 2;
                 end
                 
                 set(self.listbox, 'String', vardisplay);
@@ -1352,11 +1443,11 @@ classdef  DataTab < BasicTab
                     idx = arrayfun(@(x)self.parent.predictTab.filter_test(x), allvarsp);
                     
                     if sum(idx) > 0
-%                         vardisplay = {};
+                        %                         vardisplay = {};
                         l = allvars(idx);
-%                         for i = 1:length(l)
-%                             vardisplay{i} = l(i).name;
-%                         end
+                        %                         for i = 1:length(l)
+                        %                             vardisplay{i} = l(i).name;
+                        %                         end
                         vardisplay = {l.name};
                         set(self.parent.predictTab.ddlNewSet, 'String', vardisplay);
                     end
@@ -1416,9 +1507,9 @@ classdef  DataTab < BasicTab
             
             self.RefreshModel();
             
-
+            
             idx_data = arrayfun(@(x)GUIWindow.filter_data(x), allvars);
-
+            
             if (~isempty(self.parent.cvTab) && sum(idx_data) > 0)
                 self.parent.cvTab.FillDataSetList();
             end
@@ -1457,9 +1548,9 @@ classdef  DataTab < BasicTab
                     set(self.chkPlotShowClasses, 'Enable', 'off');
                     set(self.chkPlotShowClasses, 'Value', 0);
                 else
-%                     if d.NumberOfClasses > 1
-%                         set(self.chkTraining, 'Enable', 'on');
-%                     end
+                    %                     if d.NumberOfClasses > 1
+                    %                         set(self.chkTraining, 'Enable', 'on');
+                    %                     end
                     if get(self.ddlPlotType, 'Value') == 1
                         set(self.chkPlotShowClasses, 'Enable', 'on');
                     end
@@ -1480,10 +1571,10 @@ classdef  DataTab < BasicTab
                 %vardisplay={};
                 if sum(idx) > 0
                     l = allvars(idx);
-%                     vardisplay{1} = '-';
-%                     for i = 1:length(l)
-%                         vardisplay{i+1} = l(i).name;
-%                     end
+                    %                     vardisplay{1} = '-';
+                    %                     for i = 1:length(l)
+                    %                         vardisplay{i+1} = l(i).name;
+                    %                     end
                     
                     vardisplay = [{'-'}, {l.name}];
                     set(win.modelTab.ddlCalibrationSet, 'String', vardisplay);
@@ -1570,21 +1661,21 @@ classdef  DataTab < BasicTab
                     idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
                     
                     if ~isempty(idx)
-%                         selected_index = 2;
-%                         
-%                         vardisplay = cell(length(idx)+1,1);
-%                         vardisplay{1} = '-';
-%                         for i = 1:length(idx)
-%                             vardisplay{i+1} = varnames{idx(i)};
-%                             if(isequal(selected_name, varnames{idx(i)}))
-%                                 selected_index = i+1;
-%                             end
-%                         end
+                        %                         selected_index = 2;
+                        %
+                        %                         vardisplay = cell(length(idx)+1,1);
+                        %                         vardisplay{1} = '-';
+                        %                         for i = 1:length(idx)
+                        %                             vardisplay{i+1} = varnames{idx(i)};
+                        %                             if(isequal(selected_name, varnames{idx(i)}))
+                        %                                 selected_index = i+1;
+                        %                             end
+                        %                         end
                         vardisplay  = [{'-'}, varnames(idx)];
                         selected_index = find(strcmp(vardisplay, selected_name));
                         
                         if isempty(selected_index)
-                           selected_index = 2; 
+                            selected_index = 2;
                         end
                         
                         set(self.listbox, 'String', vardisplay);
@@ -1600,9 +1691,9 @@ classdef  DataTab < BasicTab
                             if sum(idx) > 0
                                 %vardisplay = {};
                                 l = allvars(idx);
-%                                 for i = 1:length(l)
-%                                     vardisplay{i} = l(i).name;
-%                                 end
+                                %                                 for i = 1:length(l)
+                                %                                     vardisplay{i} = l(i).name;
+                                %                                 end
                                 vardisplay = {l.name};
                                 set(self.parent.predictTab.ddlNewSet, 'String', vardisplay);
                             end
@@ -1690,15 +1781,15 @@ classdef  DataTab < BasicTab
                     if sum(idx) > 0 && ~isempty(win.modelTab)
                         
                         idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
-%                         vardisplay={};
+                        %                         vardisplay={};
                         if sum(idx) > 0
                             l = allvars(idx);
-%                             vardisplay{1} = '-';
-%                             for i = 1:length(l)
-%                                 vardisplay{i+1} = l(i).name;
-%                             end
+                            %                             vardisplay{1} = '-';
+                            %                             for i = 1:length(l)
+                            %                                 vardisplay{i+1} = l(i).name;
+                            %                             end
                             vardisplay  = [{'-'}, {l.name}];
-
+                            
                             set(win.modelTab.ddlCalibrationSet, 'String', vardisplay);
                             
                             if length(get(win.modelTab.ddlCalibrationSet, 'String')) > 1
@@ -1806,9 +1897,9 @@ classdef  DataTab < BasicTab
                     set(self.chkPlotShowClasses, 'Enable', 'off');
                     set(self.chkPlotShowClasses, 'Value', 0);
                 else
-%                     if d.NumberOfClasses > 1
-%                         set(self.chkTraining, 'Enable', 'on');
-%                     end
+                    %                     if d.NumberOfClasses > 1
+                    %                         set(self.chkTraining, 'Enable', 'on');
+                    %                     end
                     
                     set(self.chkPlotShowClasses, 'Enable', 'on');
                 end
@@ -1847,7 +1938,7 @@ classdef  DataTab < BasicTab
                     set(self.btnPCABuild, 'String', 'Build');
                     param = 'off';
                 end
-
+                
                 self.enablePCAPanel(param);
                 
             else
@@ -1953,11 +2044,11 @@ classdef  DataTab < BasicTab
                             labels = d.ObjectNames;
                         end
                         %set(axes,'UserData', {YpredT_, labels, self.TrainingDataSet.Classes});
-%                         if ~isempty(d.Classes)
-                            set(self.data_plot_axes,'UserData', {[d.ProcessedData(:,var1), d.ProcessedData(:,var2)], labels, d.Classes, [], d.ClassLabels});
-%                         else
-%                             set(self.data_plot_axes,'UserData', {[d.ProcessedData(:,var1), d.ProcessedData(:,var2)], labels, [], [], []});
-%                         end
+                        %                         if ~isempty(d.Classes)
+                        set(self.data_plot_axes,'UserData', {[d.ProcessedData(:,var1), d.ProcessedData(:,var2)], labels, d.Classes, [], d.ClassLabels});
+                        %                         else
+                        %                             set(self.data_plot_axes,'UserData', {[d.ProcessedData(:,var1), d.ProcessedData(:,var2)], labels, [], [], []});
+                        %                         end
                         
                         if showObjectNames
                             pan off
