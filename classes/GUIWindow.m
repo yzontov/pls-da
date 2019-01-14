@@ -85,6 +85,11 @@ classdef  GUIWindow<handle
                     
                     if self.selected_panel == GUIWindow.DataPCA
                         var = self.dataTab.chkPlotShowObjectNamesPCA.Value;
+                        self.dataTab.chkTraining.Enable = 'off';
+                        self.dataTab.chkValidation.Enable = 'off';
+                    else
+                        self.dataTab.chkTraining.Enable = 'on';
+                        self.dataTab.chkValidation.Enable = 'on';    
                     end
                     
                 case 'Model'
@@ -181,6 +186,9 @@ classdef  GUIWindow<handle
                     set(self.dataTab.pnlTableSettings,'visible','on');
                     set(self.dataTab.pnlPCASettings,'visible','off');
                     self.dataTab.vbox.Heights=[40,30,40,40,0,160,0];
+                    
+                    self.dataTab.chkTraining.Enable = 'on';
+                    self.dataTab.chkValidation.Enable = 'on';
                 end
                 
                 if self.selected_panel == GUIWindow.DataGraph
@@ -192,6 +200,9 @@ classdef  GUIWindow<handle
                     else
                         self.dataTab.vbox.Heights=[40,30,40,40,160,0,0];
                     end
+                    
+                    self.dataTab.chkTraining.Enable = 'on';
+                    self.dataTab.chkValidation.Enable = 'on';
                 end
                 
                 if self.selected_panel == GUIWindow.DataPCA
@@ -202,7 +213,7 @@ classdef  GUIWindow<handle
                     index_selected = get(self.dataTab.listbox,'Value');
                     names = get(self.dataTab.listbox,'String');
                     selected_name = names{index_selected};
-                    
+
                     if index_selected > 1
                         d = evalin('base', selected_name);
                         if d.HasPCA
@@ -215,6 +226,9 @@ classdef  GUIWindow<handle
                         param = 'off';
                     end
                     
+                    self.dataTab.chkTraining.Enable = 'off';
+                    self.dataTab.chkValidation.Enable = 'off';
+                    
                     
                     self.dataTab.enablePCAPanel(param);
                     
@@ -226,6 +240,8 @@ classdef  GUIWindow<handle
                         self.dataTab.vbox_pca.Heights=[20,20,0,25];
                         set(self.dataTab.chkPlotShowClassesPCA,'enable','on');
                         
+                        self.dataTab.chkTraining.Enable = 'off';
+                        self.dataTab.chkValidation.Enable = 'off';
                         
                         obj_index_selected = get(self.dataTab.listbox,'Value');
                         names = get(self.dataTab.listbox,'String');
@@ -246,6 +262,9 @@ classdef  GUIWindow<handle
                         set(self.dataTab.hbox_pca_plot_type,'visible','on');
                         set(self.dataTab.chkPlotShowClassesPCA,'enable','off');
                         self.dataTab.vbox_pca.Heights=[20,20,25,0];
+                        
+                        self.dataTab.chkTraining.Enable = 'off';
+                        self.dataTab.chkValidation.Enable = 'off';
                         
                         if(self.dataTab.ddlPlotTypePCA.Value == 2)%line
                             self.dataTab.ddlPCApc1.Enable = 'off';
