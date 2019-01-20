@@ -482,56 +482,73 @@ classdef PLSDAModel < handle
             
             Y = self.AllocationMatrixNew;
             %samples
-            if strcmp(self.Mode, 'hard')
-                for class = 1:self.K
-                    temp = self.YpredTnew(Y(:,class) == 1,:);
+            
+            if pc1 ~= pc2
+                plot(axes,self.YpredTnew(:,pc1), self.YpredTnew(:,pc2), 'ok','HandleVisibility','off');
+            else
+                plot(axes,self.YpredTnew, zeros(size(self.YpredTnew)),'ok','HandleVisibility','off');
+            end
+            
+            if self.NewDataSetHasClasses
+                
+                trc = unique(self.NewDataSetClasses);
+                [mark, ~] = PLSDAModel.plotsettings(length(trc));
+                color = PLSDAModel.colors_rgb(length(trc));
+                
+                for class = 1:length(trc)
+                    temp = self.YpredTnew(self.NewDataSetClasses == trc(class),:);
                     
                     if pc1 ~= pc2
-                        plot(axes,temp(:,pc1), temp(:,pc2),mark{class},'color', color(class,:));
+                        plot(axes,temp(:,pc1), temp(:,pc2),mark{class},'color', color(class,:));%,'HandleVisibility','off');
                     else
-                        plot(axes,temp, zeros(size(temp)),mark{class},'color', color(class,:));
+                        plot(axes,temp, zeros(size(temp)),mark{class},'color', color(class,:));%,'HandleVisibility','off');
                     end
                 end
-                
-                
-                if show_legend
-                    
-                    names = {};
-                    trc = unique(self.TrainingDataSet.Classes);
-                    for i=1:self.K
-                        if isempty(self.TrainingDataSet.ClassLabels)
-                            names{i} = sprintf('class %d', trc(i));
-                        else
-                            names{i} = self.TrainingDataSet.ClassLabels{trc(i)};
-                        end
-                    end
-                    
-                    if ~isempty(axes)
-                        legend(axes, names);
-                        legend(axes,'location','northeast');
-                        legend(axes,'boxon');
-                    else
-                        legend(names);
-                        legend('location','northeast');
-                        legend('boxon');
-                    end
-                else
-                    if ~isempty(axes)
-                        legend(axes,'off');
-                    else
-                        legend('off');
-                    end
-                end
-                
-                
-                
             else
-                if pc1 ~= pc2
-                    plot(axes,self.YpredTnew(:,pc1), self.YpredTnew(:,pc2),'ok','HandleVisibility','off');
-                else
-                    plot(axes,self.YpredTnew, zeros(size(self.YpredTnew)),'ok','HandleVisibility','off');
-                end
+                
+                
             end
+%             
+%             if strcmp(self.Mode, 'hard')
+% 
+%                 if show_legend
+%                     
+%                     names = {};
+%                     trc = unique(self.TrainingDataSet.Classes);
+%                     for i=1:self.K
+%                         if isempty(self.TrainingDataSet.ClassLabels)
+%                             names{i} = sprintf('class %d', trc(i));
+%                         else
+%                             names{i} = self.TrainingDataSet.ClassLabels{trc(i)};
+%                         end
+%                     end
+%                     
+%                     if ~isempty(axes)
+%                         legend(axes, names);
+%                         legend(axes,'location','northeast');
+%                         legend(axes,'boxon');
+%                     else
+%                         legend(names);
+%                         legend('location','northeast');
+%                         legend('boxon');
+%                     end
+%                 else
+%                     if ~isempty(axes)
+%                         legend(axes,'off');
+%                     else
+%                         legend('off');
+%                     end
+%                 end
+%                 
+% %                 
+% %                 
+% %             else
+% %                 if pc1 ~= pc2
+% %                     plot(axes,self.YpredTnew(:,pc1), self.YpredTnew(:,pc2),'ok','HandleVisibility','off');
+% %                 else
+% %                     plot(axes,self.YpredTnew, zeros(size(self.YpredTnew)),'ok','HandleVisibility','off');
+% %                 end
+%             end
             
             Centers_ = [self.Centers(:,pc1) self.Centers(:,pc2)];
             
@@ -590,17 +607,34 @@ classdef PLSDAModel < handle
                     set(axes,'UserData', {YpredTnew_, labels, self.NewDataSetClasses,[], []});
                 end
                 
-                
+                end
                 
                 if show_legend
                     
                     names = {};
+                    
+                    
+                    if self.NewDataSetHasClasses
+                        
+                        trc = unique(self.NewDataSetClasses);
+                        
+                        for i = 1:length(trc)
+                            if isempty(self.NewDataSetClassLabels)
+                                names{i} = sprintf('class %d', trc(i));
+                            else
+                                names{i} = self.NewDataSetClassLabels{trc(i)};
+                            end
+                        end
+                    end
+                    
+%                   
+                    len = length(names);
                     trc = unique(self.TrainingDataSet.Classes);
                     for i=1:self.K
                         if isempty(self.TrainingDataSet.ClassLabels)
-                            names{i} = sprintf('class %d', trc(i));
+                            names{len + i} = sprintf('model: class %d', trc(i));
                         else
-                            names{i} = self.TrainingDataSet.ClassLabels{trc(i)};
+                            names{len + i} = sprintf('model: %s', self.TrainingDataSet.ClassLabels{trc(i)});
                         end
                     end
                     
@@ -621,7 +655,7 @@ classdef PLSDAModel < handle
                     end
                 end
                 
-            end
+            
             
             %center
             %plot(t0(pc1),t0(pc2), '*');
@@ -1007,6 +1041,30 @@ classdef PLSDAModel < handle
             x_max = t0(1) + delta;
             
             %plot(t0(1),t0(2), '*');
+            color = PLSDAModel.colors_rgb(K);
+            
+                for i = 1:K
+                    if K>2
+                        tmp = Centers(i,:);
+                    else
+                        tmp = [Centers(i) 0];
+                    end
+                    if ~isempty(axes)
+                        if show_legend
+                            plot(axes, tmp(1),tmp(2), '+', 'color',color(i,:));
+                        else
+                            plot(axes, tmp(1),tmp(2), '+', 'color',color(i,:),'HandleVisibility','off');
+                        end
+                    else
+                        if show_legend
+                            plot(tmp(1),tmp(2), '+', 'color',color(i,:));
+                        else
+                            plot(tmp(1),tmp(2), '+', 'color',color(i,:),'HandleVisibility','off');    
+                        end
+                    end
+                end
+            
+            
             
             class_borders_ind = sortrows(PLSDAModel.combnk2(K));
             if K > 2
