@@ -585,9 +585,9 @@ classdef  DataTab < BasicTab
                 end
                 
                 val = str2double(str);
-                if isempty(val) || isnan(val)
+                if isempty(val) || isnan(val) || floor(val) ~= val || val <= 0
                     set(src,'string','2');
-                    warndlg('Input must be numerical','Warning', opts);
+                    warndlg('Input must be a positive integer','Warning', opts);
                 else
                     if val < 2 || val > vmax
                         set(src,'string','2');

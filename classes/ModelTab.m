@@ -730,9 +730,9 @@ classdef  ModelTab < BasicTab
             
             numPC = str2double(str);
             
-            if isempty(numPC) || isnan(numPC)
+            if isempty(numPC) || isnan(numPC)|| floor(numPC) ~= numPC || numPC <= 0
                 set(src,'string', sprintf('%d', vmin));
-                warndlg('Input must be numerical','Warning',opts);
+                warndlg('Input must a positive integer','Warning',opts);
             else
                 if numPC < vmin || numPC > vmax
                     set(src,'string',sprintf('%d',vmin));

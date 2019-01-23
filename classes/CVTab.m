@@ -378,8 +378,37 @@ classdef CVTab < BasicTab
             self.btnCVSave.Enable = 'on';
         end
         
+        
         function Input_CVParam(self, src, param)
+            %self.tbCVParamValue.String
+            %self.tbCVIterations.String
             
+            str=get(src,'String');
+            val = str2double(str);
+            
+            opts = struct('WindowStyle','modal','Interpreter','none');
+            
+            
+            if isempty(numPC) || isnan(numPC) || floor(numPC) ~= numPC || numPC <= 0
+                set(src,'string', sprintf('%d', 10));
+                warndlg('Input must be a positive integer','Warning',opts);
+            else
+                
+                switch (self.ddlCrossValidationType.Value)
+                    case 2 %k-fold
+                        
+                        index_selected = get(self.ddlDataSet,'Value');
+                        names = get(self.ddlDataSet,'String');
+                        selected_name = names{index_selected};
+                        
+                        data = evalin('base', selected_name);
+                        NumberOfSamples = size(data.ProcessedData,1);
+                        
+                    case 3 %holdout
+                        
+                    case 4 %monte-carlo
+                end
+            end
         end
         
         function Input_NumPC_PLS(self, src, param)
@@ -401,9 +430,9 @@ classdef CVTab < BasicTab
             
             numPC = str2double(str);
             
-            if isempty(numPC) || isnan(numPC)
+            if isempty(numPC) || isnan(numPC) || floor(numPC) ~= numPC || numPC <= 0
                 set(src,'string', sprintf('%d', vmin));
-                warndlg('Input must be numerical','Warning',opts);
+                warndlg('Input must be a positive integer','Warning',opts);
             else
                 if numPC < vmin || numPC > vmax
                     set(src,'string',sprintf('%d',vmin));
@@ -429,6 +458,11 @@ classdef CVTab < BasicTab
                set(self.tbNumPCplsMax,'String', sprintf('%d',numPCmin));
             end
             
+            val = str2double(get(self.tbNumPCplsStep,'String'));
+            tt = (numPCmax - numPCmin)/val;
+                if  floor(tt) ~= tt 
+                    set(self.tbNumPCplsStep,'string','1');
+                end
         end
         
         function Input_ModelParameters(self, src, param)
@@ -439,7 +473,7 @@ classdef CVTab < BasicTab
             str=get(src,'String');
             val = str2double(str);
             opts = struct('WindowStyle','modal','Interpreter','none');
-            if isempty(val) || isnan(val)
+            if isempty(val) || isnan(val) || val<=0
                 set(src,'string','0.01');
                 warndlg('Input must be numerical','Warning',opts);
             else
@@ -467,19 +501,57 @@ classdef CVTab < BasicTab
             end
             
             if(alphaMin > alphaMax)
-               set(self.tbAlphaMin,'String', sprintf('%d',alphaMax));
-               set(self.tbAlphaMax,'String', sprintf('%d',alphaMin));
+               set(self.tbAlphaMin,'String', sprintf('%.2f',alphaMax));
+               set(self.tbAlphaMax,'String', sprintf('%.2f',alphaMin));
             end
             
-            
+            val=str2double(get(self.tbAlphaStep,'string'));
+            tt = round((alphaMax - alphaMin)/val);
+                if  (tt*val + alphaMin) ~= alphaMax
+                    set(self.tbAlphaStep,'string',sprintf('%.2f',max(0.01,(alphaMax-alphaMin)/5)));
+                end
         end
         
         function Input_NumPC_Step(self, src, param)
+            str=get(src,'String');
+            val = str2double(str);
+            opts = struct('WindowStyle','modal','Interpreter','none');
             
+            numPCmin = str2double(get(self.tbNumPCplsMin,'String'));            
+            numPCmax = str2double(get(self.tbNumPCplsMax,'String'));
+          
+            if isempty(val) || isnan(val) || val<=0 || floor(val) ~= val
+                set(src,'string','1');
+                warndlg('Input must a positive integer','Warning',opts);
+            else
+                
+                tt = (numPCmax - numPCmin)/val;
+                if  floor(tt) ~= tt 
+                    set(src,'string','1');
+                    warndlg('The increment step should produce evenly spaced points!','Warning',opts);
+                end
+            end
         end
         
         function Input_Alpha_Step(self, src, param)
+            str=get(src,'String');
+            val = str2double(str);
+            opts = struct('WindowStyle','modal','Interpreter','none');
             
+            alphaMin = str2double(get(self.tbAlphaMin,'String'));            
+            alphaMax = str2double(get(self.tbAlphaMax,'String'));
+            
+            if isempty(val) || isnan(val) || val<=0
+                set(src,'string',sprintf('%.2f',max(0.01,(alphaMax-alphaMin)/5)));
+                warndlg('Input must be a positive decimal fraction','Warning',opts);
+            else
+                
+                tt = round((alphaMax - alphaMin)/val);
+                if  (tt*val + alphaMin) ~= alphaMax
+                    set(src,'string',sprintf('%.2f',max(0.01,(alphaMax-alphaMin)/5)));
+                    warndlg('The increment step should produce evenly spaced points!','Warning',opts);
+                end
+            end
         end
         
         function Callback_Shuffle(self, src, param)
