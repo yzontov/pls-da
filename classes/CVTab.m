@@ -119,7 +119,7 @@ classdef CVTab < BasicTab
                 'BackgroundColor', 'white', 'callback', @obj.Input_CVParam);
             obj.tbCVIterationsName = uicontrol('Parent', hboxm8, 'Style', 'text', 'visible', 'off', 'String', 'Iterations');
             obj.tbCVIterations = uicontrol('Parent', hboxm8, 'Style', 'edit', 'String', '10',...
-                'BackgroundColor', 'white', 'visible', 'off','callback', @obj.Input_CVParam);
+                'BackgroundColor', 'white', 'visible', 'off','callback', @obj.Input_CVParamIter);
             %hboxm8.Widths = [-1 -2];
             
             hboxp6 = uiextras.HButtonBox( 'Parent', vbox_cv, 'ButtonSize', [120 25]);
@@ -382,32 +382,83 @@ classdef CVTab < BasicTab
         function Input_CVParam(self, src, param)
             %self.tbCVParamValue.String
             %self.tbCVIterations.String
-            
+            mode = self.ddlCrossValidationType.Value;
             str=get(src,'String');
             val = str2double(str);
             
             opts = struct('WindowStyle','modal','Interpreter','none');
             
             
-            if isempty(numPC) || isnan(numPC) || floor(numPC) ~= numPC || numPC <= 0
-                set(src,'string', sprintf('%d', 10));
-                warndlg('Input must be a positive integer','Warning',opts);
-            else
-                
-                switch (self.ddlCrossValidationType.Value)
-                    case 2 %k-fold
-                        
-                        index_selected = get(self.ddlDataSet,'Value');
+            index_selected = get(self.ddlDataSet,'Value');
                         names = get(self.ddlDataSet,'String');
                         selected_name = names{index_selected};
                         
                         data = evalin('base', selected_name);
                         NumberOfSamples = size(data.ProcessedData,1);
-                        
-                    case 3 %holdout
-                        
-                    case 4 %monte-carlo
+            
+            if isempty(val) || isnan(val) || floor(val) ~= val || val <= 0
+                
+                mode = self.ddlCrossValidationType.Value;
+                if(mode == 2)%k-fold
+                    if NumberOfSamples > 10
+                        k = 10;
+                    else
+                        if NumberOfSamples > 5
+                            k = 5;
+                        else
+                            k = 2;
+                        end
+                    end
                 end
+                
+                if(mode == 3 || mode == 4)%holdout || monte-carlo
+                    k = 30;
+                end
+                
+                set(src,'string', sprintf('%d', k));
+                if(mode == 3 || mode == 4)
+                    warndlg('Input must be a positive integer between 1 and 100','Warning',opts);
+                else
+                    warndlg(sprintf('Input must be a positive integer not greater than %d', NumberOfSamples),'Warning',opts);
+                end
+            else
+                
+                mode = self.ddlCrossValidationType.Value;
+                if(mode == 2)%k-fold 
+                    if(val > NumberOfSamples)
+                        if NumberOfSamples > 10
+                            k = 10;
+                        else
+                            if NumberOfSamples > 5
+                                k = 5;
+                            else
+                                k = 2;
+                            end
+                        end
+                    end
+                    set(src,'string', sprintf('%d', k));
+                    warndlg(sprintf('Input must be a positive integer not greater than %d', NumberOfSamples),'Warning',opts);
+
+                end
+                
+                if(mode == 3 || mode == 4)%holdout || monte-carlo
+                    if(val > 100)
+                        set(src,'string', '30');
+                        warndlg('Input must be a positive integer between 1 and 100','Warning',opts);
+                    end
+                end
+            end
+        end
+        
+        function Input_CVParamIter(self, src, param)
+            str=get(src,'String');
+            val = str2double(str);
+            
+            opts = struct('WindowStyle','modal','Interpreter','none');
+            
+            if isempty(val) || isnan(val) || floor(val) ~= val || val <= 0
+                set(src,'string', '10');
+                warndlg('Input must be a positive integer','Warning',opts);
             end
         end
         
