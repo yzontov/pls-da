@@ -425,6 +425,7 @@ classdef CVTab < BasicTab
                 
                 mode = self.ddlCrossValidationType.Value;
                 if(mode == 2)%k-fold 
+                    k = 10;
                     if(val > NumberOfSamples)
                         if NumberOfSamples > 10
                             k = 10;
