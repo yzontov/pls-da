@@ -4,8 +4,7 @@ classdef CVTask < handle
         DataSet;
         Type;
         
-        Training;
-        Validation;
+        Splits;
     end
     
     methods (Access = private)
@@ -87,17 +86,6 @@ classdef CVTask < handle
             
         end
         
-        function value = get.Training(self)
-            %Training get/set
-            
-            value = self.Training;
-        end
-        
-        function value = get.Validation(self)
-            %Validation get/set
-            
-            value = self.Validation;
-        end
         
     end
 end

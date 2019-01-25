@@ -38,6 +38,8 @@ classdef CVTab < BasicTab
         
         btnCVRun;
         btnCVSave;
+        
+        Splits;
     end
     
     methods
@@ -247,7 +249,7 @@ classdef CVTab < BasicTab
                     number_of_splits = folds;
                     [val_start, val_stop] = CVTask.crossval_indexes( k, folds );
                 case 3 %holdout
-                    number_of_splits = 1;  
+                    number_of_splits = 1;
                     proc = str2double(self.tbCVParamValue.String)/100;
                 case 4 %monte-carlo
                     proc = str2double(self.tbCVParamValue.String)/100;
@@ -257,7 +259,7 @@ classdef CVTab < BasicTab
             
             
             names_ = cell(1,number_of_splits);
-            Splits = zeros(k, number_of_splits);
+            self.Splits = zeros(k, number_of_splits);
             
             e = 1:k;
             se = e';
@@ -284,11 +286,11 @@ classdef CVTab < BasicTab
                         split(se(1:round(k*proc))) = 1;
                 end
                 
-                Splits(:,i) = split;
+                self.Splits(:,i) = split;
             end
             
-            cv = arrayfun(@self.bool2cv, logical(Splits),'UniformOutput', false);
-                    
+            cv = arrayfun(@self.bool2cv, logical(self.Splits),'UniformOutput', false);
+            
             
             self.tblTextResult.ColumnName = [{'Sample', 'Class'}, names_];
             self.tblTextResult.ColumnFormat = ['char' 'char' repmat({'char'},1,number_of_splits)];
@@ -360,8 +362,126 @@ classdef CVTab < BasicTab
             end
         end
         
+        function s = tableTextVal(self, result, train_cls_num)
+            s = sprintf('%s\n','Allocation table');
+            s = [s sprintf('%s',result.AllocationTable)];
+            
+            if isfield(self.result,'ConfusionMatrix')
+                s = [s sprintf('\n\n%s\n','Confusion matrix')];
+                s = [s sprintf([repmat('%d\t',1, length(result.ConfusionMatrix)) '\n'],result.ConfusionMatrix)];
+            end
+            
+            if isfield(result,'FiguresOfMerit')
+                s = [s sprintf('\n\n%s\n','Figures of merit')];
+                fields = {'True Positive';'False Positive';'';'Class Sensitivity (%)';'Class Specificity (%)';'Class Efficiency (%)';'';'Total Sensitivity (%)';'Total Specificity (%)';'Total Efficiency (%)'};
+                fom = result.FiguresOfMerit;
+                fom_txt = [fields,  {num2str(round(fom.TP)); num2str(round(fom.FP)); ...
+                '';...
+                num2str(round(fom.CSNS)); num2str(round(fom.CSPS)); num2str(round(fom.CEFF)); ...
+                '';...
+                num2str(round(fom.TSNS));...
+                num2str(round(fom.TSPS));...
+                num2str(round(fom.TEFF))...
+                }];
+            
+                s = [s sprintf('Statistics\t%s\n', sprintf('%d ',1:train_cls_num))];
+                for i=1:size(fom_txt,1)
+                    s = [s sprintf('%s\t%s\n', fom_txt{i,1}, fom_txt{i,2})];
+                end
+            end
+
+        end
+        
+        function s = tableTextMod(self, Model)
+            s = sprintf('%s\n','Allocation table');
+            s = [s sprintf('%s',Model.AllocationTable)];
+            
+            s = [s sprintf('\n\n%s\n','Confusion matrix')];
+            s = [s sprintf([repmat('%d\t',1, length(Model.ConfusionMatrix)) '\n'],Model.ConfusionMatrix)];
+            
+            s = [s sprintf('\n\n%s\n','Figures of merit')];
+            fields = {'True Positive';'False Positive';'';'Class Sensitivity (%)';'Class Specificity (%)';'Class Efficiency (%)';'';'Total Sensitivity (%)';'Total Specificity (%)';'Total Efficiency (%)'};
+            fom = Model.FiguresOfMerit;
+            fom_txt = [fields,  {num2str(round(fom.TP)); num2str(round(fom.FP)); ...
+                '';...
+                num2str(round(fom.CSNS)); num2str(round(fom.CSPS)); num2str(round(fom.CEFF)); ...
+                '';...
+                num2str(round(fom.TSNS));...
+                num2str(round(fom.TSPS));...
+                num2str(round(fom.TEFF))...
+                }];
+            
+            s = [s sprintf('Statistics\t%s\n', sprintf('%d ',1:Model.TrainingDataSet.NumberOfClasses))];
+            for i=1:size(fom_txt,1)
+                s = [s sprintf('%s\t%s\n', fom_txt{i,1}, fom_txt{i,2})];
+            end
+
+        end
+        
         function Callback_CVRun(self, src, param)
             
+            if ~isempty(self.Splits)
+                num_of_splits = size(self.Splits, 2);
+                
+                index_selected = get(self.ddlDataSet,'Value');
+                names = get(self.ddlDataSet, 'String');
+                selected_name = names{index_selected};
+                d = evalin('base', selected_name);
+                
+                dat = d.RawData(logical(d.SelectedSamples),:);
+                cls = d.RawClasses(logical(d.SelectedSamples),:);
+                
+                min_pc = str2double(self.tbNumPCplsMin.String);
+                pc_step = str2double(self.tbNumPCplsStep.String);
+                max_pc = str2double(self.tbNumPCplsMax.String);
+                
+                min_alpha = str2double(self.tbAlphaMin.String);
+                alpha_step = str2double(self.tbAlphaStep.String);
+                max_alpha = str2double(self.tbAlphaMax.String);
+                
+                mode = self.ddlModelType.Value;
+                
+                gamma = 0.01;
+                
+                ps_iters = max(round((max_pc - min_pc)/pc_step),1);
+                al_iters = max(round((max_alpha - min_alpha)/alpha_step),1);
+                h = waitbar(0, 'Please wait...');
+                
+                k = 0;
+                for split = 1:num_of_splits
+                    
+                    t = DataSet();
+                    t.RawData = dat(self.Splits(:,split) == 0,:);
+                    t.Centering = d.Centering;
+                    t.Scaling = d.Scaling;
+                    t.RawClasses = cls(self.Splits(:,split) == 0,:);
+                    
+                    v = DataSet();
+                    v.RawData = dat(self.Splits(:,split) == 1,:);
+                    v.RawClasses = cls(self.Splits(:,split) == 1,:);
+                    
+                    for numpc = min_pc:pc_step:max_pc
+                        if mode == 2
+                            for alpha = min_alpha:alpha_step:max_alpha
+                                k = k + 1;
+                                m = PLSDAModel(t, numpc, alpha, gamma);
+                                res = m.Apply(v);
+                                
+                                waitbar(k/(num_of_splits*ps_iters*al_iters), h);
+                            end
+                        else
+                            k = k + 1;
+                            m = PLSDAModel(d, numpc, 0.05, gamma);
+                            m.Mode = 'hard';
+                            m.Rebuild();
+                            res = m.Apply(v);
+                            waitbar(k/(num_of_splits*ps_iters), h);
+                        end
+                    end
+                end
+                %waitbar(1, h);
+                delete(h);
+            end
         end
         
         function Callback_Split(self, src, param)
@@ -390,11 +510,11 @@ classdef CVTab < BasicTab
             
             
             index_selected = get(self.ddlDataSet,'Value');
-                        names = get(self.ddlDataSet,'String');
-                        selected_name = names{index_selected};
-                        
-                        data = evalin('base', selected_name);
-                        NumberOfSamples = size(data.ProcessedData,1);
+            names = get(self.ddlDataSet,'String');
+            selected_name = names{index_selected};
+            
+            data = evalin('base', selected_name);
+            NumberOfSamples = size(data.ProcessedData,1);
             
             if isempty(val) || isnan(val) || floor(val) ~= val || val <= 0
                 
@@ -424,7 +544,7 @@ classdef CVTab < BasicTab
             else
                 
                 mode = self.ddlCrossValidationType.Value;
-                if(mode == 2)%k-fold 
+                if(mode == 2)%k-fold
                     k = 10;
                     if(val > NumberOfSamples)
                         if NumberOfSamples > 10
@@ -439,7 +559,7 @@ classdef CVTab < BasicTab
                     end
                     set(src,'string', sprintf('%d', k));
                     warndlg(sprintf('Input must be a positive integer not greater than %d', NumberOfSamples),'Warning',opts);
-
+                    
                 end
                 
                 if(mode == 3 || mode == 4)%holdout || monte-carlo
@@ -499,22 +619,22 @@ classdef CVTab < BasicTab
             numPCmax = str2double(get(self.tbNumPCplsMax,'String'));
             
             if(numPCmin ~= numPCmax)
-               self.tbNumPCplsStep.Enable = 'on';
+                self.tbNumPCplsStep.Enable = 'on';
             else
                 self.tbNumPCplsStep.Enable = 'off';
                 self.tbNumPCplsStep.String = '1';
             end
             
             if(numPCmin > numPCmax)
-               set(self.tbNumPCplsMin,'String', sprintf('%d',numPCmax));
-               set(self.tbNumPCplsMax,'String', sprintf('%d',numPCmin));
+                set(self.tbNumPCplsMin,'String', sprintf('%d',numPCmax));
+                set(self.tbNumPCplsMax,'String', sprintf('%d',numPCmin));
             end
             
             val = str2double(get(self.tbNumPCplsStep,'String'));
             tt = (numPCmax - numPCmin)/val;
-                if  floor(tt) ~= tt 
-                    set(self.tbNumPCplsStep,'string','1');
-                end
+            if  floor(tt) ~= tt
+                set(self.tbNumPCplsStep,'string','1');
+            end
         end
         
         function Input_ModelParameters(self, src, param)
@@ -535,33 +655,33 @@ classdef CVTab < BasicTab
                 end
             end
             
-%             index_selected = get(self.ddlDataSet,'Value');
-%             names = get(self.ddlDataSet,'String');
-%             selected_name = names{index_selected};
-%             
-%             self.FillTableView(selected_name);
+            %             index_selected = get(self.ddlDataSet,'Value');
+            %             names = get(self.ddlDataSet,'String');
+            %             selected_name = names{index_selected};
+            %
+            %             self.FillTableView(selected_name);
             
             alphaMin = str2double(get(self.tbAlphaMin,'String'));
             
             alphaMax = str2double(get(self.tbAlphaMax,'String'));
             
             if(alphaMin ~= alphaMax)
-               self.tbAlphaStep.Enable = 'on';
+                self.tbAlphaStep.Enable = 'on';
             else
                 self.tbAlphaStep.Enable = 'off';
                 self.tbAlphaStep.String = sprintf('%f','0.01');
             end
             
             if(alphaMin > alphaMax)
-               set(self.tbAlphaMin,'String', sprintf('%.2f',alphaMax));
-               set(self.tbAlphaMax,'String', sprintf('%.2f',alphaMin));
+                set(self.tbAlphaMin,'String', sprintf('%.2f',alphaMax));
+                set(self.tbAlphaMax,'String', sprintf('%.2f',alphaMin));
             end
             
             val=str2double(get(self.tbAlphaStep,'string'));
             tt = round((alphaMax - alphaMin)/val);
-                if  (tt*val + alphaMin) ~= alphaMax
-                    set(self.tbAlphaStep,'string',sprintf('%.2f',max(0.01,(alphaMax-alphaMin)/5)));
-                end
+            if  (tt*val + alphaMin) ~= alphaMax
+                set(self.tbAlphaStep,'string',sprintf('%.2f',max(0.01,(alphaMax-alphaMin)/5)));
+            end
         end
         
         function Input_NumPC_Step(self, src, param)
@@ -569,16 +689,16 @@ classdef CVTab < BasicTab
             val = str2double(str);
             opts = struct('WindowStyle','modal','Interpreter','none');
             
-            numPCmin = str2double(get(self.tbNumPCplsMin,'String'));            
+            numPCmin = str2double(get(self.tbNumPCplsMin,'String'));
             numPCmax = str2double(get(self.tbNumPCplsMax,'String'));
-          
+            
             if isempty(val) || isnan(val) || val<=0 || floor(val) ~= val
                 set(src,'string','1');
                 warndlg('Input must a positive integer','Warning',opts);
             else
                 
                 tt = (numPCmax - numPCmin)/val;
-                if  floor(tt) ~= tt 
+                if  floor(tt) ~= tt
                     set(src,'string','1');
                     warndlg('The increment step should produce evenly spaced points!','Warning',opts);
                 end
@@ -590,7 +710,7 @@ classdef CVTab < BasicTab
             val = str2double(str);
             opts = struct('WindowStyle','modal','Interpreter','none');
             
-            alphaMin = str2double(get(self.tbAlphaMin,'String'));            
+            alphaMin = str2double(get(self.tbAlphaMin,'String'));
             alphaMax = str2double(get(self.tbAlphaMax,'String'));
             
             if isempty(val) || isnan(val) || val<=0
