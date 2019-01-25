@@ -109,9 +109,20 @@ classdef CVTab < BasicTab
             obj.ddlCrossValidationType = uicontrol('Parent', hboxm5, 'Style', 'popupmenu', 'String', {'Leave-one-Out', 'K-fold', 'Holdout', 'Monte Carlo'},...
                 'Units', 'normalized','Value',2, 'BackgroundColor', 'white', 'callback', @obj.Callback_CrossValidationType);
             
+            if ispc
+                hboxm5.Spacing = 5;
+            end
+            
             obj.chkShuffle = uicontrol('Parent', hboxm5, 'Style', 'checkbox', 'value', 1, 'String', 'Shuffle',...
                 'callback', @obj.Callback_Shuffle);
+            
+            
             hboxm5.Widths = [-1 -2 -1];
+            if ispc
+                hboxm5.Widths = [-1 -2 -1];
+            else
+                hboxm5.Widths = [-1 -2 -1];
+            end
             
             hboxm8 = uix.Grid( 'Parent', vbox_cv);
             
@@ -136,7 +147,11 @@ classdef CVTab < BasicTab
             uicontrol('Parent', hboxp7, 'Style', 'pushbutton', 'String', 'Load CV Task',...
                 'callback', @obj.Callback_LoadCVTask);
             
-            obj.vbox.Heights=[40,120,150,0,0];
+            if ispc
+                obj.vbox.Heights=[40,130,150,0,0];
+            else
+                obj.vbox.Heights=[40,120,150,0,0];
+            end
             
             obj.FillDataSetList();
             
