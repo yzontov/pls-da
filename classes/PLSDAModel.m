@@ -119,7 +119,7 @@ classdef PLSDAModel < handle
         function set.TrainingDataSet(self,value)
             %Alpha get/set
             
-            self.TrainingDataSet = value;
+            self.TrainingDataSet = DataSet(value);
             self.numPC_pca = self.TrainingDataSet.NumberOfClasses-1;
             
         end

@@ -1661,16 +1661,7 @@ classdef  DataTab < BasicTab
                     idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
                     
                     if ~isempty(idx)
-                        %                         selected_index = 2;
-                        %
-                        %                         vardisplay = cell(length(idx)+1,1);
-                        %                         vardisplay{1} = '-';
-                        %                         for i = 1:length(idx)
-                        %                             vardisplay{i+1} = varnames{idx(i)};
-                        %                             if(isequal(selected_name, varnames{idx(i)}))
-                        %                                 selected_index = i+1;
-                        %                             end
-                        %                         end
+
                         vardisplay  = [{'-'}, varnames(idx)];
                         selected_index = find(strcmp(vardisplay, selected_name));
                         
@@ -1689,11 +1680,9 @@ classdef  DataTab < BasicTab
                             idx = arrayfun(@(x)self.parent.predictTab.filter_test(x), allvarsp);
                             
                             if sum(idx) > 0
-                                %vardisplay = {};
+
                                 l = allvars(idx);
-                                %                                 for i = 1:length(l)
-                                %                                     vardisplay{i} = l(i).name;
-                                %                                 end
+
                                 vardisplay = {l.name};
                                 set(self.parent.predictTab.ddlNewSet, 'String', vardisplay);
                             end
@@ -1749,6 +1738,8 @@ classdef  DataTab < BasicTab
                                 delete(cvtab);
                                 delete(self.parent.cvTab);
                                 self.parent.cvTab = [];
+                            else
+                                self.parent.cvTab.FillDataSetList();
                             end
                         end
                     else
@@ -1781,13 +1772,10 @@ classdef  DataTab < BasicTab
                     if sum(idx) > 0 && ~isempty(win.modelTab)
                         
                         idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
-                        %                         vardisplay={};
+
                         if sum(idx) > 0
                             l = allvars(idx);
-                            %                             vardisplay{1} = '-';
-                            %                             for i = 1:length(l)
-                            %                                 vardisplay{i+1} = l(i).name;
-                            %                             end
+  
                             vardisplay  = [{'-'}, {l.name}];
                             
                             set(win.modelTab.ddlCalibrationSet, 'String', vardisplay);

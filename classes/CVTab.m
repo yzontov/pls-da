@@ -40,6 +40,8 @@ classdef CVTab < BasicTab
         btnCVSave;
         
         Splits;
+        
+        cvtask;
     end
     
     methods
@@ -236,88 +238,36 @@ classdef CVTab < BasicTab
             
         end
         
-        function FillTableViewWithSplit(self, selected_name)
+        function FillTableViewWithSplit(self)
             
-            d = evalin('base', selected_name);
-            
-            k = size(d.ProcessedData, 1);
-            Labels = cell(k,1);
-            
-            v = 1:size(d.RawData, 1);
-            v = v(logical(d.SelectedSamples));
-            
-            for i = 1:length(v)
-                Labels{i} = sprintf('Object No.%d', v(i));
-            end
-            
-            if(~isempty(d.SelectedObjectNames))
-                Labels = d.SelectedObjectNames;
-            end
-            
-            number_of_splits = 1;
-            
-            switch(self.ddlCrossValidationType.Value)
-                case 1 %leave-one-out
-                    number_of_splits = k;
-                case 2 %k-fold
-                    folds = str2double(self.tbCVParamValue.String);
-                    number_of_splits = folds;
-                    [val_start, val_stop] = CVTask.crossval_indexes( k, folds );
-                case 3 %holdout
-                    number_of_splits = 1;
-                    proc = str2double(self.tbCVParamValue.String)/100;
-                case 4 %monte-carlo
-                    proc = str2double(self.tbCVParamValue.String)/100;
-                    iters = str2double(self.tbCVIterations.String);
-                    number_of_splits = iters;
-            end
-            
-            
-            names_ = cell(1,number_of_splits);
-            self.Splits = zeros(k, number_of_splits);
-            
-            e = 1:k;
-            se = e';
-            
-            if (self.chkShuffle.Value)
-                se = CVTask.shuffle(se);
-            end
-            
-            for i = 1:number_of_splits
-                names_{i} = sprintf('Split #%d', i);
+            if ~isempty(self.cvtask) && ~isempty(self.cvtask.Splits)
+                d = self.cvtask.DataSet;
                 
-                split = zeros(size(se));
+                v = 1:size(d.RawData, 1);
+                v = v(logical(d.SelectedSamples));
                 
+                if(~isempty(d.SelectedObjectNames))
+                    Labels = d.SelectedObjectNames;
+                else
+                    Labels = arrayfun(@(i) sprintf('Object No.%d', i), v, 'UniformOutput', false);
+                end
+                number_of_splits = size(self.cvtask.Splits, 2);
+                names_ = arrayfun(@(i) sprintf('Split #%d', i), 1:number_of_splits, 'UniformOutput', false);
                 
-                switch(self.ddlCrossValidationType.Value)
-                    case 1 %leave-one-out
-                        split(se(i)) = 1;
-                    case 2 %k-fold
-                        split(se(val_start(i):val_stop(i))) = 1;
-                    case 3 %holdout
-                        split(se(1:round(k*proc))) = 1;
-                    case 4 %monte-carlo
-                        se = CVTask.shuffle(se);
-                        split(se(1:round(k*proc))) = 1;
+                cv = arrayfun(@self.bool2cv, logical(self.cvtask.Splits),'UniformOutput', false);
+                
+                self.tblTextResult.ColumnName = [{'Sample', 'Class'}, names_];
+                self.tblTextResult.ColumnFormat = ['char' 'char' repmat({'char'},1,number_of_splits)];
+                
+                if ~isempty(d.ClassLabels)
+                    self.tblTextResult.Data = [Labels, {d.ClassLabels{d.Classes}}' cv];
+                    self.tblTextResult.ColumnWidth = num2cell([100 max(60, max(strlength(d.ClassLabels))*7) max(60, 7*max(strlength(names_)))*ones(1,number_of_splits)]);
+                else
+                    self.tblTextResult.Data = [Labels, num2cell(d.Classes) cv];
+                    self.tblTextResult.ColumnWidth = num2cell([100 60 max(60, 7*max(strlength(names_)))*ones(1,number_of_splits)]);
                 end
                 
-                self.Splits(:,i) = split;
             end
-            
-            cv = arrayfun(@self.bool2cv, logical(self.Splits),'UniformOutput', false);
-            
-            
-            self.tblTextResult.ColumnName = [{'Sample', 'Class'}, names_];
-            self.tblTextResult.ColumnFormat = ['char' 'char' repmat({'char'},1,number_of_splits)];
-            
-            if ~isempty(d.ClassLabels)
-                self.tblTextResult.Data = [Labels, {d.ClassLabels{d.Classes}}' cv];
-                self.tblTextResult.ColumnWidth = num2cell([100 max(60, max(strlength(d.ClassLabels))*7) max(60, 7*max(strlength(names_)))*ones(1,number_of_splits)]);
-            else
-                self.tblTextResult.Data = [Labels, num2cell(d.Classes) cv];
-                self.tblTextResult.ColumnWidth = num2cell([100 60 max(60, 7*max(strlength(names_)))*ones(1,number_of_splits)]);
-            end
-            
             %self.tblTextResult.ColumnEditable = [false false];
             
             %self.tblTextResult.CellEditCallback = @self.SelectedSamplesChangedCallback;
@@ -358,7 +308,27 @@ classdef CVTab < BasicTab
         end
         
         function Callback_SaveCVTask(self, src, param)
-            
+            if ~isempty(self.cvtask)
+                
+                prompt = {'Enter CV Task name:'};
+                dlg_title = 'Save CV Task';
+                num_lines = 1;
+                def = {'CV_TASK'};
+                opts = struct('WindowStyle','modal','Interpreter','none');
+                answer = inputdlg(prompt,dlg_title,num_lines,def,opts);
+                
+                if ~isempty(answer)
+                    try
+                        assignin('base', answer{1}, self.cvtask);
+                    catch
+                        opts = struct('WindowStyle','modal','Interpreter','none');
+                        errordlg('The invalid characters have been replaced. Please use only latin characters, numbers and underscore!','Error',opts);
+                        tmp = regexprep(answer{1}, '[^a-zA-Z0-9_]', '_');
+                        assignin('base',tmp, self.cvtask);
+                    end
+                end
+                
+            end
         end
         
         function Callback_LoadCVTask(self, src, param)
@@ -367,12 +337,117 @@ classdef CVTab < BasicTab
             if ~isempty(tvar)
                 
                 
-                cv_task = tvar{1};
+                self.cvtask = tvar{1};
                 
+                if strcmp(self.cvtask.ModelType,'hard')
+                    self.ddlModelType.Value = 1;
+                else
+                    self.ddlModelType.Value = 2;
+                end
+        
+                self.tbNumPCplsMin.String = sprintf('%d', self.cvtask.MinPC);
+                self.tbNumPCplsStep.String = sprintf('%d', self.cvtask.PCStep);
+                self.tbNumPCplsMax.String = sprintf('%d', self.cvtask.MaxPC);
                 
+                self.tbAlphaMin.String = sprintf('%.2f', self.cvtask.MinAlpha);
+                self.tbAlphaStep.String = sprintf('%.2f', self.cvtask.AlphaStep);
+                self.tbAlphaMax.String = sprintf('%.2f', self.cvtask.MaxAlpha);
                 
-                %assignin('base', Model.TrainingDataSet.Name, Model.TrainingDataSet);
+                if self.cvtask.MinPC == self.cvtask.MaxPC
+                    self.tbNumPCplsStep.Enable = 'off';
+                else
+                    self.tbNumPCplsStep = 'on';
+                end
                 
+                if self.cvtask.MinAlpha == self.cvtask.MaxAlpha
+                    self.tbAlphaStep = 'off';
+                else
+                    self.tbAlphaStep = 'on';
+                end
+        
+                switch(self.cvtask.Type)
+                    case 'leave-one-out'
+                        self.ddlCrossValidationType.Value = 1;
+                        self.tbCVParamName.Visible = 'off';
+                        self.tbCVParamValue.Visible = 'off';
+                        self.tbCVIterationsName.Visible = 'off';
+                        self.tbCVIterations.Visible = 'off';
+                        self.chkShuffle.Enable = 'on';
+                    case 'k-fold'
+                        self.ddlCrossValidationType.Value = 2;
+                        self.tbCVParamValue.String = sprintf('%d',self.cvtask.Folds);
+                        self.tbCVParamName.String = 'Folds';
+                        self.tbCVParamName.Visible = 'on';
+                        self.tbCVParamValue.Visible = 'on';
+                        self.tbCVIterationsName.Visible = 'off';
+                        self.tbCVIterations.Visible = 'off';
+                        self.chkShuffle.Enable = 'on';
+                    case 'holdout'
+                        self.ddlCrossValidationType.Value = 3;
+                        self.tbCVParamValue.String = sprintf('%d',self.cvtask.ValidationPercent);
+                        self.tbCVParamName.String = 'Test part (%)';
+                        self.tbCVParamName.Visible = 'on';
+                        self.tbCVParamValue.Visible = 'on';
+                        self.tbCVIterationsName.Visible = 'off';
+                        self.tbCVIterations.Visible = 'off';
+                        self.chkShuffle.Enable = 'on';
+                    case 'monte-carlo'
+                        self.ddlCrossValidationType.Value = 4;
+                        self.tbCVParamValue.String = sprintf('%d',self.cvtask.ValidationPercent);
+                        self.tbCVIterations.String = sprintf('%d',self.cvtask.Iterations);
+                        self.tbCVParamName.String = 'Test part (%)';
+                        self.tbCVParamName.Visible = 'on';
+                        self.tbCVParamValue.Visible = 'on';
+                        self.tbCVIterationsName.Visible = 'on';
+                        self.tbCVIterations.Visible = 'on';
+                        self.chkShuffle.Enable = 'off';
+                        %self.chkShuffle.Value = 1;
+                end
+                
+                self.chkShuffle.Value = self.cvtask.Shuffle;
+                
+                %self.cvtask.GenerateSplits();
+                assignin('base', self.cvtask.DataSet.Name, self.cvtask.DataSet);
+                
+                self.FillDataSetList();
+
+                selected_index = find(strcmp(self.ddlDataSet.String, self.cvtask.DataSet.Name));
+                
+                if isempty(selected_index)
+                    selected_index = 2;
+                end
+                        
+                set(self.ddlDataSet, 'Value', selected_index);
+                
+                self.parent.dataTab.FillDataSetList();
+                
+                allvars = evalin('base','whos');
+                idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
+                
+                win = self.parent;
+                if sum(idx) > 0 && isempty(win.modelTab)
+                    win.modelTab = ModelTab(win.tgroup, win);
+                end
+                
+                if sum(idx) > 0 && ~isempty(win.modelTab)
+
+                    l = allvars(idx);
+
+                    vardisplay = [{'-'}, {l.name}];
+                    set(win.modelTab.ddlCalibrationSet, 'String', vardisplay);
+                    
+                    if length(get(win.modelTab.ddlCalibrationSet, 'String')) > 1
+                        set(win.modelTab.ddlCalibrationSet, 'Value', 2)
+                        
+                        m = evalin('base',vardisplay{2});
+                        set(win.modelTab.tbNumPCpca, 'String', sprintf('%d', m.NumberOfClasses-1));
+                    end
+                end
+                
+                self.FillTableViewWithSplit();
+                
+                self.btnCVRun.Enable = 'on';
+                self.btnCVSave.Enable = 'on';
                 
             end
         end
@@ -391,20 +466,20 @@ classdef CVTab < BasicTab
                 fields = {'True Positive';'False Positive';'';'Class Sensitivity (%)';'Class Specificity (%)';'Class Efficiency (%)';'';'Total Sensitivity (%)';'Total Specificity (%)';'Total Efficiency (%)'};
                 fom = result.FiguresOfMerit;
                 fom_txt = [fields,  {num2str(round(fom.TP)); num2str(round(fom.FP)); ...
-                '';...
-                num2str(round(fom.CSNS)); num2str(round(fom.CSPS)); num2str(round(fom.CEFF)); ...
-                '';...
-                num2str(round(fom.TSNS));...
-                num2str(round(fom.TSPS));...
-                num2str(round(fom.TEFF))...
-                }];
-            
+                    '';...
+                    num2str(round(fom.CSNS)); num2str(round(fom.CSPS)); num2str(round(fom.CEFF)); ...
+                    '';...
+                    num2str(round(fom.TSNS));...
+                    num2str(round(fom.TSPS));...
+                    num2str(round(fom.TEFF))...
+                    }];
+                
                 s = [s sprintf('Statistics\t%s\n', sprintf('%d ',1:train_cls_num))];
                 for i=1:size(fom_txt,1)
                     s = [s sprintf('%s\t%s\n', fom_txt{i,1}, fom_txt{i,2})];
                 end
             end
-
+            
         end
         
         function s = tableTextMod(self, Model)
@@ -430,12 +505,12 @@ classdef CVTab < BasicTab
             for i=1:size(fom_txt,1)
                 s = [s sprintf('%s\t%s\n', fom_txt{i,1}, fom_txt{i,2})];
             end
-
+            
         end
         
         function Callback_CVRun(self, src, param)
             
-            if ~isempty(self.Splits)
+            if ~isempty(self.cvtask)
                 num_of_splits = size(self.Splits, 2);
                 
                 index_selected = get(self.ddlDataSet,'Value');
@@ -507,12 +582,48 @@ classdef CVTab < BasicTab
             
             selected_name = names{index_selected};
             
-            self.FillTableViewWithSplit(selected_name);
+            d = evalin('base', selected_name);
+            
+            self.cvtask = CVTask(d);
+            
+            if self.ddlModelType.Value == 1
+                self.cvtask.ModelType  = 'hard';
+            else
+                self.cvtask.ModelType = 'soft';
+            end
+
+            self.cvtask.MinPC = str2double(self.tbNumPCplsMin.String);
+            self.cvtask.PCStep = str2double(self.tbNumPCplsStep.String);
+            self.cvtask.MaxPC = str2double(self.tbNumPCplsMax.String);
+                
+            self.cvtask.MinAlpha = str2double(self.tbAlphaMin.String);
+            self.cvtask.AlphaStep = str2double(self.tbAlphaStep.String);
+            self.cvtask.MaxAlpha = str2double(self.tbAlphaMax.String);
+            
+            switch(self.ddlCrossValidationType.Value)
+                case 1 %leave-one-out
+                    self.cvtask.Type = 'leave-one-out';
+                case 2 %k-fold
+                    self.cvtask.Type = 'k-fold';
+                    self.cvtask.Folds = str2double(self.tbCVParamValue.String);
+                case 3 %holdout
+                    self.cvtask.Type = 'holdout';
+                    self.cvtask.ValidationPercent = str2double(self.tbCVParamValue.String);
+                case 4 %monte-carlo
+                    self.cvtask.Type = 'monte-carlo';
+                    self.cvtask.ValidationPercent = str2double(self.tbCVParamValue.String);
+                    self.cvtask.Iterations = str2double(self.tbCVIterations.String);
+            end
+            
+            self.cvtask.Shuffle = self.chkShuffle.Value;
+            
+            self.cvtask.GenerateSplits();
+            
+            self.FillTableViewWithSplit();
             
             self.btnCVRun.Enable = 'on';
             self.btnCVSave.Enable = 'on';
         end
-        
         
         function Input_CVParam(self, src, param)
             %self.tbCVParamValue.String

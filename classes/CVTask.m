@@ -3,26 +3,33 @@ classdef CVTask < handle
     properties
         DataSet;
         
-        Type;
-        Folds;
-        ValidationPercent;
-        Iterations;
+        Type = 'k-fold';
+        Folds = 10;
+        ValidationPercent = 30;
+        Iterations = 10;
         
         Shuffle = true;
         
         Splits;
+        
+        %Model parameters
+        ModelType;
+        
+        MinPC
+        PCStep;
+        MaxPC;
+                
+        MinAlpha;
+        AlphaStep;
+        MaxAlpha;
     end
     
     methods (Access = private)
-        
-    end
-    
-    methods (Static)
-        function v=shuffle(v)
+        function v=shuffle(~, v)
             v=v(randperm(length(v)));
         end
         
-        function [val_start, val_stop] = crossval_indexes( N, fold )
+        function [val_start, val_stop] = crossval_indexes(~, N, fold )
             %Generate indexes for k-fold cross-validation
             % N - number of samples
             % fold - number of partitions (i.e. 3, 5, 10)
@@ -57,42 +64,68 @@ classdef CVTask < handle
     methods
         function obj = CVTask(ds)
             %CVTask Construct an instance of this class
-            obj.DataSet = ds;
-            %obj.Type = type;
+            obj.DataSet = DataSet(ds);
         end
         
-        function s = GenerateSplits(obj)
-            %             Type;
-            %         Folds;
-            %         ValidationPercent;
-            %         Iterations;
+        function s = GenerateSplits(self)
             
-            k = size(obj.DataSet.ProcessedData, 1);
+            k = size(self.DataSet.ProcessedData, 1);
             number_of_splits = 1;
             
-            if ~isempty(obj.Type)
-                switch(obj.Type)
+            if ~isempty(self.Type)
+                switch(self.Type)
                     case 'leave-one-out'
                         number_of_splits = k;
                     case 'k-fold'
-                        if ~isempty(obj.Folds)
-                            folds = str2double(obj.Folds);
-                            number_of_splits = folds;
-                            [val_start, val_stop] = CVTask.crossval_indexes( k, folds );
+                        if ~isempty(self.Folds)
+                            number_of_splits = self.Folds;
+                            [val_start, val_stop] = self.crossval_indexes( k, self.Folds );
                         end
-                    case '%holdout'
-                        number_of_splits = 1;
-                        proc = obj.ValidationPercent/100;
+                    case 'holdout'
+                        if ~isempty(self.ValidationPercent)
+                            number_of_splits = 1;
+                            proc = self.ValidationPercent/100;
+                        end
                     case 'monte-carlo'
-                        proc = obj.ValidationPercent/100;
-                        number_of_splits = Iterations;
+                        if ~isempty(self.ValidationPercent) && ~isempty(self.Iterations)
+                            proc = self.ValidationPercent/100;
+                            number_of_splits = self.Iterations;
+                        end
+                end
+                
+                self.Splits = zeros(k, number_of_splits);
+                
+                e = 1:k;
+                se = e';
+                
+                if (self.Shuffle)
+                    se = self.shuffle(se);
+                end
+                
+                for i = 1:number_of_splits
+                    split = zeros(size(se));
+                                      
+                    switch(self.Type)
+                        case 'leave-one-out'
+                            split(se(i)) = 1;
+                        case 'k-fold'
+                            split(se(val_start(i):val_stop(i))) = 1;
+                        case 'holdout'
+                            split(se(1:round(k*proc))) = 1;
+                        case 'monte-carlo'
+                            se = self.shuffle(se);
+                            split(se(1:round(k*proc))) = 1;
+                    end
+                    
+                    self.Splits(:,i) = split;
                 end
             end
+            s = self.Splits;
         end
         
-        function [t, v] = SplitDataset(obj, split)
-
-            d = obj.DataSet;
+        function [t, v] = SplitDataset(self, split)
+            
+            d = self.DataSet;
             dat = d.RawData(logical(d.SelectedSamples),:);
             cls = d.RawClasses(logical(d.SelectedSamples),:);
             
@@ -100,8 +133,8 @@ classdef CVTask < handle
             t.RawData = dat(self.Splits(:,split) == 0,:);
             t.Centering = d.Centering;
             t.Scaling = d.Scaling;
-             t.RawClasses = cls(self.Splits(:,split) == 0,:);
-                    
+            t.RawClasses = cls(self.Splits(:,split) == 0,:);
+            
             v = DataSet();
             v.RawData = dat(self.Splits(:,split) == 1,:);
             v.RawClasses = cls(self.Splits(:,split) == 1,:);
@@ -116,10 +149,13 @@ classdef CVTask < handle
         function set.Type(self,value)
             %Type get/set
             
+            %leave-one-out
+            %k-fold
+            %holdout
+            %monte-carlo
+            
             self.Type = value;
             
         end
-        
-        
     end
 end

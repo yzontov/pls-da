@@ -45,10 +45,32 @@ classdef DataSet < handle
     end
     
     events
-       Deleting; 
+        Deleting;
     end
     
     methods
+        
+        function newObj = DataSet(oldObj)
+            if nargin == 1 && isa(oldObj,'DataSet')
+                newObj.Name = oldObj.Name;
+                newObj.RawData= oldObj.RawData;
+                newObj.RawClasses= oldObj.RawClasses;
+                
+                newObj.ObjectNames= oldObj.ObjectNames;
+                
+                newObj.Variables= oldObj.Variables;
+                newObj.VariableNames= oldObj.VariableNames;
+                newObj.ClassLabels= oldObj.ClassLabels;
+                
+                newObj.SelectedSamples= oldObj.SelectedSamples;
+                
+                newObj.Centering = oldObj.Centering;
+                newObj.Scaling = oldObj.Scaling;
+                
+                newObj.Training = oldObj.Training;
+                newObj.Validation = oldObj.Validation;
+            end
+        end
         
         function delete(obj)
             %disp([obj.Name ' deleted']);
@@ -73,7 +95,7 @@ classdef DataSet < handle
         function fig = scatter(self, axes, var1, var2, showClasses, showObjectNames)
             
             if showClasses
-
+                
                 trc = unique(self.Classes);
                 names = cell(1,self.NumberOfClasses);
                 color = PLSDAModel.colors_rgb(self.NumberOfClasses);
@@ -82,7 +104,7 @@ classdef DataSet < handle
                     %colors = repmat(color(i,:), sum(self.Classes == i), 1);
                     hold on;
                     fig = plot(axes, self.ProcessedData(self.Classes == trc(i),var1),self.ProcessedData(self.Classes == trc(i),var2),'o','color',color(i,:));
-
+                    
                     if isempty(self.ClassLabels)
                         names{i} = sprintf('class %d', trc(i));
                     else
@@ -99,7 +121,7 @@ classdef DataSet < handle
                     legend('location','northeast');
                     legend('boxon');
                 end
-
+                
             else
                 fig = scatter(axes, self.ProcessedData(:,var1),self.ProcessedData(:,var2));
             end
@@ -413,6 +435,6 @@ classdef DataSet < handle
             self.HasPCA = true;
         end
     end
-
+    
 end
 
