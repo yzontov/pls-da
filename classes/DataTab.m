@@ -1415,7 +1415,22 @@ classdef  DataTab < BasicTab
             end
             
             if ~isempty(idx)
+            	names = varnames(idx);
+                %dataset_list = cell(1, length(names));
+                for i = 1:length(names)
+                   d = evalin('base', names{i});
+                   %dataset_list{i} = d;
+                   addlistener(d,'Deleting',@self.parent.handleDatasetDelete);  
+                end
+            
+            end
+            
+            if ~isempty(idx)
                 selected_name = callbackdata.VariableName;
+                
+                
+                
+                
                 %                 selected_index = 2;
                 %
                 %                 vardisplay = cell(length(idx)+1,1);
