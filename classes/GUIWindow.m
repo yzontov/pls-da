@@ -43,9 +43,7 @@ classdef  GUIWindow<handle
     
     methods
         
-        function handleDatasetDelete(obj,src,eventData)
-            %disp([src.Name ' deleted']);
-            
+        function deleteDataset(obj, src)
             obj.dataTab.FillDataSetList();
             
             if (~isempty(obj.modelTab))
@@ -70,6 +68,12 @@ classdef  GUIWindow<handle
                     obj.cvTab = [];
                 end
              end
+        end
+        
+        function handleDatasetDelete(obj,src,~)
+            %disp([src.Name ' deleted']);
+            obj.deleteDataset(src);
+            
         end
         
         function TabSelected(self, obj, param)

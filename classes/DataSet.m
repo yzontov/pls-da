@@ -33,6 +33,7 @@ classdef DataSet < handle
     properties (Access = private)
         Data_;
         Classes_;
+        parent;
     end
     
     properties (Dependent = true)
@@ -50,8 +51,9 @@ classdef DataSet < handle
     
     methods
         
-        function newObj = DataSet(oldObj)
-            if nargin == 1 && isa(oldObj,'DataSet')
+        function newObj = DataSet(oldObj,parent)
+            if nargin > 0
+                if isa(oldObj,'DataSet')
                 newObj.Name = oldObj.Name;
                 newObj.RawData= oldObj.RawData;
                 newObj.RawClasses= oldObj.RawClasses;
@@ -69,12 +71,21 @@ classdef DataSet < handle
                 
                 newObj.Training = oldObj.Training;
                 newObj.Validation = oldObj.Validation;
+                end
+                
+                if nargin > 1 && isa(parent,'GUIWindow')
+                    newObj.parent = parent;
+                end
             end
         end
         
         function delete(obj)
             %disp([obj.Name ' deleted']);
             notify(obj,'Deleting');
+            
+            if isvalid(obj.parent)
+                obj.parent.deleteDataset(obj);
+            end
         end
         
         function Y = DummyMatrix(self)

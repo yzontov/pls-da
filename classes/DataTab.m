@@ -86,14 +86,14 @@ classdef  DataTab < BasicTab
             
             idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
             
-            if ~isempty(idx)
-                names = varnames(idx);
-                for i = 1:length(names)
-                    d = evalin('base', names{i});
-                    addlistener(d,'Deleting',@win.handleDatasetDelete);
-                end
-                
-            end
+%             if ~isempty(idx)
+%                 names = varnames(idx);
+%                 for i = 1:length(names)
+%                     d = evalin('base', names{i});
+%                     addlistener(d,'Deleting',@win.handleDatasetDelete);
+%                 end
+%                 
+%             end
             
             idx_data = arrayfun(@(x)GUIWindow.filter_data(x), allvars);
             if(isempty(self.parent.cvTab) && sum(idx_data) > 0)
@@ -866,7 +866,7 @@ classdef  DataTab < BasicTab
                     
                     if ~isempty(answer)
                         
-                        new_d = DataSet();
+                        new_d = DataSet([], self.parent);
                         new_d.RawData = d.RawData(logical(d.SelectedSamples),:);
                         new_d.Centering = d.Centering;
                         new_d.Scaling = d.Scaling;
@@ -880,7 +880,7 @@ classdef  DataTab < BasicTab
                         
                         new_d.ClassLabels = d.ClassLabels;
                         
-                        addlistener(new_d,'Deleting',@self.parent.handleDatasetDelete);
+                        %addlistener(new_d,'Deleting',@self.parent.handleDatasetDelete);
                         
                         try
                             new_d.Name = answer{1};
@@ -944,7 +944,7 @@ classdef  DataTab < BasicTab
                         
                         if ~isempty(answer)
                             
-                            new_d = DataSet();
+                            new_d = DataSet([], self.parent);
                             new_d.RawData = d.RawData(logical(d.SelectedSamples),:);
                             new_d.Centering = d.Centering;
                             new_d.Scaling = d.Scaling;
@@ -958,7 +958,7 @@ classdef  DataTab < BasicTab
                             
                             new_d.ClassLabels = d.ClassLabels;
                             
-                            addlistener(new_d,'Deleting',@self.parent.handleDatasetDelete);
+                            %addlistener(new_d,'Deleting',@self.parent.handleDatasetDelete);
                             
                             try
                                 new_d.Name = answer{1};
@@ -1414,16 +1414,16 @@ classdef  DataTab < BasicTab
                 end
             end
             
-            if ~isempty(idx)
-            	names = varnames(idx);
-                %dataset_list = cell(1, length(names));
-                for i = 1:length(names)
-                   d = evalin('base', names{i});
-                   %dataset_list{i} = d;
-                   addlistener(d,'Deleting',@self.parent.handleDatasetDelete);  
-                end
-            
-            end
+%             if ~isempty(idx)
+%             	names = varnames(idx);
+%                 %dataset_list = cell(1, length(names));
+%                 for i = 1:length(names)
+%                    d = evalin('base', names{i});
+%                    %dataset_list{i} = d;
+%                    addlistener(d,'Deleting',@self.parent.handleDatasetDelete);  
+%                 end
+%             
+%             end
             
             if ~isempty(idx)
                 selected_name = callbackdata.VariableName;
@@ -1664,9 +1664,10 @@ classdef  DataTab < BasicTab
                 
                 if isequal(answer, 'Yes')
                     
-                    ff = @self.parent.handleDatasetDelete;
-                    addlistener(d,'Deleting',ff);
-                    delete(d);
+%                     ff = @self.parent.handleDatasetDelete;
+%                     addlistener(d,'Deleting',ff);
+%                     delete(d);
+                    self.parent.deleteDataset(d);
                     evalin( 'base', ['clear ' selected_name] );
                     %
                     

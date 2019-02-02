@@ -586,7 +586,7 @@ classdef  DataSetWindow<handle
             if ~isempty(name)
                 
                 if get(self.ddlData, 'Value') > 1 %&& get(self.ddlClasses, 'Value') > 1
-                    d = DataSet();
+                    d = DataSet([], self.parent.parent);
                     
                     if ~isempty(self.dataset_name) && get(self.ddlData, 'Value') == 2
                         d.RawData = self.dataset.RawData;
@@ -685,11 +685,11 @@ classdef  DataSetWindow<handle
                         name = s;
                         
                         
-                        
+                        %addlistener(d,'Deleting',@self.parent.parent.handleDatasetDelete);
                         assignin('base', name, d);
                         
-                        dd = evalin('base', d.Name);
-                        addlistener(dd,'Deleting',@self.parent.parent.handleDatasetDelete);
+                        %dd = evalin('base', d.Name);
+                        
                         
                     catch
                         waitfor(errordlg('The name contains invalid characters. Please use only latin characters, numbers and underscore for the name of DataSet!','Error', opts));
