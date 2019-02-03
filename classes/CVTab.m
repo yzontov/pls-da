@@ -39,8 +39,6 @@ classdef CVTab < BasicTab
         btnCVRun;
         btnCVSave;
         
-        Splits;
-        
         cvtask;
     end
     
@@ -163,7 +161,8 @@ classdef CVTab < BasicTab
             set(obj.tg, 'SelectionChangedFcn', @w.ActiveTabSelected);
             
             obj.tab_split = uitab('Parent', obj.tg, 'Title', 'Data');
-            %obj.tab_result = uitab('Parent', tg, 'Title', 'Results');
+            obj.tab_result = uitab('Parent', obj.tg, 'Title', 'Results');
+            obj.tab_result.Parent = [];
             
             obj.tblTextResult = uitable(obj.tab_split);
             obj.tblTextResult.Units = 'normalized';
@@ -204,6 +203,10 @@ classdef CVTab < BasicTab
         end
         
         function FillTableView(self, selected_name)
+            
+            self.ClearResults();
+            delete(self.cvtask);
+            self.cvtask = [];
             
             d = evalin('base', selected_name);
             
@@ -329,6 +332,17 @@ classdef CVTab < BasicTab
                 end
                 
             end
+        end
+        
+        function ClearResults(self)
+            if ~isempty(self.cvtask)
+                self.cvtask.Results = [];
+            end
+            self.tab_result.Parent = [];
+        end
+        
+        function ShowResults(self)
+            self.tab_result.Parent = self.tg;
         end
         
         function Callback_LoadCVTask(self, src, param)
@@ -511,7 +525,8 @@ classdef CVTab < BasicTab
         function Callback_CVRun(self, src, param)
             
             if ~isempty(self.cvtask)
-                num_of_splits = size(self.Splits, 2);
+                self.ClearResults()
+                num_of_splits = size(self.cvtask.Splits, 2);
                 
                 index_selected = get(self.ddlDataSet,'Value');
                 names = get(self.ddlDataSet, 'String');
@@ -533,22 +548,31 @@ classdef CVTab < BasicTab
                 
                 gamma = 0.01;
                 
-                ps_iters = max(round((max_pc - min_pc)/pc_step),1);
-                al_iters = max(round((max_alpha - min_alpha)/alpha_step),1);
+                ps_iters = length(min_pc:pc_step:max_pc);%max(round((max_pc - min_pc)/pc_step),1);
+                al_iters = length(min_alpha:alpha_step:max_alpha);%max(round((max_alpha - min_alpha)/alpha_step),1);
                 h = waitbar(0, 'Please wait...');
                 
                 k = 0;
+                
+                if mode == 2
+                    N = num_of_splits*ps_iters*al_iters;
+                    Results = repmat(struct('numpc',0,'alpha',0,'fom_cal',[],'fom_val',[],'split', 0), N, 1 );
+                else
+                    N = num_of_splits*ps_iters;
+                    Results = repmat(struct('numpc',0,'fom_cal',[],'fom_val',[],'split', 0), N, 1 );
+                end
+                
                 for split = 1:num_of_splits
                     
                     t = DataSet();
-                    t.RawData = dat(self.Splits(:,split) == 0,:);
+                    t.RawData = dat(self.cvtask.Splits(:,split) == 0,:);
                     t.Centering = d.Centering;
                     t.Scaling = d.Scaling;
-                    t.RawClasses = cls(self.Splits(:,split) == 0,:);
+                    t.RawClasses = cls(self.cvtask.Splits(:,split) == 0,:);
                     
                     v = DataSet();
-                    v.RawData = dat(self.Splits(:,split) == 1,:);
-                    v.RawClasses = cls(self.Splits(:,split) == 1,:);
+                    v.RawData = dat(self.cvtask.Splits(:,split) == 1,:);
+                    v.RawClasses = cls(self.cvtask.Splits(:,split) == 1,:);
                     
                     for numpc = min_pc:pc_step:max_pc
                         if mode == 2
@@ -557,7 +581,17 @@ classdef CVTab < BasicTab
                                 m = PLSDAModel(t, numpc, alpha, gamma);
                                 res = m.Apply(v);
                                 
-                                waitbar(k/(num_of_splits*ps_iters*al_iters), h);
+                                Results(k).numpc = numpc;
+                                Results(k).alpha = alpha;
+                                Results(k).fom_cal = m.FiguresOfMerit;
+                                
+                                if isfield(res, 'FiguresOfMerit')
+                                    Results(k).fom_val = res.FiguresOfMerit;
+                                end
+                                
+                                Results(k).split = split;
+                                
+                                waitbar(k/N, h);
                             end
                         else
                             k = k + 1;
@@ -565,10 +599,19 @@ classdef CVTab < BasicTab
                             m.Mode = 'hard';
                             m.Rebuild();
                             res = m.Apply(v);
-                            waitbar(k/(num_of_splits*ps_iters), h);
+                            
+                            Results(k).numpc = numpc;
+                            Results(k).fom_cal = m.FiguresOfMerit;
+                            Results(k).fom_val = res.FiguresOfMerit;
+                            Results(k).split = split;
+                            
+                            waitbar(k/N, h);
                         end
                     end
                 end
+                
+                self.cvtask.Results = Results;
+                self.ShowResults()
                 %waitbar(1, h);
                 delete(h);
             end
@@ -682,10 +725,10 @@ classdef CVTab < BasicTab
                                 k = 2;
                             end
                         end
+                        val = k;
+                        warndlg(sprintf('Input must be a positive integer not greater than %d', NumberOfSamples),'Warning',opts);
                     end
-                    set(src,'string', sprintf('%d', k));
-                    warndlg(sprintf('Input must be a positive integer not greater than %d', NumberOfSamples),'Warning',opts);
-                    
+                    set(src,'string', sprintf('%d', val));                       
                 end
                 
                 if(mode == 3 || mode == 4)%holdout || monte-carlo
@@ -738,7 +781,7 @@ classdef CVTab < BasicTab
                 end
             end
             
-            self.FillTableView(selected_name);
+            %self.FillTableView(selected_name);
             
             numPCmin = str2double(get(self.tbNumPCplsMin,'String'));
             
@@ -761,10 +804,6 @@ classdef CVTab < BasicTab
             if  floor(tt) ~= tt
                 set(self.tbNumPCplsStep,'string','1');
             end
-        end
-        
-        function Input_ModelParameters(self, src, param)
-            
         end
         
         function Input_Alpha(self, src, param)
@@ -804,9 +843,13 @@ classdef CVTab < BasicTab
             end
             
             val=str2double(get(self.tbAlphaStep,'string'));
-            tt = round((alphaMax - alphaMin)/val);
-            if  (tt*val + alphaMin) ~= alphaMax
-                set(self.tbAlphaStep,'string',sprintf('%.2f',max(0.01,(alphaMax-alphaMin)/5)));
+
+            l = linspace(alphaMin,alphaMax, 5);
+            auto_step = l(2) - l(1);
+            
+            tt = max(alphaMin:val:alphaMax);
+            if  tt ~= alphaMax
+                set(self.tbAlphaStep,'string',sprintf('%f',auto_step));
             end
         end
         
@@ -839,14 +882,17 @@ classdef CVTab < BasicTab
             alphaMin = str2double(get(self.tbAlphaMin,'String'));
             alphaMax = str2double(get(self.tbAlphaMax,'String'));
             
+            l = linspace(alphaMin,alphaMax, 5);
+            auto_step = l(2) - l(1);
+            
             if isempty(val) || isnan(val) || val<=0
-                set(src,'string',sprintf('%.2f',max(0.01,(alphaMax-alphaMin)/5)));
+                set(src,'string',sprintf('%f',auto_step));
                 warndlg('Input must be a positive decimal fraction','Warning',opts);
             else
                 
-                tt = round((alphaMax - alphaMin)/val);
-                if  (tt*val + alphaMin) ~= alphaMax
-                    set(src,'string',sprintf('%.2f',max(0.01,(alphaMax-alphaMin)/5)));
+                tt = max(alphaMin:val:alphaMax);
+                if  tt ~= alphaMax
+                    set(src,'string',sprintf('%f',auto_step));
                     warndlg('The increment step should produce evenly spaced points!','Warning',opts);
                 end
             end
@@ -861,6 +907,7 @@ classdef CVTab < BasicTab
             
             
             self.FillTableView(selected_name);
+            
             
             self.btnCVRun.Enable = 'off';
             self.btnCVSave.Enable = 'off';

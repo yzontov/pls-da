@@ -22,6 +22,8 @@ classdef CVTask < handle
         MinAlpha;
         AlphaStep;
         MaxAlpha;
+        
+        Results;
     end
     
     methods (Access = private)
