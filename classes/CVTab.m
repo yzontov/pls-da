@@ -205,8 +205,6 @@ classdef CVTab < BasicTab
         function FillTableView(self, selected_name)
             
             self.ClearResults();
-            delete(self.cvtask);
-            self.cvtask = [];
             
             d = evalin('base', selected_name);
             
@@ -363,20 +361,24 @@ classdef CVTab < BasicTab
                 self.tbNumPCplsStep.String = sprintf('%d', self.cvtask.PCStep);
                 self.tbNumPCplsMax.String = sprintf('%d', self.cvtask.MaxPC);
                 
-                self.tbAlphaMin.String = sprintf('%.2f', self.cvtask.MinAlpha);
-                self.tbAlphaStep.String = sprintf('%.2f', self.cvtask.AlphaStep);
-                self.tbAlphaMax.String = sprintf('%.2f', self.cvtask.MaxAlpha);
+                min_format = ['%.' sprintf('%d', sigdigits(self.cvtask.MinAlpha)) 'f'];
+                step_format = ['%.' sprintf('%d', sigdigits(self.cvtask.AlphaStep)) 'f'];
+                max_format = ['%.' sprintf('%d', sigdigits(self.cvtask.MaxAlpha)) 'f'];
+                
+                self.tbAlphaMin.String = sprintf(min_format, self.cvtask.MinAlpha);
+                self.tbAlphaStep.String = sprintf(step_format, self.cvtask.AlphaStep);
+                self.tbAlphaMax.String = sprintf(max_format, self.cvtask.MaxAlpha);
                 
                 if self.cvtask.MinPC == self.cvtask.MaxPC
                     self.tbNumPCplsStep.Enable = 'off';
                 else
-                    self.tbNumPCplsStep = 'on';
+                    self.tbNumPCplsStep.Enable = 'on';
                 end
                 
                 if self.cvtask.MinAlpha == self.cvtask.MaxAlpha
-                    self.tbAlphaStep = 'off';
+                    self.tbAlphaStep.Enable = 'off';
                 else
-                    self.tbAlphaStep = 'on';
+                    self.tbAlphaStep.Enable = 'on';
                 end
         
                 switch(self.cvtask.Type)
@@ -820,12 +822,6 @@ classdef CVTab < BasicTab
                 end
             end
             
-            %             index_selected = get(self.ddlDataSet,'Value');
-            %             names = get(self.ddlDataSet,'String');
-            %             selected_name = names{index_selected};
-            %
-            %             self.FillTableView(selected_name);
-            
             alphaMin = str2double(get(self.tbAlphaMin,'String'));
             
             alphaMax = str2double(get(self.tbAlphaMax,'String'));
@@ -834,12 +830,14 @@ classdef CVTab < BasicTab
                 self.tbAlphaStep.Enable = 'on';
             else
                 self.tbAlphaStep.Enable = 'off';
-                self.tbAlphaStep.String = sprintf('%f','0.01');
+                self.tbAlphaStep.String = sprintf('%.2f','0.01');
             end
             
             if(alphaMin > alphaMax)
-                set(self.tbAlphaMin,'String', sprintf('%.2f',alphaMax));
-                set(self.tbAlphaMax,'String', sprintf('%.2f',alphaMin));
+                min_format = ['%.' sprintf('%d', sigdigits(alphaMin)) 'f'];
+                max_format = ['%.' sprintf('%d', sigdigits(alphaMax)) 'f'];
+                set(self.tbAlphaMin,'String', sprintf(min_format,alphaMax));
+                set(self.tbAlphaMax,'String', sprintf(max_format,alphaMin));
             end
             
             val=str2double(get(self.tbAlphaStep,'string'));
@@ -849,7 +847,8 @@ classdef CVTab < BasicTab
             
             tt = max(alphaMin:val:alphaMax);
             if  tt ~= alphaMax
-                set(self.tbAlphaStep,'string',sprintf('%f',auto_step));
+                auto_format = ['%.' sprintf('%d', sigdigits(auto_step)) 'f'];
+                set(self.tbAlphaStep,'string',sprintf(auto_format,auto_step));
             end
         end
         
