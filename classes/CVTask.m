@@ -74,6 +74,8 @@ classdef CVTask < handle
             k = size(self.DataSet.ProcessedData, 1);
             number_of_splits = 1;
             
+            %ds_classes = length(unique(self.DataSet.Classes));
+            
             if ~isempty(self.Type)
                 switch(self.Type)
                     case 'leave-one-out'

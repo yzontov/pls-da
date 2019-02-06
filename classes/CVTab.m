@@ -254,7 +254,8 @@ classdef CVTab < BasicTab
                 end
                 number_of_splits = size(self.cvtask.Splits, 2);
                 names_ = arrayfun(@(i) sprintf('Split #%d', i), 1:number_of_splits, 'UniformOutput', false);
-                
+                %names_1 = arrayfun(@(i) sprintf('<HTML><TABLE><TD bgcolor="red">Split #%d', i), 1:number_of_splits, 'UniformOutput', false);
+
                 cv = arrayfun(@self.bool2cv, logical(self.cvtask.Splits),'UniformOutput', false);
                 
                 self.tblTextResult.ColumnName = [{'Sample', 'Class'}, names_];
