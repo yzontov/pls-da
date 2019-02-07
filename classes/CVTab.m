@@ -7,7 +7,7 @@ classdef CVTab < BasicTab
         pnlDataSettings;
         pnlCrossValidationSettings;
         pnlModelSettings
-        pnlPlotSettings;
+        pnlResultsSettings;
         pnlTableSettings;
         
         ddlDataSet;
@@ -40,6 +40,8 @@ classdef CVTab < BasicTab
         btnCVSave;
         
         cvtask;
+        
+        hboxm4;
     end
     
     methods
@@ -55,8 +57,12 @@ classdef CVTab < BasicTab
             
             obj.pnlCrossValidationSettings = uiextras.Panel('Parent', obj.vbox, 'Title', 'Cross-validation settings', 'TitlePosition', 'LeftTop');
             
-            obj.pnlPlotSettings = uiextras.Panel( 'Parent', obj.vbox, 'Title', 'Plot settings', 'TitlePosition', 'LeftTop','visible','off');
+            obj.pnlResultsSettings = uiextras.Panel( 'Parent', obj.vbox, 'Title', 'Options', 'TitlePosition', 'LeftTop','visible','off');
             obj.pnlTableSettings = uiextras.Panel( 'Parent', obj.vbox, 'Title', 'Table view options', 'TitlePosition', 'LeftTop','visible','off');
+            
+            %results view options
+            hbox21 = uiextras.HButtonBox( 'Parent', obj.pnlResultsSettings, 'ButtonSize', [120 25]);
+            
             
             
             hbox1 = uiextras.HButtonBox( 'Parent', obj.pnlDataSettings, 'ButtonSize', [120 25]);
@@ -87,10 +93,10 @@ classdef CVTab < BasicTab
                 'BackgroundColor', 'white', 'callback', @obj.Input_NumPC_PLS);
             hboxm2_.Widths = [30,10,30,10,30];
             
-            hboxm4 = uiextras.HButtonBox( 'Parent', vbox_mod, 'ButtonSize', [120 30]);
+            obj.hboxm4 = uiextras.HButtonBox( 'Parent', vbox_mod, 'ButtonSize', [120 30]);
             %lblAlpha
-            uicontrol('Parent', hboxm4, 'Style', 'text', 'String', 'Type I error');
-            hboxm4_ = uix.Grid( 'Parent', hboxm4);
+            uicontrol('Parent', obj.hboxm4, 'Style', 'text', 'String', 'Type I error');
+            hboxm4_ = uix.Grid( 'Parent', obj.hboxm4);
             obj.tbAlphaMin = uicontrol('Parent', hboxm4_, 'Style', 'edit', 'String', '0.05',...
                 'BackgroundColor', 'white', 'callback', @obj.Input_Alpha);
             uicontrol('Parent', hboxm4_, 'Style', 'text', 'String', '-', 'HorizontalAlignment', 'center');
@@ -559,10 +565,10 @@ classdef CVTab < BasicTab
                 
                 if mode == 2
                     N = num_of_splits*ps_iters*al_iters;
-                    Results = repmat(struct('numpc',0,'alpha',0,'fom_cal',[],'fom_val',[],'split', 0), N, 1 );
+                    Results = repmat(struct('numpc',0,'alpha',0,'model',[],'result',[],'split', 0), N, 1 );
                 else
                     N = num_of_splits*ps_iters;
-                    Results = repmat(struct('numpc',0,'fom_cal',[],'fom_val',[],'split', 0), N, 1 );
+                    Results = repmat(struct('numpc',0,'model',[],'result',[],'split', 0), N, 1 );
                 end
                 
                 for split = 1:num_of_splits
@@ -577,6 +583,9 @@ classdef CVTab < BasicTab
                     v.RawData = dat(self.cvtask.Splits(:,split) == 1,:);
                     v.RawClasses = cls(self.cvtask.Splits(:,split) == 1,:);
                     
+                    t.Name = sprintf('%s_cal_%d', d.Name, split);
+                    v.Name = sprintf('%s_val_%d', d.Name, split);
+                    
                     for numpc = min_pc:pc_step:max_pc
                         if mode == 2
                             for alpha = min_alpha:alpha_step:max_alpha
@@ -584,13 +593,15 @@ classdef CVTab < BasicTab
                                 m = PLSDAModel(t, numpc, alpha, gamma);
                                 res = m.Apply(v);
                                 
+                                res = rmfield(res,'AllocationTable');
+                                res = rmfield(res,'Distances');
+                                res = rmfield(res,'Labels');
+                                res = rmfield(res,'Mode');
+                                                               
                                 Results(k).numpc = numpc;
                                 Results(k).alpha = alpha;
-                                Results(k).fom_cal = m.FiguresOfMerit;
-                                
-                                if isfield(res, 'FiguresOfMerit')
-                                    Results(k).fom_val = res.FiguresOfMerit;
-                                end
+                                Results(k).model = m;
+                                Results(k).result = res;
                                 
                                 Results(k).split = split;
                                 
@@ -603,9 +614,15 @@ classdef CVTab < BasicTab
                             m.Rebuild();
                             res = m.Apply(v);
                             
+                            res = rmfield(res,'AllocationTable');
+                            res = rmfield(res,'Distances');
+                            res = rmfield(res,'Labels');
+                            res = rmfield(res,'Mode');
+                            
                             Results(k).numpc = numpc;
-                            Results(k).fom_cal = m.FiguresOfMerit;
-                            Results(k).fom_val = res.FiguresOfMerit;
+                            Results(k).model = m;
+                            Results(k).result = res;
+                            
                             Results(k).split = split;
                             
                             waitbar(k/N, h);
@@ -669,6 +686,15 @@ classdef CVTab < BasicTab
             
             self.btnCVRun.Enable = 'on';
             self.btnCVSave.Enable = 'on';
+        end
+        
+        function Input_ModelParameters(self, src, ~)
+           switch (src.Value)
+               case 1 %hard
+                   self.hboxm4.Visible = 'off';
+               case 2 %soft
+                   self.hboxm4.Visible = 'on';
+           end
         end
         
         function Input_CVParam(self, src, param)

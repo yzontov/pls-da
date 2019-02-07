@@ -36,10 +36,9 @@ classdef  GUIWindow<handle
         PredictTableAllocation = 10;
         PredictTableConfusion = 11;
         PredictTableFoM = 12;
-        CVGraph = 16;
-        CVTable = 17;
+        CVData = 16;
+        CVResults = 17;
     end
-    
     
     methods
         
@@ -67,7 +66,7 @@ classdef  GUIWindow<handle
                     delete(obj.cvTab);
                     obj.cvTab = [];
                 end
-             end
+            end
         end
         
         function handleDatasetDelete(obj,src,~)
@@ -87,13 +86,13 @@ classdef  GUIWindow<handle
                     PlotType = get(self.dataTab.ddlPlotType, 'Value');
                     self.selected_tab = GUIWindow.DataTabSelected;
                     
-                    if self.selected_panel == GUIWindow.DataPCA
+                    if self.selected_panel == GUIWindow.DataPCA || strcmp(self.dataTab.pnlPCASettings.Visible, 'on')
                         var = self.dataTab.chkPlotShowObjectNamesPCA.Value;
                         self.dataTab.chkTraining.Enable = 'off';
                         self.dataTab.chkValidation.Enable = 'off';
                     else
                         self.dataTab.chkTraining.Enable = 'on';
-                        self.dataTab.chkValidation.Enable = 'on';    
+                        self.dataTab.chkValidation.Enable = 'on';
                     end
                     
                 case 'Model'
@@ -113,7 +112,7 @@ classdef  GUIWindow<handle
                     datacursormode on
                     dcm_obj = datacursormode(self.fig);
                     if isprop(dcm_obj, 'Interpreter')
-                    	dcm_obj.Interpreter = 'none';
+                        dcm_obj.Interpreter = 'none';
                     end
                     set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
                 else
@@ -124,7 +123,7 @@ classdef  GUIWindow<handle
                         pan off
                     end
                     
-                    if get(self.dataTab.ddlPlotTypePCA,'value')==2 && self.selected_panel_pca == GUIWindow.DataPCALoadings 
+                    if get(self.dataTab.ddlPlotTypePCA,'value')==2 && self.selected_panel_pca == GUIWindow.DataPCALoadings
                         pan on
                     else
                         pan off
@@ -182,138 +181,177 @@ classdef  GUIWindow<handle
                         case 'Figures of merit'
                             self.selected_text_panel = GUIWindow.PredictTableFoM;
                     end
+                case GUIWindow.CVTabSelected
+                    switch obj.SelectedTab.Title
+                        case 'Data'
+                            self.selected_panel = GUIWindow.CVData;
+                        case 'Results'
+                            self.selected_panel = GUIWindow.CVResults;
+                    end
             end
             
-            if self.selected_tab == GUIWindow.DataTabSelected
-                if self.selected_panel == GUIWindow.DataTable
-                    set(self.dataTab.pnlPlotSettings,'visible','off');
-                    set(self.dataTab.pnlTableSettings,'visible','on');
-                    set(self.dataTab.pnlPCASettings,'visible','off');
-                    self.dataTab.vbox.Heights=[40,30,40,40,0,160,0];
-                    
-                    self.dataTab.chkTraining.Enable = 'on';
-                    self.dataTab.chkValidation.Enable = 'on';
+            %if self.selected_tab == GUIWindow.DataTabSelected
+            if self.selected_panel == GUIWindow.DataTable
+                set(self.dataTab.pnlPlotSettings,'visible','off');
+                set(self.dataTab.pnlTableSettings,'visible','on');
+                set(self.dataTab.pnlPCASettings,'visible','off');
+                self.dataTab.vbox.Heights=[40,30,40,40,0,160,0];
+                
+                self.dataTab.chkTraining.Enable = 'on';
+                self.dataTab.chkValidation.Enable = 'on';
+            end
+            
+            if self.selected_panel == GUIWindow.DataGraph
+                set(self.dataTab.pnlPlotSettings,'visible','on');
+                set(self.dataTab.pnlTableSettings,'visible','off');
+                set(self.dataTab.pnlPCASettings,'visible','off');
+                if ispc
+                    self.dataTab.vbox.Heights=[40,30,40,40,170,0,0];
+                else
+                    self.dataTab.vbox.Heights=[40,30,40,40,160,0,0];
                 end
                 
-                if self.selected_panel == GUIWindow.DataGraph
-                    set(self.dataTab.pnlPlotSettings,'visible','on');
-                    set(self.dataTab.pnlTableSettings,'visible','off');
-                    set(self.dataTab.pnlPCASettings,'visible','off');
-                    if ispc
-                        self.dataTab.vbox.Heights=[40,30,40,40,170,0,0];
-                    else
-                        self.dataTab.vbox.Heights=[40,30,40,40,160,0,0];
-                    end
-                    
-                    self.dataTab.chkTraining.Enable = 'on';
-                    self.dataTab.chkValidation.Enable = 'on';
-                end
+                self.dataTab.chkTraining.Enable = 'on';
+                self.dataTab.chkValidation.Enable = 'on';
+            end
+            
+            if self.selected_panel == GUIWindow.DataPCA
+                set(self.dataTab.pnlPlotSettings,'visible','off');
+                set(self.dataTab.pnlTableSettings,'visible','off');
+                set(self.dataTab.pnlPCASettings,'visible','on');
                 
-                if self.selected_panel == GUIWindow.DataPCA
-                    set(self.dataTab.pnlPlotSettings,'visible','off');
-                    set(self.dataTab.pnlTableSettings,'visible','off');
-                    set(self.dataTab.pnlPCASettings,'visible','on');
-                    
-                    index_selected = get(self.dataTab.listbox,'Value');
-                    names = get(self.dataTab.listbox,'String');
-                    selected_name = names{index_selected};
-
-                    if index_selected > 1
-                        d = evalin('base', selected_name);
-                        if d.HasPCA
-                            param = 'on';
-                            self.dataTab.DrawPCA();
-                        else
-                            param = 'off';
-                        end
+                index_selected = get(self.dataTab.listbox,'Value');
+                names = get(self.dataTab.listbox,'String');
+                selected_name = names{index_selected};
+                
+                if index_selected > 1
+                    d = evalin('base', selected_name);
+                    if d.HasPCA
+                        param = 'on';
+                        self.dataTab.DrawPCA();
                     else
                         param = 'off';
                     end
-                    
-                    self.dataTab.chkTraining.Enable = 'off';
-                    self.dataTab.chkValidation.Enable = 'off';
-                    
-                    
-                    self.dataTab.enablePCAPanel(param);
-                    
-                    self.dataTab.vbox.Heights=[40,30,40,40,0,0,150];
-                    
-                    if self.selected_panel_pca == GUIWindow.DataPCAScores
-                        set(self.dataTab.hbox_pca_plot_type,'visible','off');
-                        set(self.dataTab.hbox_pca_plot_options,'visible','on');
-                        self.dataTab.vbox_pca.Heights=[20,20,0,25];
-                        set(self.dataTab.chkPlotShowClassesPCA,'enable','on');
-                        
-                        self.dataTab.chkTraining.Enable = 'off';
-                        self.dataTab.chkValidation.Enable = 'off';
-                        
-                        obj_index_selected = get(self.dataTab.listbox,'Value');
-                        names = get(self.dataTab.listbox,'String');
-                        selected_name = names{obj_index_selected};
-                        
-                        if obj_index_selected > 1
-                            d = evalin('base', selected_name);
-                            if isempty(d.Classes) || ~d.HasPCA
-                                set(self.dataTab.chkPlotShowClassesPCA, 'value', 0);
-                                set(self.dataTab.chkPlotShowClassesPCA, 'enable', 'off');
-                            end
-                        end
-                        
-                        
+                else
+                    param = 'off';
+                end
+                
+                self.dataTab.chkTraining.Enable = 'off';
+                self.dataTab.chkValidation.Enable = 'off';
+                
+                
+                self.dataTab.enablePCAPanel(param);
+                
+                self.dataTab.vbox.Heights=[40,30,40,40,0,0,150];
+                
+            end
+            
+            if self.selected_panel_pca == GUIWindow.DataPCAScores
+                set(self.dataTab.hbox_pca_plot_type,'visible','off');
+                set(self.dataTab.hbox_pca_plot_options,'visible','on');
+                self.dataTab.vbox_pca.Heights=[20,20,0,25];
+                set(self.dataTab.chkPlotShowClassesPCA,'enable','on');
+                
+                %self.dataTab.chkTraining.Enable = 'off';
+                %self.dataTab.chkValidation.Enable = 'off';
+                
+                set(self.dataTab.chkPlotShowObjectNamesPCA,'enable','on');
+                
+                obj_index_selected = get(self.dataTab.listbox,'Value');
+                names = get(self.dataTab.listbox,'String');
+                selected_name = names{obj_index_selected};
+                
+                if obj_index_selected > 1
+                    d = evalin('base', selected_name);
+                    if isempty(d.Classes) || ~d.HasPCA
+                        set(self.dataTab.chkPlotShowClassesPCA, 'value', 0);
+                        set(self.dataTab.chkPlotShowClassesPCA, 'enable', 'off');
                     end
-                    
-                    if self.selected_panel_pca == GUIWindow.DataPCALoadings
-                        set(self.dataTab.hbox_pca_plot_type,'visible','on');
-                        set(self.dataTab.chkPlotShowClassesPCA,'enable','off');
-                        self.dataTab.vbox_pca.Heights=[20,20,25,0];
-                        
-                        self.dataTab.chkTraining.Enable = 'off';
-                        self.dataTab.chkValidation.Enable = 'off';
-                        
-                        if(self.dataTab.ddlPlotTypePCA.Value == 2)%line
-                            self.dataTab.ddlPCApc1.Enable = 'off';
-                            self.dataTab.ddlPCApc2.Enable = 'off';
-                        end
-                        
-                    end
+                end
+                
+                
+            end
+            
+            if self.selected_panel_pca == GUIWindow.DataPCALoadings
+                set(self.dataTab.hbox_pca_plot_type,'visible','on');
+                set(self.dataTab.chkPlotShowClassesPCA,'enable','off');
+                self.dataTab.vbox_pca.Heights=[20,20,25,0];
+                
+                %self.dataTab.chkTraining.Enable = 'off';
+                %self.dataTab.chkValidation.Enable = 'off';
+                
+                if(self.dataTab.ddlPlotTypePCA.Value == 2)%line
+                    set(self.dataTab.chkPlotShowObjectNamesPCA,'enable','off');
+
+                    self.dataTab.ddlPCApc1.Enable = 'off';
+                    self.dataTab.ddlPCApc2.Enable = 'off';
                 end
                 
             end
             
-            if self.selected_tab == GUIWindow.ModelTabSelected
-                if self.selected_panel == GUIWindow.ModelTable
-                    set(self.modelTab.pnlPlotSettings,'visible','off');
-                    set(self.modelTab.pnlTableSettings,'visible','on');
-                    self.modelTab.vbox.Heights=[40,180,0,50];
-                end
-                
-                if self.selected_panel == GUIWindow.ModelGraph
-                    set(self.modelTab.pnlPlotSettings,'visible','on');
-                    set(self.modelTab.pnlTableSettings,'visible','off');
-                    
-                    if ispc
-                        self.modelTab.vbox.Heights=[40,180,120,0];
-                    else
-                        self.modelTab.vbox.Heights=[40,180,110,0];
-                    end
-                end
-                
+            %end
+            
+            %if self.selected_tab == GUIWindow.ModelTabSelected
+            if self.selected_panel == GUIWindow.ModelTable
+                set(self.modelTab.pnlPlotSettings,'visible','off');
+                set(self.modelTab.pnlTableSettings,'visible','on');
+                self.modelTab.vbox.Heights=[40,180,0,50];
             end
             
-            if self.selected_tab == GUIWindow.PredictTabSelected
-                if self.selected_panel == GUIWindow.PredictTable
-                    set(self.predictTab.pnlPlotSettings,'visible','off');
-                    set(self.predictTab.pnlTableSettings,'visible','on');
-                    self.predictTab.vbox.Heights=[100,0,50];
-                end
+            if self.selected_panel == GUIWindow.ModelGraph
+                set(self.modelTab.pnlPlotSettings,'visible','on');
+                set(self.modelTab.pnlTableSettings,'visible','off');
                 
-                if self.selected_panel == GUIWindow.PredictGraph
-                    set(self.predictTab.pnlPlotSettings,'visible','on');
-                    set(self.predictTab.pnlTableSettings,'visible','off');
-                    self.predictTab.vbox.Heights=[100,120,0];
+                if ispc
+                    self.modelTab.vbox.Heights=[40,180,120,0];
+                else
+                    self.modelTab.vbox.Heights=[40,180,110,0];
                 end
-                
             end
+            
+            %end
+            
+            %if self.selected_tab == GUIWindow.PredictTabSelected
+            if self.selected_panel == GUIWindow.PredictTable
+                set(self.predictTab.pnlPlotSettings,'visible','off');
+                set(self.predictTab.pnlTableSettings,'visible','on');
+                self.predictTab.vbox.Heights=[100,0,50];
+            end
+            
+            if self.selected_panel == GUIWindow.PredictGraph
+                set(self.predictTab.pnlPlotSettings,'visible','on');
+                set(self.predictTab.pnlTableSettings,'visible','off');
+                self.predictTab.vbox.Heights=[100,120,0];
+            end
+            
+            %end
+            
+            %if self.selected_tab == GUIWindow.CVTabSelected
+            if self.selected_panel == GUIWindow.CVResults
+                set(self.cvTab.pnlResultsSettings,'visible','on');
+                
+                self.cvTab.pnlDataSettings.Visible = 'off';
+                self.cvTab.pnlCrossValidationSettings  = 'off';
+                self.cvTab.pnlModelSettings = 'off';
+                
+                self.cvTab.vbox.Heights=[0,0,0,160,0];
+            end
+            
+            if self.selected_panel == GUIWindow.CVData
+                set(self.cvTab.pnlResultsSettings,'visible','off');
+                
+                self.cvTab.pnlDataSettings.Visible = 'on';
+                self.cvTab.pnlCrossValidationSettings  = 'on';
+                self.cvTab.pnlModelSettings = 'on';
+                
+                if ispc
+                    self.cvTab.vbox.Heights=[40,130,150,0,0];
+                else
+                    self.cvTab.vbox.Heights=[40,120,150,0,0];
+                end
+            end
+            
+            %end
             
             if(~isempty(var))
                 if(var == 1)
@@ -321,18 +359,18 @@ classdef  GUIWindow<handle
                     datacursormode on
                     dcm_obj = datacursormode(self.fig);
                     if isprop(dcm_obj, 'Interpreter')
-                    	dcm_obj.Interpreter = 'none';
+                        dcm_obj.Interpreter = 'none';
                     end
                     set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
                 else
                     datacursormode off
-                    if (isempty(PlotType) || PlotType == 1) && self.selected_panel == GUIWindow.DataGraph 
+                    if (isempty(PlotType) || PlotType == 1) && self.selected_panel == GUIWindow.DataGraph
                         pan on
                     else
                         pan off
                     end
                     
-                    if get(self.dataTab.ddlPlotTypePCA,'value')==2 && self.selected_panel_pca == GUIWindow.DataPCALoadings 
+                    if get(self.dataTab.ddlPlotTypePCA,'value')==2 && self.selected_panel_pca == GUIWindow.DataPCALoadings
                         set(self.dataTab.chkPlotShowObjectNamesPCA,'enable','off');
                         set(self.dataTab.chkPlotShowObjectNamesPCA,'value', 0);
                         pan on
@@ -413,7 +451,7 @@ classdef  GUIWindow<handle
             if tabs(4)
                 win.cvTab = CVTab(win.tgroup, win);
             end
-
+            
             set(win.tgroup, 'SelectionChangedFcn', @win.TabSelected);
             
             allvars = evalin('base','whos');
@@ -422,14 +460,14 @@ classdef  GUIWindow<handle
             idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
             
             if ~isempty(idx)
-            	names = varnames(idx);
+                names = varnames(idx);
                 %dataset_list = cell(1, length(names));
                 for i = 1:length(names)
-                   d = evalin('base', names{i});
-                   %dataset_list{i} = d;
-                   addlistener(d,'Deleting',@win.handleDatasetDelete);  
+                    d = evalin('base', names{i});
+                    %dataset_list{i} = d;
+                    addlistener(d,'Deleting',@win.handleDatasetDelete);
                 end
-            
+                
             end
             
         end
@@ -475,7 +513,7 @@ classdef  GUIWindow<handle
                 if ~isempty(classes)
                     cls = classes(index);
                     class_labels = event_obj.Target.Parent.UserData{5};
-
+                    
                     if isempty(flag)
                         if isempty(class_labels)
                             output_txt = sprintf('Object: %s\nClass: %d', str{1}, cls);
@@ -500,7 +538,7 @@ classdef  GUIWindow<handle
                 output_txt = 'not an object';
             end
             
- 
+            
         end
         
     end

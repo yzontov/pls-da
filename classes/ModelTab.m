@@ -199,7 +199,7 @@ classdef  ModelTab < BasicTab
                 tg.SelectedTab = tg.Children(1);
                 self.tbl_tabgroup.SelectedTab = self.tbl_tabgroup.Children(1);
                 
-                if self.parent.selected_tab == GUIWindow.ModelTabSelected;
+                if self.parent.selected_tab == GUIWindow.ModelTabSelected
                 %self.parent.selected_tab = GUIWindow.ModelTabSelected;
                     self.parent.selected_panel = GUIWindow.ModelGraph;
                     self.parent.selected_text_panel = GUIWindow.ModelTableAllocation;
