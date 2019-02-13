@@ -8,6 +8,8 @@ classdef CVTab < BasicTab
         pnlCrossValidationSettings;
         pnlModelSettings
         pnlResultsSettings;
+        
+        pnlPlotSettings;
         pnlTableSettings;
         
         ddlDataSet;
@@ -42,9 +44,116 @@ classdef CVTab < BasicTab
         cvtask;
         
         hboxm4;
+        
+        ddlResultViewMode;
+        ddlSelectedSplit;
+        ddlResultCategory;
+        ddlResultDataSet;
+        
+        ddlPlotVarY;
+        ddlPlotVarX;
+        
+        btnExamineModel;
+        btnSaveDatasets;
+     
     end
     
     methods
+        
+        function Callback_ResultCategory(self, src, param)
+            if src.Value == 1 %summary
+                self.ddlSelectedSplit.Visible = 'off';
+                self.btnExamineModel.Visible = 'off';
+                self.btnSaveDatasets.Visible = 'off';
+            else
+                self.ddlSelectedSplit.Visible = 'on';
+                self.btnExamineModel.Visible = 'on';
+                self.btnSaveDatasets.Visible = 'on';
+            end
+        end
+        
+        function Callback_SelectedSplit(self, src, param)
+            
+        end
+        
+        function Callback_ResultViewMode(self, src, param)
+            if src.Value == 1 % Graphics
+                self.vbox.Heights=[0,0,0,160,100,0];
+                set(self.pnlPlotSettings,'visible','on');
+                set(self.pnlTableSettings,'visible','off');
+            else
+                self.vbox.Heights=[0,0,0,160,0,60];
+                set(self.pnlPlotSettings,'visible','off');
+                set(self.pnlTableSettings,'visible','on');
+            end
+        end
+        
+        function Callback_ResultDataSet(self, src, param)
+
+        end
+        
+        function RedrawCallback(self, src, param)
+
+        end
+        
+        function SavePlot(self, src, param)
+
+        end
+        
+        function SaveTable(self, src, param)
+
+        end
+        
+        function CopyPlotToClipboard(self, src, param)
+
+        end
+        
+        function CopyTableToClipboard(self, src, param)
+
+        end
+        
+        function ExamineModel(self, src, param)
+            
+            if ~isempty(self.cvtask.Results)
+                ind = self.ddlSelectedSplit.Value;
+                model = self.cvtask.Results(ind).model;
+                
+                assignin('base', model.TrainingDataSet.Name, model.TrainingDataSet);
+                
+                if isempty(self.parent.modelTab)
+                    self.parent.modelTab = ModelTab(self.parent.tgroup, self.parent);
+                end
+                
+                if ~isempty(self.parent.modelTab)
+                    
+                    allvars = evalin('base','whos');
+                    
+                    idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
+                    if sum(idx) > 0
+                        l = allvars(idx);
+                        vardisplay  = [{'-'}, {l.name}];
+                        set(self.parent.modelTab.ddlCalibrationSet, 'String', vardisplay);
+                    end
+                    
+                    
+                    self.parent.modelTab.Model = model;
+                    ind = arrayfun(@(x)isequal(x.Title ,'Model'),self.parent.tgroup.Children);
+                    mtab = self.parent.tgroup.Children(ind);
+                    self.parent.tgroup.SelectedTab = mtab;
+                end
+            else
+                
+            end
+            
+        end
+            
+            
+        
+        function SaveDatasets(self, src, param)
+
+        end
+
+        
         function obj = CVTab(tabgroup, parent)
             
             obj = obj@BasicTab(tabgroup, 'Cross-validation', parent);
@@ -58,10 +167,74 @@ classdef CVTab < BasicTab
             obj.pnlCrossValidationSettings = uiextras.Panel('Parent', obj.vbox, 'Title', 'Cross-validation settings', 'TitlePosition', 'LeftTop');
             
             obj.pnlResultsSettings = uiextras.Panel( 'Parent', obj.vbox, 'Title', 'Options', 'TitlePosition', 'LeftTop','visible','off');
+            
+            obj.pnlPlotSettings = uiextras.Panel( 'Parent', obj.vbox, 'Title', 'Plot settings', 'TitlePosition', 'LeftTop');
             obj.pnlTableSettings = uiextras.Panel( 'Parent', obj.vbox, 'Title', 'Table view options', 'TitlePosition', 'LeftTop','visible','off');
             
             %results view options
-            hbox21 = uiextras.HButtonBox( 'Parent', obj.pnlResultsSettings, 'ButtonSize', [120 25]);
+            vbox21 = uix.VBox( 'Parent', obj.pnlResultsSettings, 'Padding', 15, 'Spacing', 5 );
+            hbox21 = uix.Grid( 'Parent', vbox21);
+            uicontrol('Parent', hbox21, 'Style', 'text', 'String', 'Results');
+            obj.ddlResultCategory = uicontrol('Parent', hbox21, 'Style', 'popupmenu', 'String', {'Summary','Individual split'},...
+                'Value',1, 'BackgroundColor', 'white', 'callback', @obj.Callback_ResultCategory);
+            %uicontrol('Parent', hbox21, 'Style', 'text', 'String', 'View mode');
+            obj.ddlSelectedSplit = uicontrol('Parent', hbox21, 'Style', 'popupmenu', 'String', {'-'},...
+                'Value',1, 'BackgroundColor', 'white', 'callback', @obj.Callback_SelectedSplit,'Visible','off');
+            hbox21.Widths = [60,120,60];
+            
+            hbox22 = uix.Grid( 'Parent', vbox21);
+            uicontrol('Parent', hbox22, 'Style', 'text', 'String', 'View mode');
+            obj.ddlResultViewMode = uicontrol('Parent', hbox22, 'Style', 'popupmenu', 'String', {'Graphics','Table view'},...
+                'Value',1, 'BackgroundColor', 'white', 'callback', @obj.Callback_ResultViewMode);
+            
+            hbox22.Widths = [60,120];
+            
+            hbox23 = uix.Grid( 'Parent', vbox21);
+            uicontrol('Parent', hbox23, 'Style', 'text', 'String', 'Dataset');
+            obj.ddlResultDataSet = uicontrol('Parent', hbox23, 'Style', 'popupmenu', 'String', {'Calibration','Validation'},...
+                'Value',1, 'BackgroundColor', 'white', 'callback', @obj.Callback_ResultDataSet);
+            
+            hbox23.Widths = [60,120];
+            
+            hboxp24 = uix.HButtonBox( 'Parent', vbox21, 'ButtonSize', [120 25]);
+            obj.btnExamineModel = uicontrol('Parent', hboxp24, 'Style', 'pushbutton', 'String', 'Examine the model',...
+                'callback', @obj.ExamineModel, 'Visible','off');
+            obj.btnSaveDatasets = uicontrol('Parent', hboxp24, 'Style', 'pushbutton', 'String', 'Save datasets',...
+                'callback', @obj.SaveDatasets, 'Visible','off');
+            
+            
+            vbox_plot = uix.VBox( 'Parent', obj.pnlPlotSettings, 'Padding', 5, 'Spacing', 5 );
+            
+            hboxp3 = uix.HButtonBox( 'Parent', vbox_plot, 'ButtonSize', [120 20], 'Spacing', 5);
+            uicontrol('Parent', hboxp3, 'Style', 'text', 'String', 'Y-axis', ...
+                 'HorizontalAlignment', 'left');
+            obj.ddlPlotVarY = uicontrol('Parent', hboxp3, 'Style', 'popupmenu', 'String', {'-'},...
+                 'BackgroundColor', 'white', 'callback', @obj.RedrawCallback);
+            
+            uicontrol('Parent', hboxp3, 'Style', 'text', 'String', 'X-axis', ...
+                 'HorizontalAlignment', 'left');
+            obj.ddlPlotVarX = uicontrol('Parent', hboxp3, 'Style', 'popupmenu', 'String', {'-'},...
+                 'BackgroundColor', 'white', 'callback', @obj.RedrawCallback);
+             
+            hboxp1 = uix.HButtonBox( 'Parent', vbox_plot, 'ButtonSize', [120 25]);
+            uicontrol('Parent', hboxp1, 'Style', 'pushbutton', 'String', 'Save image to file',...
+                'callback', @obj.SavePlot);
+            uicontrol('Parent', hboxp1, 'Style', 'pushbutton', 'String', 'Copy image to clipboard',...
+                'callback', @obj.CopyPlotToClipboard);
+            
+            hboxt1 = uix.HButtonBox( 'Parent', obj.pnlTableSettings, 'ButtonSize', [120 25]);
+            uicontrol('Parent', hboxt1, 'Style', 'pushbutton', 'String', 'Save tables to file',...
+                'callback', @obj.SaveTable);
+            uicontrol('Parent', hboxt1, 'Style', 'pushbutton', 'String', 'Copy tables to clipboard',...
+                'callback', @obj.CopyTableToClipboard);
+            
+            
+            
+            
+            
+            
+            
+            
             
             
             
@@ -154,9 +327,9 @@ classdef CVTab < BasicTab
                 'callback', @obj.Callback_LoadCVTask);
             
             if ispc
-                obj.vbox.Heights=[40,130,150,0,0];
+                obj.vbox.Heights=[40,130,150,0,0,0];
             else
-                obj.vbox.Heights=[40,120,150,0,0];
+                obj.vbox.Heights=[40,120,150,0,0,0];
             end
             
             obj.FillDataSetList();
@@ -348,6 +521,10 @@ classdef CVTab < BasicTab
         
         function ShowResults(self)
             self.tab_result.Parent = self.tg;
+            
+            if ~isempty(self.cvtask.Results)
+                self.ddlSelectedSplit.String = {self.cvtask.Results.split}; 
+            end
         end
         
         function Callback_LoadCVTask(self, src, param)
@@ -544,6 +721,10 @@ classdef CVTab < BasicTab
                 
                 dat = d.RawData(logical(d.SelectedSamples),:);
                 cls = d.RawClasses(logical(d.SelectedSamples),:);
+                lbl = [];
+                if ~isempty(d.ObjectNames)
+                    lbl = d.ObjectNames(logical(d.SelectedSamples),:);
+                end
                 
                 min_pc = str2double(self.tbNumPCplsMin.String);
                 pc_step = str2double(self.tbNumPCplsStep.String);
@@ -578,10 +759,20 @@ classdef CVTab < BasicTab
                     t.Centering = d.Centering;
                     t.Scaling = d.Scaling;
                     t.RawClasses = cls(self.cvtask.Splits(:,split) == 0,:);
+                    t.Training = true;
+                    
+                    if ~isempty(lbl)
+                        t.ObjectNames = lbl(self.cvtask.Splits(:,split) == 0,:);
+                    end
                     
                     v = DataSet();
                     v.RawData = dat(self.cvtask.Splits(:,split) == 1,:);
                     v.RawClasses = cls(self.cvtask.Splits(:,split) == 1,:);
+                    v.Validation = true;
+                    
+                    if ~isempty(lbl)
+                        v.ObjectNames = lbl(self.cvtask.Splits(:,split) == 1,:);
+                    end
                     
                     t.Name = sprintf('%s_cal_%d', d.Name, split);
                     v.Name = sprintf('%s_val_%d', d.Name, split);

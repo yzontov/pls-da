@@ -67,6 +67,12 @@ classdef  ModelTab < BasicTab
                 set(self.tbAlpha,'string',sprintf('%.2f',self.Model.Alpha));
                 set(self.tbGamma,'string',sprintf('%.2f',self.Model.Gamma));
                 
+                if strcmp(self.Model.Mode, 'soft')
+                    self.ddlModelType.Value = 2;
+                else
+                    self.ddlModelType.Value = 1;
+                end
+                
                 set(self.btnRecalibrate,'string','Recalibrate');             
                 
                 Labels = cell(size(self.Model.TrainingDataSet.ProcessedData, 1),1);

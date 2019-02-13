@@ -330,24 +330,34 @@ classdef  GUIWindow<handle
             if self.selected_panel == GUIWindow.CVResults
                 set(self.cvTab.pnlResultsSettings,'visible','on');
                 
-                self.cvTab.pnlDataSettings.Visible = 'off';
-                self.cvTab.pnlCrossValidationSettings  = 'off';
-                self.cvTab.pnlModelSettings = 'off';
                 
-                self.cvTab.vbox.Heights=[0,0,0,160,0];
+                self.cvTab.pnlDataSettings.Visible = 'off';
+                self.cvTab.pnlCrossValidationSettings.Visible  = 'off';
+                self.cvTab.pnlModelSettings.Visible = 'off';
+                
+                if self.cvTab.ddlResultViewMode.Value == 1 % Graphics
+                    self.cvTab.vbox.Heights=[0,0,0,160,100,0];
+                    set(self.cvTab.pnlPlotSettings,'visible','on');
+                    set(self.cvTab.pnlTableSettings,'visible','off');
+                else
+                    self.cvTab.vbox.Heights=[0,0,0,160,0,60];
+                    set(self.cvTab.pnlPlotSettings,'visible','off');
+                    set(self.cvTab.pnlTableSettings,'visible','on');
+                end
+                    
             end
             
             if self.selected_panel == GUIWindow.CVData
                 set(self.cvTab.pnlResultsSettings,'visible','off');
                 
                 self.cvTab.pnlDataSettings.Visible = 'on';
-                self.cvTab.pnlCrossValidationSettings  = 'on';
-                self.cvTab.pnlModelSettings = 'on';
+                self.cvTab.pnlCrossValidationSettings.Visible  = 'on';
+                self.cvTab.pnlModelSettings.Visible = 'on';
                 
                 if ispc
-                    self.cvTab.vbox.Heights=[40,130,150,0,0];
+                    self.cvTab.vbox.Heights=[40,130,150,0,0,0];
                 else
-                    self.cvTab.vbox.Heights=[40,120,150,0,0];
+                    self.cvTab.vbox.Heights=[40,120,150,0,0,0];
                 end
             end
             
