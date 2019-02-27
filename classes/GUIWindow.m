@@ -336,11 +336,11 @@ classdef  GUIWindow<handle
                 self.cvTab.pnlModelSettings.Visible = 'off';
                 
                 if self.cvTab.ddlResultViewMode.Value == 1 % Graphics
-                    self.cvTab.vbox.Heights=[0,0,0,160,100,0];
+                    self.cvTab.vbox.Heights=[0,0,0,200,100,0];
                     set(self.cvTab.pnlPlotSettings,'visible','on');
                     set(self.cvTab.pnlTableSettings,'visible','off');
                 else
-                    self.cvTab.vbox.Heights=[0,0,0,160,0,60];
+                    self.cvTab.vbox.Heights=[0,0,0,200,0,60];
                     set(self.cvTab.pnlPlotSettings,'visible','off');
                     set(self.cvTab.pnlTableSettings,'visible','on');
                 end

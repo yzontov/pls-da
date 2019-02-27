@@ -46,7 +46,13 @@ classdef CVTab < BasicTab
         hboxm4;
         
         ddlResultViewMode;
+        
         ddlSelectedSplit;
+        ddlSelectedAlpha;
+        
+        lblSelectedSplit;
+        lblSelectedAlpha;
+        
         ddlResultCategory;
         ddlResultDataSet;
         
@@ -63,10 +69,16 @@ classdef CVTab < BasicTab
         function Callback_ResultCategory(self, src, param)
             if src.Value == 1 %summary
                 self.ddlSelectedSplit.Visible = 'off';
+                self.ddlSelectedAlpha.Visible = 'off';
+                self.lblSelectedSplit.Visible = 'off';
+                self.lblSelectedAlpha.Visible = 'off';
                 self.btnExamineModel.Visible = 'off';
                 self.btnSaveDatasets.Visible = 'off';
             else
                 self.ddlSelectedSplit.Visible = 'on';
+                self.ddlSelectedAlpha.Visible = 'on';
+                self.lblSelectedSplit.Visible = 'on';
+                self.lblSelectedAlpha.Visible = 'on';
                 self.btnExamineModel.Visible = 'on';
                 self.btnSaveDatasets.Visible = 'on';
             end
@@ -78,11 +90,11 @@ classdef CVTab < BasicTab
         
         function Callback_ResultViewMode(self, src, param)
             if src.Value == 1 % Graphics
-                self.vbox.Heights=[0,0,0,160,100,0];
+                self.vbox.Heights=[0,0,0,200,100,0];
                 set(self.pnlPlotSettings,'visible','on');
                 set(self.pnlTableSettings,'visible','off');
             else
-                self.vbox.Heights=[0,0,0,160,0,60];
+                self.vbox.Heights=[0,0,0,200,0,60];
                 set(self.pnlPlotSettings,'visible','off');
                 set(self.pnlTableSettings,'visible','on');
             end
@@ -173,28 +185,37 @@ classdef CVTab < BasicTab
             
             %results view options
             vbox21 = uix.VBox( 'Parent', obj.pnlResultsSettings, 'Padding', 15, 'Spacing', 5 );
-            hbox21 = uix.Grid( 'Parent', vbox21);
+            hbox21 = uix.Grid( 'Parent', vbox21,'Spacing', 5);
             uicontrol('Parent', hbox21, 'Style', 'text', 'String', 'Results');
             obj.ddlResultCategory = uicontrol('Parent', hbox21, 'Style', 'popupmenu', 'String', {'Summary','Individual split'},...
                 'Value',1, 'BackgroundColor', 'white', 'callback', @obj.Callback_ResultCategory);
             %uicontrol('Parent', hbox21, 'Style', 'text', 'String', 'View mode');
-            obj.ddlSelectedSplit = uicontrol('Parent', hbox21, 'Style', 'popupmenu', 'String', {'-'},...
-                'Value',1, 'BackgroundColor', 'white', 'callback', @obj.Callback_SelectedSplit,'Visible','off');
-            hbox21.Widths = [60,120,60];
+            hbox21.Widths = [60,120];
             
-            hbox22 = uix.Grid( 'Parent', vbox21);
+            hbox22 = uix.Grid( 'Parent', vbox21,'Spacing', 5);
             uicontrol('Parent', hbox22, 'Style', 'text', 'String', 'View mode');
             obj.ddlResultViewMode = uicontrol('Parent', hbox22, 'Style', 'popupmenu', 'String', {'Graphics','Table view'},...
                 'Value',1, 'BackgroundColor', 'white', 'callback', @obj.Callback_ResultViewMode);
-            
+
             hbox22.Widths = [60,120];
             
-            hbox23 = uix.Grid( 'Parent', vbox21);
+            
+            
+            hbox23 = uix.Grid( 'Parent', vbox21,'Spacing', 5);
             uicontrol('Parent', hbox23, 'Style', 'text', 'String', 'Dataset');
             obj.ddlResultDataSet = uicontrol('Parent', hbox23, 'Style', 'popupmenu', 'String', {'Calibration','Validation'},...
                 'Value',1, 'BackgroundColor', 'white', 'callback', @obj.Callback_ResultDataSet);
             
             hbox23.Widths = [60,120];
+            
+            hbox222 = uix.Grid( 'Parent', vbox21,'Spacing', 5);
+            obj.lblSelectedSplit = uicontrol('Parent', hbox222, 'Style', 'text', 'String', 'Split','Visible','off');
+            obj.ddlSelectedSplit = uicontrol('Parent', hbox222, 'Style', 'popupmenu', 'String', {'-'},...
+                'Value',1, 'BackgroundColor', 'white', 'callback', @obj.Callback_SelectedSplit,'Visible','off');
+            obj.lblSelectedAlpha = uicontrol('Parent', hbox222, 'Style', 'text', 'String', 'Type 1 error','Visible','off');
+            obj.ddlSelectedAlpha = uicontrol('Parent', hbox222, 'Style', 'popupmenu', 'String', {'-'},...
+                'Value',1, 'BackgroundColor', 'white', 'callback', @obj.Callback_SelectedSplit,'Visible','off');
+            hbox222.Widths = [60,50,60,50];
             
             hboxp24 = uix.HButtonBox( 'Parent', vbox21, 'ButtonSize', [120 25]);
             obj.btnExamineModel = uicontrol('Parent', hboxp24, 'Style', 'pushbutton', 'String', 'Examine the model',...
@@ -523,7 +544,8 @@ classdef CVTab < BasicTab
             self.tab_result.Parent = self.tg;
             
             if ~isempty(self.cvtask.Results)
-                self.ddlSelectedSplit.String = {self.cvtask.Results.split}; 
+                self.ddlSelectedSplit.String = cellstr(string(unique([self.cvtask.Results.split])));
+                self.ddlSelectedAlpha.String = cellstr(string(unique([self.cvtask.Results.alpha]))); 
             end
         end
         
