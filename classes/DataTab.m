@@ -85,16 +85,7 @@ classdef  DataTab < BasicTab
             varnames = {allvars.name};
             
             idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
-            
-%             if ~isempty(idx)
-%                 names = varnames(idx);
-%                 for i = 1:length(names)
-%                     d = evalin('base', names{i});
-%                     addlistener(d,'Deleting',@win.handleDatasetDelete);
-%                 end
-%                 
-%             end
-            
+        
             idx_data = arrayfun(@(x)GUIWindow.filter_data(x), allvars);
             if(isempty(self.parent.cvTab) && sum(idx_data) > 0)
                 self.parent.cvTab = CVTab(self.parent.tgroup, self.parent);
@@ -109,7 +100,7 @@ classdef  DataTab < BasicTab
             end
             
             if (~isempty(self.parent.cvTab) && sum(idx_data) > 0)
-                self.parent.cvTab.FillDataSetList();
+                self.parent.cvTab.FillDataSetList(true);
             end
             
         end
@@ -978,8 +969,7 @@ classdef  DataTab < BasicTab
                                 
                                 new_d.Name = tmp;
                                 assignin('base',tmp, new_d);
-                            end
-                            
+                            end                         
                             
                             d.RawData = d.RawData(not(t),:);
                             d.RawClasses = d.RawClasses(not(t),:);
@@ -992,8 +982,7 @@ classdef  DataTab < BasicTab
                             self.RefreshModel();
                             
                             self.FillDataSetList();
-                            
-                            
+                              
                         end
                     else
                         opts = struct('WindowStyle','modal','Interpreter','none');

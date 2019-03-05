@@ -55,6 +55,7 @@ classdef  GUIWindow<handle
             end
             
             if(~isempty(obj.cvTab))
+                obj.cvTab.FillDataSetList(true);
                 
                 allvars = evalin('base','whos');
                 idx = arrayfun(@(x)GUIWindow.filter_data(x), allvars);
@@ -67,6 +68,8 @@ classdef  GUIWindow<handle
                     obj.cvTab = [];
                 end
             end
+            
+            
         end
         
         function handleDatasetDelete(obj,src,~)
