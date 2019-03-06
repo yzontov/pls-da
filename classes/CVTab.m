@@ -76,6 +76,11 @@ classdef CVTab < BasicTab
             fig = plot(axes, x,y, '-o');
 
             xlabel(axes, x_label);
+            
+            if length(x) > 1
+                xlim([min(x),max(x)]);
+            end
+            
             ylabel(axes,'Percent %');
 
             title(axes, title_txt, 'interpreter', 'none');
