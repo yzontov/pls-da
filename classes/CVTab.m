@@ -40,6 +40,8 @@ classdef CVTab < BasicTab
         
         tblTextResult;
         
+        txtResults;
+        
         btnCVRun;
         btnCVSave;
         
@@ -127,7 +129,10 @@ classdef CVTab < BasicTab
         
         function Redraw(self)
             
-            delete(self.cv_plot_axes);
+            if ~isempty(self.cv_plot_axes) 
+            cla(self.cv_plot_axes);
+            end
+            self.txtResults.Visible = 'off';
             
             if self.ddlResultViewMode.Value == 1 %graph view
             ha2d = axes('Parent', self.tab_result);
@@ -233,6 +238,9 @@ classdef CVTab < BasicTab
                 
             end
             
+            else
+                self.txtResults.Visible = 'on'; 
+                self.txtResults.String = '123';
             end
         end
         
@@ -655,6 +663,7 @@ classdef CVTab < BasicTab
             obj.tab_split = uitab('Parent', obj.tg, 'Title', 'Data');
             obj.tab_result = uitab('Parent', obj.tg, 'Title', 'Results');
             obj.tab_result.Parent = [];
+            obj.txtResults = uicontrol(obj.tab_result,'style','edit');
             
             obj.tblTextResult = uitable(obj.tab_split);
             obj.tblTextResult.Units = 'normalized';
