@@ -49,7 +49,7 @@ classdef CVTab < BasicTab
         
         hboxm4;
         
-        ddlResultViewMode;
+        ddlResultViewMode;%graph/text
         
         ddlSelectedSplit;
         ddlSelectedAlpha;
@@ -59,8 +59,8 @@ classdef CVTab < BasicTab
         lblSelectedAlpha;
         lblSelectedPC;
         
-        ddlResultCategory;
-        ddlResultDataSet;
+        ddlResultCategory;%summary/single
+        ddlResultDataSet;%cal/val
         
         ddlPlotVarY;
         ddlPlotVarX;
@@ -137,162 +137,208 @@ classdef CVTab < BasicTab
             delete(self.cv_plot_axes);
             
             self.txtResults.Visible = 'off';
+            mode = self.ddlResultCategory.Value;% 1 - summary, 2 - one split
+            
+            cal_val = self.ddlResultDataSet.Value;% 1 - calibration, 2 - validation
+            
+            graph_id = self.ddlPlotVarY.Value;
+            var_id = self.ddlPlotVarX.Value;
+            
+            vars =  self.ddlPlotVarX.String;
+            flds =  self.ddlPlotVarY.String;
+            
+            x_label = vars{var_id};
+            title_txt = flds{graph_id};
+            
+            switch x_label
+                case 'Splits'
+                    x = unique([self.cvtask.Results.split]);
+                case 'Number of PCs'
+                    x = unique([self.cvtask.Results.numpc]);
+                case 'Type 1 error'
+                    x = unique([self.cvtask.Results.alpha]);
+            end
             
             if self.ddlResultViewMode.Value == 1 %graph view
                 ha2d = axes('Parent', self.tab_result);
                 
                 self.cv_plot_axes = ha2d;
-                
-                mode = self.ddlResultViewMode.Value;% 1 - summary, 2 - one split
-                
-                cal_val = self.ddlResultDataSet.Value;% 1 - calibration, 2 - validation
-                
-                graph_id = self.ddlPlotVarY.Value;
-                var_id = self.ddlPlotVarX.Value;
-                
-                if ~isempty(self.cvtask.Results)
-                    variables0 = {'Splits'};%,'Number of PCs'};
-                    variables = {'Splits'};%,'Number of PCs','Type 1 error'};
-                    fields0 = {'Correct class','Wrong class','No class','Multiple class'};
-                    %fields = {'True Positive','False Positive','Class Sensitivity (%)','Class Specificity (%)','Class Efficiency (%)','Total Sensitivity (%)','Total Specificity (%)','Total Efficiency (%)'};
+
+                if mode == 1 % summary
+
+                    pcs = unique([self.cvtask.Results.numpc]);
+                    als = unique([self.cvtask.Results.alpha]);
                     
-                    if strcmp(self.cvtask.ModelType, 'hard')
-                        vars =  variables0;
-                        flds =  fields0;
-                    else
-                        vars =  variables;
-                        flds =  fields0;%[fields0 fields];
-                    end
-                    
-                    x_label = vars{var_id};
-                    title_txt = flds{graph_id};
-                    
-                    if mode == 1 % summary
-                        
-                        
-                        switch x_label
-                            case 'Splits'
-                                x = unique([self.cvtask.Results.split]);
-                                %case 'Number of PCs'
-                                %    x = unique([self.cvtask.Results.numpc]);
-                                %case 'Type 1 error'
-                                %    x = unique([self.cvtask.Results.alpha]);
+                    if isfield(self.cvtask.Results,'alpha')
+                        k = 1;
+                        names = cell(1,length(pcs)*length(als));
+                        hold on
+                        for al = 1:length(als)
+                            for pc = 1:length(pcs)
+                                recs = self.cvtask.Results(arrayfun(@(x)(x.numpc == pcs(pc)) && (x.alpha == als(al)),self.cvtask.Results));
+                                names{k} = sprintf('pc: %d - alpha: %f', pcs(pc), als(al));
+                                k = k+1;
+                                a = [];
+                                for i = 1:length(x)
+                                    rec = recs(i);
+                                    
+                                    if cal_val == 1
+                                        a = [a;self.count_object_categories(rec.model.AllocationMatrix,...
+                                            rec.model.TrainingDataSet.NumberOfClasses, ...
+                                            rec.model.TrainingDataSet.Classes)];
+                                    else
+                                        d = self.cvtask.DataSet;
+                                        cls = d.RawClasses(logical(d.SelectedSamples),:);
+                                        Classes = cls(self.cvtask.Splits(:,i) == 1,:);
+                                        NumberOfClasses = length(unique(Classes));
+                                        a = [a;self.count_object_categories(rec.result.AllocationMatrix,...
+                                            NumberOfClasses, Classes)];
+                                    end
+                                end
+                                plot(self.cv_plot_axes, x,a(:,graph_id)', '-o');
+                            end
                         end
                         
+                        xlabel(self.cv_plot_axes, x_label);
                         
+                        if length(x) > 1
+                            xlim([min(x),max(x)]);
+                        end
                         
-                        if graph_id == 1 ||graph_id == 2||graph_id == 3||graph_id == 4
+                        ylabel(self.cv_plot_axes,'Percent %');
+                        
+                        title(self.cv_plot_axes, title_txt, 'interpreter', 'none');
+                        
+                        legend(self.cv_plot_axes, names);
+                        legend(self.cv_plot_axes,'location','northeast');
+                        legend(self.cv_plot_axes,'boxon');
+                        
+                        hold off
+                    else
+                        names = cell(1,length(pcs));
+                        hold on
+                        for pc = 1:length(pcs)
+                            recs = self.cvtask.Results(arrayfun(@(x) (x.numpc == pc) ,self.cvtask.Results));
                             
-                            pcs = unique([self.cvtask.Results.numpc]);
-                            als = unique([self.cvtask.Results.alpha]);
-
-                            if isfield(self.cvtask.Results,'alpha')
-                                k = 1;
-                                names = cell(1,length(pcs)*length(als));
-                                hold on
-                                for al = 1:length(als)
-                                    for pc = 1:length(pcs)
-                                        recs = self.cvtask.Results(arrayfun(@(x)(x.numpc == pcs(pc)) && (x.alpha == als(al)),self.cvtask.Results));
-                                        names{k} = sprintf('pc: %d - alpha: %f', pcs(pc), als(al));
-                                        k = k+1;
-                                        a = [];
-                                        for i = 1:length(x)
-                                            rec = recs(i);
-                                            
-                                            if cal_val == 1
-                                                a = [a;self.count_object_categories(rec.model.AllocationMatrix,...
-                                                    rec.model.TrainingDataSet.NumberOfClasses, ...
-                                                    rec.model.TrainingDataSet.Classes)];
-                                            else
-                                                d = self.cvtask.DataSet;
-                                                cls = d.RawClasses(logical(d.SelectedSamples),:);
-                                                Classes = cls(self.cvtask.Splits(:,i) == 0,:);
-                                                NumberOfClasses = length(unique(Classes));
-                                                a = [a;self.count_object_categories(rec.result.AllocationMatrix,...
-                                                    NumberOfClasses, Classes)];
-                                            end
-                                        end
-                                        plot(self.cv_plot_axes, x,a(:,graph_id)', '-o');
-                                    end
+                            names{k} = sprintf('pc: %d', pcs(pc));
+                            k = k+1;
+                            a = [];
+                            for i = 1:length(x)
+                                rec = recs(i);
+                                
+                                if cal_val == 1
+                                    a = [a;self.count_object_categories(rec.model.AllocationMatrix,...
+                                        rec.model.TrainingDataSet.NumberOfClasses, ...
+                                        rec.model.TrainingDataSet.Classes)];
+                                else
+                                    d = self.cvtask.DataSet;
+                                    cls = d.RawClasses(logical(d.SelectedSamples),:);
+                                    Classes = cls(self.cvtask.Splits(:,i) == 1,:);
+                                    NumberOfClasses = length(unique(Classes));
+                                    a = [a;self.count_object_categories(rec.result.AllocationMatrix,...
+                                        NumberOfClasses, Classes)];
                                 end
-                                
-                                xlabel(self.cv_plot_axes, x_label);
-                                
-                                if length(x) > 1
-                                    xlim([min(x),max(x)]);
-                                end
-                                
-                                ylabel(self.cv_plot_axes,'Percent %');
-                                
-                                title(self.cv_plot_axes, title_txt, 'interpreter', 'none');
-                                
-                                legend(self.cv_plot_axes, names);
-                                legend(self.cv_plot_axes,'location','northeast');
-                                legend(self.cv_plot_axes,'boxon');
-                                
-                                hold off
-                            else
-                                names = cell(1,length(pcs));
-                                hold on
-                                for pc = 1:length(pcs)
-                                    recs = self.cvtask.Results(arrayfun(@(x) (x.numpc == pc) ,self.cvtask.Results));
-                                    
-                                    names{k} = sprintf('pc: %d', pcs(pc));
-                                    k = k+1;
-                                    a = [];
-                                    for i = 1:length(x)
-                                        rec = recs(i);
-                                        
-                                        if cal_val == 1
-                                            a = [a;self.count_object_categories(rec.model.AllocationMatrix,...
-                                                rec.model.TrainingDataSet.NumberOfClasses, ...
-                                                rec.model.TrainingDataSet.Classes)];
-                                        else
-                                            d = self.cvtask.DataSet;
-                                            cls = d.RawClasses(logical(d.SelectedSamples),:);
-                                            Classes = cls(self.cvtask.Splits(:,i) == 0,:);
-                                            NumberOfClasses = length(unique(Classes));
-                                            a = [a;self.count_object_categories(rec.result.AllocationMatrix,...
-                                                NumberOfClasses, Classes)];
-                                        end
-                                    end
-                                    
-                                    plot(self.cv_plot_axes, x,a(:,graph_id)', '-o');
-
-                                end
-                                
-                                xlabel(self.cv_plot_axes, x_label);
-                                
-                                if length(x) > 1
-                                    xlim([min(x),max(x)]);
-                                end
-                                
-                                ylabel(self.cv_plot_axes,'Percent %');
-                                
-                                title(self.cv_plot_axes, title_txt, 'interpreter', 'none');
-                                
-                                legend(self.cv_plot_axes, names);
-                                legend(self.cv_plot_axes,'location','northeast');
-                                legend(self.cv_plot_axes,'boxon');
-                                
-                                hold off
                             end
                             
+                            plot(self.cv_plot_axes, x,a(:,graph_id)', '-o');
                             
                         end
                         
+                        xlabel(self.cv_plot_axes, x_label);
                         
+                        if length(x) > 1
+                            xlim([min(x),max(x)]);
+                        end
                         
+                        ylabel(self.cv_plot_axes,'Percent %');
                         
-                    else % one split
+                        title(self.cv_plot_axes, title_txt, 'interpreter', 'none');
                         
+                        legend(self.cv_plot_axes, names);
+                        legend(self.cv_plot_axes,'location','northeast');
+                        legend(self.cv_plot_axes,'boxon');
+                        
+                        hold off
                     end
+                    
+                else % one split
                     
                 end
                 
             else
                 self.txtResults.Visible = 'on';
-                self.txtResults.String = '123';
+                txt = [];
+                
+                if mode == 1
+                pcs = unique([self.cvtask.Results.numpc]);
+                if isfield(self.cvtask.Results,'alpha')
+                    als = unique([self.cvtask.Results.alpha]);
+                    for al = 1:length(als)
+                        for pc = 1:length(pcs)
+                            recs = self.cvtask.Results(arrayfun(@(x)(x.numpc == pcs(pc)) && (x.alpha == als(al)),self.cvtask.Results));
+                            names = sprintf('pc: %d alpha:%f', pcs(pc), als(al));
+                            for i = 1:length(x)
+                                rec = recs(i);
+                                
+                                if cal_val == 1
+                                    txt = [txt sprintf('\n\nsplit:%d\n%s\n%s',i, names, self.tableTextMod(rec.model))];
+                                else
+                                    d = self.cvtask.DataSet;
+                                    cls = d.RawClasses(logical(d.SelectedSamples),:);
+                                    Classes = cls(self.cvtask.Splits(:,i) == 1,:);
+                                    NumberOfClasses = length(unique(Classes));
+                                    txt = [txt sprintf('\n\nsplit:%d\n%s\n%s',i,names, self.tableTextVal(rec.result, NumberOfClasses))];
+                                end
+                                
+                            end
+                        end
+                    end
+                else
+                    for pc = 1:length(pcs)
+                        recs = self.cvtask.Results(arrayfun(@(x) (x.numpc == pc) ,self.cvtask.Results));
+                        names = sprintf('pc: %d', pcs(pc));
+                        for i = 1:length(x)
+                            rec = recs(i);
+                            
+                            if cal_val == 1
+                                txt = [txt sprintf('\n\nsplit:%d\n%s\n%s',i, names, self.tableTextMod(self, rec.model))];
+                            else
+                                d = self.cvtask.DataSet;
+                                cls = d.RawClasses(logical(d.SelectedSamples),:);
+                                Classes = cls(self.cvtask.Splits(:,i) == 1,:);
+                                NumberOfClasses = length(unique(Classes));
+                                txt = [txt sprintf('\n\nsplit:%d\n%s\n%s',i,names, self.tableTextVal(rec.result, NumberOfClasses))];
+                            end
+                            
+                        end
+                    end
+                end
+                else
+                    pc = self.ddlSelectedPC.Value;
+                    split = self.ddlSelectedSplit.Value;
+                    alpha = self.ddlSelectedAlpha.Value;
+
+                    pcs = unique([self.cvtask.Results.numpc]);
+                    names = sprintf('\npc:%d\n',pcs(pc));
+                    if isfield(self.cvtask.Results,'alpha')
+                        als = unique([self.cvtask.Results.alpha]);
+                        names = sprintf('\npc:%d\nalpha:%f',pcs(pc),als(alpha));
+                    end   
+                    
+                    rec = self.cvtask.Results(arrayfun(@(x)(x.numpc == pcs(pc)) && (x.split == split) && (x.alpha == als(alpha)),self.cvtask.Results));
+                
+                    if cal_val == 1
+                        
+                        txt = sprintf('\n\nsplit:%d\n%s\n%s',split, names, self.tableTextMod(rec.model));
+                    else
+                        d = self.cvtask.DataSet;
+                        cls = d.RawClasses(logical(d.SelectedSamples),:);
+                        Classes = cls(self.cvtask.Splits(:,split) == 1,:);
+                        NumberOfClasses = length(unique(Classes));
+                        txt = sprintf('\n\nsplit:%d\n%s\n%s',split, names, self.tableTextVal(rec.result, NumberOfClasses));
+                    end
+                end
+                self.txtResults.String = txt;
             end
         end
         
@@ -317,6 +363,11 @@ classdef CVTab < BasicTab
                     self.ddlPlotVarX.String = variables;
                     self.ddlPlotVarX.Value = 1;
                 end
+                
+                self.vbox.Heights=[0,0,0,200,100,0];
+                set(self.pnlPlotSettings,'visible','on');
+                set(self.pnlTableSettings,'visible','off');
+                
             else
                 self.ddlSelectedSplit.Visible = 'on';
                 self.btnExamineModel.Visible = 'on';
@@ -335,6 +386,12 @@ classdef CVTab < BasicTab
                     self.ddlPlotVarX.String = variables1;
                     self.ddlPlotVarX.Value = 1;
                 end
+                
+                self.vbox.Heights=[0,0,0,200,0,60];%
+                set(self.pnlPlotSettings,'visible','off');%
+                set(self.pnlTableSettings,'visible','on');%
+                self.ddlResultViewMode.Value = 2;%
+                delete(self.cv_plot_axes);%
             end
             
             
@@ -357,11 +414,34 @@ classdef CVTab < BasicTab
             if src.Value == 1 % Graphics
                 %variables0 = {'Splits','Number of PCs'};
                 %variables = {'Splits','Number of PCs','Type 1 error'};
+                variables =  {'Splits'};%,'Number of PCs','Type 1 error'};
+                variables0 = {'Splits'};%
+                
                 
                 self.vbox.Heights=[0,0,0,200,100,0];
                 set(self.pnlPlotSettings,'visible','on');
                 set(self.pnlTableSettings,'visible','off');
                 
+                
+                self.ddlResultCategory.Value = 1;%
+                self.ddlSelectedSplit.Visible = 'off';%
+                self.lblSelectedPC.Visible = 'off';%
+                self.ddlSelectedPC.Visible = 'off';%
+                self.ddlSelectedAlpha.Visible = 'off';%
+                self.lblSelectedAlpha.Visible = 'off';%
+                self.btnExamineModel.Visible = 'off';%
+                self.btnSaveDatasets.Visible = 'off';%
+                if strcmp(self.cvtask.ModelType,'hard')%
+                    self.ddlPlotVarX.String = variables0;%
+                    self.ddlPlotVarX.Value = 1;%
+                else%
+                    self.ddlPlotVarX.String = variables;%
+                    self.ddlPlotVarX.Value = 1;%
+                end%
+                
+                self.vbox.Heights=[0,0,0,200,100,0];%
+                set(self.pnlPlotSettings,'visible','on');%
+                set(self.pnlTableSettings,'visible','off');%
                 
             else
                 self.vbox.Heights=[0,0,0,200,0,60];
@@ -393,11 +473,48 @@ classdef CVTab < BasicTab
         end
         
         function SavePlot(self, src, param)
-            
+            if ~isempty(self.cv_plot_axes)
+                
+                type = 'cross_validation';
+                
+                filename = [type,'.png'];
+                if ispc
+                    filename = [type,'.emf'];
+                end
+                
+                fig2 = figure('visible','off');
+                copyobj([self.cv_plot_axes.Legend, self.cv_plot_axes],fig2);
+                
+                dcm_obj = datacursormode(fig2);
+                if isprop(dcm_obj, 'Interpreter')
+                    dcm_obj.Interpreter = 'none';
+                end
+                
+                [file,path] = uiputfile(filename,'Save plot');
+                
+                if ~(isnumeric(file) && (file == 0) && isnumeric(path) && (path == 0))
+                    saveas(fig2, [path file]);
+                end
+            end
         end
         
         function SaveTable(self, src, param)
+            [file,path] = uiputfile('cv_results.txt','Save the crossvalidation results'); 
             
+            fileID = -1;
+            if ~(isnumeric(file) && (file == 0) && isnumeric(path) && (path == 0))
+                fileID = fopen([path file],'w');
+            end
+            
+            if fileID ~= -1
+                
+                ss = string(self.txtResults.String);
+                for i = 1:length(ss)
+                    fprintf(fileID, '%s\n', ss(i));
+                end
+            
+                fclose(fileID);
+            end
         end
         
         function CopyPlotToClipboard(self, src, param)
@@ -405,7 +522,7 @@ classdef CVTab < BasicTab
         end
         
         function CopyTableToClipboard(self, src, param)
-            
+            clipboard('copy', self.txtResults.String);
         end
         
         function ExamineModel(self, src, param)
@@ -541,9 +658,7 @@ classdef CVTab < BasicTab
                 'Value',1, 'BackgroundColor', 'white', 'callback', @obj.Callback_ResultViewMode);
             
             hbox22.Widths = [60,115];
-            
-            
-            
+
             hbox23 = uix.Grid( 'Parent', vbox21,'Spacing', 1);
             uicontrol('Parent', hbox23, 'Style', 'text', 'String', 'Dataset');
             obj.ddlResultDataSet = uicontrol('Parent', hbox23, 'Style', 'popupmenu', 'String', {'Calibration','Validation'},...
@@ -573,7 +688,6 @@ classdef CVTab < BasicTab
                 'callback', @obj.ExamineModel, 'Visible','off');
             obj.btnSaveDatasets = uicontrol('Parent', hboxp24, 'Style', 'pushbutton', 'String', 'Save datasets',...
                 'callback', @obj.SaveDatasets, 'Visible','off');
-            
             
             vbox_plot = uix.VBox( 'Parent', obj.pnlPlotSettings, 'Padding', 5, 'Spacing', 1 );
             
@@ -716,6 +830,9 @@ classdef CVTab < BasicTab
             obj.tab_result = uitab('Parent', obj.tg, 'Title', 'Results');
             obj.tab_result.Parent = [];
             obj.txtResults = uicontrol(obj.tab_result,'style','edit');
+            set(obj.txtResults, 'Min', 0, 'Max', 2);
+            %set(obj.txtResults, 'HorizontalAlignment', 'left');
+            
             obj.txtResults.Units = 'normalized';
             obj.txtResults.Position = [0 0 1 1];
             
@@ -944,8 +1061,9 @@ classdef CVTab < BasicTab
                     end
                     self.ddlSelectedAlpha.String = cellstr(string(unique([self.cvtask.Results.alpha])));
                 end
-                self.Redraw();
+                %self.Redraw();
             end
+            %self.Redraw();
         end
         
         function Callback_LoadCVTask(self, src, param)
@@ -1093,7 +1211,7 @@ classdef CVTab < BasicTab
             s = sprintf('%s\n','Allocation table');
             s = [s sprintf('%s',result.AllocationTable)];
             
-            if isfield(self.result,'ConfusionMatrix')
+            if isfield(result,'ConfusionMatrix')
                 s = [s sprintf('\n\n%s\n','Confusion matrix')];
                 s = [s sprintf([repmat('%d\t',1, length(result.ConfusionMatrix)) '\n'],result.ConfusionMatrix)];
             end
@@ -1111,7 +1229,7 @@ classdef CVTab < BasicTab
                     num2str(round(fom.TEFF))...
                     }];
                 
-                s = [s sprintf('Statistics\t%s\n', sprintf('%d ',1:train_cls_num))];
+                s = [s sprintf('Statistics\t%s\n', sprintf('%d\t',1:train_cls_num))];
                 for i=1:size(fom_txt,1)
                     s = [s sprintf('%s\t%s\n', fom_txt{i,1}, fom_txt{i,2})];
                 end
@@ -1223,9 +1341,9 @@ classdef CVTab < BasicTab
                                 m = PLSDAModel(t, numpc, alpha, gamma);
                                 res = m.Apply(v);
                                 
-                                res = rmfield(res,'AllocationTable');
+                                %res = rmfield(res,'AllocationTable');
                                 res = rmfield(res,'Distances');
-                                res = rmfield(res,'Labels');
+                                %res = rmfield(res,'Labels');
                                 res = rmfield(res,'Mode');
                                 
                                 Results(k).numpc = numpc;
@@ -1244,9 +1362,9 @@ classdef CVTab < BasicTab
                             m.Rebuild();
                             res = m.Apply(v);
                             
-                            res = rmfield(res,'AllocationTable');
+                            %res = rmfield(res,'AllocationTable');
                             res = rmfield(res,'Distances');
-                            res = rmfield(res,'Labels');
+                            %res = rmfield(res,'Labels');
                             res = rmfield(res,'Mode');
                             
                             Results(k).numpc = numpc;

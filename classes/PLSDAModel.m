@@ -1342,7 +1342,7 @@ classdef PLSDAModel < handle
             r = [r, 'Decision Hard\n'];
             [I,K] = size(Dist);
             r = [r,sprintf(format, ' ')];
-            r = [r,sprintf('\t%d', cls)];
+            r = [r,sprintf('\t\t%s', sprintf('\t%d', cls))];
             r = [r,'\n'];
             for i = 1:I
                 r = [r,sprintf(format, Labels{i})];
@@ -1369,7 +1369,7 @@ classdef PLSDAModel < handle
             Dcrit = PLSDAModel.chi2inv_(1-Alpha, K-1);
             
             r = [r,sprintf(format, ' ')];
-            r = [r,sprintf('\t%d', cls)];
+            r = [r,sprintf('\t\t%s', sprintf('\t%d', cls))];
             r = [r,'\n'];
             for i = 1:I
                 r = [r,sprintf(format, Labels{i})];
