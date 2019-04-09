@@ -475,7 +475,7 @@ classdef PLSDAModel < handle
             end
             
             [mark, ~] = PLSDAModel.plotsettings(self.K);
-            color = PLSDAModel.colors_rgb(self.K);
+            color = PLSDAModel.colors_rgb(max(self.TrainingDataSet.Classes));
             
             axis(axes,[-1 1 -1 1]);
             hold on
@@ -491,17 +491,17 @@ classdef PLSDAModel < handle
             
             if self.NewDataSetHasClasses
                 
-                trc = unique(self.NewDataSetClasses);
-                [mark, ~] = PLSDAModel.plotsettings(length(trc));
-                color = PLSDAModel.colors_rgb(length(trc));
+                trc_v = unique(self.NewDataSetClasses);
+                [mark, ~] = PLSDAModel.plotsettings(length(trc_v));
+                color_c = PLSDAModel.colors_rgb(max(trc_v));
                 
-                for class = 1:length(trc)
-                    temp = self.YpredTnew(self.NewDataSetClasses == trc(class),:);
+                for class = 1:length(trc_v)
+                    temp = self.YpredTnew(self.NewDataSetClasses == trc_v(class),:);
                     
                     if pc1 ~= pc2
-                        plot(axes,temp(:,pc1), temp(:,pc2),mark{class},'color', color(class,:));%,'HandleVisibility','off');
+                        plot(axes,temp(:,pc1), temp(:,pc2),mark{class},'color', color_c(trc_v(class),:));%,'HandleVisibility','off');
                     else
-                        plot(axes,temp, zeros(size(temp)),mark{class},'color', color(class,:));%,'HandleVisibility','off');
+                        plot(axes,temp, zeros(size(temp)),mark{class},'color', color_c(trc_v(class),:));%,'HandleVisibility','off');
                     end
                 end
             else
@@ -599,7 +599,10 @@ classdef PLSDAModel < handle
                     YpredTnew_ = self.YpredTnew;
                 end
                 
-                PLSDAModel.soft_plot(axes, YpredT_, Y,Centers_,color, self.Alpha, self.numPC_pca, self.Gamma, self.K, show_legend);
+                
+                trc = unique(self.TrainingDataSet.Classes);
+                color_t = color(trc,:); 
+                PLSDAModel.soft_plot(axes, YpredT_, Y,Centers_,color_t, self.Alpha, self.numPC_pca, self.Gamma, self.K, show_legend);
                 
                 if ~self.NewDataSetHasClasses
                     set(axes,'UserData', {YpredTnew_, labels, [],[], []});
@@ -664,9 +667,9 @@ classdef PLSDAModel < handle
             ylabel(sprintf('PC %d', pc2));% y-axis label
             
             if ~isempty(self.NewDataSetName)
-                title(['Prediction plot. Dataset: ' self.NewDataSetName], 'Interpreter', 'none')
+                title(sprintf('Prediction plot. Dataset: %s\n Number of model PLS components: %d.', self.NewDataSetName, self.numPC_pls), 'Interpreter', 'none')
             else
-                title('Prediction plot');
+                title(sprintf('Prediction plot.\n Number of model PLS components: %d', self.numPC_pls));
             end
             
             hold off

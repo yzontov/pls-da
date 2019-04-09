@@ -83,7 +83,7 @@ classdef DataSet < handle
             %disp([obj.Name ' deleted']);
             notify(obj,'Deleting');
             
-            if isvalid(obj.parent)
+            if ~isempty(obj.parent) && isobject(obj.parent) && isvalid(obj.parent)
                 obj.parent.deleteDataset(obj);
             end
         end

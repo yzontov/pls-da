@@ -167,9 +167,9 @@ classdef CVTab < BasicTab
                 if mode == 1 % summary
 
                     pcs = unique([self.cvtask.Results.numpc]);
-                    als = unique([self.cvtask.Results.alpha]);
                     
                     if isfield(self.cvtask.Results,'alpha')
+                        als = unique([self.cvtask.Results.alpha]);
                         k = 1;
                         names = cell(1,length(pcs)*length(als));
                         hold on
