@@ -217,10 +217,11 @@ classdef CVTab < BasicTab
                     else
                         names = cell(1,length(pcs));
                         hold on
-                        for pc = 1:length(pcs)
+                        k=1;
+                        for pc = min(pcs):1:max(pcs)
                             recs = self.cvtask.Results(arrayfun(@(x) (x.numpc == pc) ,self.cvtask.Results));
                             
-                            names{k} = sprintf('pc: %d', pcs(pc));
+                            names{k} = sprintf('pc: %d', pcs(k));
                             k = k+1;
                             a = [];
                             for i = 1:length(x)
@@ -294,7 +295,7 @@ classdef CVTab < BasicTab
                         end
                     end
                 else
-                    for pc = 1:length(pcs)
+                    for pc = min(pcs):1:max(pcs)
                         recs = self.cvtask.Results(arrayfun(@(x) (x.numpc == pc) ,self.cvtask.Results));
                         names = sprintf('pc: %d', pcs(pc));
                         for i = 1:length(x)
