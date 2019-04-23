@@ -1323,9 +1323,79 @@ classdef PLSDAModel < handle
             
         end
         
+        function m = confusionMatrixClasses(TestClasses,TrainClassesList,Distances,mode, Alpha)
+            
+            tcl = unique(TestClasses);
+            tcl_cnt = length(tcl);
+            
+            [I,K] = size(Distances);
+            
+            if nargin == 4 && mode == 0
+                Alpha = 0;
+            end
+            
+            if nargin == 5 && mode == 1
+                Dcrit = PLSDAModel.chi2inv_(1-Alpha, K-1);
+            end
+            
+            m = zeros(tcl_cnt, K);
+           
+            for i = 1:I
+                for k = 1:K
+                    obj_cls = TestClasses(i);
+                    i1 = find(tcl == obj_cls);
+                    i2 = k;
+                    if mode == 0
+                        if Distances(i,k) == min(Distances(i,:))
+                            if(obj_cls == TrainClassesList(k))
+                                m(i1,i2) = m(i1,i2) + 1; 
+                            end
+                        end
+                    else
+                        if mode == 1
+                            if Distances(i,k) < Dcrit
+                                if(Y(i,k) == 1)
+                                    m(i1,i2) = m(i1,i2) + 1;
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+   
+        end
+        
         function r = FoM(ConfusionMatrix, Ik)
             r.TP = diag(ConfusionMatrix)';
             r.FP = sum(ConfusionMatrix - diag(diag(ConfusionMatrix)));
+            CSNS = r.TP./Ik;
+            r.CSNS = 100*CSNS;
+            CSPS = 1 - r.FP./(sum(Ik)-Ik);
+            r.CSPS = 100*CSPS;
+            r.CEFF = 100*sqrt(CSNS.*CSPS);
+            TSNS = sum(r.TP)/sum(Ik);
+            r.TSNS = 100*TSNS;
+            TSPS = 1 - sum(r.FP)/sum(Ik);
+            r.TSPS = 100*TSPS;
+            r.TEFF = 100*sqrt(TSNS*TSPS);
+        end
+        
+        function r = FoMClasses(ConfusionMatrix, TestClassesList,TrainClassesList)
+            Ik = length(TrainClassesList);
+            
+            tp = zeros(size(TrainClassesList));
+            fp = zeros(size(TrainClassesList));           
+            
+            for i = 1:Ik
+                ii = find (TestClassesList == TrainClassesList(i));
+                if ~isempty(ii)
+                    tp(i) = tp(i) + ConfusionMatrix(ii,i);
+                end
+                fp(i) = sum(ConfusionMatrix(TestClassesList ~= TrainClassesList(i),i));
+            end
+
+            r.TP = tp;
+            r.FP = fp;
             CSNS = r.TP./Ik;
             r.CSNS = 100*CSNS;
             CSPS = 1 - r.FP./(sum(Ik)-Ik);
