@@ -237,8 +237,7 @@ classdef  PredictTab < BasicTab
                 else
                     self.tblTextResult.ColumnFormat = ['char' 'char' repmat({'char'},1,self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses)];
 
-                   
-                   uc = unique(set.Classes);
+                    uc = unique(set.Classes);
                     for i = 1:length(set.Classes)
                         c = set.Classes(i);
 
@@ -284,7 +283,7 @@ classdef  PredictTab < BasicTab
                         tc = unique(set.Classes);
                     end
                 
-                    if ~isempty(set.Classes) && length(trc) == length(tc) && sum(trc == tc) == length(tc)
+                    if ~isempty(set.Classes) %%&& length(trc) == length(tc) && sum(trc == tc) == length(tc)
 
                         v = arrayfun(@(x) self.bool2v(x, padding) ,logical(res.AllocationMatrix), 'UniformOutput', false);
                         self.tblTextResult.Data = [res.Labels, num2cell(set.Classes),  v];
@@ -315,6 +314,8 @@ classdef  PredictTab < BasicTab
                         else
                             padding = 1;
                             max_class_label_length = 1;
+                            self.tblTextConfusion.ColumnName = unique(self.parent.modelTab.Model.TrainingDataSet.Classes);
+                            self.tblTextConfusion.RowName = unique(set.Classes);
                             self.tblTextFoM.ColumnName = {'Statistics',unique(self.parent.modelTab.Model.TrainingDataSet.Classes)};
                         end
                         

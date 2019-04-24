@@ -298,9 +298,14 @@ classdef PLSDAModel < handle
                 
                 self.AllocationMatrixNew = Result.AllocationMatrix;
                 
-                if ~isempty(NewDataSet.Classes) && length(trc) == length(tc) && sum(trc == tc) == length(tc)
-                    Result.ConfusionMatrix = PLSDAModel.confusionMatrix(NewDataSet.DummyMatrix(),Distances_Hard_New,0);
-                    Result.FiguresOfMerit = PLSDAModel.FoM(Result.ConfusionMatrix, sum(NewDataSet.DummyMatrix()));
+                if ~isempty(NewDataSet.Classes) 
+                    if (length(trc) == length(tc) && sum(trc == tc) == length(tc))
+                        Result.ConfusionMatrix = PLSDAModel.confusionMatrix(NewDataSet.DummyMatrix(),Distances_Hard_New,0);
+                        Result.FiguresOfMerit = PLSDAModel.FoM(Result.ConfusionMatrix, sum(NewDataSet.DummyMatrix()));
+                    else
+                        Result.ConfusionMatrix = PLSDAModel.confusionMatrixClasses(NewDataSet.Classes, Distances_Hard_New, 0);
+                        Result.FiguresOfMerit = PLSDAModel.FoMClasses(Result.ConfusionMatrix, tc, trc);
+                    end
                 end
             end
             
@@ -318,9 +323,14 @@ classdef PLSDAModel < handle
                 
                 self.AllocationMatrixNew = Result.AllocationMatrix;
                                
-                if ~isempty(NewDataSet.Classes) && length(trc) == length(tc) && sum(trc == tc) == length(tc)
-                    Result.ConfusionMatrix = PLSDAModel.confusionMatrix(NewDataSet.DummyMatrix(),Distances_Soft_New, 1, self.Alpha);
-                    Result.FiguresOfMerit = PLSDAModel.FoM(Result.ConfusionMatrix, sum(NewDataSet.DummyMatrix()));
+                if ~isempty(NewDataSet.Classes) 
+                    if (length(trc) == length(tc) && sum(trc == tc) == length(tc))
+                        Result.ConfusionMatrix = PLSDAModel.confusionMatrix(NewDataSet.DummyMatrix(),Distances_Soft_New, 1, self.Alpha);
+                        Result.FiguresOfMerit = PLSDAModel.FoM(Result.ConfusionMatrix, sum(NewDataSet.DummyMatrix()));
+                    else
+                        Result.ConfusionMatrix = PLSDAModel.confusionMatrixClasses(NewDataSet.Classes, Distances_Soft_New, 1, self.Alpha);
+                        Result.FiguresOfMerit = PLSDAModel.FoMClasses(Result.ConfusionMatrix, tc, trc);
+                    end
                 end
             end
             
@@ -975,7 +985,7 @@ classdef PLSDAModel < handle
             res.Model.TrainingSet_std = Std;
         end
         
-        function [T,P,Q,W]=plsnipals(X,Y,A)
+        function [T,P,Q,W] = plsnipals(X,Y,A)
             %+++ The NIPALS algorithm for both PLS-1 (a single y) and PLS-2 (multiple Y)
             %+++ X: n x p matrix
             %+++ Y: n x m matrix
@@ -1013,7 +1023,7 @@ classdef PLSDAModel < handle
             %+++
         end
         
-        function [T,P,Eig]= decomp (X, NumPC)
+        function [T,P,Eig] = decomp (X, NumPC)
             % decomp - PCA decomposition based on X matrix with numPC components
             %----------------------------------------------
             [V,D,P] = svd(X);
@@ -1219,7 +1229,7 @@ classdef PLSDAModel < handle
             end
         end
         
-        function [AcceptancePlot, OutliersPlot] =soft_classes_plot(pcaScoresK, Center, Alpha, numPC, Gamma, K)
+        function [AcceptancePlot, OutliersPlot] = soft_classes_plot(pcaScoresK, Center, Alpha, numPC, Gamma, K)
             
             len = size(pcaScoresK,1);
             cov = inv(((pcaScoresK-repmat(Center, len, 1))'*(pcaScoresK-repmat(Center, len, 1)))/len);
@@ -1323,18 +1333,18 @@ classdef PLSDAModel < handle
             
         end
         
-        function m = confusionMatrixClasses(TestClasses,TrainClassesList,Distances,mode, Alpha)
+        function m = confusionMatrixClasses(TestClasses,Distances,mode, Alpha)
             
             tcl = unique(TestClasses);
             tcl_cnt = length(tcl);
             
             [I,K] = size(Distances);
             
-            if nargin == 4 && mode == 0
+            if nargin == 3 && mode == 0
                 Alpha = 0;
             end
             
-            if nargin == 5 && mode == 1
+            if nargin == 4 && mode == 1
                 Dcrit = PLSDAModel.chi2inv_(1-Alpha, K-1);
             end
             
@@ -1347,16 +1357,16 @@ classdef PLSDAModel < handle
                     i2 = k;
                     if mode == 0
                         if Distances(i,k) == min(Distances(i,:))
-                            if(obj_cls == TrainClassesList(k))
+                            %if(obj_cls == TrainClassesList(k))
                                 m(i1,i2) = m(i1,i2) + 1; 
-                            end
+                            %end
                         end
                     else
                         if mode == 1
                             if Distances(i,k) < Dcrit
-                                if(Y(i,k) == 1)
+                                %if(obj_cls == TrainClassesList(k))
                                     m(i1,i2) = m(i1,i2) + 1;
-                                end
+                                %end
                             end
                         end
                     end
@@ -1383,8 +1393,8 @@ classdef PLSDAModel < handle
         function r = FoMClasses(ConfusionMatrix, TestClassesList,TrainClassesList)
             Ik = length(TrainClassesList);
             
-            tp = zeros(size(TrainClassesList));
-            fp = zeros(size(TrainClassesList));           
+            tp = zeros(size(TrainClassesList'));
+            fp = zeros(size(TrainClassesList'));           
             
             for i = 1:Ik
                 ii = find (TestClassesList == TrainClassesList(i));
