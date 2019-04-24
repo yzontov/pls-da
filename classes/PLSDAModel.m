@@ -304,7 +304,7 @@ classdef PLSDAModel < handle
                         Result.FiguresOfMerit = PLSDAModel.FoM(Result.ConfusionMatrix, sum(NewDataSet.DummyMatrix()));
                     else
                         Result.ConfusionMatrix = PLSDAModel.confusionMatrixClasses(NewDataSet.Classes, Distances_Hard_New, 0);
-                        Result.FiguresOfMerit = PLSDAModel.FoMClasses(Result.ConfusionMatrix, tc, trc);
+                        Result.FiguresOfMerit = PLSDAModel.FoMClasses(Result.ConfusionMatrix, tc, trc, sum(self.TrainingDataSet.DummyMatrix()));
                     end
                 end
             end
@@ -329,7 +329,7 @@ classdef PLSDAModel < handle
                         Result.FiguresOfMerit = PLSDAModel.FoM(Result.ConfusionMatrix, sum(NewDataSet.DummyMatrix()));
                     else
                         Result.ConfusionMatrix = PLSDAModel.confusionMatrixClasses(NewDataSet.Classes, Distances_Soft_New, 1, self.Alpha);
-                        Result.FiguresOfMerit = PLSDAModel.FoMClasses(Result.ConfusionMatrix, tc, trc);
+                        Result.FiguresOfMerit = PLSDAModel.FoMClasses(Result.ConfusionMatrix, tc, trc, sum(self.TrainingDataSet.DummyMatrix()));
                     end
                 end
             end
@@ -1390,13 +1390,13 @@ classdef PLSDAModel < handle
             r.TEFF = 100*sqrt(TSNS*TSPS);
         end
         
-        function r = FoMClasses(ConfusionMatrix, TestClassesList,TrainClassesList)
-            Ik = length(TrainClassesList);
+        function r = FoMClasses(ConfusionMatrix, TestClassesList,TrainClassesList,Ik)
+            len = length(TrainClassesList);
             
             tp = zeros(size(TrainClassesList'));
             fp = zeros(size(TrainClassesList'));           
             
-            for i = 1:Ik
+            for i = 1:len
                 ii = find (TestClassesList == TrainClassesList(i));
                 if ~isempty(ii)
                     tp(i) = tp(i) + ConfusionMatrix(ii,i);

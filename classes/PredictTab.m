@@ -464,7 +464,7 @@ classdef  PredictTab < BasicTab
                 num2str(round(fom.TEFF))...
                 }];
             
-                s = [s sprintf('Statistics\t%s\n', sprintf('%d ',1:self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses))];
+                s = [s sprintf('Statistics\t%s\n', sprintf('%d ',unique(self.parent.modelTab.Model.TrainingDataSet.Classes)))];
                 for i=1:size(fom_txt,1)
                     s = [s sprintf('%s\t%s\n', fom_txt{i,1}, fom_txt{i,2})];
                 end
