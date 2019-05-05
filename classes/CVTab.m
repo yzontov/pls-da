@@ -117,16 +117,19 @@ classdef CVTab < BasicTab
         end
         
         function resetCVResults(self)
-            self.ddlResultViewMode.Value = 1;
+            self.ddlResultViewMode.Value = 2;
             self.ddlResultCategory.Value = 1;
-            self.ddlResultDataSet.Value = 1;
+            self.ddlResultDataSet.Value = 2;
+            self.ddlResultDataSet.Visible = 'off';
             
             self.lblSelectedSplit.Visible = 'off';
-            self.lblSelectedAlpha.Visible = 'off';
-            self.lblSelectedPC.Visible = 'off';
             self.ddlSelectedSplit.Visible = 'off';
-            self.ddlSelectedAlpha.Visible = 'off';
-            self.ddlSelectedPC.Visible = 'off';
+            
+            self.lblSelectedAlpha.Visible = 'on';
+            self.ddlSelectedAlpha.Visible = 'on';
+            
+            self.lblSelectedPC.Visible = 'on';
+            self.ddlSelectedPC.Visible = 'on';
             
             self.btnExamineModel.Visible = 'off';
             self.btnSaveDatasets.Visible = 'off';
@@ -163,9 +166,9 @@ classdef CVTab < BasicTab
                 ha2d = axes('Parent', self.tab_result);
                 
                 self.cv_plot_axes = ha2d;
-
+                
                 if mode == 1 % summary
-
+                    
                     pcs = unique([self.cvtask.Results.numpc]);
                     
                     if isfield(self.cvtask.Results,'alpha')
@@ -267,22 +270,43 @@ classdef CVTab < BasicTab
                 end
                 
             else
-                self.txtResults.Visible = 'on';
+                %self.txtResults.Visible = 'off';
+                
                 txt = [];
                 
-                if mode == 1
-                pcs = unique([self.cvtask.Results.numpc]);
-                if isfield(self.cvtask.Results,'alpha')
-                    als = unique([self.cvtask.Results.alpha]);
-                    for al = 1:length(als)
-                        for pc = 1:length(pcs)
-                            recs = self.cvtask.Results(arrayfun(@(x)(x.numpc == pcs(pc)) && (x.alpha == als(al)),self.cvtask.Results));
-                            names = sprintf('pc: %d alpha:%f', pcs(pc), als(al));
+                if mode == 1%summary
+                    pcs = unique([self.cvtask.Results.numpc]);
+                    if isfield(self.cvtask.Results,'alpha')
+                        als = unique([self.cvtask.Results.alpha]);
+                        for al = 1:length(als)
+                            for pc = 1:length(pcs)
+                                recs = self.cvtask.Results(arrayfun(@(x)(x.numpc == pcs(pc)) && (x.alpha == als(al)),self.cvtask.Results));
+                                names = sprintf('pc: %d alpha:%f', pcs(pc), als(al));
+                                for i = 1:length(x)
+                                    rec = recs(i);
+                                    
+                                    if cal_val == 1
+                                        txt = [txt sprintf('\n\nsplit:%d\n%s\n%s',i, names, self.tableTextMod(rec.model))];
+                                    else
+                                        d = self.cvtask.DataSet;
+                                        cls = d.RawClasses(logical(d.SelectedSamples),:);
+                                        Classes = cls(self.cvtask.Splits(:,i) == 1,:);
+                                        NumberOfClasses = length(unique(Classes));
+                                        txt = [txt sprintf('\n\nsplit:%d\n%s\n%s',i,names, self.tableTextVal(rec.result, NumberOfClasses))];
+                                    end
+                                    
+                                end
+                            end
+                        end
+                    else
+                        for pc = min(pcs):1:max(pcs)
+                            recs = self.cvtask.Results(arrayfun(@(x) (x.numpc == pc) ,self.cvtask.Results));
+                            names = sprintf('pc: %d', pcs(pc));
                             for i = 1:length(x)
                                 rec = recs(i);
                                 
                                 if cal_val == 1
-                                    txt = [txt sprintf('\n\nsplit:%d\n%s\n%s',i, names, self.tableTextMod(rec.model))];
+                                    txt = [txt sprintf('\n\nsplit:%d\n%s\n%s',i, names, self.tableTextMod(self, rec.model))];
                                 else
                                     d = self.cvtask.DataSet;
                                     cls = d.RawClasses(logical(d.SelectedSamples),:);
@@ -294,52 +318,35 @@ classdef CVTab < BasicTab
                             end
                         end
                     end
-                else
-                    for pc = min(pcs):1:max(pcs)
-                        recs = self.cvtask.Results(arrayfun(@(x) (x.numpc == pc) ,self.cvtask.Results));
-                        names = sprintf('pc: %d', pcs(pc));
-                        for i = 1:length(x)
-                            rec = recs(i);
-                            
-                            if cal_val == 1
-                                txt = [txt sprintf('\n\nsplit:%d\n%s\n%s',i, names, self.tableTextMod(self, rec.model))];
-                            else
-                                d = self.cvtask.DataSet;
-                                cls = d.RawClasses(logical(d.SelectedSamples),:);
-                                Classes = cls(self.cvtask.Splits(:,i) == 1,:);
-                                NumberOfClasses = length(unique(Classes));
-                                txt = [txt sprintf('\n\nsplit:%d\n%s\n%s',i,names, self.tableTextVal(rec.result, NumberOfClasses))];
-                            end
-                            
-                        end
-                    end
-                end
-                else
+                else %individual
                     pc = self.ddlSelectedPC.Value;
                     split = self.ddlSelectedSplit.Value;
                     alpha = self.ddlSelectedAlpha.Value;
-
+                    
                     pcs = unique([self.cvtask.Results.numpc]);
                     names = sprintf('\npc:%d\n',pcs(pc));
                     if isfield(self.cvtask.Results,'alpha')
                         als = unique([self.cvtask.Results.alpha]);
                         names = sprintf('\npc:%d\nalpha:%f',pcs(pc),als(alpha));
-                    end   
+                    end
                     
                     rec = self.cvtask.Results(arrayfun(@(x)(x.numpc == pcs(pc)) && (x.split == split) && (x.alpha == als(alpha)),self.cvtask.Results));
-                
-                    if cal_val == 1
+                    
+%                     if cal_val == 1
+%                         
+%                         txt = sprintf('\n\nsplit:%d\n%s\n%s',split, names, self.tableTextMod(rec.model));
+%                     else
+                         d = self.cvtask.DataSet;
+                         cls = d.RawClasses(logical(d.SelectedSamples),:);
+                         Classes = cls(self.cvtask.Splits(:,split) == 1,:);
+%                         NumberOfClasses = length(unique(Classes));
                         
-                        txt = sprintf('\n\nsplit:%d\n%s\n%s',split, names, self.tableTextMod(rec.model));
-                    else
-                        d = self.cvtask.DataSet;
-                        cls = d.RawClasses(logical(d.SelectedSamples),:);
-                        Classes = cls(self.cvtask.Splits(:,split) == 1,:);
-                        NumberOfClasses = length(unique(Classes));
-                        txt = sprintf('\n\nsplit:%d\n%s\n%s',split, names, self.tableTextVal(rec.result, NumberOfClasses));
-                    end
+                        tv = TabbedView(self.tab_result);
+                        tv.ShowTable(rec.result, Classes, rec.model.TrainingDataSet);
+                        %txt = sprintf('\n\nsplit:%d\n%s\n%s',split, names, self.tableTextVal(rec.result, NumberOfClasses));
+%                     end
                 end
-                self.txtResults.String = txt;
+                %self.txtResults.String = txt;
             end
         end
         
@@ -351,15 +358,17 @@ classdef CVTab < BasicTab
             
             if src.Value == 1 %summary
                 self.ddlSelectedSplit.Visible = 'off';
-                self.lblSelectedPC.Visible = 'off';
-                self.ddlSelectedPC.Visible = 'off';
-                self.ddlSelectedAlpha.Visible = 'off';
-                self.lblSelectedAlpha.Visible = 'off';
+                self.lblSelectedPC.Visible = 'on';
+                self.ddlSelectedPC.Visible = 'on';
+                self.ddlSelectedAlpha.Visible = 'on';
+                self.lblSelectedAlpha.Visible = 'on';
                 self.btnExamineModel.Visible = 'off';
                 self.btnSaveDatasets.Visible = 'off';
                 if strcmp(self.cvtask.ModelType,'hard')
                     self.ddlPlotVarX.String = variables0;
                     self.ddlPlotVarX.Value = 1;
+                    self.ddlSelectedAlpha.Visible = 'off';
+                    self.lblSelectedAlpha.Visible = 'off';
                 else
                     self.ddlPlotVarX.String = variables;
                     self.ddlPlotVarX.Value = 1;
@@ -500,7 +509,7 @@ classdef CVTab < BasicTab
         end
         
         function SaveTable(self, src, param)
-            [file,path] = uiputfile('cv_results.txt','Save the crossvalidation results'); 
+            [file,path] = uiputfile('cv_results.txt','Save the crossvalidation results');
             
             fileID = -1;
             if ~(isnumeric(file) && (file == 0) && isnumeric(path) && (path == 0))
@@ -513,7 +522,7 @@ classdef CVTab < BasicTab
                 for i = 1:length(ss)
                     fprintf(fileID, '%s\n', ss(i));
                 end
-            
+                
                 fclose(fileID);
             end
         end
@@ -656,27 +665,27 @@ classdef CVTab < BasicTab
             hbox22 = uix.Grid( 'Parent', vbox21,'Spacing', 1);
             uicontrol('Parent', hbox22, 'Style', 'text', 'String', 'View mode');
             obj.ddlResultViewMode = uicontrol('Parent', hbox22, 'Style', 'popupmenu', 'String', {'Graphics','Table view'},...
-                'Value',1, 'BackgroundColor', 'white', 'callback', @obj.Callback_ResultViewMode);
+                'Value',2, 'BackgroundColor', 'white', 'callback', @obj.Callback_ResultViewMode);
             
             hbox22.Widths = [60,115];
-
+            
             hbox23 = uix.Grid( 'Parent', vbox21,'Spacing', 1);
-            uicontrol('Parent', hbox23, 'Style', 'text', 'String', 'Dataset');
+            uicontrol('Parent', hbox23, 'Style', 'text', 'String', 'Dataset','Visible','off');
             obj.ddlResultDataSet = uicontrol('Parent', hbox23, 'Style', 'popupmenu', 'String', {'Calibration','Validation'},...
-                'Value',1, 'BackgroundColor', 'white', 'callback', @obj.Callback_ResultDataSet);
+                'Value',2, 'BackgroundColor', 'white', 'callback', @obj.Callback_ResultDataSet,'Visible','off');
             
             hbox23.Widths = [60,115];
             
             hbox222 = uix.Grid( 'Parent', vbox21,'Spacing', 1);
             %obj.lblSelectedSplit = uicontrol('Parent', hbox222, 'Style', 'text', 'String', 'Split','Visible','off');
             
-            obj.lblSelectedPC = uicontrol('Parent', hbox222, 'Style', 'text', 'String', 'Number of PC','Visible','off');
+            obj.lblSelectedPC = uicontrol('Parent', hbox222, 'Style', 'text', 'String', 'Number of PC','Visible','on');
             obj.ddlSelectedPC = uicontrol('Parent', hbox222, 'Style', 'popupmenu', 'String', {'-'},...
-                'Value',1, 'BackgroundColor', 'white', 'callback', @obj.Callback_SelectedPC,'Visible','off');
+                'Value',1, 'BackgroundColor', 'white', 'callback', @obj.Callback_SelectedPC,'Visible','on');
             
-            obj.lblSelectedAlpha = uicontrol('Parent', hbox222, 'Style', 'text', 'String', 'Type 1 error','Visible','off');
+            obj.lblSelectedAlpha = uicontrol('Parent', hbox222, 'Style', 'text', 'String', 'Type 1 error','Visible','on');
             obj.ddlSelectedAlpha = uicontrol('Parent', hbox222, 'Style', 'popupmenu', 'String', {'-'},...
-                'Value',1, 'BackgroundColor', 'white', 'callback', @obj.Callback_SelectedAlpha,'Visible','off');
+                'Value',1, 'BackgroundColor', 'white', 'callback', @obj.Callback_SelectedAlpha,'Visible','on');
             
             if ispc
                 hbox222.Widths = [60,50,60,50];
@@ -830,12 +839,13 @@ classdef CVTab < BasicTab
             obj.tab_split = uitab('Parent', obj.tg, 'Title', 'Data');
             obj.tab_result = uitab('Parent', obj.tg, 'Title', 'Results');
             obj.tab_result.Parent = [];
-            obj.txtResults = uicontrol(obj.tab_result,'style','edit');
-            set(obj.txtResults, 'Min', 0, 'Max', 2);
+            %obj.txtResults = uicontrol(obj.tab_result,'style','edit');
+            %
+            %set(obj.txtResults, 'Min', 0, 'Max', 2);
             %set(obj.txtResults, 'HorizontalAlignment', 'left');
             
-            obj.txtResults.Units = 'normalized';
-            obj.txtResults.Position = [0 0 1 1];
+            %obj.txtResults.Units = 'normalized';
+            %obj.txtResults.Position = [0 0 1 1];
             
             obj.tblTextResult = uitable(obj.tab_split);
             obj.tblTextResult.Units = 'normalized';
@@ -1053,13 +1063,16 @@ classdef CVTab < BasicTab
                     self.ddlPlotVarX.String = variables;
                     self.ddlPlotVarX.Value = 1;
                     
-                    if (self.ddlResultCategory.Value == 2)%individual split
-                        self.lblSelectedAlpha.Visible = 'on';
-                        self.ddlSelectedAlpha.Visible = 'on';
-                    else
-                        self.lblSelectedAlpha.Visible = 'off';
-                        self.ddlSelectedAlpha.Visible = 'off';
-                    end
+                    self.lblSelectedAlpha.Visible = 'on';
+                    self.ddlSelectedAlpha.Visible = 'on';
+                    
+                    %                     if (self.ddlResultCategory.Value == 2)%individual split
+                    %                         self.lblSelectedAlpha.Visible = 'on';
+                    %                         self.ddlSelectedAlpha.Visible = 'on';
+                    %                     else
+                    %                         self.lblSelectedAlpha.Visible = 'off';
+                    %                         self.ddlSelectedAlpha.Visible = 'off';
+                    %                     end
                     self.ddlSelectedAlpha.String = cellstr(string(unique([self.cvtask.Results.alpha])));
                 end
                 %self.Redraw();
@@ -1214,7 +1227,7 @@ classdef CVTab < BasicTab
             
             if isfield(result,'ConfusionMatrix')
                 s = [s sprintf('\n\n%s\n','Confusion matrix')];
-                s = [s sprintf([repmat('%d\t',1, length(result.ConfusionMatrix)) '\n'],result.ConfusionMatrix)];
+                s = [s sprintf([repmat('%d\t',1, size(result.ConfusionMatrix, 2)) '\n'],result.ConfusionMatrix)];
             end
             
             if isfield(result,'FiguresOfMerit')

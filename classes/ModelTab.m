@@ -651,14 +651,16 @@ classdef  ModelTab < BasicTab
             end
         end
         
-        function SelectCalibratinSet(self, src, ~)
+        function innerSelectCalibratinSet(self, selected_name )
             
-            index_selected = get(src,'Value');
             self.ClearModel();
             
-            if(index_selected > 1)
-                names = get(src,'String');
-                selected_name = names{index_selected};
+            if(isempty(selected_name))
+                self.btnRecalibrate.Enable = 'off';
+                self.tbNumPCpls.Enable = 'off';
+                self.tbAlpha.Enable = 'off';
+                self.tbGamma.Enable = 'off';
+            else
                 d = evalin('base', selected_name);
                 self.btnRecalibrate.Enable = 'on';
                 self.tbNumPCpls.Enable = 'on';
@@ -674,12 +676,20 @@ classdef  ModelTab < BasicTab
                     vmax = vmax - 1;
                 end
                 set(self.tbNumPCpls, 'String', sprintf('%d', min(max(vmin, 12), vmax)));
-            else
-                self.btnRecalibrate.Enable = 'off';
-                self.tbNumPCpls.Enable = 'off';
-                self.tbAlpha.Enable = 'off';
-                self.tbGamma.Enable = 'off';
             end
+        end
+        
+        function SelectCalibratinSet(self, src, ~)
+            
+            index_selected = get(src,'Value');
+
+            if(index_selected > 1)
+                names = get(src,'String');
+                selected_name = names{index_selected};
+            else
+                selected_name = [];
+            end
+            self.innerSelectCalibratinSet(selected_name);
         end
         
         function ClearModel(self)

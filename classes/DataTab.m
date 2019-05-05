@@ -645,6 +645,9 @@ classdef  DataTab < BasicTab
                 
                 names = varnames(idx);%fieldnames(ttab.Data);
                 selected_name = names{1};
+                
+                self.parent.selected_dataset = selected_name;
+                
                 set(self.listbox, 'Value', 2);
                 
                 %d = ttab.Data.(selected_name);
@@ -698,6 +701,8 @@ classdef  DataTab < BasicTab
             else
                 self.resetRightPanel();
                 self.enableRightPanel('off');
+                
+                self.parent.selected_dataset = [];
                 
                 set(self.listbox, 'String', '-');
                 set(self.listbox, 'Value', 1);
@@ -1281,7 +1286,7 @@ classdef  DataTab < BasicTab
                     set(win.modelTab.ddlCalibrationSet, 'String', vardisplay);
                     
                     if length(get(win.modelTab.ddlCalibrationSet, 'String')) > 1
-                        set(win.modelTab.ddlCalibrationSet, 'Value', 2)
+                        set(win.modelTab.ddlCalibrationSet, 'Value', 2);
                         
                         m = evalin('base',vardisplay{2});
                         set(win.modelTab.tbNumPCpca, 'String', sprintf('%d', m.NumberOfClasses-1));
@@ -1872,6 +1877,8 @@ classdef  DataTab < BasicTab
                 
                 names = get(self.listbox, 'String');
                 selected_name = names{index_selected};
+                
+                self.parent.selected_dataset = selected_name;
                 
                 d = evalin('base', selected_name);
                 

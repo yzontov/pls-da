@@ -14,6 +14,8 @@ classdef  GUIWindow<handle
         selected_text_panel = GUIWindow.ModelTableAllocation;
         selected_panel_pca = GUIWindow.DataPCAScores;
         
+        selected_dataset;
+        
     end
     
     properties (Constant)
@@ -101,6 +103,13 @@ classdef  GUIWindow<handle
                 case 'Model'
                     var = self.modelTab.chkPlotShowObjectNames.Value;
                     self.selected_tab = GUIWindow.ModelTabSelected;
+                    
+                    idx = find(strcmp(self.modelTab.ddlCalibrationSet.String, self.selected_dataset));
+                    if(~isempty(idx))
+                        self.modelTab.ddlCalibrationSet.Value = idx;
+                        self.modelTab.innerSelectCalibratinSet(self.selected_dataset);
+                    end
+                    
                 case 'Prediction'
                     var = self.predictTab.chkPlotShowObjectNames.Value;
                     self.selected_tab = GUIWindow.PredictTabSelected;

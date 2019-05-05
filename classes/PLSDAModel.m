@@ -78,7 +78,7 @@ classdef PLSDAModel < handle
         
         function value = get.FiguresOfMerit(self)
             %FiguresOfMerit get
-            value = PLSDAModel.FoM(self.ConfusionMatrix, sum(self.TrainingDataSet.DummyMatrix()));
+            value = PLSDAModel.FoM(self.ConfusionMatrix, sum(self.TrainingDataSet.DummyMatrix()),strcmp(self.Mode, 'soft'));
         end
         
         function m = get.AllocationTable(self)
@@ -299,13 +299,13 @@ classdef PLSDAModel < handle
                 self.AllocationMatrixNew = Result.AllocationMatrix;
                 
                 if ~isempty(NewDataSet.Classes) 
-                    if (length(trc) == length(tc) && sum(trc == tc) == length(tc))
-                        Result.ConfusionMatrix = PLSDAModel.confusionMatrix(NewDataSet.DummyMatrix(),Distances_Hard_New,0);
-                        Result.FiguresOfMerit = PLSDAModel.FoM(Result.ConfusionMatrix, sum(NewDataSet.DummyMatrix()));
-                    else
+%                     if (length(trc) == length(tc) && sum(trc == tc) == length(tc))
+%                         Result.ConfusionMatrix = PLSDAModel.confusionMatrix(NewDataSet.DummyMatrix(),Distances_Hard_New,0);
+%                         Result.FiguresOfMerit = PLSDAModel.FoM(Result.ConfusionMatrix, sum(NewDataSet.DummyMatrix()));
+%                     else
                         Result.ConfusionMatrix = PLSDAModel.confusionMatrixClasses(NewDataSet.Classes, Distances_Hard_New, 0);
-                        Result.FiguresOfMerit = PLSDAModel.FoMClasses(Result.ConfusionMatrix, tc, trc, sum(self.TrainingDataSet.DummyMatrix()));
-                    end
+                        Result.FiguresOfMerit = PLSDAModel.FoMClasses(Result.ConfusionMatrix, NewDataSet.Classes, trc, false);
+%                     end
                 end
             end
             
@@ -324,13 +324,13 @@ classdef PLSDAModel < handle
                 self.AllocationMatrixNew = Result.AllocationMatrix;
                                
                 if ~isempty(NewDataSet.Classes) 
-                    if (length(trc) == length(tc) && sum(trc == tc) == length(tc))
-                        Result.ConfusionMatrix = PLSDAModel.confusionMatrix(NewDataSet.DummyMatrix(),Distances_Soft_New, 1, self.Alpha);
-                        Result.FiguresOfMerit = PLSDAModel.FoM(Result.ConfusionMatrix, sum(NewDataSet.DummyMatrix()));
-                    else
+%                     if (length(trc) == length(tc) && sum(trc == tc) == length(tc))
+%                         Result.ConfusionMatrix = PLSDAModel.confusionMatrix(NewDataSet.DummyMatrix(),Distances_Soft_New, 1, self.Alpha);
+%                         Result.FiguresOfMerit = PLSDAModel.FoM(Result.ConfusionMatrix, sum(NewDataSet.DummyMatrix()));
+%                     else
                         Result.ConfusionMatrix = PLSDAModel.confusionMatrixClasses(NewDataSet.Classes, Distances_Soft_New, 1, self.Alpha);
-                        Result.FiguresOfMerit = PLSDAModel.FoMClasses(Result.ConfusionMatrix, tc, trc, sum(self.TrainingDataSet.DummyMatrix()));
-                    end
+                        Result.FiguresOfMerit = PLSDAModel.FoMClasses(Result.ConfusionMatrix, NewDataSet.Classes, trc, true);
+%                     end
                 end
             end
             
@@ -1375,7 +1375,8 @@ classdef PLSDAModel < handle
    
         end
         
-        function r = FoM(ConfusionMatrix, Ik)
+        function r = FoM(ConfusionMatrix, Ik, soft)
+
             r.TP = diag(ConfusionMatrix)';
             r.FP = sum(ConfusionMatrix - diag(diag(ConfusionMatrix)));
             CSNS = r.TP./Ik;
@@ -1383,39 +1384,68 @@ classdef PLSDAModel < handle
             CSPS = 1 - r.FP./(sum(Ik)-Ik);
             r.CSPS = 100*CSPS;
             r.CEFF = 100*sqrt(CSNS.*CSPS);
+            
             TSNS = sum(r.TP)/sum(Ik);
             r.TSNS = 100*TSNS;
             TSPS = 1 - sum(r.FP)/sum(Ik);
+            if soft
+                TSPS = 1 - sum(r.FP)/sum(Ik)/(length(Ik)-1);
+            end
             r.TSPS = 100*TSPS;
             r.TEFF = 100*sqrt(TSNS*TSPS);
         end
         
-        function r = FoMClasses(ConfusionMatrix, TestClassesList,TrainClassesList,Ik)
+        function r = FoMClasses(ConfusionMatrix, TestClasses, TrainClassesList, soft)
             len = length(TrainClassesList);
+            Ik = zeros(1,len);
+            
+            tc = length(unique(TestClasses));
+            
+            TestClassesList = unique(TestClasses);
             
             tp = zeros(size(TrainClassesList'));
-            fp = zeros(size(TrainClassesList'));           
+            fp = zeros(size(TrainClassesList'));  
+            tp1 = tp;
             
             for i = 1:len
                 ii = find (TestClassesList == TrainClassesList(i));
+                Ik(i) = sum(TestClasses == TrainClassesList(i));
                 if ~isempty(ii)
                     tp(i) = tp(i) + ConfusionMatrix(ii,i);
+                    tp1(i) = tp(i);
+                else
+                    tp1(i) = NaN;
                 end
                 fp(i) = sum(ConfusionMatrix(TestClassesList ~= TrainClassesList(i),i));
             end
 
-            r.TP = tp;
+            r.TP = tp1;
             r.FP = fp;
             CSNS = r.TP./Ik;
             r.CSNS = 100*CSNS;
-            CSPS = 1 - r.FP./(sum(Ik)-Ik);
+            CSPS = 1 - fp./(length(TestClasses)-Ik);
             r.CSPS = 100*CSPS;
             r.CEFF = 100*sqrt(CSNS.*CSPS);
+            
+            for i = 1:length(Ik)
+                if(isnan(CSNS(i)))
+                   r.CEFF(i) = r.CSPS(i);
+                end
+            end
+            
             TSNS = sum(r.TP)/sum(Ik);
             r.TSNS = 100*TSNS;
-            TSPS = 1 - sum(r.FP)/sum(Ik);
+            TSPS = 1 - sum(fp)/length(TestClasses);
+            if soft
+                TSPS = 1 - sum(fp)/length(TestClasses)/max(1,tc-1);
+            end
+            
             r.TSPS = 100*TSPS;
             r.TEFF = 100*sqrt(TSNS*TSPS);
+            
+            if isnan(r.TSNS)
+                r.TEFF = r.TSPS;
+            end
         end
         
         function r = allocation_hard(Labels, Dist, cls)
