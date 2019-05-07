@@ -97,12 +97,19 @@ classdef CVTask < handle
                         recs = self.Results(arrayfun(@(x) (x.numpc == pc), self.Results));
                     end
                     
+                    allocation = [];
                     labels = {};
                     for i = 1:length(x)
                         rec = recs(i);
                         labels = [labels; cellfun(@(x) sprintf('Split %d. %s', i, x), rec.result.Labels, 'UniformOutput', false)];
+                        
+                        if isequal(unique(rec.model.TrainingDataSet.Classes), unique(cls))
+                            allocation = [allocation; rec.result.AllocationMatrix];
+                        else
+                            
+                        end
                     end
-                    
+                 f = 1;   
                 else
                     value = [];
                 end
