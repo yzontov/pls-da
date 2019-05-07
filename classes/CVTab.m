@@ -190,6 +190,10 @@ classdef CVTab < BasicTab
                         self.cvtask.GetSummary(pcs(pc));
                     end
                     
+                    delete(self.tv);
+                    self.tv = TabbedView(self.tab_result);
+                    self.tv.ShowTable(self.cvtask.Summary, self.cvtask.Summary.Classes,  self.cvtask.Summary.UniqueTrainClasses, length(self.cvtask.Summary.UniqueTrainClasses), self.cvtask.DataSet.ClassLabels);
+                    
                 else %individual
                     pc = self.ddlSelectedPC.Value;
                     split = self.ddlSelectedSplit.Value;
@@ -214,7 +218,7 @@ classdef CVTab < BasicTab
               
                         delete(self.tv);
                         self.tv = TabbedView(self.tab_result);
-                        self.tv.ShowTable(rec.result, Classes, rec.model.TrainingDataSet);
+                        self.tv.ShowTable(rec.result, Classes, unique(rec.model.TrainingDataSet.Classes),rec.model.TrainingDataSet.NumberOfClasses ,self.cvtask.DataSet.ClassLabels);
 
                 end
                 
@@ -1244,7 +1248,7 @@ classdef CVTab < BasicTab
                                 res = m.Apply(v);
                                 
                                 %res = rmfield(res,'AllocationTable');
-                                res = rmfield(res,'Distances');
+                                %res = rmfield(res,'Distances');
                                 %res = rmfield(res,'Labels');
                                 res = rmfield(res,'Mode');
                                 
@@ -1265,7 +1269,7 @@ classdef CVTab < BasicTab
                             res = m.Apply(v);
                             
                             %res = rmfield(res,'AllocationTable');
-                            res = rmfield(res,'Distances');
+                            %res = rmfield(res,'Distances');
                             %res = rmfield(res,'Labels');
                             res = rmfield(res,'Mode');
                             

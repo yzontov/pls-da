@@ -1332,49 +1332,7 @@ classdef PLSDAModel < handle
             end
             
         end
-        
-        function m = confusionMatrixClasses(TestClasses,Distances,mode, Alpha)
-            
-            tcl = unique(TestClasses);
-            tcl_cnt = length(tcl);
-            
-            [I,K] = size(Distances);
-            
-            if nargin == 3 && mode == 0
-                Alpha = 0;
-            end
-            
-            if nargin == 4 && mode == 1
-                Dcrit = PLSDAModel.chi2inv_(1-Alpha, K-1);
-            end
-            
-            m = zeros(tcl_cnt, K);
-           
-            for i = 1:I
-                for k = 1:K
-                    obj_cls = TestClasses(i);
-                    i1 = find(tcl == obj_cls);
-                    i2 = k;
-                    if mode == 0
-                        if Distances(i,k) == min(Distances(i,:))
-                            %if(obj_cls == TrainClassesList(k))
-                                m(i1,i2) = m(i1,i2) + 1; 
-                            %end
-                        end
-                    else
-                        if mode == 1
-                            if Distances(i,k) < Dcrit
-                                %if(obj_cls == TrainClassesList(k))
-                                    m(i1,i2) = m(i1,i2) + 1;
-                                %end
-                            end
-                        end
-                    end
-                end
-            end
-   
-        end
-        
+
         function r = FoM(ConfusionMatrix, Ik, soft)
 
             r.TP = diag(ConfusionMatrix)';
@@ -1394,60 +1352,7 @@ classdef PLSDAModel < handle
             r.TSPS = 100*TSPS;
             r.TEFF = 100*sqrt(TSNS*TSPS);
         end
-        
-        function r = FoMClasses(ConfusionMatrix, TestClasses, TrainClassesList, soft)
-            len = length(TrainClassesList);
-            Ik = zeros(1,len);
-            
-            tc = length(unique(TestClasses));
-            
-            TestClassesList = unique(TestClasses);
-            
-            tp = zeros(size(TrainClassesList'));
-            fp = zeros(size(TrainClassesList'));  
-            tp1 = tp;
-            
-            for i = 1:len
-                ii = find (TestClassesList == TrainClassesList(i));
-                Ik(i) = sum(TestClasses == TrainClassesList(i));
-                if ~isempty(ii)
-                    tp(i) = tp(i) + ConfusionMatrix(ii,i);
-                    tp1(i) = tp(i);
-                else
-                    tp1(i) = NaN;
-                end
-                fp(i) = sum(ConfusionMatrix(TestClassesList ~= TrainClassesList(i),i));
-            end
 
-            r.TP = tp1;
-            r.FP = fp;
-            CSNS = r.TP./Ik;
-            r.CSNS = 100*CSNS;
-            CSPS = 1 - fp./(length(TestClasses)-Ik);
-            r.CSPS = 100*CSPS;
-            r.CEFF = 100*sqrt(CSNS.*CSPS);
-            
-            for i = 1:length(Ik)
-                if(isnan(CSNS(i)))
-                   r.CEFF(i) = r.CSPS(i);
-                end
-            end
-            
-            TSNS = sum(r.TP)/sum(Ik);
-            r.TSNS = 100*TSNS;
-            TSPS = 1 - sum(fp)/length(TestClasses);
-            if soft
-                TSPS = 1 - sum(fp)/length(TestClasses)/max(1,tc-1);
-            end
-            
-            r.TSPS = 100*TSPS;
-            r.TEFF = 100*sqrt(TSNS*TSPS);
-            
-            if isnan(r.TSNS)
-                r.TEFF = r.TSPS;
-            end
-        end
-        
         function r = allocation_hard(Labels, Dist, cls)
             m = max(cellfun(@length, Labels));
             format = ['%-' sprintf('%d', m) 's\t'];
@@ -1550,6 +1455,102 @@ classdef PLSDAModel < handle
             colors = c(1:class_number,:);
             
         end
+        
+        function m = confusionMatrixClasses(TestClasses,Distances,mode, Alpha)
+            
+            tcl = unique(TestClasses);
+            tcl_cnt = length(tcl);
+            
+            [I,K] = size(Distances);
+            
+            if nargin == 3 && mode == 0
+                Alpha = 0;
+            end
+            
+            if nargin == 4 && mode == 1
+                Dcrit = PLSDAModel.chi2inv_(1-Alpha, K-1);
+            end
+            
+            m = zeros(tcl_cnt, K);
+           
+            for i = 1:I
+                for k = 1:K
+                    obj_cls = TestClasses(i);
+                    i1 = find(tcl == obj_cls);
+                    i2 = k;
+                    if mode == 0
+                        if Distances(i,k) == min(Distances(i,:))
+                            %if(obj_cls == TrainClassesList(k))
+                                m(i1,i2) = m(i1,i2) + 1; 
+                            %end
+                        end
+                    else
+                        if mode == 1
+                            if Distances(i,k) < Dcrit
+                                %if(obj_cls == TrainClassesList(k))
+                                    m(i1,i2) = m(i1,i2) + 1;
+                                %end
+                            end
+                        end
+                    end
+                end
+            end
+   
+        end
+        
+        function r = FoMClasses(ConfusionMatrix, TestClasses, TrainClassesList, soft)
+            len = length(TrainClassesList);
+            Ik = zeros(1,len);
+            
+            tc = length(unique(TestClasses));
+            
+            TestClassesList = unique(TestClasses);
+            
+            tp = zeros(size(TrainClassesList'));
+            fp = zeros(size(TrainClassesList'));  
+            tp1 = tp;
+            
+            for i = 1:len
+                ii = find (TestClassesList == TrainClassesList(i));
+                Ik(i) = sum(TestClasses == TrainClassesList(i));
+                if ~isempty(ii)
+                    tp(i) = tp(i) + ConfusionMatrix(ii,i);
+                    tp1(i) = tp(i);
+                else
+                    tp1(i) = NaN;
+                end
+                fp(i) = sum(ConfusionMatrix(TestClassesList ~= TrainClassesList(i),i));
+            end
+
+            r.TP = tp1;
+            r.FP = fp;
+            CSNS = r.TP./Ik;
+            r.CSNS = 100*CSNS;
+            CSPS = 1 - fp./(length(TestClasses)-Ik);
+            r.CSPS = 100*CSPS;
+            r.CEFF = 100*sqrt(CSNS.*CSPS);
+            
+            for i = 1:length(Ik)
+                if(isnan(CSNS(i)))
+                   r.CEFF(i) = r.CSPS(i);
+                end
+            end
+            
+            TSNS = sum(r.TP)/sum(Ik);
+            r.TSNS = 100*TSNS;
+            TSPS = 1 - sum(fp)/length(TestClasses);
+            if soft
+                TSPS = 1 - sum(fp)/length(TestClasses)/max(1,tc-1);
+            end
+            
+            r.TSPS = 100*TSPS;
+            r.TEFF = 100*sqrt(TSNS*TSPS);
+            
+            if isnan(r.TSNS)
+                r.TEFF = r.TSPS;
+            end
+        end
+        
     end
 end
 

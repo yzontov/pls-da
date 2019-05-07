@@ -63,16 +63,18 @@ classdef TabbedView < handle
             
         end
         
-        function ShowTable(self, Result, setClasses, TrainingDataSet)
-            self.tblTextResult.ColumnFormat = ['char' 'char' repmat({'char'},1,TrainingDataSet.NumberOfClasses)];
+        function ShowTable(self, Result, setClasses, TrainingDataSetList, NumberOfTrainingDataSetClasses, ClassLabels)
+            
+            
+            self.tblTextResult.ColumnFormat = ['char' 'char' repmat({'char'},1,NumberOfTrainingDataSetClasses)];
 
             res = Result;
             
             for i = 1:length(setClasses)
                 c = setClasses(i);
                 
-                u = unique(TrainingDataSet.Classes);
-                ii = 1:TrainingDataSet.NumberOfClasses;
+                u = TrainingDataSetList;
+                ii = 1:NumberOfTrainingDataSetClasses;
                 ci = ii(u == c);
                 
                 if (sum(res.AllocationMatrix(i,:)) == 0)% no classes
@@ -96,8 +98,8 @@ classdef TabbedView < handle
             
             self.tblTextResult.ColumnWidth = num2cell([150, max(90,max_class_label_length*7), max(30, max_class_label_length*7)*ones(1,size(res.AllocationMatrix, 2))]);
             
-            if ~isempty(TrainingDataSet.ClassLabels)
-                max_class_label_length = max(strlength(TrainingDataSet.ClassLabels));
+            if ~isempty(ClassLabels)
+                max_class_label_length = max(strlength(ClassLabels));
                 padding = round(max_class_label_length);
             end
             
@@ -105,11 +107,11 @@ classdef TabbedView < handle
             self.tblTextResult.Data = [res.Labels, num2cell(setClasses),  v];
             %self.tblTextResult.Data = [res.Labels, num2cell(setClasses), num2cell(logical(res.AllocationMatrix))];
             
-            self.tblTextResult.ColumnName = {'Sample','Known class', unique(TrainingDataSet.Classes)};
+            self.tblTextResult.ColumnName = {'Sample','Known class', TrainingDataSetList};
             
             
             %if ~isempty(setClasses)
-            trc = unique(TrainingDataSet.Classes);
+            trc = TrainingDataSetList;
             %tc = unique(setClasses);
             %end
             
@@ -118,10 +120,10 @@ classdef TabbedView < handle
             v = arrayfun(@(x) self.bool2v(x, padding) ,logical(res.AllocationMatrix), 'UniformOutput', false);
             self.tblTextResult.Data = [res.Labels, num2cell(setClasses),  v];
             
-            if ~isempty(TrainingDataSet.ClassLabels)
-                names_ = cell(1,TrainingDataSet.NumberOfClasses);
-                for i = 1:TrainingDataSet.NumberOfClasses
-                    names_{i} = TrainingDataSet.ClassLabels{trc(i)};
+            if ~isempty(ClassLabels)
+                names_ = cell(1,NumberOfTrainingDataSetClasses);
+                for i = 1:NumberOfTrainingDataSetClasses
+                    names_{i} = ClassLabels{trc(i)};
                 end
                 self.tblTextResult.ColumnWidth = num2cell([150, max(90,max_class_label_length*7), max(30, max_class_label_length*7)*ones(1,size(res.AllocationMatrix, 2))]);
                 
@@ -132,13 +134,13 @@ classdef TabbedView < handle
             else
                 %padding = 1;
                 max_class_label_length = 1;
-                self.tblTextConfusion.ColumnName = unique(TrainingDataSet.Classes);
+                self.tblTextConfusion.ColumnName = TrainingDataSetList;
                 self.tblTextConfusion.RowName = unique(setClasses);
-                self.tblTextFoM.ColumnName = {'Statistics',unique(TrainingDataSet.Classes)};
+                self.tblTextFoM.ColumnName = {'Statistics',TrainingDataSetList};
             end
             
-            self.tblTextFoM.ColumnWidth = num2cell([120, max(30, max_class_label_length*7)*ones(1,size(res.AllocationMatrix(:,1:TrainingDataSet.NumberOfClasses), 2))]);
-            self.tblTextFoM.ColumnFormat = ['char' repmat({'numeric'},1,TrainingDataSet.NumberOfClasses)];
+            self.tblTextFoM.ColumnWidth = num2cell([120, max(30, max_class_label_length*7)*ones(1,size(res.AllocationMatrix(:,1:NumberOfTrainingDataSetClasses), 2))]);
+            self.tblTextFoM.ColumnFormat = ['char' repmat({'numeric'},1,NumberOfTrainingDataSetClasses)];
             
             self.tblTextConfusion.Data = res.ConfusionMatrix;
             
@@ -146,12 +148,12 @@ classdef TabbedView < handle
             fom = res.FiguresOfMerit;
             
             self.tblTextFoM.Data = [fields,  [num2cell(round([fom.TP; fom.FP])); ...
-                repmat({''},1,TrainingDataSet.NumberOfClasses);...
+                repmat({''},1,NumberOfTrainingDataSetClasses);...
                 num2cell(round([fom.CSNS; fom.CSPS; fom.CEFF])); ...
-                repmat({''},1,TrainingDataSet.NumberOfClasses);...
-                [round(fom.TSNS) repmat({''},1,TrainingDataSet.NumberOfClasses-1)];...
-                [round(fom.TSPS) repmat({''},1,TrainingDataSet.NumberOfClasses-1)];...
-                [round(fom.TEFF) repmat({''},1,TrainingDataSet.NumberOfClasses-1)]...
+                repmat({''},1,NumberOfTrainingDataSetClasses);...
+                [round(fom.TSNS) repmat({''},1,NumberOfTrainingDataSetClasses-1)];...
+                [round(fom.TSPS) repmat({''},1,NumberOfTrainingDataSetClasses-1)];...
+                [round(fom.TEFF) repmat({''},1,NumberOfTrainingDataSetClasses-1)]...
                 ]];
             %end
         end

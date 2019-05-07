@@ -79,15 +79,15 @@ classdef CVTask < handle
                 if ~isempty(self.Results)
                     
                     d = self.DataSet;
-                    dat = d.RawData(logical(d.SelectedSamples),:);
+                    %dat = d.RawData(logical(d.SelectedSamples),:);
                     cls = d.RawClasses(logical(d.SelectedSamples),:);
-                    NumberOfClasses = length(unique(cls));
-                    lbl = [];
-                    if ~isempty(d.ObjectNames)
-                        lbl = d.ObjectNames(logical(d.SelectedSamples),:);
-                    else
-                        lbl = cellfun(@(x) sprintf('Object No.%d', x), 1:size(dat, 1), 'UniformOutput', false);
-                    end
+                    %NumberOfClasses = length(unique(cls));
+%                     lbl = [];
+%                     if ~isempty(d.ObjectNames)
+%                         lbl = d.ObjectNames(logical(d.SelectedSamples),:);
+%                     else
+%                         lbl = cellfun(@(x) sprintf('Object No.%d', x), 1:size(dat, 1), 'UniformOutput', false);
+%                     end
                     
                     x = unique([self.Results.split]);
                     
@@ -98,21 +98,43 @@ classdef CVTask < handle
                     end
                     
                     allocation = [];
+                    %confusion = [];
+                    %fom = [];
+                    classes = [];
+                    classes_train = [];
+                    distances = [];
                     labels = {};
                     for i = 1:length(x)
                         rec = recs(i);
                         labels = [labels; cellfun(@(x) sprintf('Split %d. %s', i, x), rec.result.Labels, 'UniformOutput', false)];
-                        
-                        if isequal(unique(rec.model.TrainingDataSet.Classes), unique(cls))
-                            allocation = [allocation; rec.result.AllocationMatrix];
-                        else
-                            
-                        end
+                        classes = [classes; cls(self.Splits(:,i) == 1,:)];
+                        classes_train = [classes_train; cls(self.Splits(:,i) == 0,:)];
+                        distances = [distances; rec.result.Distances];
+                        allocation = [allocation; rec.result.AllocationMatrix];
+%                         if isequal(unique(rec.model.TrainingDataSet.Classes), unique(cls))
+%                             
+%                         else
+%                             
+%                         end
                     end
-                 f = 1;   
+                    if(strcmp(recs(1).model.Mode, 'hard'))
+                        confusion = PLSDAModel.confusionMatrixClasses(classes, distances, 0);
+                        fom = PLSDAModel.FoMClasses(confusion, classes, unique(recs(1).model.TrainingDataSet.Classes), false);
+                    else
+                        confusion = PLSDAModel.confusionMatrixClasses(classes, distances, 1, alpha);
+                        fom = PLSDAModel.FoMClasses(confusion, classes, unique(recs(1).model.TrainingDataSet.Classes), true);
+                    end
+                    value.Labels = labels;
+                    value.Distances = distances;
+                    value.AllocationMatrix = allocation;
+                    value.ConfusionMatrix = confusion;
+                    value.FiguresOfMerit = fom;
+                    value.Classes = classes;
+                    value.UniqueTrainClasses = unique(classes_train);
                 else
                     value = [];
                 end
+                self.Summary = value;
             else
                 value = self.Summary;
             end

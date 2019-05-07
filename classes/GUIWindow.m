@@ -105,7 +105,7 @@ classdef  GUIWindow<handle
                     self.selected_tab = GUIWindow.ModelTabSelected;
                     
                     idx = find(strcmp(self.modelTab.ddlCalibrationSet.String, self.selected_dataset));
-                    if(~isempty(idx))
+                    if(~isempty(idx) && self.modelTab.ddlCalibrationSet.Value ~= idx)
                         self.modelTab.ddlCalibrationSet.Value = idx;
                         self.modelTab.innerSelectCalibratinSet(self.selected_dataset);
                     end
