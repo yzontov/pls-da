@@ -198,6 +198,7 @@ classdef  GUIWindow<handle
                         case 'Data'
                             self.selected_panel = GUIWindow.CVData;
                         case 'Results'
+                            %self.cvTab.ShowResults();
                             self.cvTab.Redraw();
                             self.selected_panel = GUIWindow.CVResults;
                     end

@@ -18,12 +18,13 @@ classdef CVTask < handle
         MinPC
         PCStep;
         MaxPC;
-                
+        
         MinAlpha;
         AlphaStep;
         MaxAlpha;
         
         Results;
+        Summary;
     end
     
     methods (Access = private)
@@ -69,6 +70,47 @@ classdef CVTask < handle
             obj.DataSet = DataSet(ds);
         end
         
+        function value = GetSummary(self, pc, alpha)
+            if nargin == 1
+                alpha = -1;
+            end
+            
+            if isempty(self.Summary)
+                if ~isempty(self.Results)
+                    
+                    d = self.DataSet;
+                    dat = d.RawData(logical(d.SelectedSamples),:);
+                    cls = d.RawClasses(logical(d.SelectedSamples),:);
+                    NumberOfClasses = length(unique(cls));
+                    lbl = [];
+                    if ~isempty(d.ObjectNames)
+                        lbl = d.ObjectNames(logical(d.SelectedSamples),:);
+                    else
+                        lbl = cellfun(@(x) sprintf('Object No.%d', x), 1:size(dat, 1), 'UniformOutput', false);
+                    end
+                    
+                    x = unique([self.Results.split]);
+                    
+                    if alpha > 0
+                        recs = self.Results(arrayfun(@(x)(x.numpc == pc) && (x.alpha == alpha), self.Results));
+                    else
+                        recs = self.Results(arrayfun(@(x) (x.numpc == pc), self.Results));
+                    end
+                    
+                    labels = {};
+                    for i = 1:length(x)
+                        rec = recs(i);
+                        labels = [labels; cellfun(@(x) sprintf('Split %d. %s', i, x), rec.result.Labels, 'UniformOutput', false)];
+                    end
+                    
+                else
+                    value = [];
+                end
+            else
+                value = self.Summary;
+            end
+        end
+        
         function s = GenerateSplits(self)
             
             k = size(self.DataSet.ProcessedData, 1);
@@ -108,7 +150,7 @@ classdef CVTask < handle
                 
                 for i = 1:number_of_splits
                     split = zeros(size(se));
-                                      
+                    
                     switch(self.Type)
                         case 'leave-one-out'
                             split(se(i)) = 1;

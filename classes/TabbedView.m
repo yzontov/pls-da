@@ -1,6 +1,9 @@
 classdef TabbedView < handle
     
     properties
+        
+        parent;
+        
         tbl_tabgroup;
         
         tab_alloc;
@@ -14,6 +17,8 @@ classdef TabbedView < handle
     
     methods
         function self = TabbedView(parent)
+            self.parent = parent;
+            
             self.tbl_tabgroup = uitabgroup('Parent', parent);
             
             self.tab_alloc = uitab('Parent', self.tbl_tabgroup, 'Title', 'Allocation table');
@@ -32,6 +37,18 @@ classdef TabbedView < handle
             self.tblTextFoM = uitable(self.tab_fom);
             self.tblTextFoM.Units = 'normalized';
             self.tblTextFoM.Position = [0 0 1 1];
+        end
+        
+        function delete(self)
+            
+            ptab = self.tbl_tabgroup.Children(1);
+            delete(ptab);
+            ptab = self.tbl_tabgroup.Children(1);
+            delete(ptab);
+            ptab = self.tbl_tabgroup.Children(1);
+            delete(ptab);
+            tg = self.parent.Children(1);
+            delete(tg);
         end
         
         function v = bool2v(self, x, padding)
