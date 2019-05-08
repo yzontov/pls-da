@@ -117,12 +117,15 @@ classdef CVTask < handle
 %                             
 %                         end
                     end
+
                     if(strcmp(recs(1).model.Mode, 'hard'))
                         confusion = PLSDAModel.confusionMatrixClasses(classes, distances, 0);
-                        fom = PLSDAModel.FoMClasses(confusion, classes, unique(recs(1).model.TrainingDataSet.Classes), false);
+                        fom = PLSDAModel.FoMClasses(confusion, classes, unique(classes_train), false);
+                        alloc_table = PLSDAModel.allocation_hard(labels, distances, unique(classes_train));
                     else
                         confusion = PLSDAModel.confusionMatrixClasses(classes, distances, 1, alpha);
-                        fom = PLSDAModel.FoMClasses(confusion, classes, unique(recs(1).model.TrainingDataSet.Classes), true);
+                        fom = PLSDAModel.FoMClasses(confusion, classes, unique(classes_train), true);
+                        alloc_table = PLSDAModel.allocation_soft(labels, alpha, distances, unique(classes_train));
                     end
                     value.Labels = labels;
                     value.Distances = distances;
@@ -131,6 +134,7 @@ classdef CVTask < handle
                     value.FiguresOfMerit = fom;
                     value.Classes = classes;
                     value.UniqueTrainClasses = unique(classes_train);
+                    value.AllocationTable = alloc_table;
                 else
                     value = [];
                 end

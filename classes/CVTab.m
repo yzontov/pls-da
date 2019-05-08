@@ -314,7 +314,7 @@ classdef CVTab < BasicTab
 %                 self.ddlSelectedAlpha.Visible = 'off';%
 %                 self.lblSelectedAlpha.Visible = 'on';%
                  self.btnExamineModel.Visible = 'on';%
-                 self.btnSaveDatasets.Visible = 'off';%
+                 self.btnSaveDatasets.Visible = 'on';%
 %                 if strcmp(self.cvtask.ModelType,'hard')%
 %                     self.ddlPlotVarX.String = variables0;%
 %                     self.ddlPlotVarX.Value = 1;%
@@ -385,6 +385,31 @@ classdef CVTab < BasicTab
         end
         
         function SaveTable(self, src, param)
+            
+            mode = self.ddlResultCategory.Value;% 1 - summary, 2 - one split
+            
+            if mode == 1%summary
+                text = self.tableTextVal(self.cvtask.Summary, self.cvtask.Summary.UniqueTrainClasses);
+            else%one split
+                    pc = self.ddlSelectedPC.Value;
+                    split = self.ddlSelectedSplit.Value;
+                    alpha = self.ddlSelectedAlpha.Value;
+                    
+                    pcs = unique([self.cvtask.Results.numpc]);
+                    als = [];
+
+                    if isfield(self.cvtask.Results,'alpha')
+                        als = unique([self.cvtask.Results.alpha]);
+                    end
+                    
+                    if isempty(als)
+                        rec = self.cvtask.Results(arrayfun(@(x)(x.numpc == pcs(pc)) && (x.split == split),self.cvtask.Results));
+                    else
+                        rec = self.cvtask.Results(arrayfun(@(x)(x.numpc == pcs(pc)) && (x.split == split) && (x.alpha == als(alpha)),self.cvtask.Results));
+                    end
+                text = self.tableTextVal(rec, unique(rec.model.TrainingDataSet));
+            end
+            
             [file,path] = uiputfile('cv_results.txt','Save the crossvalidation results');
             
             fileID = -1;
@@ -394,7 +419,7 @@ classdef CVTab < BasicTab
             
             if fileID ~= -1
                 
-                ss = string(self.txtResults.String);
+                ss = string(text);
                 for i = 1:length(ss)
                     fprintf(fileID, '%s\n', ss(i));
                 end
@@ -420,7 +445,33 @@ classdef CVTab < BasicTab
         end
         
         function CopyTableToClipboard(self, src, param)
-            clipboard('copy', self.txtResults.String);
+            
+            mode = self.ddlResultCategory.Value;% 1 - summary, 2 - one split
+            
+            if mode == 1%summary
+                text = self.tableTextVal(self.cvtask.Summary, self.cvtask.Summary.UniqueTrainClasses);
+            else%one split
+                    pc = self.ddlSelectedPC.Value;
+                    split = self.ddlSelectedSplit.Value;
+                    alpha = self.ddlSelectedAlpha.Value;
+                    
+                    pcs = unique([self.cvtask.Results.numpc]);
+                    als = [];
+
+                    if isfield(self.cvtask.Results,'alpha')
+                        als = unique([self.cvtask.Results.alpha]);
+                    end
+                    
+                    if isempty(als)
+                        rec = self.cvtask.Results(arrayfun(@(x)(x.numpc == pcs(pc)) && (x.split == split),self.cvtask.Results));
+                    else
+                        rec = self.cvtask.Results(arrayfun(@(x)(x.numpc == pcs(pc)) && (x.split == split) && (x.alpha == als(alpha)),self.cvtask.Results));
+                    end
+                text = self.tableTextVal(rec.result, unique(rec.model.TrainingDataSet.Classes));
+            end
+            
+            
+            clipboard('copy', text);
         end
         
         function ExamineModel(self, src, param)
@@ -1113,7 +1164,7 @@ classdef CVTab < BasicTab
             end
         end
         
-        function s = tableTextVal(self, result, train_cls_num)
+        function s = tableTextVal(self, result, train_cls)
             s = sprintf('%s\n','Allocation table');
             s = [s sprintf('%s',result.AllocationTable)];
             
@@ -1135,7 +1186,7 @@ classdef CVTab < BasicTab
                     num2str(round(fom.TEFF))...
                     }];
                 
-                s = [s sprintf('Statistics\t%s\n', sprintf('%d\t',1:train_cls_num))];
+                s = [s sprintf('Statistics\t%s\n', sprintf('%d\t',train_cls))];
                 for i=1:size(fom_txt,1)
                     s = [s sprintf('%s\t%s\n', fom_txt{i,1}, fom_txt{i,2})];
                 end

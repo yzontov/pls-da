@@ -1353,58 +1353,6 @@ classdef PLSDAModel < handle
             r.TEFF = 100*sqrt(TSNS*TSPS);
         end
 
-        function r = allocation_hard(Labels, Dist, cls)
-            m = max(cellfun(@length, Labels));
-            format = ['%-' sprintf('%d', m) 's\t'];
-            r = '';
-            r = [r, 'Decision Hard\n'];
-            [I,K] = size(Dist);
-            r = [r,sprintf(format, ' ')];
-            r = [r,sprintf('\t\t%s', sprintf('\t%d', cls))];
-            r = [r,'\n'];
-            for i = 1:I
-                r = [r,sprintf(format, Labels{i})];
-                for k = 1:K
-                    if Dist(i,k) == min(Dist(i,:))
-                        r = [r,'\t*'];
-                    else
-                        r = [r,'\t '];
-                    end
-                end
-                r = [r,'\n'];
-            end
-            r = [r,'\n\n'];
-            r = strrep(r,'\n', newline);
-            r = strrep(r,'\t', char(9));
-        end
-        
-        function r = allocation_soft(Labels, Alpha, Dist, cls)
-            m = max(cellfun(@length, Labels));
-            format = ['%-' sprintf('%d', m) 's\t'];
-            r = '';
-            r = [r,'Decision Soft\n'];
-            [I,K] = size(Dist);
-            Dcrit = PLSDAModel.chi2inv_(1-Alpha, K-1);
-            
-            r = [r,sprintf(format, ' ')];
-            r = [r,sprintf('\t\t%s', sprintf('\t%d', cls))];
-            r = [r,'\n'];
-            for i = 1:I
-                r = [r,sprintf(format, Labels{i})];
-                for k = 1:K
-                    if Dist(i,k) < Dcrit
-                        r = [r,'\t*'];
-                    else
-                        r = [r,'\t '];
-                    end
-                end
-                r = [r,'\n'];
-            end
-            r = [r,'\n\n'];
-            r = strrep(r,'\n', newline);
-            r = strrep(r,'\t', char(9));
-        end
-        
     end
     
     methods (Static)
@@ -1549,6 +1497,58 @@ classdef PLSDAModel < handle
             if isnan(r.TSNS)
                 r.TEFF = r.TSPS;
             end
+        end
+        
+        function r = allocation_hard(Labels, Dist, cls)
+            m = max(cellfun(@length, Labels));
+            format = ['%-' sprintf('%d', m) 's\t'];
+            r = '';
+            r = [r, 'Decision Hard\n'];
+            [I,K] = size(Dist);
+            r = [r,sprintf(format, ' ')];
+            r = [r,sprintf('\t\t%s', sprintf('\t%d', cls))];
+            r = [r,'\n'];
+            for i = 1:I
+                r = [r,sprintf(format, Labels{i})];
+                for k = 1:K
+                    if Dist(i,k) == min(Dist(i,:))
+                        r = [r,'\t*'];
+                    else
+                        r = [r,'\t '];
+                    end
+                end
+                r = [r,'\n'];
+            end
+            r = [r,'\n\n'];
+            r = strrep(r,'\n', newline);
+            r = strrep(r,'\t', char(9));
+        end
+        
+        function r = allocation_soft(Labels, Alpha, Dist, cls)
+            m = max(cellfun(@length, Labels));
+            format = ['%-' sprintf('%d', m) 's\t'];
+            r = '';
+            r = [r,'Decision Soft\n'];
+            [I,K] = size(Dist);
+            Dcrit = PLSDAModel.chi2inv_(1-Alpha, K-1);
+            
+            r = [r,sprintf(format, ' ')];
+            r = [r,sprintf('\t\t%s', sprintf('\t%d', cls))];
+            r = [r,'\n'];
+            for i = 1:I
+                r = [r,sprintf(format, Labels{i})];
+                for k = 1:K
+                    if Dist(i,k) < Dcrit
+                        r = [r,'\t*'];
+                    else
+                        r = [r,'\t '];
+                    end
+                end
+                r = [r,'\n'];
+            end
+            r = [r,'\n\n'];
+            r = strrep(r,'\n', newline);
+            r = strrep(r,'\t', char(9));
         end
         
     end
