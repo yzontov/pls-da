@@ -75,7 +75,7 @@ classdef CVTask < handle
                 alpha = -1;
             end
             
-            if isempty(self.Summary)
+            %if isempty(self.Summary)
                 if ~isempty(self.Results)
                     
                     d = self.DataSet;
@@ -135,9 +135,9 @@ classdef CVTask < handle
                     value = [];
                 end
                 self.Summary = value;
-            else
-                value = self.Summary;
-            end
+            %else
+             %   value = self.Summary;
+            %end
         end
         
         function s = GenerateSplits(self)
