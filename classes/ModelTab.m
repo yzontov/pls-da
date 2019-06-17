@@ -124,7 +124,7 @@ classdef  ModelTab < BasicTab
                     self.tblTextConfusion.ColumnName = names_;
                     self.tblTextConfusion.RowName = names_;
                     
-                    self.tblTextFoM.ColumnName = [{'Statistics'},names_];
+                    self.tblTextFoM.ColumnName = [{'Classes'},names_];
                     self.tblTextFoM.ColumnWidth = num2cell([120, max(30,max_class_label_length*7)*ones(1,size(self.Model.AllocationMatrix(:,1:self.Model.TrainingDataSet.NumberOfClasses), 2))]);
                 else
                     v = arrayfun(@self.bool2v,logical(self.Model.AllocationMatrix),'UniformOutput', false);
@@ -136,7 +136,7 @@ classdef  ModelTab < BasicTab
                     self.tblTextConfusion.ColumnName = {unique(self.Model.TrainingDataSet.Classes)};
                     self.tblTextConfusion.RowName = {unique(self.Model.TrainingDataSet.Classes)};
                     
-                    self.tblTextFoM.ColumnName = {'Statistics',unique(self.Model.TrainingDataSet.Classes)};
+                    self.tblTextFoM.ColumnName = {'Classes',unique(self.Model.TrainingDataSet.Classes)};
                     self.tblTextFoM.ColumnWidth = num2cell([120, 30*ones(1,size(self.Model.AllocationMatrix(:,1:self.Model.TrainingDataSet.NumberOfClasses), 2))]);
                 end
                 
@@ -262,8 +262,8 @@ classdef  ModelTab < BasicTab
             
             hboxm3 = uix.Grid( 'Parent', vbox_mod);
             %PCA PCs
-            uicontrol('Parent', hboxm3, 'Style', 'text', 'String', 'Number of PCA components', 'Enable', 'on');
-            ttab.tbNumPCpca = uicontrol('Parent', hboxm3, 'Style', 'edit', 'String', '2', 'Enable', 'off',...
+            uicontrol('Parent', hboxm3, 'Style', 'text', 'String', 'Number of PCA components', 'Enable', 'on', 'Visible', 'off');
+            ttab.tbNumPCpca = uicontrol('Parent', hboxm3, 'Style', 'edit', 'String', '2', 'Visible', 'off', 'Enable', 'off',...
                 'BackgroundColor', 'white', 'callback', @ttab.Input_NumPC_PCA);
             hboxm3.Widths  = [-2, -1];
             
@@ -600,7 +600,7 @@ classdef  ModelTab < BasicTab
                 num2str(round(fom.TEFF))...
                 }];
             
-            s = [s sprintf('Statistics\t%s\n', sprintf('%d ',unique(self.Model.TrainingDataSet.Classes)))];
+            s = [s sprintf('Classes\t%s\n', sprintf('%d ',unique(self.Model.TrainingDataSet.Classes)))];
             for i=1:size(fom_txt,1)
                 s = [s sprintf('%s\t%s\n', fom_txt{i,1}, fom_txt{i,2})];
             end

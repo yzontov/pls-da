@@ -450,8 +450,8 @@ classdef PLSDAModel < handle
             %center
             %plot(t0(pc1),t0(pc2), '*');
             
-            xlabel(sprintf('PC %d', pc1)); % x-axis label
-            ylabel(sprintf('PC %d', pc2));% y-axis label
+            xlabel(sprintf('sPC %d', pc1)); % x-axis label
+            ylabel(sprintf('sPC %d', pc2));% y-axis label
             
             if ~isempty(self.Name)
                 title(['Classification plot. Model: ' self.Name], 'Interpreter', 'none')
@@ -673,8 +673,8 @@ classdef PLSDAModel < handle
             %center
             %plot(t0(pc1),t0(pc2), '*');
             
-            xlabel(sprintf('PC %d', pc1)); % x-axis label
-            ylabel(sprintf('PC %d', pc2));% y-axis label
+            xlabel(sprintf('sPC %d', pc1)); % x-axis label
+            ylabel(sprintf('sPC %d', pc2));% y-axis label
             
             if ~isempty(self.NewDataSetName)
                 title(sprintf('Prediction plot. Dataset: %s\n Number of model PLS components: %d.', self.NewDataSetName, self.numPC_pls), 'Interpreter', 'none')

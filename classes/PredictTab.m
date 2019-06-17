@@ -307,7 +307,7 @@ classdef  PredictTab < BasicTab
                             end
                             self.tblTextResult.ColumnWidth = num2cell([150, max(90,max_class_label_length*7), max(30, max_class_label_length*7)*ones(1,size(res.AllocationMatrix, 2))]); 
 
-                            self.tblTextFoM.ColumnName = [{'Statistics'}, names_];
+                            self.tblTextFoM.ColumnName = [{'Classes'}, names_];
                             self.tblTextConfusion.ColumnName = names_;
                             self.tblTextConfusion.RowName = names_;
                             self.tblTextResult.ColumnName = [{'Sample','Known class'}, names_];
@@ -316,7 +316,7 @@ classdef  PredictTab < BasicTab
                             max_class_label_length = 1;
                             self.tblTextConfusion.ColumnName = unique(self.parent.modelTab.Model.TrainingDataSet.Classes);
                             self.tblTextConfusion.RowName = unique(set.Classes);
-                            self.tblTextFoM.ColumnName = {'Statistics',unique(self.parent.modelTab.Model.TrainingDataSet.Classes)};
+                            self.tblTextFoM.ColumnName = {'Classes',unique(self.parent.modelTab.Model.TrainingDataSet.Classes)};
                         end
                         
                         self.tblTextFoM.ColumnWidth = num2cell([120, max(30, max_class_label_length*7)*ones(1,size(res.AllocationMatrix(:,1:self.parent.modelTab.Model.TrainingDataSet.NumberOfClasses), 2))]);
@@ -464,7 +464,7 @@ classdef  PredictTab < BasicTab
                 num2str(round(fom.TEFF))...
                 }];
             
-                s = [s sprintf('Statistics\t%s\n', sprintf('%d ',unique(self.parent.modelTab.Model.TrainingDataSet.Classes)))];
+                s = [s sprintf('Classes\t%s\n', sprintf('%d ',unique(self.parent.modelTab.Model.TrainingDataSet.Classes)))];
                 for i=1:size(fom_txt,1)
                     s = [s sprintf('%s\t%s\n', fom_txt{i,1}, fom_txt{i,2})];
                 end

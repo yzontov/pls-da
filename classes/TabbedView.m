@@ -127,7 +127,7 @@ classdef TabbedView < handle
                 end
                 self.tblTextResult.ColumnWidth = num2cell([150, max(90,max_class_label_length*7), max(30, max_class_label_length*7)*ones(1,size(res.AllocationMatrix, 2))]);
                 
-                self.tblTextFoM.ColumnName = [{'Statistics'}, names_];
+                self.tblTextFoM.ColumnName = [{'Classes'}, names_];
                 self.tblTextConfusion.ColumnName = names_;
                 self.tblTextConfusion.RowName = names_;
                 self.tblTextResult.ColumnName = [{'Sample','Known class'}, names_];
@@ -136,7 +136,7 @@ classdef TabbedView < handle
                 max_class_label_length = 1;
                 self.tblTextConfusion.ColumnName = TrainingDataSetList;
                 self.tblTextConfusion.RowName = unique(setClasses);
-                self.tblTextFoM.ColumnName = {'Statistics',TrainingDataSetList};
+                self.tblTextFoM.ColumnName = {'Classes',TrainingDataSetList};
             end
             
             self.tblTextFoM.ColumnWidth = num2cell([120, max(30, max_class_label_length*7)*ones(1,size(res.AllocationMatrix(:,1:NumberOfTrainingDataSetClasses), 2))]);

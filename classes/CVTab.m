@@ -228,8 +228,8 @@ classdef CVTab < BasicTab
         function Callback_ResultCategory(self, src, param)
             variables0 = {'Splits'};%,'Number of PCs'};
             variables = {'Splits'};%,'Number of PCs','Type 1 error'};
-            variables01 = {'Number of PCs'};
-            variables1 = {'Number of PCs','Type 1 error'};
+            variables01 = {'Number of PLS components'};
+            variables1 = {'Number of PLS components','Type 1 error'};
             
             if src.Value == 1 %summary
                 self.ddlSelectedSplit.Visible = 'off';
@@ -618,7 +618,7 @@ classdef CVTab < BasicTab
             hbox222 = uix.Grid( 'Parent', vbox21,'Spacing', 1);
             %obj.lblSelectedSplit = uicontrol('Parent', hbox222, 'Style', 'text', 'String', 'Split','Visible','off');
             
-            obj.lblSelectedPC = uicontrol('Parent', hbox222, 'Style', 'text', 'String', 'Number of PC','Visible','on');
+            obj.lblSelectedPC = uicontrol('Parent', hbox222, 'Style', 'text', 'String', 'Number of PLS components','Visible','on');
             obj.ddlSelectedPC = uicontrol('Parent', hbox222, 'Style', 'popupmenu', 'String', {'-'},...
                 'Value',1, 'BackgroundColor', 'white', 'callback', @obj.Callback_SelectedPC,'Visible','on');
             
@@ -1186,7 +1186,7 @@ classdef CVTab < BasicTab
                     num2str(round(fom.TEFF))...
                     }];
                 
-                s = [s sprintf('Statistics\t%s\n', sprintf('%d\t',train_cls))];
+                s = [s sprintf('Classes\t%s\n', sprintf('%d\t',train_cls))];
                 for i=1:size(fom_txt,1)
                     s = [s sprintf('%s\t%s\n', fom_txt{i,1}, fom_txt{i,2})];
                 end
@@ -1213,7 +1213,7 @@ classdef CVTab < BasicTab
                 num2str(round(fom.TEFF))...
                 }];
             
-            s = [s sprintf('Statistics\t%s\n', sprintf('%d ',1:Model.TrainingDataSet.NumberOfClasses))];
+            s = [s sprintf('Classes\t%s\n', sprintf('%d ',1:Model.TrainingDataSet.NumberOfClasses))];
             for i=1:size(fom_txt,1)
                 s = [s sprintf('%s\t%s\n', fom_txt{i,1}, fom_txt{i,2})];
             end
