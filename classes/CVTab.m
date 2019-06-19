@@ -693,7 +693,7 @@ classdef CVTab < BasicTab
             uicontrol('Parent', hboxm2, 'Style', 'text', 'String', 'PLS components');
             hboxm2_ = uix.Grid( 'Parent', hboxm2);
             obj.tbNumPCplsMin = uicontrol('Parent', hboxm2_, 'Style', 'edit', 'String', '12',...
-                'BackgroundColor', 'white', 'callback', @obj.Input_NumPC_PLS);
+                'BackgroundColor', 'white', 'callback', @obj.Input_NumPC_PLS, 'enable', 'off');
             uicontrol('Parent', hboxm2_, 'Style', 'text', 'String', '-', 'HorizontalAlignment', 'center');
             obj.tbNumPCplsStep = uicontrol('Parent', hboxm2_, 'Style', 'edit', 'String', '1',...
                 'BackgroundColor', 'white', 'callback', @obj.Input_NumPC_Step, 'enable', 'off');
