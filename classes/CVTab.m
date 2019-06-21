@@ -1037,8 +1037,8 @@ classdef CVTab < BasicTab
                     self.ddlModelType.Value = 2;
                 end
                 
-                self.tbNumPCplsMin.String = sprintf('%d', self.cvtask.MinPC);
-                self.tbNumPCplsStep.String = sprintf('%d', self.cvtask.PCStep);
+                self.tbNumPCplsMin.String = sprintf('%d', self.cvtask.DataSet.NumberOfClasses);
+                self.tbNumPCplsStep.String = sprintf('%d', 1);
                 self.tbNumPCplsMax.String = sprintf('%d', self.cvtask.MaxPC);
                 
                 min_format = ['%.' sprintf('%d', sigdigits(self.cvtask.MinAlpha)) 'f'];
