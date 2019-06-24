@@ -497,6 +497,14 @@ classdef  ModelTab < BasicTab
             
             tg = self.tab_img.Parent;
                 tg.Visible = 'on';
+                
+                
+                win = self.parent;
+            if isempty(win.cvTab)
+                win.cvTab = CVTab(win.tgroup, win);
+            end
+            
+            
             
             end
         end
@@ -715,6 +723,15 @@ classdef  ModelTab < BasicTab
                 delete(ptab);
                 delete(self.parent.predictTab);
                 self.parent.predictTab = [];
+            end
+            
+            win = self.parent;
+            if ~isempty(win.cvTab)
+                ind = arrayfun(@(x)isequal(x.Title ,'Cross-validation'),win.tgroup.Children);
+                mtab = win.tgroup.Children(ind);
+                delete(mtab);
+                delete(win.cvTab);
+                win.cvTab = [];
             end
             
             self.pc_x = 1;

@@ -665,27 +665,18 @@ classdef CVTab < BasicTab
                 'callback', @obj.CopyTableToClipboard);
             
             
-            
-            
-            
-            
-            
-            
-            
-            
-            
             hbox1 = uiextras.HButtonBox( 'Parent', obj.pnlDataSettings, 'ButtonSize', [120 25]);
             
             uicontrol('Parent', hbox1, 'Style', 'text', 'String', 'Dataset');
             obj.ddlDataSet = uicontrol('Parent', hbox1, 'Style', 'popupmenu', 'String', {'-'},...
-                'Value',1, 'BackgroundColor', 'white', 'callback', @obj.Callback_SelectDataSet);
+                'Value',1, 'BackgroundColor', 'white', 'callback', @obj.Callback_SelectDataSet, 'Enable','off');
             
             vbox_mod = uix.VBox( 'Parent', obj.pnlModelSettings, 'Padding', 10, 'Spacing', 5 );
             %lblModelType
             hboxm1 = uiextras.HButtonBox( 'Parent', vbox_mod, 'ButtonSize', [120 40]);
             uicontrol('Parent', hboxm1, 'Style', 'text', 'String', 'Type of model');
             obj.ddlModelType = uicontrol('Parent', hboxm1, 'Style', 'popupmenu', 'String', {'Hard PLS-DA','Soft PLS-DA'},...
-                'value', 2, 'BackgroundColor', 'white', 'callback', @obj.Input_ModelParameters);
+                'value', 2, 'BackgroundColor', 'white', 'callback', @obj.Input_ModelParameters, 'Enable','off');
             
             hboxm2 = uiextras.HButtonBox( 'Parent', vbox_mod, 'ButtonSize', [120 30]);
             %model params
@@ -768,7 +759,7 @@ classdef CVTab < BasicTab
                 obj.vbox.Heights=[40,120,150,0,0,0];
             end
             
-            obj.FillDataSetList();
+            %obj.FillDataSetList();
             
             obj.tg = uitabgroup('Parent', obj.middle_panel);
             
@@ -790,10 +781,46 @@ classdef CVTab < BasicTab
             obj.tblTextResult.Units = 'normalized';
             obj.tblTextResult.Position = [0 0 1 1];
             
-            vardisplay = get(obj.ddlDataSet, 'String');
-            selected_name = vardisplay{1};
+            m = obj.parent.modelTab.Model;
+            
+            
+            selected_name = m.TrainingDataSet.Name;
+            
+            set(obj.ddlDataSet, 'String', {selected_name});
             
             obj.FillTableView(selected_name);
+            
+            
+            
+            d = evalin('base', selected_name);
+            
+            obj.cvtask = CVTask(d);
+            
+            obj.cvtask.ModelType = m.Mode;
+            
+            min_format = ['%.' sprintf('%d', sigdigits(m.Alpha)) 'f'];
+           
+            step = 1;
+            tst = sigdigits(step);
+            if isempty(tst)
+               tst = -1; 
+            end
+            
+            while tst ~= sigdigits(m.Alpha)
+                step = step/10;
+                tst = sigdigits(step);
+            end
+            
+            step_format = ['%.' sprintf('%d', sigdigits(step)) 'f'];
+                
+            obj.tbAlphaMin.String = sprintf(min_format, m.Alpha);
+            obj.tbAlphaStep.String = sprintf(step_format, step);
+            obj.tbAlphaMax.String = sprintf(min_format, m.Alpha);
+            
+            obj.tbNumPCplsMin.String = sprintf('%d', obj.cvtask.MinPC);
+            obj.tbNumPCplsStep.String = sprintf('%d', 1);
+            obj.tbNumPCplsMax.String = sprintf('%d', m.NumPC);
+            
             
         end
         
@@ -917,6 +944,10 @@ classdef CVTab < BasicTab
             
             self.FillTableView(selected_name);
             
+            self.tbNumPCplsMin.String = sprintf('%d', obj.cvtask.DataSet.NumberOfClasses);
+            self.tbNumPCplsStep.String = sprintf('%d', 1);
+            self.tbNumPCplsMax.String = sprintf('%d', obj.cvtask.MaxPC);
+            
             self.btnCVRun.Enable = 'off';
             self.btnCVSave.Enable = 'off';
         end
@@ -1037,7 +1068,7 @@ classdef CVTab < BasicTab
                     self.ddlModelType.Value = 2;
                 end
                 
-                self.tbNumPCplsMin.String = sprintf('%d', self.cvtask.DataSet.NumberOfClasses);
+                self.tbNumPCplsMin.String = sprintf('%d', self.cvtask.MinPC);
                 self.tbNumPCplsStep.String = sprintf('%d', 1);
                 self.tbNumPCplsMax.String = sprintf('%d', self.cvtask.MaxPC);
                 
@@ -1344,24 +1375,11 @@ classdef CVTab < BasicTab
         
         function Callback_Split(self, src, param)
             
-            index_selected = get(self.ddlDataSet,'Value');
             
-            names = get(self.ddlDataSet, 'String');
             
-            selected_name = names{index_selected};
-            
-            d = evalin('base', selected_name);
-            
-            self.cvtask = CVTask(d);
-            
-            if self.ddlModelType.Value == 1
-                self.cvtask.ModelType  = 'hard';
-            else
-                self.cvtask.ModelType = 'soft';
-            end
             
             self.cvtask.MinPC = str2double(self.tbNumPCplsMin.String);
-            self.cvtask.PCStep = str2double(self.tbNumPCplsStep.String);
+            self.cvtask.PCStep = 1;
             self.cvtask.MaxPC = str2double(self.tbNumPCplsMax.String);
             
             self.cvtask.MinAlpha = str2double(self.tbAlphaMin.String);
@@ -1601,8 +1619,22 @@ classdef CVTab < BasicTab
             
             val=str2double(get(self.tbAlphaStep,'string'));
             
-            l = linspace(alphaMin,alphaMax, 5);
-            auto_step = l(2) - l(1);
+            if alphaMin == alphaMax
+                step = 1;
+                tst = sigdigits(step);
+                if isempty(tst)
+                tst = -1; 
+                end
+            
+                while tst ~= sigdigits(m.Alpha)
+                    step = step/10;
+                    tst = sigdigits(step);
+                end 
+                auto_step = step;
+            else
+                l = linspace(alphaMin,alphaMax, 5);
+                auto_step = l(2) - l(1);
+            end
             
             tt = max(alphaMin:val:alphaMax);
             if  tt ~= alphaMax
@@ -1646,15 +1678,16 @@ classdef CVTab < BasicTab
             
             l = linspace(alphaMin,alphaMax, 5);
             auto_step = l(2) - l(1);
+            auto_format = ['%.' sprintf('%d', sigdigits(auto_step)) 'f'];
             
             if isempty(val) || isnan(val) || val<=0
-                set(src,'string',sprintf('%f',auto_step));
+                set(src,'string',sprintf(auto_format,auto_step));
                 warndlg('Input must be a positive decimal fraction','Warning',opts);
             else
                 
                 tt = max(alphaMin:val:alphaMax);
                 if  tt ~= alphaMax
-                    set(src,'string',sprintf('%f',auto_step));
+                    set(src,'string',sprintf(auto_format,auto_step));
                     warndlg('The increment step should produce evenly spaced points!','Warning',opts);
                 end
             end

@@ -15,8 +15,8 @@ classdef CVTask < handle
         %Model parameters
         ModelType;
         
-        MinPC
-        PCStep;
+        MinPC;
+        PCStep = 1;
         MaxPC;
         
         MinAlpha;
@@ -68,6 +68,16 @@ classdef CVTask < handle
         function obj = CVTask(ds)
             %CVTask Construct an instance of this class
             obj.DataSet = DataSet(ds);
+
+            vmax = min(size(obj.DataSet.ProcessedData));            
+            vmin = obj.DataSet.NumberOfClasses;
+            
+            if(obj.DataSet.Centering)
+                vmax = vmax - 1;
+            end
+            
+            obj.MaxPC = min([12 vmax]);
+            obj.MinPC = vmin;
         end
         
         function value = GetSummary(self, pc, alpha)

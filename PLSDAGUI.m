@@ -76,11 +76,11 @@ ShowStartScreen();
         
         idx_d = arrayfun(@(x)filter_data(x), allvars);
         if sum(idx_d) > 0
-            vect = [1 0 0 1];
+            vect = [1 0 0 0];
         end
         
         if sum(idx) > 0
-            vect = [1 1 0 1];
+            vect = [1 1 0 0];
         end
         
         win = GUIWindow(vect);
