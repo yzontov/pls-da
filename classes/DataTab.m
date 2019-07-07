@@ -1509,9 +1509,9 @@ classdef  DataTab < BasicTab
                 self.ClearPCA();
                 %self.DrawPCA();
                 
-                if(isempty(self.parent.cvTab) && d.NumberOfClasses > 1)
-                    self.parent.cvTab = CVTab(self.parent.tgroup, self.parent);
-                end
+                %if(isempty(self.parent.cvTab) && d.NumberOfClasses > 1)
+                %    self.parent.cvTab = CVTab(self.parent.tgroup, self.parent);
+                %end
             end
             
             self.RefreshModel();
