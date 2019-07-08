@@ -13,6 +13,7 @@
             <tocitem target="examples2.html">Working with the Data tab</tocitem>
             <tocitem target="examples3.html">Working with the Model tab</tocitem>
             <tocitem target="examples4.html">Working with the Prediction tab</tocitem>
+			<tocitem target="examples5.html">Working with the Cross-Validation tab</tocitem>
         </tocitem>
     </tocitem>
     <tocitem target="scripting.html">Scripting example</tocitem>
