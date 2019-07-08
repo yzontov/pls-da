@@ -121,11 +121,13 @@ classdef CVTask < handle
                         classes_train = [classes_train; cls(self.Splits(:,i) == 0,:)];
                         distances = [distances; rec.result.Distances];
                         allocation = [allocation; rec.result.AllocationMatrix];
+                        
 %                         if isequal(unique(rec.model.TrainingDataSet.Classes), unique(cls))
 %                             
 %                         else
 %                             
 %                         end
+                        
                     end
 
                     if(strcmp(recs(1).model.Mode, 'hard'))
