@@ -678,6 +678,8 @@ classdef CVTab < BasicTab
             obj.ddlModelType = uicontrol('Parent', hboxm1, 'Style', 'popupmenu', 'String', {'Hard PLS-DA','Soft PLS-DA'},...
                 'value', 2, 'BackgroundColor', 'white', 'callback', @obj.Input_ModelParameters, 'Enable','off');
             
+            obj.ddlModelType.Value = parent.modelTab.ddlModelType.Value;
+            
             hboxm2 = uiextras.HButtonBox( 'Parent', vbox_mod, 'ButtonSize', [120 30]);
             %model params
             %PLS PCs

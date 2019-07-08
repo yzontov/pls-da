@@ -81,7 +81,7 @@ classdef CVTask < handle
         end
         
         function value = GetSummary(self, pc, alpha)
-            if nargin == 1
+            if nargin == 2
                 alpha = -1;
             end
             
