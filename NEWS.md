@@ -1,3 +1,7 @@
+v. 0.9
+========
+* Cross-validation functionality added
+
 v. 0.8.1
 ========
 * Visualization of new samples in PLSDAModel class improved
