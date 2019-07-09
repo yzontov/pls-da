@@ -116,17 +116,16 @@ classdef CVTask < handle
                     labels = {};
                     for i = 1:length(x)
                         rec = recs(i);
-                        labels = [labels; cellfun(@(x) sprintf('Split %d. %s', i, x), rec.result.Labels, 'UniformOutput', false)];
-                        classes = [classes; cls(self.Splits(:,i) == 1,:)];
-                        classes_train = [classes_train; cls(self.Splits(:,i) == 0,:)];
-                        distances = [distances; rec.result.Distances];
-                        allocation = [allocation; rec.result.AllocationMatrix];
-                        
-%                         if isequal(unique(rec.model.TrainingDataSet.Classes), unique(cls))
-%                             
-%                         else
-%                             
-%                         end
+
+                        if isequal(unique(rec.model.TrainingDataSet.Classes), unique(cls))
+                            labels = [labels; cellfun(@(x) sprintf('Split %d. %s', i, x), rec.result.Labels, 'UniformOutput', false)];
+                            classes = [classes; cls(self.Splits(:,i) == 1,:)];
+                            classes_train = [classes_train; cls(self.Splits(:,i) == 0,:)];
+                            distances = [distances; rec.result.Distances];
+                            allocation = [allocation; rec.result.AllocationMatrix];
+                        else
+                            %TO DO!
+                        end
                         
                     end
 
