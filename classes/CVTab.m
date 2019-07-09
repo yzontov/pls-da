@@ -1092,11 +1092,11 @@ classdef CVTab < BasicTab
                     self.hboxm4.Visible = 'on';
                 end
                 
-                if self.cvtask.MinPC == self.cvtask.MaxPC
+                %if self.cvtask.MinPC == self.cvtask.MaxPC
                     self.tbNumPCplsStep.Enable = 'off';
-                else
-                    self.tbNumPCplsStep.Enable = 'on';
-                end
+                %else
+                %    self.tbNumPCplsStep.Enable = 'on';
+                %end
                 
                 if self.cvtask.MinAlpha == self.cvtask.MaxAlpha
                     self.tbAlphaStep.Enable = 'off';

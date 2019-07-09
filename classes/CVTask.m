@@ -116,15 +116,23 @@ classdef CVTask < handle
                     labels = {};
                     for i = 1:length(x)
                         rec = recs(i);
-
+                        labels = [labels; cellfun(@(x) sprintf('Split %d. %s', i, x), rec.result.Labels, 'UniformOutput', false)];
+                        classes = [classes; cls(self.Splits(:,i) == 1,:)];
+                        classes_train = [classes_train; cls(self.Splits(:,i) == 0,:)];
                         if isequal(unique(rec.model.TrainingDataSet.Classes), unique(cls))
-                            labels = [labels; cellfun(@(x) sprintf('Split %d. %s', i, x), rec.result.Labels, 'UniformOutput', false)];
-                            classes = [classes; cls(self.Splits(:,i) == 1,:)];
-                            classes_train = [classes_train; cls(self.Splits(:,i) == 0,:)];
                             distances = [distances; rec.result.Distances];
                             allocation = [allocation; rec.result.AllocationMatrix];
                         else
-                            %TO DO!
+                            tmp_a = zeros(size(rec.result.AllocationMatrix,1), length(unique(cls)));
+                            tmp_d = inf(size(rec.result.Distances,1), length(unique(cls)));
+                            uu = unique(rec.model.TrainingDataSet.Classes);
+                            uc = unique(cls);
+                            for j = 1:length(unique(rec.model.TrainingDataSet.Classes))
+                               tmp_a(:,find(uc == uu(j))) =  rec.result.AllocationMatrix(:,j);
+                               tmp_d(:,find(uc == uu(j))) =  rec.result.Distances(:,j);
+                            end
+                            distances = [distances; tmp_d];
+                            allocation = [allocation; tmp_a];
                         end
                         
                     end

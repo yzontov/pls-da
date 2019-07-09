@@ -286,6 +286,65 @@ To apply a PLS-DA model to the new data:
 
 </p>
 
+<h3 id="ex_cv">Working with the Cross-Validation tab</h3>
+<i>The Cross-Validation tab becomes available when the current model is calibrated (on the Model tab).</i>
+<p>
+    The Cross-Validation tab contains the settings panel and the right panel two sub-tabs: Data and Results.
+<br/>
+The settings panel contains the name of the dataset (same as the selected dataset on the Model tab), model parameters and cross-validation specific settings.
+The dataset, type of the model and the minimum number of PLS components are being shown for your information.
+The maximum number of PLS components as well as the Type I error can be adjusted on the Model settings panel.
+The cross-validation is performed for numbers of PLS components from minimum to maximum with the step of one.
+To perform cross-validation for a range of Type I error you can indicate different values and step on the Model settings panel.
+You can use controls on the cross-validation settings panel to select the way of splitting the dataset into training and test sub-sets.
+The following types are available: <b>Leave-One-Out</b>, <b>K-fold</b>, <b>Holdout</b> and <b>Mont-Carlo</b>. Additional input fields will appear when you select different split type.
+
+</p>    
+<p>
+To cross-validate the data:
+<br/>
+<ol>
+    <li>On the <b>Cross-Validation</b> tab select the split type and additional parameters, maximum number of PLS components, a test or new dataset from the <b>New or Test Data Set</b> drop-down list.</li>
+    <li>Click the <b>Split</b> button.</li>
+    <li>One can see the results on the <i>Results</i> sub-tab.</li>
+    <li>Click the <b>Run cross-validation</b> button.</li>
+    <li>One can analyze the results on the <i>Results</i> sub-tab.</li>
+    <li>Use the <i>Options</i> panel to switch between Summary and Individual split views, as well as graphical and text modes</li>
+    <li>The Allocation matrix, Confusion matrix and Figures of merit are available in the <i>Table view</i>.</li>
+    <li>One can use <b>Save image to file</b> and <b>Copy image to clipboard</b> to store the image in the <i>Graphical view</i> tab to disk or clipboard.</li>
+    <li>One can use <b>Save tables to file</b> and <b>Copy tables to clipboard</b> buttons to store the Allocation matrix, Confusion matrix and Figures of merit to disk or clipboard.</li>
+</ol>
+
+<figure style="text-align:center;">
+  <img src="Images/cv_settings.png" alt="Cross-Validation tab" style="width:500px;">
+  <figcaption>Cross-Validation tab. Settings.</figcaption>
+</figure>
+<figure style="text-align:center;">
+  <img src="Images/cv_split.png" alt="Cross-Validation tab" style="width:500px;">
+  <figcaption>Cross-Validation tab. Data split.</figcaption>
+</figure>
+<figure style="text-align:center;">
+  <img src="Images/cv_result_settings.png" alt="Cross-Validation tab" style="width:500px;">
+  <figcaption>Cross-Validation tab. Results options.</figcaption>
+</figure>
+<figure style="text-align:center;">
+  <img src="Images/cv_result_allocation.png" alt="Cross-Validation tab" style="width:500px;">
+  <figcaption>Cross-Validation tab. Results: allocation table.</figcaption>
+</figure>
+<figure style="text-align:center;">
+  <img src="Images/cv_result_graph.png" alt="Cross-Validation tab" style="width:500px;">
+  <figcaption>Cross-Validation tab. Results: graphics.</figcaption>
+</figure>
+<figure style="text-align:center;">
+  <img src="Images/cv_result_confusion.png" alt="Cross-Validation tab" style="width:500px;">
+  <figcaption>Cross-Validation tab. Results: confusion matrix.</figcaption>
+</figure>
+<figure style="text-align:center;">
+  <img src="Images/cv_result_fom.png" alt="Cross-Validation tab" style="width:500px;">
+  <figcaption>Cross-Validation tab. Results: figures of merit.</figcaption>
+</figure>
+</p>
+
 <h3 id="ex_data">Scripting example</h3>
 <p>
     The function <b>plsda_tool_scripting_example</b> included in the package demonstrates 
