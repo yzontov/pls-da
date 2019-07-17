@@ -138,8 +138,16 @@ classdef DataSet < handle
             end
             
             if (~isempty(self.VariableNames))
-                xlabel(self.VariableNames{var1}); % x-axis label
-                ylabel(self.VariableNames{var2});% y-axis label
+                
+                if (~isa(self.VariableNames, 'double'))
+                    xlabel(self.VariableNames{var1}); % x-axis label
+                    ylabel(self.VariableNames{var2});% y-axis label 
+                else
+                    xlabel(sprintf('%.2f', self.VariableNames(var1))); % x-axis label
+                    ylabel(sprintf('%.2f', self.VariableNames(var2)));% y-axis label
+                end
+                
+                
             else
                 if (~isempty(self.Variables))
                     xlabel(sprintf('%.2f', self.Variables(var1))); % x-axis label
@@ -203,7 +211,12 @@ classdef DataSet < handle
             
             varname = sprintf('Variable: %d', var1);
             if ~isempty(self.VariableNames)
-                varname = sprintf('Variable: %s', self.VariableNames{var1});
+                if (~isa(self.VariableNames, 'double'))
+                    varname = sprintf('Variable: %s', self.VariableNames{var1});
+                else
+                    varname = sprintf('Wavelength: %.2f', self.VariableNames(var1));
+                end
+                    
             end
             
             title(axes, ['Dataset: ' self.Name ' - Histogram plot - ' varname], 'interpreter', 'none');
