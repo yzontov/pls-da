@@ -618,7 +618,7 @@ classdef CVTab < BasicTab
             hbox222 = uix.Grid( 'Parent', vbox21,'Spacing', 1);
             %obj.lblSelectedSplit = uicontrol('Parent', hbox222, 'Style', 'text', 'String', 'Split','Visible','off');
             
-            obj.lblSelectedPC = uicontrol('Parent', hbox222, 'Style', 'text', 'String', 'Number of PLS components','Visible','on');
+            obj.lblSelectedPC = uicontrol('Parent', hbox222, 'Style', 'text', 'String', 'PLS components','Visible','on');
             obj.ddlSelectedPC = uicontrol('Parent', hbox222, 'Style', 'popupmenu', 'String', {'-'},...
                 'Value',1, 'BackgroundColor', 'white', 'callback', @obj.Callback_SelectedPC,'Visible','on');
             
@@ -629,7 +629,7 @@ classdef CVTab < BasicTab
             if ispc
                 hbox222.Widths = [60,50,60,50];
             else
-                hbox222.Widths = [50,70,50,70];
+                hbox222.Widths = [60,65,45,70];
             end
             
             hboxp24 = uix.HButtonBox( 'Parent', vbox21, 'ButtonSize', [120 25]);
@@ -751,9 +751,9 @@ classdef CVTab < BasicTab
             
             hboxp7 = uiextras.HButtonBox( 'Parent', vbox_cv, 'ButtonSize', [120 25]);
             obj.btnCVSave = uicontrol('Parent', hboxp7, 'Style', 'pushbutton', 'String', 'Save CV Task',...
-                'callback', @obj.Callback_SaveCVTask, 'enable', 'off');
+                'callback', @obj.Callback_SaveCVTask, 'enable', 'off', 'visible', 'off');
             uicontrol('Parent', hboxp7, 'Style', 'pushbutton', 'String', 'Load CV Task',...
-                'callback', @obj.Callback_LoadCVTask);
+                'callback', @obj.Callback_LoadCVTask, 'visible', 'off');
             
             if ispc
                 obj.vbox.Heights=[40,130,150,0,0,0];

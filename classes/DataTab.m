@@ -81,17 +81,7 @@ classdef  DataTab < BasicTab
             self.FillDataSetList();
             self.RefreshModel();
             
-            allvars = evalin('base','whos');
-            varnames = {allvars.name};
-            
-            idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
-        
-            idx_data = arrayfun(@(x)GUIWindow.filter_data(x), allvars);
-            if(isempty(self.parent.cvTab) && sum(idx_data) > 0)
-                self.parent.cvTab = CVTab(self.parent.tgroup, self.parent);
-            end
-            
-            if(~isempty(self.parent.cvTab) && sum(idx_data) == 0)
+            if(~isempty(self.parent.cvTab) && isempty(self.parent.modelTab))
                 ind = arrayfun(@(x)isequal(x.Title ,'Cross-validation'),self.parent.tgroup.Children);
                 cvtab = self.parent.tgroup.Children(ind);
                 delete(cvtab);
@@ -99,14 +89,28 @@ classdef  DataTab < BasicTab
                 self.parent.cvTab = [];
             end
             
-            if (~isempty(self.parent.cvTab) && sum(idx_data) > 0)
-                self.parent.cvTab.FillDataSetList(true);
-            end
-            
         end
         
         function RefreshDatasetListCallback(self, src, param)
-            self.RefreshDatasetList();
+            
+            if ~isempty(self.parent.modelTab) && ~isempty(self.parent.modelTab.Model) && ~self.parent.modelTab.model_was_saved
+                selection = questdlg(sprintf('The current model will be lost!\nYou may want to save it on the Model tab first.\nDo you want to proceed?'),...
+                    'Warning',...
+                    'Yes','No','No');
+                switch selection
+                    case 'Yes'
+                        self.RefreshDatasetList();
+                    case 'No'
+                        return
+                end
+            else
+                if ~isempty(self.parent.modelTab) && ~isempty(self.parent.modelTab.Model) && self.parent.modelTab.model_was_saved
+                    opts = struct('WindowStyle','modal','Interpreter','none','Icon','info');
+                    warndlg(sprintf('The current model was reset.\nChoose the ''Existing model'' option on the start screen.'),'Info',opts);
+                end
+                self.RefreshDatasetList();
+            end
+   
         end
         
         function ttab = DataTab(tabgroup, parent)

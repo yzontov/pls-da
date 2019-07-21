@@ -2,6 +2,7 @@ classdef  ModelTab < BasicTab
     
     properties
         Model;
+        model_was_saved = false;
         
         pnlDataSettings;
         pnlModelSettings
@@ -209,7 +210,7 @@ classdef  ModelTab < BasicTab
             
             if(strcmp('off',param))
                 tg.SelectedTab = tg.Children(1);
-                self.tbl_tabgroup.SelectedTab = self.tbl_tabgroup.Children(1);
+                %self.tbl_tabgroup.SelectedTab = self.tbl_tabgroup.Children(1);
                 
                 if self.parent.selected_tab == GUIWindow.ModelTabSelected
                 %self.parent.selected_tab = GUIWindow.ModelTabSelected;
@@ -329,20 +330,20 @@ classdef  ModelTab < BasicTab
             
             tg = uitabgroup('Parent', ttab.middle_panel);
             ttab.tab_img = uitab('Parent', tg, 'Title', 'Classification plot');
-            tab_txt = uitab('Parent', tg, 'Title', 'Classification table');
+            %tab_txt = uitab('Parent', tg, 'Title', 'Classification table');
             
             w = ttab.parent;
             set(tg, 'SelectionChangedFcn', @w.ActiveTabSelected);
             
-            tg2 = uitabgroup('Parent', tab_txt);
-            tab_alloc = uitab('Parent', tg2, 'Title', 'Allocation table');
-            tab_confusion = uitab('Parent', tg2, 'Title', 'Confusion matrix');
-            tab_fom = uitab('Parent', tg2, 'Title', 'Figures of merit');
+            %tg2 = uitabgroup('Parent', tab_txt);
+            tab_alloc = uitab('Parent', tg, 'Title', 'Allocation table');
+            tab_confusion = uitab('Parent', tg, 'Title', 'Confusion matrix');
+            tab_fom = uitab('Parent', tg, 'Title', 'Figures of merit');
             
-            ttab.tbl_tabgroup = tg2;
+            %ttab.tbl_tabgroup = tg2;
             
-            w = ttab.parent;
-            set(tg2, 'SelectionChangedFcn', @w.ActiveTabSelected);
+            %w = ttab.parent;
+            %set(tg2, 'SelectionChangedFcn', @w.ActiveTabSelected);
             
             ttab.tblTextConfusion = uitable(tab_confusion);
             ttab.tblTextConfusion.Units = 'normalized';
@@ -455,63 +456,62 @@ classdef  ModelTab < BasicTab
         
         function Recalibrate(self, src, ~)
             
+            self.model_was_saved = false;
             index_selected = get(self.ddlCalibrationSet,'Value');
             
             if index_selected > 1
-            self.ClearModel();
-            
-            
-            index_selected = get(self.ddlCalibrationSet,'Value');
-            names = get(self.ddlCalibrationSet,'String');%fieldnames(ttab.Data);
-            selected_name = names{index_selected};
-            
-            d = evalin('base', selected_name);
-            
-            numPC = str2double(get(self.tbNumPCpls,'string'));
-            
-            if get(self.ddlModelType,'value') == 2
-                mode = 'soft';
-            else
-                mode = 'hard';
-            end
-            
-            alpha = str2double(get(self.tbAlpha,'string'));
-            gamma = str2double(get(self.tbGamma,'string'));
-            
-            h = waitbar(0, 'Please wait...');
-            
-            waitbar(2.5/10, h);
-            m = PLSDAModel(d, numPC, alpha, gamma);
-            
-            if strcmp(mode, 'hard')
-                m.Mode = mode;
-                m.Rebuild();
-            end
-            waitbar(5/10, h);
-            self.Model = m;
-            waitbar(7.5/10, h);
-            set(self.chkFinalizeModel,'enable','on');
-            set(self.btnSaveModel,'enable','on');
-
-            waitbar(10/10, h);
-            %pause(.5);
-            delete(h);
-            
-            self.Redraw();
-            self.enablePanel(self.pnlPlotSettings, 'on');
-            self.enablePanel(self.pnlTableSettings, 'on');
-            
-            tg = self.tab_img.Parent;
+                self.ClearModel();
+                
+                
+                index_selected = get(self.ddlCalibrationSet,'Value');
+                names = get(self.ddlCalibrationSet,'String');%fieldnames(ttab.Data);
+                selected_name = names{index_selected};
+                
+                d = evalin('base', selected_name);
+                
+                numPC = str2double(get(self.tbNumPCpls,'string'));
+                
+                if get(self.ddlModelType,'value') == 2
+                    mode = 'soft';
+                else
+                    mode = 'hard';
+                end
+                
+                alpha = str2double(get(self.tbAlpha,'string'));
+                gamma = str2double(get(self.tbGamma,'string'));
+                
+                h = waitbar(0, 'Please wait...');
+                
+                waitbar(2.5/10, h);
+                m = PLSDAModel(d, numPC, alpha, gamma);
+                
+                if strcmp(mode, 'hard')
+                    m.Mode = mode;
+                    m.Rebuild();
+                end
+                waitbar(5/10, h);
+                self.Model = m;
+                waitbar(7.5/10, h);
+                set(self.chkFinalizeModel,'enable','on');
+                set(self.btnSaveModel,'enable','on');
+                
+                waitbar(10/10, h);
+                %pause(.5);
+                delete(h);
+                
+                self.Redraw();
+                self.enablePanel(self.pnlPlotSettings, 'on');
+                self.enablePanel(self.pnlTableSettings, 'on');
+                
+                tg = self.tab_img.Parent;
                 tg.Visible = 'on';
                 
-                
                 win = self.parent;
-            if isempty(win.cvTab)
-                win.cvTab = CVTab(win.tgroup, win);
-            end
-            
-            
-            
+                if isempty(win.cvTab)
+                    win.cvTab = CVTab(win.tgroup, win);
+                end
+                
+                
             end
         end
         
@@ -534,7 +534,7 @@ classdef  ModelTab < BasicTab
                         
                         extra_title = [' - Model: ' self.Model.Name];
                         set(self.parent.fig ,'name',['PLS-DA Tool' extra_title],'numbertitle','off');
-                        
+                        self.model_was_saved = true;
                     catch
                         opts = struct('WindowStyle','modal','Interpreter','none');
                         errordlg('The invalid characters have been replaced. Please use only latin characters, numbers and underscore!','Error',opts);
@@ -545,6 +545,7 @@ classdef  ModelTab < BasicTab
                         
                         extra_title = [' - Model: ' self.Model.Name];
                         set(self.parent.fig ,'name',['PLS-DA Tool' extra_title],'numbertitle','off');
+                        self.model_was_saved = true;
                     end
                 end
                 

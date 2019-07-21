@@ -44,6 +44,24 @@ classdef  GUIWindow<handle
     
     methods
         
+        function my_closereq(self,src,callbackdata)
+            % Close request function
+            % to display a question dialog box
+            if ~isempty(self.modelTab) && ~isempty(self.modelTab.Model) && ~self.modelTab.model_was_saved
+                selection = questdlg(sprintf('The current model will be lost!\nDo want to exit without saving it?'),...
+                   'Confirm Close',...
+                    'Yes','No','No');
+                switch selection
+                    case 'Yes'
+                        delete(gcf)
+                    case 'No'
+                        return
+                end
+            else
+                delete(gcf)
+            end
+        end
+        
         function deleteDataset(obj, src)
             obj.dataTab.FillDataSetList();
             
@@ -169,13 +187,16 @@ classdef  GUIWindow<handle
                     switch obj.SelectedTab.Title
                         case 'Classification plot'
                             self.selected_panel = GUIWindow.ModelGraph;
-                        case 'Classification table'
-                            self.selected_panel = GUIWindow.ModelTable;
+%                         case 'Classification table'
+%                             self.selected_panel = GUIWindow.ModelTable;
                         case 'Allocation table'
+                            self.selected_panel = GUIWindow.ModelTable;
                             self.selected_text_panel = GUIWindow.ModelTableAllocation;
                         case 'Confusion matrix'
+                            self.selected_panel = GUIWindow.ModelTable;
                             self.selected_text_panel = GUIWindow.ModelTableConfusion;
                         case 'Figures of merit'
+                            self.selected_panel = GUIWindow.ModelTable;
                             self.selected_text_panel = GUIWindow.ModelTableFoM;
                     end
                 case GUIWindow.PredictTabSelected
@@ -438,6 +459,7 @@ classdef  GUIWindow<handle
             
             %gui
             f = figure;
+            set(f,'CloseRequestFcn',@win.my_closereq);
             set(f,'Visible','on');
             set(f, 'MenuBar', 'none');
             set(f, 'ToolBar', 'none');

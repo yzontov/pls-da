@@ -110,7 +110,7 @@ ShowStartScreen();
             assignin('base', Model.TrainingDataSet.Name, Model.TrainingDataSet);
             
             win = GUIWindow(vect, tvarname{1}, Model);
-            
+            win.modelTab.model_was_saved = true;
         end
         
     end
