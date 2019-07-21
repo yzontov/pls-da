@@ -53,22 +53,20 @@ classdef  GUIWindow<handle
                 
                 if(strcmp(src.Name, selected_name))
                     obj.dataTab.RefreshModel();
+                else
+                    if(~isempty(obj.cvTab))
+                        obj.cvTab.FillDataSetList(true);
+                    end
                 end
             end
             
-            if(~isempty(obj.cvTab))
-                obj.cvTab.FillDataSetList(true);
+            if(~isempty(obj.cvTab) && isempty(obj.modelTab))
                 
-                allvars = evalin('base','whos');
-                idx = arrayfun(@(x)GUIWindow.filter_data(x), allvars);
-                
-                if (sum(idx) == 0)
-                    ind = arrayfun(@(x)isequal(x.Title ,'Cross-validation'),obj.tgroup.Children);
-                    cvtab = obj.tgroup.Children(ind);
-                    delete(cvtab);
-                    delete(obj.cvTab);
-                    obj.cvTab = [];
-                end
+                ind = arrayfun(@(x)isequal(x.Title ,'Cross-validation'),obj.tgroup.Children);
+                cvtab = obj.tgroup.Children(ind);
+                delete(cvtab);
+                delete(obj.cvTab);
+                obj.cvTab = [];
             end
             
             
