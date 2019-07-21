@@ -468,11 +468,11 @@ classdef  GUIWindow<handle
                 end
             end
             
-            if tabs(3)
+            if tabs(3) && isempty(win.predictTab)
                 win.predictTab = PredictTab(win.tgroup, win);
             end
             
-            if tabs(4)
+            if tabs(4) && isempty(win.cvTab)
                 win.cvTab = CVTab(win.tgroup, win);
             end
             

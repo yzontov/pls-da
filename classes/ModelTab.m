@@ -178,6 +178,12 @@ classdef  ModelTab < BasicTab
                 tg = self.tab_img.Parent;
                 tg.Visible = 'on';
                 
+                
+                win = self.parent;
+                if isempty(win.predictTab)
+                    win.predictTab = PredictTab(win.tgroup, win);
+                end
+                
                 r = self;
             else
                 set(self.btnRecalibrate,'string','Calibrate'); 
@@ -280,7 +286,7 @@ classdef  ModelTab < BasicTab
             
             hboxm6 = uix.HButtonBox( 'Parent', vbox_mod, 'ButtonSize', [120 25]);
             ttab.chkFinalizeModel = uicontrol('Parent', hboxm6, 'Style', 'checkbox', 'String', 'Finalized',...
-                'callback', @ttab.Finalize, 'Enable', 'off');
+                'callback', @ttab.Finalize, 'Enable', 'off', 'Visible', 'off');
             
             ttab.btnRecalibrate = uicontrol('Parent', hboxm6, 'Style', 'pushbutton', 'String', 'Calibrate',...
                 'callback', @ttab.Recalibrate);
@@ -644,19 +650,7 @@ classdef  ModelTab < BasicTab
             
             self.Model.Finalized = val;
             
-            win = self.parent;
-            if val && isempty(win.predictTab)
-                win.predictTab = PredictTab(win.tgroup, win);
-            end
             
-            if ~val && ~isempty(win.predictTab)
-                ind = arrayfun(@(x)isequal(x.Title ,'Prediction'),win.tgroup.Children);
-                mtab = win.tgroup.Children(ind);
-                delete(mtab);
-                delete(win.predictTab);
-                win.predictTab = [];
-                
-            end
         end
         
         function innerSelectCalibratinSet(self, selected_name )

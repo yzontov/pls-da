@@ -105,10 +105,7 @@ ShowStartScreen();
             
             Model = tvar{1};
             
-            vect = [1 1 0 1];
-            if Model.Finalized
-                vect = [1 1 1 1];
-            end
+            vect = [1 1 1 1];
             
             assignin('base', Model.TrainingDataSet.Name, Model.TrainingDataSet);
             
