@@ -279,9 +279,9 @@ classdef  DataTab < BasicTab
             
             ttab.hbox_pca_plot_options = uiextras.HButtonBox( 'Parent', vbox_pca, 'ButtonSize', [120 20]);
             ttab.chkPlotShowClassesPCA = uicontrol('Parent', ttab.hbox_pca_plot_options, 'Style', 'checkbox', 'String', 'Show classes',...
-                'callback', @ttab.RedrawPCA);
+                'callback', @ttab.RedrawPCA, 'Enable', 'off');
             ttab.chkPlotShowObjectNamesPCA = uicontrol('Parent', ttab.hbox_pca_plot_options, 'Style', 'checkbox', 'String', 'Data-cursor mode',...
-                'callback', @ttab.RedrawPCA);
+                'callback', @ttab.RedrawPCA, 'Enable', 'off');
             
             ttab.hbox_pca_plot_type = uiextras.HButtonBox( 'Parent', vbox_pca, 'ButtonSize', [120 25],'visible','off');
             uicontrol('Parent', ttab.hbox_pca_plot_type, 'Style', 'text', 'String', 'Plot type', ...

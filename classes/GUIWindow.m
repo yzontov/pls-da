@@ -266,15 +266,20 @@ classdef  GUIWindow<handle
                 
                 %self.dataTab.chkTraining.Enable = 'off';
                 %self.dataTab.chkValidation.Enable = 'off';
-                
-                set(self.dataTab.chkPlotShowObjectNamesPCA,'enable','on');
-                
+
                 obj_index_selected = get(self.dataTab.listbox,'Value');
                 names = get(self.dataTab.listbox,'String');
                 selected_name = names{obj_index_selected};
                 
                 if obj_index_selected > 1
                     d = evalin('base', selected_name);
+                    
+                    if(d.HasPCA)
+                        set(self.dataTab.chkPlotShowObjectNamesPCA,'enable','on');
+                    else
+                        set(self.dataTab.chkPlotShowObjectNamesPCA,'enable','off');
+                    end
+                    
                     if isempty(d.Classes) || ~d.HasPCA
                         set(self.dataTab.chkPlotShowClassesPCA, 'value', 0);
                         set(self.dataTab.chkPlotShowClassesPCA, 'enable', 'off');
@@ -531,6 +536,11 @@ classdef  GUIWindow<handle
                 index = distnce == min(distnce);
                 
                 str = labels(index);
+                is_num = false;
+                if isa(str,'double')
+                    str = {sprintf('%.2f', str)};
+                    is_num = true;
+                end
                 
                 if ~isempty(classes)
                     cls = classes(index);
@@ -543,7 +553,11 @@ classdef  GUIWindow<handle
                             output_txt = sprintf('Object: %s\nClass: %s', str{1}, class_labels{cls});
                         end
                     else
-                        output_txt = sprintf('Variable: %s', str{1});
+                        if is_num
+                            output_txt = sprintf('Wavelength: %s', str{1});
+                        else
+                            output_txt = sprintf('Variable: %s', str{1});
+                        end
                     end
                     
                 else
@@ -551,7 +565,11 @@ classdef  GUIWindow<handle
                     if isempty(flag)
                         output_txt = sprintf('Object: %s', str{1});
                     else
-                        output_txt = sprintf('Variable: %s', str{1});
+                        if is_num
+                            output_txt = sprintf('Wavelength: %s', str{1});
+                        else
+                            output_txt = sprintf('Variable: %s', str{1});
+                        end
                     end
                     
                 end
