@@ -1412,33 +1412,10 @@ classdef  DataTab < BasicTab
                 end
             end
             
-%             if ~isempty(idx)
-%             	names = varnames(idx);
-%                 %dataset_list = cell(1, length(names));
-%                 for i = 1:length(names)
-%                    d = evalin('base', names{i});
-%                    %dataset_list{i} = d;
-%                    addlistener(d,'Deleting',@self.parent.handleDatasetDelete);  
-%                 end
-%             
-%             end
             
             if ~isempty(idx)
                 selected_name = callbackdata.VariableName;
                 
-                
-                
-                
-                %                 selected_index = 2;
-                %
-                %                 vardisplay = cell(length(idx)+1,1);
-                %                 vardisplay{1} = '-';
-                %                 for i = 1:length(idx)
-                %                     vardisplay{i+1} = varnames{idx(i)};
-                %                     if(isequal(selected_name, varnames{idx(i)}))
-                %                         selected_index = i+1;
-                %                     end
-                %                 end
                 vardisplay = [{'-'}, varnames(idx)];
                 selected_index = find(strcmp(vardisplay, selected_name ));
                 

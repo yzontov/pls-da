@@ -256,8 +256,8 @@ classdef  DataSetWindow<handle
                     
                     idx = arrayfun(@(x)win.type_size_filter(x,1,1,gg(2),2,'double'),list);
                     
-                    vardisplay={};
-                    vardisplay{1} = '-';
+                    %vardisplay={};
+                    %vardisplay{1} = '-';
                     if ~isempty(win.dataset.Variables)
                         ss = size(win.dataset.Variables);
                         vardisplay{2} = sprintf('%s.Variables (%dx%d)',win.dataset_name,ss(1),ss(2));
