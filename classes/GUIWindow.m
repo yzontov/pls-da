@@ -130,7 +130,7 @@ classdef  GUIWindow<handle
                     var = self.predictTab.chkPlotShowObjectNames.Value;
                     self.selected_tab = GUIWindow.PredictTabSelected;
                 case 'Cross-validation'
-                    %var = self.predictTab.chkPlotShowObjectNames.Value;
+                    var = 1;
                     self.selected_tab = GUIWindow.CVTabSelected;
             end
             
@@ -145,16 +145,18 @@ classdef  GUIWindow<handle
                     set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
                 else
                     datacursormode off
-                    if isempty(PlotType) || PlotType == 1 && self.selected_panel == GUIWindow.DataGraph
+                    if isempty(PlotType) || PlotType ~= 3  && self.selected_panel == GUIWindow.DataGraph
                         pan on
                     else
                         pan off
                     end
                     
-                    if get(self.dataTab.ddlPlotTypePCA,'value')==2 && self.selected_panel_pca == GUIWindow.DataPCALoadings
-                        pan on
-                    else
-                        pan off
+                    if self.selected_tab == GUIWindow.DataTabSelected && self.selected_panel == GUIWindow.DataPCA
+                        if get(self.dataTab.ddlPlotTypePCA,'value')==1 && self.selected_panel_pca == GUIWindow.DataPCALoadings
+                            pan on
+                        else
+                            pan off
+                        end
                     end
                 end
             end
@@ -178,8 +180,10 @@ classdef  GUIWindow<handle
                             self.selected_panel = GUIWindow.DataPCA;
                             var = self.dataTab.chkPlotShowObjectNamesPCA.Value;
                         case 'Scores'
+                            self.selected_panel = GUIWindow.DataPCA;
                             self.selected_panel_pca = GUIWindow.DataPCAScores;
                         case 'Loadings'
+                            self.selected_panel = GUIWindow.DataPCA;
                             self.selected_panel_pca = GUIWindow.DataPCALoadings;
                             var = get(self.dataTab.chkPlotShowObjectNamesPCA,'value');
                     end
@@ -253,6 +257,8 @@ classdef  GUIWindow<handle
                 set(self.dataTab.pnlTableSettings,'visible','off');
                 set(self.dataTab.pnlPCASettings,'visible','on');
                 
+                var = self.dataTab.chkPlotShowObjectNamesPCA.Value;
+                
                 index_selected = get(self.dataTab.listbox,'Value');
                 names = get(self.dataTab.listbox,'String');
                 selected_name = names{index_selected};
@@ -276,6 +282,7 @@ classdef  GUIWindow<handle
                 self.dataTab.enablePCAPanel(param);
                 
                 self.dataTab.vbox.Heights=[40,30,40,40,0,0,150];
+                
                 
             end
             
@@ -412,7 +419,9 @@ classdef  GUIWindow<handle
                     set(dcm_obj, 'UpdateFcn', @GUIWindow.DataCursorFunc);
                 else
                     datacursormode off
-                    if (isempty(PlotType) || PlotType == 1) && self.selected_panel == GUIWindow.DataGraph
+                    if isempty(PlotType) || PlotType ~= 3 && self.selected_panel == GUIWindow.DataGraph || ...
+                        (self.selected_panel == GUIWindow.DataPCA && self.selected_panel_pca == GUIWindow.DataPCAScores) || ...
+                        get(self.dataTab.ddlPlotTypePCA,'value')==1 && self.selected_panel_pca == GUIWindow.DataPCALoadings
                         pan on
                     else
                         pan off
@@ -421,12 +430,11 @@ classdef  GUIWindow<handle
                     if get(self.dataTab.ddlPlotTypePCA,'value')==2 && self.selected_panel_pca == GUIWindow.DataPCALoadings
                         set(self.dataTab.chkPlotShowObjectNamesPCA,'enable','off');
                         set(self.dataTab.chkPlotShowObjectNamesPCA,'value', 0);
-                        pan on
-                    else
-                        pan off
                     end
                     
                 end
+            else
+                %pan on
             end
             
         end

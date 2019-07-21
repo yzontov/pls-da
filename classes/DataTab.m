@@ -1153,7 +1153,7 @@ classdef  DataTab < BasicTab
                     set(self.ddlPlotVar1, 'enable', 'off');
                     set(self.ddlPlotVar2, 'enable', 'off');
                     set(self.chkPlotShowObjectNames, 'enable', 'off');
-                    set(self.chkPlotShowClasses, 'enable', 'off');
+                    set(self.chkPlotShowClasses, 'enable', 'on');
                 case 3 %histogram
                     set(self.ddlPlotVar1, 'enable', 'on');
                     set(self.ddlPlotVar2, 'enable', 'off');
@@ -2011,7 +2011,7 @@ classdef  DataTab < BasicTab
             set(ttab.ddlPlotVar2, 'value', 1);
             
             set(ttab.chkPlotShowObjectNames, 'enable', 'off');
-            set(ttab.chkPlotShowClasses, 'enable', 'off');
+            set(ttab.chkPlotShowClasses, 'enable', 'on');
             
             set(self.txtPCApcnumber, 'String', 2);
             self.FillPCApcDDL(0);
@@ -2069,7 +2069,8 @@ classdef  DataTab < BasicTab
                         
                     case 2 %line
                         self.data_plot = d.line(self.data_plot_axes);
-                        pan off
+                        %pan off
+                        pan on
                         datacursormode off
                         set(self.chkPlotShowObjectNames, 'Value', 0);
                         set(self.chkPlotShowObjectNames, 'Enable', 'off');
