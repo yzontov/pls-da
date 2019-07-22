@@ -635,11 +635,7 @@ classdef  DataTab < BasicTab
             idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
             
             if ~isempty(idx)
-                %vardisplay = cell(length(idx)+1,1);
-                %vardisplay{1} = '-';
-                %                 for i = 1:length(idx)
-                %                     vardisplay{i+1} = varnames{idx(i)};
-                %                 end
+
                 vardisplay = [{'-'}, varnames(idx)];
                 
                 set(self.listbox, 'String', vardisplay);
@@ -683,8 +679,6 @@ classdef  DataTab < BasicTab
                 
                 set(self.ddlPlotVar1, 'Value', 1);
                 set(self.ddlPlotVar2, 'Value', 2);
-                
-                
                 
                 if isempty(d.Classes)
                     set(self.chkPlotShowClasses, 'enable', 'off');
@@ -1989,6 +1983,7 @@ classdef  DataTab < BasicTab
             
             set(ttab.chkPlotShowObjectNames, 'enable', 'off');
             set(ttab.chkPlotShowClasses, 'enable', 'on');
+            set(ttab.chkPlotShowClasses, 'value', 0);
             
             set(self.txtPCApcnumber, 'String', 2);
             self.FillPCApcDDL(0);
@@ -2024,12 +2019,8 @@ classdef  DataTab < BasicTab
                         if(~isempty(d.ObjectNames))
                             labels = d.ObjectNames;
                         end
-                        %set(axes,'UserData', {YpredT_, labels, self.TrainingDataSet.Classes});
-                        %                         if ~isempty(d.Classes)
+
                         set(self.data_plot_axes,'UserData', {[d.ProcessedData(:,var1), d.ProcessedData(:,var2)], labels, d.Classes, [], d.ClassLabels});
-                        %                         else
-                        %                             set(self.data_plot_axes,'UserData', {[d.ProcessedData(:,var1), d.ProcessedData(:,var2)], labels, [], [], []});
-                        %                         end
                         
                         if showObjectNames
                             pan off
@@ -2045,7 +2036,7 @@ classdef  DataTab < BasicTab
                         end
                         
                     case 2 %line
-                        self.data_plot = d.line(self.data_plot_axes);
+                        self.data_plot = d.line(self.data_plot_axes, showClasses);
                         %pan off
                         pan on
                         datacursormode off
@@ -2197,8 +2188,7 @@ classdef  DataTab < BasicTab
             
             
         end
-        
-        
+
     end
     
 end

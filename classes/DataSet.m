@@ -161,7 +161,7 @@ classdef DataSet < handle
             title(axes, ['Dataset: ' self.Name ' - Scatter plot'], 'interpreter', 'none');
         end
         
-        function fig = line(self, axes)
+        function fig = line(self, axes, showClasses)
             
             if isempty(self.Variables)
                 x = 1:size(self.ProcessedData,2);
@@ -171,7 +171,41 @@ classdef DataSet < handle
             
             y = self.ProcessedData;
             
-            fig = plot(axes, x,y);
+            if showClasses
+                
+                trc = unique(self.Classes);
+                names = cell(1,self.NumberOfClasses);
+                color = PLSDAModel.colors_rgb(self.NumberOfClasses);
+                for i = 1:self.NumberOfClasses
+                    yy = y(self.Classes == trc(i),:);
+                    hold on;
+                    fig = plot(axes, x, yy(1,:),'-','color',color(i,:));
+                    
+                    if isempty(self.ClassLabels)
+                        names{i} = sprintf('class %d', trc(i));
+                    else
+                        names{i} = self.ClassLabels{trc(i)};
+                    end
+                end
+                
+                for i = 1:self.NumberOfClasses
+                    hold on;
+                    fig = plot(axes, x, y(self.Classes == trc(i),:),'-','color',color(i,:));
+                end
+                
+                if ~isempty(axes)
+                    legend(axes, names);
+                    legend(axes,'location','northeast');
+                    legend(axes,'boxon');
+                else
+                    legend(names);
+                    legend('location','northeast');
+                    legend('boxon');
+                end
+                
+            else
+                fig = plot(axes, x,y);
+            end
             
             if isempty(self.Variables)
                 xlabel(axes,'Variables');
