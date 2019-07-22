@@ -1604,11 +1604,28 @@ classdef  DataTab < BasicTab
         
         function btnSetEdit_Callback(self,obj, ~)
             
+
             index_selected = get(self.listbox,'Value');
             
             if index_selected > 1
                 names = get(self.listbox,'String');
                 selected_name = names{index_selected};
+                
+                
+                if ~isempty(self.parent.modelTab) && ~isempty(self.parent.modelTab.Model) && ~self.parent.modelTab.model_was_saved && isequal(self.parent.modelTab.Model.TrainingDataSet.Name, selected_name)
+                    selection = questdlg(sprintf('The current model will be lost!\nYou may want to save it on the Model tab first.\nDo you want to proceed?'),...
+                        'Warning',...
+                        'Yes','No','No');
+                    switch selection
+                        case 'Yes'
+                            
+                        case 'No'
+                            return
+                    end
+                else
+                    
+                end
+                
                 
                 self.datasetwin = DataSetWindow(self, selected_name);
                 %delete(self.evthandler);
@@ -1624,6 +1641,21 @@ classdef  DataTab < BasicTab
             if(index_selected > 1)
                 names = get(self.listbox,'String');
                 selected_name = names{index_selected};
+                
+                if ~isempty(self.parent.modelTab) && ~isempty(self.parent.modelTab.Model) && ~self.parent.modelTab.model_was_saved && isequal(self.parent.modelTab.Model.TrainingDataSet.Name, selected_name)
+                    selection = questdlg(sprintf('The current model will be lost!\nYou may want to save it on the Model tab first.\nDo you want to proceed?'),...
+                        'Warning',...
+                        'Yes','No','No');
+                    switch selection
+                        case 'Yes'
+                            
+                        case 'No'
+                            return
+                    end
+                else
+                    
+                end
+                
                 d = evalin('base', selected_name);
                 
                 opts = struct('WindowStyle','modal','Interpreter','none','Default', 'No');
