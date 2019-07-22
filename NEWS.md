@@ -1,3 +1,8 @@
+v. 0.9.1
+========
+* Minor GUI enhancements
+* Bugs fixed
+
 v. 0.9
 ========
 * Cross-validation functionality added
