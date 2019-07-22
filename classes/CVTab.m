@@ -258,7 +258,7 @@ classdef CVTab < BasicTab
                 
             else
                 self.ddlSelectedSplit.Visible = 'on';
-                self.btnExamineModel.Visible = 'on';
+                %self.btnExamineModel.Visible = 'on';
                 self.btnSaveDatasets.Visible = 'on';
                 self.lblSelectedPC.Visible = 'on';
                 self.ddlSelectedPC.Visible = 'on';
@@ -313,7 +313,7 @@ classdef CVTab < BasicTab
 %                 self.ddlSelectedPC.Visible = 'off';%
 %                 self.ddlSelectedAlpha.Visible = 'off';%
 %                 self.lblSelectedAlpha.Visible = 'on';%
-                 self.btnExamineModel.Visible = 'on';%
+                 %self.btnExamineModel.Visible = 'on';%
                  self.btnSaveDatasets.Visible = 'on';%
 %                 if strcmp(self.cvtask.ModelType,'hard')%
 %                     self.ddlPlotVarX.String = variables0;%
@@ -542,7 +542,7 @@ classdef CVTab < BasicTab
                 t.Centering = d.Centering;
                 t.Scaling = d.Scaling;
                 t.RawClasses = cls(self.cvtask.Splits(:,split) == 0,:);
-                t.Training = true;
+                %t.Training = true;
                 
                 if ~isempty(lbl)
                     t.ObjectNames = lbl(self.cvtask.Splits(:,split) == 0,:);
@@ -556,7 +556,7 @@ classdef CVTab < BasicTab
                 
                 v.RawData = dat(self.cvtask.Splits(:,split) == 1,:);
                 v.RawClasses = cls(self.cvtask.Splits(:,split) == 1,:);
-                v.Validation = true;
+                %v.Validation = true;
                 
                 if ~isempty(lbl)
                     v.ObjectNames = lbl(self.cvtask.Splits(:,split) == 1,:);
@@ -568,7 +568,31 @@ classdef CVTab < BasicTab
                 assignin('base', t.Name, t);
                 assignin('base', v.Name, v);
                 
+                allvars = evalin('base','whos');
+            
+                idx = cellfun(@(x)isequal(x,'DataSet'),{allvars.class});
+                l = allvars(idx);
+                vardisplay  = [{'-'}, {l.name}];
+                set(self.parent.dataTab.listbox, 'String', vardisplay);
                 
+%                 if ~isempty(self.parent.modelTab)
+%                     idx = arrayfun(@(x)self.parent.modelTab.filter_training(x), allvars);
+%                     if sum(idx) > 0
+%                         l = allvars(idx);
+%                         vardisplay  = [{'-'}, {l.name}];
+%                         set(self.parent.modelTab.ddlCalibrationSet, 'String', vardisplay);
+%                     end
+%                 end
+                
+                if ~isempty(self.parent.predictTab)
+                    idx = arrayfun(@(x)self.parent.predictTab.filter_test(x), allvars);
+                    
+                    if sum(idx) > 0
+                        l = allvars(idx);
+                        vardisplay  = {l.name};
+                        set(self.parent.predictTab.ddlNewSet, 'String', vardisplay);
+                    end
+                end
             end
         end
         
@@ -598,8 +622,11 @@ classdef CVTab < BasicTab
             %uicontrol('Parent', hbox21, 'Style', 'text', 'String', 'View mode');
             obj.ddlSelectedSplit = uicontrol('Parent', hbox21, 'Style', 'popupmenu', 'String', {'-'},...
                 'Value',1, 'BackgroundColor', 'white', 'callback', @obj.Callback_SelectedSplit,'Visible','off');
-            
-            hbox21.Widths = [60,115,70];
+            if ispc
+                hbox21.Widths = [60,115,60];
+            else
+                hbox21.Widths = [60,115,70];
+            end
             
             hbox22 = uix.Grid( 'Parent', vbox21,'Spacing', 1);
             uicontrol('Parent', hbox22, 'Style', 'text', 'String', 'View mode');
@@ -627,7 +654,7 @@ classdef CVTab < BasicTab
                 'Value',1, 'BackgroundColor', 'white', 'callback', @obj.Callback_SelectedAlpha,'Visible','on');
             
             if ispc
-                hbox222.Widths = [60,50,60,50];
+                hbox222.Widths = [70,50,60,45];
             else
                 hbox222.Widths = [60,65,45,70];
             end

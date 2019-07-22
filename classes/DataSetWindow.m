@@ -48,7 +48,7 @@ classdef  DataSetWindow<handle
             
             input_win = figure;
             
-            set(input_win, 'WindowStyle', 'Modal');
+            %set(input_win, 'WindowStyle', 'Modal');%debug
             
             set(input_win,'Visible','on');
             set(input_win, 'MenuBar', 'none');
@@ -620,6 +620,9 @@ classdef  DataSetWindow<handle
                         
                         if ~isempty(self.dataset_name) && ~isempty(self.dataset.VariableNames) && get(self.ddlVariableNames, 'Value') == 2
                             d.VariableNames = self.dataset.VariableNames;
+                            if isa(d.VariableNames, 'double')
+                                d.Variables = d.VariableNames;
+                            end
                         else
                             
                             d.VariableNames = self.GetObject(get(self.ddlVariableNames, 'String'), get(self.ddlVariableNames, 'Value'));
@@ -628,8 +631,10 @@ classdef  DataSetWindow<handle
                             else
                                 if ~isempty(self.dataset_name) && ~isempty(self.dataset.Variables) && get(self.ddlVariableNames, 'Value') == 2
                                     d.Variables = self.dataset.Variables;
+                                    d.VariableNames = d.Variables;
                                 else
                                     d.Variables = self.GetObject(get(self.ddlVariableNames, 'String'), get(self.ddlVariableNames, 'Value'));
+                                    d.VariableNames = d.Variables;
                                 end
                             end
                             
