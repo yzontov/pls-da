@@ -1,3 +1,9 @@
+v. 0.9.2
+========
+* Minor GUI enhancements
+* Bugs fixed
+* Custom saveobj method implemented for DataSet class
+
 v. 0.9.1
 ========
 * Minor GUI enhancements

@@ -10,9 +10,10 @@ The PLSDAGUI class provides graphical user interface, where user can create and 
 What is new
 -----------
 
-In the latest release (0.9.1):
+In the latest release (0.9.2):
 * Minor GUI enhancements
 * Bugs fixed
+* Custom saveobj method implemented for DataSet class
 
 A history of changes is available [here](NEWS.md)
 
