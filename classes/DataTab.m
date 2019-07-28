@@ -78,6 +78,24 @@ classdef  DataTab < BasicTab
     methods
         
         function RefreshDatasetList(self)
+            
+            allvars = evalin('base','whos');
+            varnames = {allvars.name};
+            
+            idx = find(cellfun(@(x)isequal(x,'DataSet'),{allvars.class}));
+            
+            if ~isempty(idx)
+                names = varnames(idx);
+
+                for i = 1:length(names)
+                    d = evalin('base', names{i});
+
+                    d.parent = self.parent;
+                end
+                
+            end
+            
+            
             self.FillDataSetList();
             self.RefreshModel();
             
@@ -374,6 +392,10 @@ classdef  DataTab < BasicTab
                 
                 d = evalin('base', selected_name);
                 
+                if(~d.HasPCA)
+                    return;
+                end
+                
                 delete(self.tab_pca_scores_axes);
                 delete(self.tab_pca_loadings_axes);
                 
@@ -586,7 +608,7 @@ classdef  DataTab < BasicTab
                 else
                     if val < 2 || val > vmax
                         set(src,'string','2');
-                        warndlg(sprintf('Number of Principal Components should not less than 2 and not greater than %d!', vmax),'Warning', opts);
+                        warndlg(sprintf('Number of PCs should be greater than 1 and less than %d!', vmax),'Warning', opts);
                     end
                 end
                 

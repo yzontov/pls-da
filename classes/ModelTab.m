@@ -47,6 +47,7 @@ classdef  ModelTab < BasicTab
     properties (Access = private)
         pc_x = 1;
         pc_y = 2;
+        selected_dataset_name = [];
     end
     
     methods
@@ -60,6 +61,8 @@ classdef  ModelTab < BasicTab
                 end
                 
                 G = self.Model.TrainingDataSet.Name;
+                self.selected_dataset_name = G;
+                
                 idx = find(cell2mat(cellfun(@(x) strcmp(x, G), get(self.ddlCalibrationSet,'string'), 'UniformOutput',false)));
                 set(self.ddlCalibrationSet,'value',idx);
                 
@@ -303,13 +306,13 @@ classdef  ModelTab < BasicTab
                 'Enable', 'off', 'callback', @ttab.RedrawCallback);
             
             hboxp3 = uix.HButtonBox( 'Parent', vbox_plot, 'ButtonSize', [120 20], 'Spacing', 5);
-            uicontrol('Parent', hboxp3, 'Style', 'text', 'String', 'PC 1', ...
-                 'Enable', 'off', 'HorizontalAlignment', 'left');
+            uicontrol('Parent', hboxp3, 'Style', 'text', 'String', 'sPC 1', ...
+                 'Enable', 'off', 'HorizontalAlignment', 'center');
             ttab.ddlPlotVar1 = uicontrol('Parent', hboxp3, 'Enable', 'off', 'Style', 'popupmenu', 'String', {'-'},...
                  'BackgroundColor', 'white', 'callback', @ttab.RedrawCallback);
             
-            uicontrol('Parent', hboxp3, 'Style', 'text', 'String', 'PC 2', 'Enable', 'off', ...
-                 'HorizontalAlignment', 'left');
+            uicontrol('Parent', hboxp3, 'Style', 'text', 'String', 'sPC 2', 'Enable', 'off', ...
+                 'HorizontalAlignment', 'center');
             ttab.ddlPlotVar2 = uicontrol('Parent', hboxp3, 'Style', 'popupmenu', 'Enable', 'off', 'String', {'-'},...
                  'BackgroundColor', 'white', 'callback', @ttab.RedrawCallback);
              
@@ -360,17 +363,16 @@ classdef  ModelTab < BasicTab
             allvars = evalin('base','whos');
             
             idx = arrayfun(@(x)ModelTab.filter_training(x), allvars);
-            %vardisplay={};
+
             if sum(idx) > 0
                 l = allvars(idx);
-%                 vardisplay{1} = '-';
-%                 for i = 1:length(l)
-%                     vardisplay{i+1} = l(i).name;
-%                 end
+
                 vardisplay  = [{'-'}, {l.name}];
                 set(ttab.ddlCalibrationSet, 'String', vardisplay);
                 if length(get(ttab.ddlCalibrationSet, 'String')) > 1
-                    set(ttab.ddlCalibrationSet, 'Value', 2)
+                    set(ttab.ddlCalibrationSet, 'Value', 2);
+                    
+                    self.selected_dataset_name = vardisplay{2};
                     
                     m = evalin('base',vardisplay{2});
                     set(ttab.tbNumPCpca, 'String', sprintf('%d', m.NumberOfClasses-1));
@@ -656,6 +658,12 @@ classdef  ModelTab < BasicTab
         
         function innerSelectCalibratinSet(self, selected_name )
             
+            if isequal(self.selected_dataset_name, selected_name)
+                return;
+            else
+                self.selected_dataset_name = selected_name;
+            end
+            
             self.ClearModel();
             
             if(isempty(selected_name))
@@ -682,7 +690,7 @@ classdef  ModelTab < BasicTab
             end
         end
         
-        function SelectCalibratinSet(self, src, ~)
+        function SelectCalibratinSet(self, src, opt)
             
             index_selected = get(src,'Value');
 
@@ -764,7 +772,7 @@ classdef  ModelTab < BasicTab
             else
                 if numPC < vmin || numPC > vmax
                     set(src,'string',sprintf('%d',vmin));
-                    warndlg(sprintf('Number of PLS Components should be not less than %d and not more than %d!', vmin, vmax),'Warning',opts);
+                    warndlg(sprintf('Number of PLS Components should be not less than %d and not greater than %d!', vmin, vmax),'Warning',opts);
                 end
             end
             

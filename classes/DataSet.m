@@ -28,12 +28,13 @@ classdef DataSet < handle
         PCAStats;
         
         HasPCA = false;
+        
+        parent;
     end
     
     properties (Access = private)
         Data_;
         Classes_;
-        parent;
     end
     
     properties (Dependent = true)
@@ -86,6 +87,13 @@ classdef DataSet < handle
             if ~isempty(obj.parent) && isobject(obj.parent) && isvalid(obj.parent)
                 obj.parent.deleteDataset(obj);
             end
+        end
+        
+        function sobj = saveobj(self)
+            
+            d = DataSet(self);
+            %d.parent = 0;
+            sobj = d;
         end
         
         function Y = DummyMatrix(self)
