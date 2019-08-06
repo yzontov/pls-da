@@ -1169,7 +1169,20 @@ classdef  DataTab < BasicTab
                     set(self.ddlPlotVar1, 'enable', 'off');
                     set(self.ddlPlotVar2, 'enable', 'off');
                     set(self.chkPlotShowObjectNames, 'enable', 'off');
-                    set(self.chkPlotShowClasses, 'enable', 'on');
+                    
+                    index_selected = get(self.listbox,'Value');
+                    names = get(self.listbox,'String');
+                    selected_name = names{index_selected};
+                    d = evalin('base', selected_name);
+                    
+                    if isempty(d.Classes)
+                        set(self.chkPlotShowClasses, 'enable', 'off');
+                        set(self.chkPlotShowClasses, 'value', 0);
+                    else
+                        set(self.chkPlotShowClasses, 'enable', 'on');
+                    end
+                    
+                    
                 case 3 %histogram
                     set(self.ddlPlotVar1, 'enable', 'on');
                     set(self.ddlPlotVar2, 'enable', 'off');
@@ -1902,7 +1915,9 @@ classdef  DataTab < BasicTab
             
             if(index_selected > 1)
                 % extract all children
-                self.enableRightPanel('on');
+                if (self.parent.selected_panel ~= GUIWindow.DataPCA)
+                    self.enableRightPanel('on');
+                end
                 
                 names = get(self.listbox, 'String');
                 selected_name = names{index_selected};
@@ -1918,7 +1933,9 @@ classdef  DataTab < BasicTab
                     set(self.chkValidation,'Value', 1);
                     set(self.chkTraining,'Enable', 'off');
                 else
-                    set(self.chkTraining,'Enable', 'on');
+                    if (self.parent.selected_panel ~= GUIWindow.DataPCA)
+                        set(self.chkTraining,'Enable', 'on');
+                    end
                 end
                 
                 if isempty(d.Classes)
