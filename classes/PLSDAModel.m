@@ -1488,7 +1488,7 @@ classdef PLSDAModel < handle
             r.TSNS = 100*TSNS;
             TSPS = 1 - sum(fp)/length(TestClasses);
             if soft
-                TSPS = 1 - sum(fp)/length(TestClasses)/max(1,tc-1);
+                TSPS = 1 - sum(fp)/length(TestClasses)/max(1,tc);
             end
             
             r.TSPS = 100*TSPS;
