@@ -182,8 +182,11 @@ classdef  ModelTab < BasicTab
                 tg = self.tab_img.Parent;
                 tg.Visible = 'on';
                 
-                
                 win = self.parent;
+                if isempty(win.cvTab)
+                    win.cvTab = CVTab(win.tgroup, win);
+                end
+                
                 if isempty(win.predictTab)
                     win.predictTab = PredictTab(win.tgroup, win);
                 end
@@ -508,10 +511,7 @@ classdef  ModelTab < BasicTab
                 tg = self.tab_img.Parent;
                 tg.Visible = 'on';
                 
-                win = self.parent;
-                if isempty(win.cvTab)
-                    win.cvTab = CVTab(win.tgroup, win);
-                end
+               
                 
                 
             end

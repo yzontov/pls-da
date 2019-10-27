@@ -677,9 +677,9 @@ classdef PLSDAModel < handle
             ylabel(sprintf('sPC %d', pc2));% y-axis label
             
             if ~isempty(self.NewDataSetName)
-                title(sprintf('Prediction plot. Dataset: %s\n Number of model PLS components: %d.', self.NewDataSetName, self.numPC_pls), 'Interpreter', 'none')
+                title(sprintf('Prediction plot. Dataset: %s\n Number of PLS components: %d.', self.NewDataSetName, self.numPC_pls), 'Interpreter', 'none')
             else
-                title(sprintf('Prediction plot.\n Number of model PLS components: %d', self.numPC_pls));
+                title(sprintf('Prediction plot.\n Number of PLS components: %d', self.numPC_pls));
             end
             
             hold off
