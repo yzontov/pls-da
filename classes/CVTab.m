@@ -949,7 +949,7 @@ classdef CVTab < BasicTab
                     self.tblTextResult.Data = [Labels, {d.ClassLabels{d.Classes}}' cv];
                     self.tblTextResult.ColumnWidth = num2cell([100 max(60, max(strlength(d.ClassLabels))*7) max(60, 7*max(strlength(names_)))*ones(1,number_of_splits)]);
                 else
-                    self.tblTextResult.Data = [Labels, num2cell(d.Classes) cv];
+                    self.tblTextResult.Data = [Labels', num2cell(d.Classes) cv];
                     self.tblTextResult.ColumnWidth = num2cell([100 60 max(60, 7*max(strlength(names_)))*ones(1,number_of_splits)]);
                 end
                 
