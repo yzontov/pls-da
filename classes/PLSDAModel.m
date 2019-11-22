@@ -1108,7 +1108,12 @@ classdef PLSDAModel < handle
                             r = 1;
                         end
                         
-                        crit = (x_min - t0(1))*(Centers(r,1) - t0(1)) + (y_min - t0(2))*(Centers(r,2) - t0(2)) < 0 || (x_min - t0(1))*(Centers(r,1) - t0(1)) * (y_min - t0(2))*(Centers(r,2) - t0(2)) < 0;
+                        crit = (x_min - t0(1))*(Centers(r,1) - t0(1)) + (y_min - t0(2))*(Centers(r,2) - t0(2)) < 0; 
+                        
+                        if ((x_min - t0(1))*(Centers(r,1) - t0(1)) + (y_min - t0(2))*(Centers(r,2) - t0(2)) == 0)
+                            crit = (x_min - t0(1))*(Centers(r,1) - t0(1)) * (y_min - t0(2))*(Centers(r,2) - t0(2)) < 0;
+                        end
+                        
                     end
                     
                     if crit
