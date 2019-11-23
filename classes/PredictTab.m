@@ -147,20 +147,20 @@ classdef  PredictTab < BasicTab
                 set(ttab.ddlNewSet, 'String', vardisplay);
             end
             
-            tg = uitabgroup('Parent', ttab.middle_panel);
-            ttab.tab_img = uitab('Parent', tg, 'Title', 'Graphical view');
-            tab_txt = uitab('Parent', tg, 'Title', 'Table view');
+            ttab.tg2 = uitabgroup('Parent', ttab.middle_panel);
+            ttab.tab_img = uitab('Parent', ttab.tg2, 'Title', 'Graphical view');
+            %tab_txt = uitab('Parent', tg, 'Title', 'Table view');
             
             w = ttab.parent;
-            set(tg, 'SelectionChangedFcn', @w.ActiveTabSelected);
+            set(ttab.tg2, 'SelectionChangedFcn', @w.ActiveTabSelected);
             
             %ttab.tbTextEdit = uicontrol('Parent', tab_txt, 'Style', 'edit', 'String', '', ...
             %    'Units', 'normalized','Position', [0 0 1 1], 'HorizontalAlignment', 'left', 'Max', 2);
             
-            ttab.tg2 = uitabgroup('Parent', tab_txt);
+            %ttab.tg2 = uitabgroup('Parent', tab_txt);
             tab_alloc = uitab('Parent', ttab.tg2, 'Title', 'Allocation table');
 
-            set(ttab.tg2, 'SelectionChangedFcn', @w.ActiveTabSelected);
+            %set(ttab.tg2, 'SelectionChangedFcn', @w.ActiveTabSelected);
 
             ttab.tblTextResult = uitable(tab_alloc);
             ttab.tblTextResult.Units = 'normalized';
@@ -196,6 +196,12 @@ classdef  PredictTab < BasicTab
                 list = get(self.ddlNewSet, 'string');
                 
                 set = evalin('base',list{idx});
+                
+                if(size(set.ProcessedData,2) ~= size(self.parent.modelTab.Model.TrainingDataSet.ProcessedData,2))
+                    opts = struct('WindowStyle','modal','Interpreter','none');
+                    warndlg('The selected dataset is incompatible with the current model!','Warning',opts);
+                    return;
+                end
                 
                 res = self.parent.modelTab.Model.Apply(set);
                 
@@ -286,8 +292,17 @@ classdef  PredictTab < BasicTab
                     if ~isempty(set.Classes) %%&& length(trc) == length(tc) && sum(trc == tc) == length(tc)
 
                         v = arrayfun(@(x) self.bool2v(x, padding) ,logical(res.AllocationMatrix), 'UniformOutput', false);
-                        self.tblTextResult.Data = [res.Labels, num2cell(set.Classes),  v];
-  
+                        
+                        names_ = num2cell(set.Classes);
+                        
+                        if ~isempty(set.ClassLabels)
+                            uc = unique(set.Classes);
+                            for i = 1:length(set.Classes)
+                                names_{i} = set.ClassLabels{uc == set.Classes(i)};
+                            end
+                        end
+                        
+                        self.tblTextResult.Data = [res.Labels, names_,  v];
                         
                         self.tab_confusion = uitab('Parent', self.tg2, 'Title', 'Confusion matrix');
                         self.tab_fom = uitab('Parent', self.tg2, 'Title', 'Figures of merit');

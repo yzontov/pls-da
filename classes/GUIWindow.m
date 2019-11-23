@@ -207,13 +207,16 @@ classdef  GUIWindow<handle
                     switch obj.SelectedTab.Title
                         case 'Graphical view'
                             self.selected_panel = GUIWindow.PredictGraph;
-                        case 'Table view'
-                            self.selected_panel = GUIWindow.PredictTable;
+                        %case 'Table view'
+                        %    self.selected_panel = GUIWindow.PredictTable;
                         case 'Allocation table'
+                            self.selected_panel = GUIWindow.PredictTable;
                             self.selected_text_panel = GUIWindow.PredictTableAllocation;
                         case 'Confusion matrix'
+                            self.selected_panel = GUIWindow.PredictTable;
                             self.selected_text_panel = GUIWindow.PredictTableConfusion;
                         case 'Figures of merit'
+                            self.selected_panel = GUIWindow.PredictTable;
                             self.selected_text_panel = GUIWindow.PredictTableFoM;
                     end
                 case GUIWindow.CVTabSelected

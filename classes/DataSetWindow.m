@@ -291,7 +291,10 @@ classdef  DataSetWindow<handle
                 
                 
                 cl_var_size = max(cl_var);
-                idx = arrayfun(@(x)win.type_size_filter(x,cl_var_size,2,1,1,'cell'),list);
+                idx1 = arrayfun(@(x)win.type_size_filter(x,cl_var_size,2,1,1,'cell'),list);
+                idx2 = arrayfun(@(x)win.type_size_filter(x,cl_var_size,1,1,2,'cell'),list);
+                
+                idx = idx1 | idx2;
                 
                 vardisplay={};
                 vardisplay{1} = '-';
@@ -487,7 +490,10 @@ classdef  DataSetWindow<handle
                 end
                 
                 cl_var_size = max(cl_var);
-                idx = arrayfun(@(x)self.type_size_filter(x,cl_var_size,2,1,1,'cell'),list);
+                idx1 = arrayfun(@(x)self.type_size_filter(x,cl_var_size,2,1,1,'cell'),list);
+                idx2 = arrayfun(@(x)self.type_size_filter(x,cl_var_size,1,1,2,'cell'),list);
+                
+                idx = idx1 | idx2;
                 
                 vardisplay={};
                 vardisplay{1} = '-';
@@ -548,7 +554,10 @@ classdef  DataSetWindow<handle
                 end
                 
                 cl_num = size(unique(t),1);
-                idx = arrayfun(@(x)self.type_size_filter(x,cl_num,2,1,1,'cell'),list);
+                idx1 = arrayfun(@(x)self.type_size_filter(x,cl_num,2,1,1,'cell'),list);
+                idx2 = arrayfun(@(x)self.type_size_filter(x,cl_num,1,1,2,'cell'),list);
+                
+                idx = idx1 | idx2;
                 
                 vardisplay={};
                 vardisplay{1} = '-';
@@ -671,6 +680,11 @@ classdef  DataSetWindow<handle
                             d.ClassLabels = self.dataset.ClassLabels;
                         else
                             d.ClassLabels = self.GetObject(get(self.ddlClassLabels, 'String'), get(self.ddlClassLabels, 'Value'));
+                            
+                            if(size(d.ClassLabels,1) > size(d.ClassLabels,2))
+                                d.ClassLabels = d.ClassLabels';
+                            end
+                            
                             if(isa(d.ClassLabels(1), 'cell'))
                                 d.ClassLabels = cellstr(d.ClassLabels);
                             end
