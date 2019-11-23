@@ -1,4 +1,4 @@
-Implementation of the Hard and Soft PLS-DA for MATLAB (v.0.9.2)
+Implementation of the Hard and Soft PLS-DA for MATLAB (v.0.9.3)
 ===========================================
 
 We present the software implementation of [Hard and Soft approaches to Partial Least Squares Discriminant Analysis (PLS-DA)](https://onlinelibrary.wiley.com/doi/abs/10.1002/cem.3030). 
@@ -10,10 +10,9 @@ The PLSDAGUI class provides graphical user interface, where user can create and 
 What is new
 -----------
 
-In the latest release (0.9.2):
+In the latest release (0.9.3):
 * Minor GUI enhancements
 * Bugs fixed
-* Custom saveobj method implemented for DataSet class
 
 A history of changes is available [here](NEWS.md)
 

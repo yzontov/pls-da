@@ -1,3 +1,8 @@
+v. 0.9.3
+========
+* Minor GUI enhancements
+* Bugs fixed
+
 v. 0.9.2
 ========
 * Minor GUI enhancements
