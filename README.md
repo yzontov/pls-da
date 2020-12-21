@@ -7,6 +7,14 @@ The main class, PLSDAModel, is responsible for the logic and contains implementa
 The instance of this class represents the actual model, and methods for data visualization and statistics. 
 The PLSDAGUI class provides graphical user interface, where user can create and manipulate datasets, calibrate and explore models interactively.  
 
+Cite As
+-----------
+
+Y.V. Zontov, O. Ye. Rodionova, S.V. Kucheryavskiy, A.L. Pomerantsev,
+PLS-DA – A MATLAB GUI tool for hard and soft approaches to partial least squares discriminant analysis, Chemometrics and Intelligent Laboratory Systems, Volume 203, 2020,
+104064, ISSN 0169-7439, DOI:[10.1016/j.chemolab.2020.104064](https://doi.org/10.1016/j.chemolab.2020.104064).
+
+
 What is new
 -----------
 
