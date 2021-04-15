@@ -1,3 +1,7 @@
+v. 0.9.4
+========
+* GUI Layout Toolbox updated for compatibility with Matlab 2020b
+
 v. 0.9.3
 ========
 * Minor GUI enhancements

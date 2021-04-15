@@ -477,9 +477,9 @@ classdef  GUIWindow<handle
             set(f,'name',['PLS-DA Tool' extra_title],'numbertitle','off');
             %set(f, 'Resize', 'off');
             %set(f, 'Units', 'pixels');
-            set(f, 'OuterPosition', [screensize(3)/2 - 400 screensize(4)/2 - 200 800 400]);
+            set(f, 'OuterPosition', [screensize(3)/2 - 420 screensize(4)/2 - 200 800 420]);
             
-            LimitFigSize(f, 'min', [800, 400]);
+            LimitFigSize(f, 'min', [800, 420]);
             
             mh = uimenu(f,'Label','Help');
             uimenu(mh,'Label','Help on PLSDAGUI','Callback', @win.Help_Callback);

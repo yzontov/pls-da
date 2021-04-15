@@ -1,4 +1,4 @@
-Implementation of the Hard and Soft PLS-DA for MATLAB (v.0.9.3)
+Implementation of the Hard and Soft PLS-DA for MATLAB (v.0.9.4)
 ===========================================
 
 We present the software implementation of [Hard and Soft approaches to Partial Least Squares Discriminant Analysis (PLS-DA)](https://onlinelibrary.wiley.com/doi/abs/10.1002/cem.3030). 
@@ -18,9 +18,8 @@ PLS-DA – A MATLAB GUI tool for hard and soft approaches to partial least squar
 What is new
 -----------
 
-In the latest release (0.9.3):
-* Minor GUI enhancements
-* Bugs fixed
+In the latest release (0.9.4):
+* GUI Layout Toolbox updated for compatibility with Matlab 2020b
 
 A history of changes is available [here](NEWS.md)
 

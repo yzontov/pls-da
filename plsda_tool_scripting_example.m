@@ -1,4 +1,4 @@
-function plsda_tool_scripting_example()
+function ret = plsda_tool_scripting_example()
 
 %add path to classes subfolder
 addpath('classes');
@@ -16,6 +16,10 @@ d.Centering = true;
 d.Scaling = true;
 d.Classes = classes_train;
 d.ObjectNames = names_train;
+d.Variables = wavelengths;
+d.VariableNames = wavelengths;
+d.SelectedSamples = ones(size(classes_train));
+d.ClassLabels = class_labels;
 
 %and for test purpose
 d1 = DataSet();
@@ -28,7 +32,8 @@ Alpha = 0.05;
 Gamma = 0.01;
 
 m = PLSDAModel(d,plsPC,Alpha,Gamma);% Soft PLS-DA by default
-
+m.Name = 'm';
+m.TrainingDataSet.Name = 'test';
 %Uncomment the following 2 lines to use the Hard PLS-DA mode:
 %m.Mode = 'hard';
 %m.Rebuild();
@@ -48,5 +53,7 @@ Res.AllocationTable
 Res.AllocationMatrix
 
 m.PlotNewSet()
+
+ret = m;
 
 end
